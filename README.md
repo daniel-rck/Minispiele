@@ -43,20 +43,9 @@ Health-Check: `GET /healthz` → `ok`.
 
 GitHub Actions Workflows in `.github/workflows/`:
 
-- **CI** (`ci.yml`) — auf jedem PR & Push auf `main`: lint, typecheck, test, build.
-- **PR Preview Deploy** (`preview.yml`) — pro PR ein eigener Worker `minispiele-pr-<NR>`; postet einen Kommentar mit der Preview-URL.
-- **PR Preview Cleanup** (`preview-cleanup.yml`) — löscht den Preview-Worker, wenn der PR geschlossen wird.
-- **Deploy** (`deploy.yml`) — Push auf `main` deployt den produktiven Worker.
+- **CI** (`ci.yml`) — auf jedem PR & Push auf `main`: format, lint, typecheck, test+coverage, build, bundle-budget, anschließend Playwright-E2E.
 
-Benötigte GitHub-Secrets (Repo → Settings → Secrets and variables → Actions):
-
-| Secret | Zweck |
-| --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare-API-Token mit Worker-Edit-Rechten. |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare-Account-ID. |
-| `CLOUDFLARE_WORKERS_SUBDOMAIN` | (Optional) eigener `*.workers.dev`-Subdomain-Slug, damit der PR-Kommentar die fertige URL enthält. |
-
-Ohne die ersten beiden Secrets schlagen die Deploy-Workflows fehl; **CI bleibt davon unberührt** und läuft sofort.
+Deploys (Production & PR-Previews) übernimmt **Cloudflare Workers Builds** direkt über die GitHub-Integration — kein wrangler-Step im Workflow nötig.
 
 ## Lizenz
 

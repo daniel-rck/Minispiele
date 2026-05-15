@@ -8,5 +8,33 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    exclude: ['node_modules', 'dist', 'e2e', 'playwright-report', 'test-results'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: 'coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/main.tsx',
+        'src/App.tsx',
+        'src/**/*.test.{ts,tsx}',
+        'src/test/**',
+        'src/pages/**',
+      ],
+      thresholds: {
+        'src/lib/**': {
+          lines: 80,
+          functions: 80,
+          branches: 75,
+          statements: 80,
+        },
+        'src/components/**': {
+          lines: 50,
+          functions: 40,
+          branches: 40,
+          statements: 50,
+        },
+      },
+    },
   },
 });

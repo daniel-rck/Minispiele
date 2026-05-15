@@ -5,6 +5,8 @@ import {
   clampSeconds,
   formatRemaining,
   joinSeconds,
+  pauseTimer,
+  resumeTimer,
   splitSeconds,
 } from './clickerTimer';
 
@@ -65,5 +67,25 @@ describe('splitSeconds / joinSeconds', () => {
     expect(joinSeconds(-3, 5)).toBe(5);
     expect(joinSeconds(0, 0)).toBe(MIN_TIMER_SECONDS);
     expect(joinSeconds(200, 0)).toBe(MAX_TIMER_SECONDS);
+  });
+});
+
+describe('pauseTimer / resumeTimer', () => {
+  it('pauseTimer returns remaining ms', () => {
+    expect(pauseTimer(1_500, 1_000)).toBe(500);
+    expect(pauseTimer(1_000, 1_500)).toBe(0);
+  });
+
+  it('resumeTimer rolls remaining ms into a new endAt', () => {
+    expect(resumeTimer(500, 2_000)).toBe(2_500);
+    expect(resumeTimer(-100, 1_000)).toBe(1_000);
+  });
+
+  it('round-trips through pause + resume', () => {
+    const start = 10_000;
+    const endAt = 15_000;
+    const remaining = pauseTimer(endAt, start);
+    const resumed = resumeTimer(remaining, start + 1_000);
+    expect(resumed - (start + 1_000)).toBe(remaining);
   });
 });

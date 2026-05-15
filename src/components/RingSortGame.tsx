@@ -3,15 +3,26 @@ import {
   createInitialState,
   pegCapacity,
   selectPeg,
+  solve,
   tryMove,
+  undoMove,
   type Difficulty,
   type GameState,
+  type Move,
 } from '../lib/ringSort';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import Peg from './Peg';
-
-const DIFFICULTY_KEY = 'minispiele.ringSort.difficulty';
-const MIX_KEY = 'minispiele.ringSort.allowColorMix';
+import BottomSheet from './BottomSheet';
+import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import {
+  DifficultySchema,
+  EMPTY_HIGHSCORES,
+  HighscoresSchema,
+  MixSchema,
+  type HighscoreEntry,
+} from '../lib/persistedSchemas';
+import { applyHighscore } from '../lib/highscores';
 
 const difficultyLabels: Record<Difficulty, string> = {
   easy: 'Leicht',
@@ -19,83 +30,156 @@ const difficultyLabels: Record<Difficulty, string> = {
   hard: 'Schwer',
 };
 
-function loadDifficulty(): Difficulty {
-  if (typeof window === 'undefined') return 'medium';
-  const stored = window.localStorage.getItem(DIFFICULTY_KEY);
-  if (stored === 'easy' || stored === 'medium' || stored === 'hard') return stored;
-  return 'medium';
-}
-
-function loadAllowColorMix(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.localStorage.getItem(MIX_KEY) === 'true';
+interface HintHighlight {
+  from: number;
+  to: number;
 }
 
 export default function RingSortGame() {
-  const [state, setState] = useState<GameState>(() =>
-    createInitialState(loadDifficulty(), loadAllowColorMix()),
+  const [difficulty, setDifficulty] = useLocalStorage<Difficulty>(
+    STORAGE_KEYS.RING_DIFFICULTY,
+    DifficultySchema,
+    'medium',
   );
+  const [allowColorMix, setAllowColorMix] = useLocalStorage<boolean>(
+    STORAGE_KEYS.RING_MIX,
+    MixSchema,
+    false,
+  );
+  const [highscores, setHighscores] = useLocalStorage(
+    STORAGE_KEYS.RING_HIGHSCORES,
+    HighscoresSchema,
+    EMPTY_HIGHSCORES,
+  );
+
+  const [state, setState] = useState<GameState>(() =>
+    createInitialState(difficulty, allowColorMix),
+  );
+  const [history, setHistory] = useState<Move[]>([]);
+  const [hint, setHint] = useState<HintHighlight | null>(null);
+  const [hintBusy, setHintBusy] = useState(false);
+  const [hintFailed, setHintFailed] = useState(false);
+  const [winSheetOpen, setWinSheetOpen] = useState(false);
+  const [scoreIsNew, setScoreIsNew] = useState(false);
+
   const timer = useGameTimer();
   const prevMovesRef = useRef(state.moves);
   const prevWonRef = useRef(state.won);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(DIFFICULTY_KEY, state.difficulty);
-  }, [state.difficulty]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(MIX_KEY, String(state.allowColorMix));
-  }, [state.allowColorMix]);
+  const hintTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (state.moves > prevMovesRef.current) timer.start();
-    if (state.won && !prevWonRef.current) timer.stop();
+    if (state.won && !prevWonRef.current) {
+      timer.stop();
+      const entry: HighscoreEntry = {
+        moves: state.moves,
+        seconds: timer.elapsedSeconds,
+        at: Date.now(),
+      };
+      const result = applyHighscore(highscores, state.difficulty, entry);
+      setHighscores(result.scores);
+      setScoreIsNew(result.isNew);
+      setWinSheetOpen(true);
+    }
     prevMovesRef.current = state.moves;
     prevWonRef.current = state.won;
-  }, [state.moves, state.won, timer]);
+  }, [state.moves, state.won, state.difficulty, timer, highscores, setHighscores]);
+
+  useEffect(
+    () => () => {
+      if (hintTimeoutRef.current !== null) window.clearTimeout(hintTimeoutRef.current);
+    },
+    [],
+  );
 
   const handlePegClick = useCallback((index: number) => {
+    setHint(null);
+    setHintFailed(false);
     setState((s) => {
       if (s.won) return s;
       if (s.selectedPegIndex === null) return selectPeg(s, index);
       if (s.selectedPegIndex === index) return { ...s, selectedPegIndex: null };
-      return tryMove(s, s.selectedPegIndex, index);
+      const from = s.selectedPegIndex;
+      const next = tryMove(s, from, index);
+      if (next !== s && next.moves > s.moves) {
+        setHistory((h) => [...h, { from, to: index }]);
+      }
+      return next;
     });
   }, []);
 
   const restart = useCallback(
-    (difficulty: Difficulty = state.difficulty, allowColorMix: boolean = state.allowColorMix) => {
+    (nextDifficulty: Difficulty = difficulty, nextMix: boolean = allowColorMix) => {
       timer.reset();
       prevMovesRef.current = 0;
       prevWonRef.current = false;
-      setState(createInitialState(difficulty, allowColorMix));
+      setHistory([]);
+      setHint(null);
+      setHintFailed(false);
+      setScoreIsNew(false);
+      setWinSheetOpen(false);
+      setState(createInitialState(nextDifficulty, nextMix));
     },
-    [state.difficulty, state.allowColorMix, timer],
+    [difficulty, allowColorMix, timer],
   );
 
   const onDifficultyChange = (next: Difficulty) => {
-    if (next === state.difficulty) return;
-    restart(next, state.allowColorMix);
+    if (next === difficulty) return;
+    setDifficulty(next);
+    restart(next, allowColorMix);
   };
 
   const onMixToggle = (next: boolean) => {
-    if (next === state.allowColorMix) return;
-    restart(state.difficulty, next);
+    if (next === allowColorMix) return;
+    setAllowColorMix(next);
+    restart(difficulty, next);
   };
 
+  const handleUndo = useCallback(() => {
+    if (state.won || history.length === 0) return;
+    const result = undoMove(state, history);
+    setState(result.state);
+    setHistory(result.history);
+    setHint(null);
+    setHintFailed(false);
+  }, [state, history]);
+
+  const handleHint = useCallback(() => {
+    if (state.won || hintBusy) return;
+    setHintBusy(true);
+    setHint(null);
+    setHintFailed(false);
+    // Defer to next tick so the busy state can render before the BFS blocks.
+    window.setTimeout(() => {
+      const path = solve(state);
+      if (path && path.length > 0) {
+        const first = path[0];
+        if (first) {
+          setHint({ from: first.from, to: first.to });
+          if (hintTimeoutRef.current !== null) window.clearTimeout(hintTimeoutRef.current);
+          hintTimeoutRef.current = window.setTimeout(() => {
+            setHint(null);
+          }, ANIMATION.HINT_HIGHLIGHT_MS);
+        }
+      } else {
+        setHintFailed(true);
+      }
+      setHintBusy(false);
+    }, 0);
+  }, [state, hintBusy]);
+
   const capacity = pegCapacity(state.difficulty);
+  const currentBest = highscores[state.difficulty];
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <label className="text-sm flex items-center gap-2">
+    <div className="flex flex-col gap-3 pb-24">
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-sm">
           <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
           <select
             value={state.difficulty}
             onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1 text-sm"
+            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
           >
             {(Object.keys(difficultyLabels) as Difficulty[]).map((d) => (
               <option key={d} value={d}>
@@ -104,7 +188,7 @@ export default function RingSortGame() {
             ))}
           </select>
         </label>
-        <label className="text-sm flex items-center gap-2 cursor-pointer">
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
           <input
             type="checkbox"
             checked={state.allowColorMix}
@@ -113,59 +197,134 @@ export default function RingSortGame() {
           />
           <span className="text-slate-600 dark:text-slate-300">Farbmix erlaubt</span>
         </label>
-        <div className="text-sm text-slate-600 dark:text-slate-300">
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+        <div>
           Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
         </div>
-        <div className="text-sm text-slate-600 dark:text-slate-300">
+        <div>
           Zeit:{' '}
           <span className="font-semibold tabular-nums" aria-label="Spielzeit">
             {formatDuration(timer.elapsedSeconds)}
           </span>
         </div>
-        <button
-          type="button"
-          onClick={() => restart()}
-          className="ml-auto rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-3 py-1.5"
-        >
-          Neu starten
-        </button>
+        <div className="text-right">
+          {currentBest ? (
+            <>
+              Best:{' '}
+              <span className="font-semibold tabular-nums">
+                {currentBest.moves}Z · {formatDuration(currentBest.seconds)}
+              </span>
+            </>
+          ) : (
+            <span className="text-slate-400">noch keine Bestzeit</span>
+          )}
+        </div>
       </div>
 
       <div className="relative">
         <div className="grid grid-cols-4 gap-2 sm:gap-4">
-          {state.pegs.map((peg, i) => (
-            <Peg
-              key={i}
-              peg={peg}
-              index={i}
-              capacity={capacity}
-              selected={state.selectedPegIndex === i}
-              onClick={handlePegClick}
-            />
-          ))}
-        </div>
-
-        {state.won && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 backdrop-blur-sm">
-            <div className="rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl text-center max-w-xs">
-              <div className="text-3xl mb-2" aria-hidden>
-                🎉
-              </div>
-              <div className="text-lg font-semibold mb-1">Gewonnen!</div>
-              <div className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                Sortiert in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
-              </div>
-              <button
-                type="button"
-                onClick={() => restart()}
-                className="rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2"
+          {state.pegs.map((peg, i) => {
+            const highlighted =
+              hint !== null && (i === hint.from || i === hint.to)
+                ? i === hint.from
+                  ? 'hint-from'
+                  : 'hint-to'
+                : null;
+            return (
+              <div
+                key={i}
+                className={
+                  highlighted
+                    ? 'ring-2 ring-offset-2 motion-safe:animate-pulse rounded-2xl ' +
+                      (highlighted === 'hint-from'
+                        ? 'ring-amber-400 ring-offset-amber-100 dark:ring-offset-amber-950/30'
+                        : 'ring-emerald-400 ring-offset-emerald-100 dark:ring-offset-emerald-950/30')
+                    : ''
+                }
               >
-                Nochmal spielen
-              </button>
-            </div>
-          </div>
-        )}
+                <Peg
+                  peg={peg}
+                  index={i}
+                  capacity={capacity}
+                  selected={state.selectedPegIndex === i}
+                  onClick={handlePegClick}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      {hintFailed && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100">
+          Kein Tipp gefunden — auf schwer kann die Berechnung zu groß werden.
+        </div>
+      )}
+
+      <div
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
+          <button
+            type="button"
+            onClick={handleUndo}
+            disabled={history.length === 0 || state.won}
+            className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium hover:border-brand-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
+          >
+            ↶ Zurück
+          </button>
+          <button
+            type="button"
+            onClick={handleHint}
+            disabled={hintBusy || state.won}
+            aria-busy={hintBusy}
+            className="min-h-12 flex-1 rounded-xl border border-amber-300 bg-amber-50 px-3 text-sm font-medium text-amber-900 hover:border-amber-500 disabled:opacity-50 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+          >
+            {hintBusy ? '…' : '💡 Tipp'}
+          </button>
+          <button
+            type="button"
+            onClick={() => restart()}
+            className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
+          >
+            Neu
+          </button>
+        </div>
+      </div>
+
+      <BottomSheet open={winSheetOpen} onClose={() => setWinSheetOpen(false)} title="Gewonnen!">
+        <div className="text-center">
+          <div className="mb-2 text-4xl" aria-hidden>
+            🎉
+          </div>
+          {scoreIsNew && (
+            <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
+              Neue Bestzeit!
+            </div>
+          )}
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+            Sortiert in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
+          </p>
+          {currentBest && !scoreIsNew && (
+            <p className="mb-4 text-xs text-slate-500">
+              Bestzeit: {currentBest.moves} Züge · {formatDuration(currentBest.seconds)}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setWinSheetOpen(false);
+              restart();
+            }}
+            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
+          >
+            Nochmal spielen
+          </button>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

@@ -39,8 +39,8 @@ describe('rollAll', () => {
     const a: Die = { id: 'a', type: 'd6', color: '#fff', value: 3, held: true };
     const b: Die = { id: 'b', type: 'd6', color: '#fff', value: 3, held: false };
     const out = rollAll([a, b], fixedRand(5));
-    expect(out[0].value).toBe(3);
-    expect(out[1].value).toBe(5);
+    expect(out[0]?.value).toBe(3);
+    expect(out[1]?.value).toBe(5);
     expect(out[0]).toBe(a);
   });
 });

@@ -26,3 +26,13 @@ export function joinSeconds(minutes: number, seconds: number): number {
   const s = Math.max(0, Math.floor(seconds));
   return clampSeconds(m * 60 + s);
 }
+
+/** Computes the remaining ms when pausing at `now`. */
+export function pauseTimer(endAt: number, now: number): number {
+  return Math.max(0, endAt - now);
+}
+
+/** Computes a new `endAt` to resume a paused timer with `remainingMs` left. */
+export function resumeTimer(remainingMs: number, now: number): number {
+  return now + Math.max(0, remainingMs);
+}

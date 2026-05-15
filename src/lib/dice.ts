@@ -53,18 +53,11 @@ function defaultRoll(faces: number): number {
   return Math.floor(Math.random() * faces) + 1;
 }
 
-export function rollValue(
-  type: DieType,
-  rand: (faces: number) => number = defaultRoll,
-): number {
+export function rollValue(type: DieType, rand: (faces: number) => number = defaultRoll): number {
   return rand(DIE_FACES[type]);
 }
 
-export function createDie(
-  type: DieType,
-  color: string,
-  rand?: (faces: number) => number,
-): Die {
+export function createDie(type: DieType, color: string, rand?: (faces: number) => number): Die {
   return {
     id: nextId(),
     type,
@@ -74,17 +67,11 @@ export function createDie(
   };
 }
 
-export function rollDie(
-  die: Die,
-  rand?: (faces: number) => number,
-): Die {
+export function rollDie(die: Die, rand?: (faces: number) => number): Die {
   return { ...die, value: rollValue(die.type, rand) };
 }
 
-export function rollAll(
-  dice: readonly Die[],
-  rand?: (faces: number) => number,
-): Die[] {
+export function rollAll(dice: readonly Die[], rand?: (faces: number) => number): Die[] {
   return dice.map((d) => (d.held ? d : rollDie(d, rand)));
 }
 
@@ -92,6 +79,34 @@ export function setDieType(die: Die, type: DieType): Die {
   if (die.type === type) return die;
   const faces = DIE_FACES[type];
   return { ...die, type, value: Math.min(die.value, faces) };
+}
+
+export type RollMode = 'normal' | 'advantage' | 'disadvantage';
+
+export function rollWithMode(die: Die, mode: RollMode, rand?: (faces: number) => number): Die {
+  if (mode === 'normal') return rollDie(die, rand);
+  const a = rollValue(die.type, rand);
+  const b = rollValue(die.type, rand);
+  const value = mode === 'advantage' ? Math.max(a, b) : Math.min(a, b);
+  return { ...die, value };
+}
+
+export function rollAllWithMode(
+  dice: readonly Die[],
+  mode: RollMode,
+  rand?: (faces: number) => number,
+): Die[] {
+  return dice.map((d) => (d.held ? d : rollWithMode(d, mode, rand)));
+}
+
+export function minValue(dice: readonly Die[]): number {
+  if (dice.length === 0) return 0;
+  return dice.reduce((acc, d) => Math.min(acc, d.value), Infinity);
+}
+
+export function maxValue(dice: readonly Die[]): number {
+  if (dice.length === 0) return 0;
+  return dice.reduce((acc, d) => Math.max(acc, d.value), -Infinity);
 }
 
 export function toggleHeld(die: Die): Die {
@@ -138,13 +153,8 @@ export const DICE_PRESETS: readonly DicePreset[] = [
   },
 ];
 
-export function buildPreset(
-  preset: DicePreset,
-  rand?: (faces: number) => number,
-): Die[] {
-  return Array.from({ length: preset.count }, () =>
-    createDie(preset.type, preset.color, rand),
-  );
+export function buildPreset(preset: DicePreset, rand?: (faces: number) => number): Die[] {
+  return Array.from({ length: preset.count }, () => createDie(preset.type, preset.color, rand));
 }
 
 export function readableTextColor(bgHex: string): string {
