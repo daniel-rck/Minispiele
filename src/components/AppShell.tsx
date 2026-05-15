@@ -12,7 +12,9 @@ export default function AppShell() {
             to="/"
             className="flex items-center gap-2 font-semibold text-lg text-brand-700 dark:text-brand-300"
           >
-            <span aria-hidden className="text-xl">◉</span>
+            <span aria-hidden className="text-xl">
+              ◉
+            </span>
             Minispiele
           </Link>
           {!isHome && (

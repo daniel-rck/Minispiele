@@ -84,9 +84,7 @@ describe('isSolved', () => {
   });
 
   it('returns false when any peg has mixed colors', () => {
-    expect(
-      isSolved([pegOf(r('red'), r('blue')), [], [], []]),
-    ).toBe(false);
+    expect(isSolved([pegOf(r('red'), r('blue')), [], [], []])).toBe(false);
   });
 
   it('returns false when a color is split across two pegs', () => {
@@ -126,9 +124,9 @@ describe('canMove (color-strict)', () => {
     ).toBe(true);
   });
   it('rejects move onto non-matching top color', () => {
-    expect(
-      canMove([pegOf(r('red')), pegOf(r('blue')), empty, empty], 0, 1, 'medium', false),
-    ).toBe(false);
+    expect(canMove([pegOf(r('red')), pegOf(r('blue')), empty, empty], 0, 1, 'medium', false)).toBe(
+      false,
+    );
   });
   it('rejects move when destination is full', () => {
     const full = pegOf(r('red'), r('red', 1), r('red', 2), r('red', 3));
@@ -145,9 +143,9 @@ describe('canMove (color-strict)', () => {
 describe('canMove (color-mix allowed)', () => {
   const empty: Peg = [];
   it('allows move onto non-matching color', () => {
-    expect(
-      canMove([pegOf(r('red')), pegOf(r('blue')), empty, empty], 0, 1, 'medium', true),
-    ).toBe(true);
+    expect(canMove([pegOf(r('red')), pegOf(r('blue')), empty, empty], 0, 1, 'medium', true)).toBe(
+      true,
+    );
   });
   it('still rejects when destination is full', () => {
     const full = pegOf(r('blue'), r('blue', 1), r('blue', 2), r('blue', 3));
@@ -207,7 +205,7 @@ describe('tryMove', () => {
     expect(next.won).toBe(true);
     expect(next.pegs[3]).toEqual([]);
     expect(next.pegs[2]).toHaveLength(3);
-    expect(next.pegs[2].every((x) => x.color === 'green')).toBe(true);
+    expect(next.pegs[2]?.every((x) => x.color === 'green')).toBe(true);
   });
 
   it('is a no-op after the game is won', () => {

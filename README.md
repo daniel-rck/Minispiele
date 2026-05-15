@@ -50,10 +50,10 @@ GitHub Actions Workflows in `.github/workflows/`:
 
 Benötigte GitHub-Secrets (Repo → Settings → Secrets and variables → Actions):
 
-| Secret | Zweck |
-| --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare-API-Token mit Worker-Edit-Rechten. |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare-Account-ID. |
+| Secret                         | Zweck                                                                                              |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`         | Cloudflare-API-Token mit Worker-Edit-Rechten.                                                      |
+| `CLOUDFLARE_ACCOUNT_ID`        | Cloudflare-Account-ID.                                                                             |
 | `CLOUDFLARE_WORKERS_SUBDOMAIN` | (Optional) eigener `*.workers.dev`-Subdomain-Slug, damit der PR-Kommentar die fertige URL enthält. |
 
 Ohne die ersten beiden Secrets schlagen die Deploy-Workflows fehl; **CI bleibt davon unberührt** und läuft sofort.

@@ -19,8 +19,7 @@ const games: GameCard[] = [
   {
     to: '/timer',
     title: 'Clicker Timer',
-    description:
-      'Countdown einstellen. Jeder Tipp startet ihn neu und beendet den Alarm.',
+    description: 'Countdown einstellen. Jeder Tipp startet ihn neu und beendet den Alarm.',
     preview: '/games/timer-preview.svg',
     previewAlt: 'Vorschau: ein Stoppuhr-Zifferblatt mit Countdown',
   },

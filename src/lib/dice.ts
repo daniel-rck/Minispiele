@@ -53,18 +53,11 @@ function defaultRoll(faces: number): number {
   return Math.floor(Math.random() * faces) + 1;
 }
 
-export function rollValue(
-  type: DieType,
-  rand: (faces: number) => number = defaultRoll,
-): number {
+export function rollValue(type: DieType, rand: (faces: number) => number = defaultRoll): number {
   return rand(DIE_FACES[type]);
 }
 
-export function createDie(
-  type: DieType,
-  color: string,
-  rand?: (faces: number) => number,
-): Die {
+export function createDie(type: DieType, color: string, rand?: (faces: number) => number): Die {
   return {
     id: nextId(),
     type,
@@ -74,17 +67,11 @@ export function createDie(
   };
 }
 
-export function rollDie(
-  die: Die,
-  rand?: (faces: number) => number,
-): Die {
+export function rollDie(die: Die, rand?: (faces: number) => number): Die {
   return { ...die, value: rollValue(die.type, rand) };
 }
 
-export function rollAll(
-  dice: readonly Die[],
-  rand?: (faces: number) => number,
-): Die[] {
+export function rollAll(dice: readonly Die[], rand?: (faces: number) => number): Die[] {
   return dice.map((d) => (d.held ? d : rollDie(d, rand)));
 }
 
@@ -138,13 +125,8 @@ export const DICE_PRESETS: readonly DicePreset[] = [
   },
 ];
 
-export function buildPreset(
-  preset: DicePreset,
-  rand?: (faces: number) => number,
-): Die[] {
-  return Array.from({ length: preset.count }, () =>
-    createDie(preset.type, preset.color, rand),
-  );
+export function buildPreset(preset: DicePreset, rand?: (faces: number) => number): Die[] {
+  return Array.from({ length: preset.count }, () => createDie(preset.type, preset.color, rand));
 }
 
 export function readableTextColor(bgHex: string): string {

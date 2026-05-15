@@ -127,10 +127,7 @@ function DieFace({ die, rolling }: { die: Die; rolling: boolean }) {
           <D6Pips value={die.value} color={fg} />
         </div>
       ) : (
-        <div
-          className="text-3xl sm:text-4xl font-bold tabular-nums"
-          style={{ color: fg }}
-        >
+        <div className="text-3xl sm:text-4xl font-bold tabular-nums" style={{ color: fg }}>
           {die.value}
         </div>
       )}
@@ -148,7 +145,10 @@ export default function DiceRoller() {
   const [dice, setDice] = useState<Die[]>(() => {
     const restored = loadDice();
     if (restored && restored.length > 0) return restored;
-    return buildPreset(DICE_PRESETS[0]);
+    const defaultPreset = DICE_PRESETS[0];
+    return defaultPreset
+      ? buildPreset(defaultPreset)
+      : [createDie('d6', DICE_COLOR_PALETTE[0] ?? '#f8fafc')];
   });
   const [rollingIds, setRollingIds] = useState<ReadonlySet<string>>(new Set());
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
@@ -230,7 +230,7 @@ export default function DiceRoller() {
       if (prev.length >= MAX_DICE) return prev;
       const last = prev[prev.length - 1];
       const type = last?.type ?? 'd6';
-      const color = last?.color ?? DICE_COLOR_PALETTE[0];
+      const color = last?.color ?? DICE_COLOR_PALETTE[0] ?? '#f8fafc';
       return [...prev, createDie(type, color)];
     });
   }, []);
@@ -263,8 +263,7 @@ export default function DiceRoller() {
             onClick={() => handlePreset(p.id)}
             className="rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-sm hover:border-brand-300"
           >
-            {p.label}{' '}
-            <span className="text-slate-500 dark:text-slate-400">({p.description})</span>
+            {p.label} <span className="text-slate-500 dark:text-slate-400">({p.description})</span>
           </button>
         ))}
         <div className="ml-auto flex items-center gap-2">
@@ -299,8 +298,7 @@ export default function DiceRoller() {
           Summe: <span className="font-semibold tabular-nums">{sum}</span>
           {heldCount > 0 && (
             <span className="ml-3">
-              gehalten:{' '}
-              <span className="font-semibold tabular-nums">{heldCount}</span>
+              gehalten: <span className="font-semibold tabular-nums">{heldCount}</span>
             </span>
           )}
         </div>
@@ -338,9 +336,7 @@ export default function DiceRoller() {
                 </label>
                 <select
                   value={die.type}
-                  onChange={(e) =>
-                    handleTypeChange(die.id, e.target.value as DieType)
-                  }
+                  onChange={(e) => handleTypeChange(die.id, e.target.value as DieType)}
                   aria-label="Würfeltyp"
                   className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs px-1 py-0.5"
                 >

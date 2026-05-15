@@ -2,8 +2,7 @@
 
 @theme {
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --color-brand-50: oklch(0.97 0.02 295);
   --color-brand-100: oklch(0.94 0.05 295);
   --color-brand-300: oklch(0.79 0.16 295);

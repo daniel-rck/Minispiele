@@ -160,9 +160,7 @@ export default function ClickerTimer() {
               min={0}
               max={Math.floor(MAX_TIMER_SECONDS / 60)}
               value={minutes}
-              onChange={(e) =>
-                setDuration(joinSeconds(Number(e.target.value), seconds))
-              }
+              onChange={(e) => setDuration(joinSeconds(Number(e.target.value), seconds))}
               className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-base tabular-nums"
               inputMode="numeric"
             />
@@ -174,9 +172,7 @@ export default function ClickerTimer() {
               min={0}
               max={59}
               value={seconds}
-              onChange={(e) =>
-                setDuration(joinSeconds(minutes, Number(e.target.value)))
-              }
+              onChange={(e) => setDuration(joinSeconds(minutes, Number(e.target.value)))}
               className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-base tabular-nums"
               inputMode="numeric"
             />

@@ -5,10 +5,9 @@ export default function RingSort() {
     <div className="max-w-3xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-1">Ringe sortieren</h1>
       <p className="text-slate-600 dark:text-slate-300 mb-4 text-sm">
-        Tippe auf einen Stab, um den obersten Ring auszuwählen, und dann auf den
-        Zielstab. Klassisch darf ein Ring nur auf einen leeren Stab oder auf einen
-        Ring gleicher Farbe gelegt werden — mit aktiviertem „Farbmix erlaubt" passt
-        jede Farbe auf jede.
+        Tippe auf einen Stab, um den obersten Ring auszuwählen, und dann auf den Zielstab. Klassisch
+        darf ein Ring nur auf einen leeren Stab oder auf einen Ring gleicher Farbe gelegt werden —
+        mit aktiviertem „Farbmix erlaubt" passt jede Farbe auf jede.
       </p>
       <RingSortGame />
     </div>

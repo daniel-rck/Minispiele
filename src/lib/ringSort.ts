@@ -46,7 +46,9 @@ function shuffle<T>(items: T[], rng: () => number): T[] {
   const out = items.slice();
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
+    const tmp = out[i] as T;
+    out[i] = out[j] as T;
+    out[j] = tmp;
   }
   return out;
 }
@@ -70,7 +72,8 @@ export function createInitialState(
   const filledPegs = NUM_PEGS - 1;
   const pegs: Peg[] = Array.from({ length: NUM_PEGS }, () => [] as Peg);
   shuffled.forEach((ring, i) => {
-    pegs[i % filledPegs].push(ring);
+    const target = pegs[i % filledPegs];
+    if (target) target.push(ring);
   });
 
   return {
@@ -86,8 +89,9 @@ export function createInitialState(
 export function isSolved(pegs: Peg[]): boolean {
   const seenColors = new Set<RingColor>();
   for (const peg of pegs) {
-    if (peg.length === 0) continue;
-    const first = peg[0].color;
+    const head = peg[0];
+    if (!head) continue;
+    const first = head.color;
     if (!peg.every((r) => r.color === first)) return false;
     if (seenColors.has(first)) return false;
     seenColors.add(first);
@@ -122,7 +126,10 @@ export function canMove(
   if (dst.length >= pegCapacity(difficulty)) return false;
   if (dst.length === 0) return true;
   if (allowColorMix) return true;
-  return dst[dst.length - 1].color === src[src.length - 1].color;
+  const dstTop = dst[dst.length - 1];
+  const srcTop = src[src.length - 1];
+  if (!dstTop || !srcTop) return false;
+  return dstTop.color === srcTop.color;
 }
 
 export function tryMove(state: GameState, from: number, to: number): GameState {
@@ -131,9 +138,12 @@ export function tryMove(state: GameState, from: number, to: number): GameState {
     return { ...state, selectedPegIndex: null };
   }
   const pegs = state.pegs.map((p) => p.slice());
-  const ring = pegs[from].pop();
+  const src = pegs[from];
+  const dst = pegs[to];
+  if (!src || !dst) return { ...state, selectedPegIndex: null };
+  const ring = src.pop();
   if (ring === undefined) return { ...state, selectedPegIndex: null };
-  pegs[to].push(ring);
+  dst.push(ring);
   return {
     ...state,
     pegs,
