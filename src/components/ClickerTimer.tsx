@@ -118,13 +118,11 @@ export default function ClickerTimer() {
     }
   }, [status, remainingMs]);
 
-  const handleReset = useCallback(() => {
+  const handleRestart = useCallback(() => {
     alarmRef.current?.stop();
-    endAtRef.current = null;
-    setStatus('idle');
-    setRemainingMs(duration * 1000);
-    setAnnouncement('Zurückgesetzt');
-  }, [duration]);
+    startFresh();
+    setAnnouncement(`Neu gestartet: ${formatRemaining(duration * 1000)}`);
+  }, [duration, startFresh]);
 
   const handlePress = useCallback(() => {
     if (longPressFiredRef.current) {
@@ -144,9 +142,9 @@ export default function ClickerTimer() {
     longPressTimerRef.current = window.setTimeout(() => {
       longPressFiredRef.current = true;
       vibrate(40);
-      handleReset();
+      handleRestart();
     }, ANIMATION.LONG_PRESS_MS);
-  }, [handleReset, vibrate]);
+  }, [handleRestart, vibrate]);
 
   const cancelLongPress = useCallback(() => {
     if (longPressTimerRef.current !== null) {
@@ -283,7 +281,7 @@ export default function ClickerTimer() {
           onPointerLeave={cancelLongPress}
           onPointerCancel={cancelLongPress}
           onContextMenu={(e) => e.preventDefault()}
-          aria-label={`${buttonLabel}. Lange halten, um zurückzusetzen.`}
+          aria-label={`${buttonLabel}. Lange halten, um neu zu starten.`}
           className={`relative w-full touch-manipulation overflow-hidden rounded-3xl border-2 px-6 py-16 text-center select-none transition motion-reduce:transition-none sm:py-20 ${
             status === 'alarming'
               ? 'animate-pulse border-red-500 bg-red-50 dark:bg-red-950/40'
@@ -310,16 +308,16 @@ export default function ClickerTimer() {
           </div>
           <div className="relative z-10 mt-2 text-sm text-slate-600 dark:text-slate-300">
             {buttonLabel}
-            {status !== 'idle' && status !== 'alarming' && ' · lang halten = Reset'}
+            {status !== 'idle' && status !== 'alarming' && ' · lang halten = neu starten'}
           </div>
         </button>
 
         {status !== 'idle' && (
           <button
             type="button"
-            onClick={handleReset}
-            aria-label="Zurücksetzen"
-            className="absolute top-2 right-2 min-h-11 min-w-11 rounded-full bg-white/80 text-slate-600 shadow-sm hover:bg-white hover:text-red-600 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-800"
+            onClick={handleRestart}
+            aria-label="Neu starten"
+            className="absolute top-2 right-2 min-h-11 min-w-11 rounded-full bg-white/80 text-slate-600 shadow-sm hover:bg-white hover:text-brand-600 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             ↺
           </button>

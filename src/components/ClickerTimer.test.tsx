@@ -62,13 +62,15 @@ describe('ClickerTimer', () => {
     expect(screen.getByText(/Status:/i).textContent).toMatch(/pausiert/);
   });
 
-  it('Reset button returns to idle', async () => {
+  it('Neu-starten button restarts the timer immediately', async () => {
     const user = userEvent.setup();
     render(<ClickerTimer />);
     await user.click(screen.getByRole('button', { name: /Starten/i }));
-    const resetBtn = screen.getByRole('button', { name: /Zurücksetzen/i });
-    await user.click(resetBtn);
-    expect(screen.getByText(/Status:/i).textContent).toMatch(/bereit/);
+    expect(screen.getByText(/Status:/i).textContent).toMatch(/läuft/);
+    const restartBtn = screen.getByRole('button', { name: /^Neu starten$/i });
+    await user.click(restartBtn);
+    // Status stays 'läuft' because handleRestart calls startFresh immediately.
+    expect(screen.getByText(/Status:/i).textContent).toMatch(/läuft/);
   });
 
   it('saves a user preset and re-applies it', async () => {
