@@ -39,6 +39,25 @@ bun run worker:deploy
 
 Health-Check: `GET /healthz` → `ok`.
 
+## CI / Auto-Deploy
+
+GitHub Actions Workflows in `.github/workflows/`:
+
+- **CI** (`ci.yml`) — auf jedem PR & Push auf `main`: lint, typecheck, test, build.
+- **PR Preview Deploy** (`preview.yml`) — pro PR ein eigener Worker `minispiele-pr-<NR>`; postet einen Kommentar mit der Preview-URL.
+- **PR Preview Cleanup** (`preview-cleanup.yml`) — löscht den Preview-Worker, wenn der PR geschlossen wird.
+- **Deploy** (`deploy.yml`) — Push auf `main` deployt den produktiven Worker.
+
+Benötigte GitHub-Secrets (Repo → Settings → Secrets and variables → Actions):
+
+| Secret | Zweck |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare-API-Token mit Worker-Edit-Rechten. |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare-Account-ID. |
+| `CLOUDFLARE_WORKERS_SUBDOMAIN` | (Optional) eigener `*.workers.dev`-Subdomain-Slug, damit der PR-Kommentar die fertige URL enthält. |
+
+Ohne die ersten beiden Secrets schlagen die Deploy-Workflows fehl; **CI bleibt davon unberührt** und läuft sofort.
+
 ## Lizenz
 
 MIT — siehe [LICENSE](./LICENSE).
