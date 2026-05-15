@@ -7,17 +7,31 @@ import {
   MAX_DICE,
   buildPreset,
   createDie,
+  maxValue,
+  minValue,
   readableTextColor,
-  rollAll,
+  rollAllWithMode,
   rollDie,
+  rollWithMode,
   setDieType,
   sumValues,
   toggleHeld,
   type Die,
   type DieType,
+  type RollMode,
 } from '../lib/dice';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { PersistedDiceSchema, type PersistedDie } from '../lib/persistedSchemas';
+import { parseNotation } from '../lib/diceNotation';
+import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
+import {
+  DiceHistorySchema,
+  PersistedDiceSchema,
+  type DiceHistory,
+  type DiceHistoryEntry,
+  type PersistedDie,
+} from '../lib/persistedSchemas';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import AriaLive from './AriaLive';
+import BottomSheet from './BottomSheet';
 
 const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>> = {
   1: [[1, 1]],
@@ -52,6 +66,8 @@ const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>>
     [2, 2],
   ],
 };
+
+const HISTORY_MAX = 20;
 
 function hydrateDice(persisted: readonly PersistedDie[]): Die[] {
   return persisted.slice(0, MAX_DICE).map((d) => ({
@@ -98,10 +114,41 @@ function persistDice(dice: readonly Die[]): void {
   }
 }
 
+function vibrate(pattern: number | number[]): void {
+  if (typeof navigator === 'undefined') return;
+  if (typeof navigator.vibrate === 'function') {
+    try {
+      navigator.vibrate(pattern);
+    } catch {
+      /* no-op */
+    }
+  }
+}
+
+function buildHistoryEntry(dice: readonly Die[]): DiceHistoryEntry {
+  return {
+    id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    at: Date.now(),
+    sum: sumValues(dice),
+    dice: dice.map((d) => ({ type: d.type, value: d.value })),
+  };
+}
+
+function modeLabel(mode: RollMode): string {
+  switch (mode) {
+    case 'advantage':
+      return 'Vorteil';
+    case 'disadvantage':
+      return 'Nachteil';
+    default:
+      return 'Normal';
+  }
+}
+
 function D6Pips({ value, color }: { value: number; color: string }) {
   const dots = D6_PIP_POSITIONS[value] ?? [];
   return (
-    <svg viewBox="0 0 60 60" aria-hidden className="w-full h-full" role="img">
+    <svg viewBox="0 0 60 60" aria-hidden className="h-full w-full" role="img">
       {dots.map(([col, row], i) => (
         <circle key={i} cx={15 + col * 15} cy={15 + row * 15} r={5.5} fill={color} />
       ))}
@@ -113,23 +160,23 @@ function DieFace({ die, rolling }: { die: Die; rolling: boolean }) {
   const fg = readableTextColor(die.color);
   return (
     <div
-      className={`relative aspect-square w-full rounded-2xl shadow-inner border border-black/10 dark:border-white/10 flex items-center justify-center transition-transform duration-200 ${
-        rolling ? 'scale-95 rotate-6' : 'scale-100 rotate-0'
+      className={`relative flex aspect-square w-full items-center justify-center rounded-2xl border border-black/10 shadow-inner transition-transform duration-200 motion-reduce:transform-none dark:border-white/10 ${
+        rolling ? 'rotate-6 scale-95' : 'rotate-0 scale-100'
       }`}
       style={{ backgroundColor: die.color }}
       aria-label={`Würfel ${die.type}: ${die.value}`}
     >
       {die.type === 'd6' ? (
-        <div className="w-3/4 h-3/4" style={{ color: fg }}>
+        <div className="h-3/4 w-3/4" style={{ color: fg }}>
           <D6Pips value={die.value} color={fg} />
         </div>
       ) : (
-        <div className="text-3xl sm:text-4xl font-bold tabular-nums" style={{ color: fg }}>
+        <div className="text-3xl font-bold tabular-nums sm:text-4xl" style={{ color: fg }}>
           {die.value}
         </div>
       )}
       <div
-        className="absolute bottom-1 right-2 text-[10px] sm:text-xs font-medium uppercase opacity-70"
+        className="absolute right-2 bottom-1 text-[10px] font-medium uppercase opacity-70 sm:text-xs"
         style={{ color: fg }}
       >
         {die.type}
@@ -141,6 +188,17 @@ function DieFace({ die, rolling }: { die: Die; rolling: boolean }) {
 export default function DiceRoller() {
   const [dice, setDice] = useState<Die[]>(() => loadDice() ?? defaultDice());
   const [rollingIds, setRollingIds] = useState<ReadonlySet<string>>(new Set());
+  const [mode, setMode] = useState<RollMode>('normal');
+  const [notationInput, setNotationInput] = useState('');
+  const [notationError, setNotationError] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [history, setHistory] = useLocalStorage<DiceHistory>(
+    STORAGE_KEYS.DICE_HISTORY,
+    DiceHistorySchema,
+    [],
+  );
+  const [lastAnnouncement, setLastAnnouncement] = useState('');
+
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
@@ -179,13 +237,29 @@ export default function DiceRoller() {
     });
   }, []);
 
+  const recordHistory = useCallback(
+    (next: readonly Die[]) => {
+      const entry = buildHistoryEntry(next);
+      setHistory((prev) => [entry, ...prev].slice(0, HISTORY_MAX));
+      const summary =
+        next.length === 1
+          ? `${next[0]?.value ?? '?'}`
+          : `Summe ${entry.sum} aus ${next.length} Würfeln`;
+      setLastAnnouncement(`${summary} (${modeLabel(mode)})`);
+    },
+    [mode, setHistory],
+  );
+
   const handleRollAll = useCallback(() => {
+    vibrate(HAPTICS.DICE_TAP);
     setDice((prev) => {
-      const next = rollAll(prev);
+      const next = rollAllWithMode(prev, mode);
       animateRoll(next.filter((d, i) => d !== prev[i]).map((d) => d.id));
+      recordHistory(next);
+      if (mode !== 'normal') setMode('normal');
       return next;
     });
-  }, [animateRoll]);
+  }, [animateRoll, mode, recordHistory]);
 
   const handleRollOne = useCallback(
     (id: string) => {
@@ -194,13 +268,16 @@ export default function DiceRoller() {
         const next = prev.map((d) => {
           if (d.id !== id) return d;
           changed = true;
-          return rollDie(d);
+          return mode === 'normal' ? rollDie(d) : rollWithMode(d, mode);
         });
-        if (changed) animateRoll([id]);
+        if (changed) {
+          vibrate(HAPTICS.DICE_TAP);
+          animateRoll([id]);
+        }
         return next;
       });
     },
-    [animateRoll],
+    [animateRoll, mode],
   );
 
   const handleToggleHold = useCallback((id: string) => {
@@ -239,68 +316,143 @@ export default function DiceRoller() {
     setDice(buildPreset(preset));
   }, []);
 
+  const handleNotationApply = useCallback(() => {
+    const parsed = parseNotation(notationInput);
+    if (!parsed) {
+      setNotationError('Ungültig — z. B. 3d6+2, d20');
+      return;
+    }
+    const color = DICE_COLOR_PALETTE[0] ?? '#f8fafc';
+    const next: Die[] = Array.from({ length: parsed.count }, () => createDie(parsed.type, color));
+    setDice(next);
+    setNotationError(null);
+    setNotationInput('');
+  }, [notationInput]);
+
+  const handleClearHistory = useCallback(() => {
+    setHistory([]);
+  }, [setHistory]);
+
   const heldCount = dice.filter((d) => d.held).length;
   const sum = sumValues(dice);
+  const min = dice.length > 1 ? minValue(dice) : null;
+  const max = dice.length > 1 ? maxValue(dice) : null;
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex flex-wrap gap-2 items-center">
-        <span className="text-sm text-slate-600 dark:text-slate-300">Vorlagen:</span>
-        {DICE_PRESETS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => handlePreset(p.id)}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-sm hover:border-brand-300"
-          >
-            {p.label} <span className="text-slate-500 dark:text-slate-400">({p.description})</span>
-          </button>
-        ))}
-        <div className="ml-auto flex items-center gap-2">
+    <div className="flex flex-col gap-4 pb-32">
+      <AriaLive message={lastAnnouncement} />
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-xs font-medium text-slate-500 uppercase">Vorlagen</span>
           <button
             type="button"
             onClick={handleAddDie}
             disabled={dice.length >= MAX_DICE}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 px-2.5 py-1 text-sm disabled:opacity-50 hover:border-brand-300"
+            className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 disabled:opacity-50 dark:border-slate-700"
           >
             + Würfel
           </button>
         </div>
+        <div className="-mx-1 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+          {DICE_PRESETS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => handlePreset(p.id)}
+              className="min-h-11 shrink-0 snap-start rounded-lg border border-slate-300 px-3 py-1.5 text-sm whitespace-nowrap hover:border-brand-300 dark:border-slate-700"
+            >
+              <span className="font-medium">{p.label}</span>{' '}
+              <span className="text-slate-500 dark:text-slate-400">({p.description})</span>
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <label className="flex flex-1 items-center gap-2 text-sm">
+            <span className="text-slate-600 dark:text-slate-300">Notation:</span>
+            <input
+              type="text"
+              value={notationInput}
+              onChange={(e) => {
+                setNotationInput(e.target.value);
+                setNotationError(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleNotationApply();
+              }}
+              placeholder="3d6+2"
+              inputMode="text"
+              enterKeyHint="go"
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-base dark:border-slate-700 dark:bg-slate-900"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={handleNotationApply}
+            disabled={notationInput.trim().length === 0}
+            className="min-h-11 rounded-lg border border-brand-500 px-3 py-1.5 text-sm font-medium text-brand-700 hover:bg-brand-50 disabled:opacity-50 dark:text-brand-300 dark:hover:bg-brand-900/30"
+          >
+            Setzen
+          </button>
+        </div>
+        {notationError && (
+          <p role="alert" className="mt-2 text-xs text-red-600 dark:text-red-400">
+            {notationError}
+          </p>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={handleRollAll}
-          className="rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2.5 text-base"
-        >
-          🎲 Würfeln
-        </button>
+      <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+        <div>
+          Summe: <span className="font-semibold tabular-nums">{sum}</span>
+        </div>
+        {min !== null && (
+          <div>
+            Min: <span className="font-semibold tabular-nums">{min}</span>
+          </div>
+        )}
+        {max !== null && (
+          <div>
+            Max: <span className="font-semibold tabular-nums">{max}</span>
+          </div>
+        )}
+        {heldCount > 0 && (
+          <div>
+            gehalten: <span className="font-semibold tabular-nums">{heldCount}</span>
+          </div>
+        )}
         <button
           type="button"
           onClick={handleReleaseAll}
           disabled={heldCount === 0}
-          className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm disabled:opacity-50 hover:border-brand-300"
+          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 disabled:opacity-50 dark:border-slate-700"
         >
           Alle freigeben
         </button>
-        <div className="ml-auto text-sm text-slate-600 dark:text-slate-300">
-          Summe: <span className="font-semibold tabular-nums">{sum}</span>
-          {heldCount > 0 && (
-            <span className="ml-3">
-              gehalten: <span className="font-semibold tabular-nums">{heldCount}</span>
+        <button
+          type="button"
+          onClick={() => setHistoryOpen(true)}
+          className="ml-auto min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+        >
+          Verlauf
+          {history.length > 0 && (
+            <span className="ml-1 inline-block rounded-full bg-brand-100 px-1.5 py-0.5 text-[10px] font-semibold text-brand-700 dark:bg-brand-900/50 dark:text-brand-200">
+              {history.length}
             </span>
           )}
-        </div>
+        </button>
       </div>
 
-      <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         {dice.map((die) => {
           const rolling = rollingIds.has(die.id);
           return (
             <li
               key={die.id}
-              className={`rounded-2xl border-2 p-3 flex flex-col gap-2 bg-white dark:bg-slate-900 transition ${
+              className={`flex flex-col gap-2 rounded-2xl border-2 bg-white p-3 transition dark:bg-slate-900 ${
                 die.held
                   ? 'border-brand-500 ring-2 ring-brand-500/30'
                   : 'border-slate-200 dark:border-slate-800'
@@ -310,11 +462,11 @@ export default function DiceRoller() {
                 type="button"
                 onClick={() => handleRollOne(die.id)}
                 aria-label={`Würfel ${die.type} (${die.value}) neu werfen`}
-                className="w-full"
+                className="w-full touch-manipulation"
               >
                 <DieFace die={die} rolling={rolling} />
               </button>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex flex-wrap items-center gap-2">
                 <label className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
                   <input
                     type="checkbox"
@@ -328,7 +480,7 @@ export default function DiceRoller() {
                   value={die.type}
                   onChange={(e) => handleTypeChange(die.id, e.target.value as DieType)}
                   aria-label="Würfeltyp"
-                  className="rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs px-1 py-0.5"
+                  className="rounded-md border border-slate-300 bg-white px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-900"
                 >
                   {DIE_TYPES.map((t) => (
                     <option key={t} value={t}>
@@ -341,12 +493,12 @@ export default function DiceRoller() {
                   onClick={() => handleRemoveDie(die.id)}
                   disabled={dice.length <= 1}
                   aria-label="Würfel entfernen"
-                  className="ml-auto rounded-md border border-slate-300 dark:border-slate-700 text-xs px-1.5 py-0.5 disabled:opacity-50 hover:border-red-400"
+                  className="ml-auto rounded-md border border-slate-300 px-1.5 py-0.5 text-xs hover:border-red-400 disabled:opacity-50 dark:border-slate-700"
                 >
                   ✕
                 </button>
               </div>
-              <div className="flex items-center gap-1 flex-wrap">
+              <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:thin]">
                 {DICE_COLOR_PALETTE.map((c) => (
                   <button
                     key={c}
@@ -354,7 +506,7 @@ export default function DiceRoller() {
                     onClick={() => handleColorChange(die.id, c)}
                     aria-label={`Farbe ${c}`}
                     aria-pressed={die.color.toLowerCase() === c.toLowerCase()}
-                    className={`h-5 w-5 rounded-full border ${
+                    className={`h-6 w-6 shrink-0 rounded-full border ${
                       die.color.toLowerCase() === c.toLowerCase()
                         ? 'border-brand-500 ring-2 ring-brand-500/40'
                         : 'border-slate-300 dark:border-slate-700'
@@ -363,7 +515,7 @@ export default function DiceRoller() {
                   />
                 ))}
                 <label
-                  className="relative ml-1 h-5 w-5 rounded-full border border-slate-300 dark:border-slate-700 cursor-pointer overflow-hidden"
+                  className="relative ml-1 h-6 w-6 shrink-0 cursor-pointer overflow-hidden rounded-full border border-slate-300 dark:border-slate-700"
                   title="Eigene Farbe"
                 >
                   <span
@@ -379,7 +531,7 @@ export default function DiceRoller() {
                     aria-label="Eigene Farbe wählen"
                     value={die.color}
                     onChange={(e) => handleColorChange(die.id, e.target.value)}
-                    className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                   />
                 </label>
               </div>
@@ -387,6 +539,78 @@ export default function DiceRoller() {
           );
         })}
       </ul>
+
+      <div
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        <div className="mx-auto max-w-3xl px-4 py-3">
+          <div
+            role="radiogroup"
+            aria-label="Wurfmodus"
+            className="mb-2 flex justify-center gap-1 text-xs"
+          >
+            {(['normal', 'advantage', 'disadvantage'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                role="radio"
+                aria-checked={mode === m}
+                onClick={() => setMode(m)}
+                className={`min-h-9 rounded-full border px-3 py-1 ${
+                  mode === m
+                    ? 'border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200'
+                    : 'border-slate-300 hover:border-brand-300 dark:border-slate-700'
+                }`}
+              >
+                {modeLabel(m)}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={handleRollAll}
+            className="min-h-14 w-full touch-manipulation rounded-2xl bg-brand-600 px-4 py-3 text-lg font-semibold text-white hover:bg-brand-700"
+          >
+            🎲 Würfeln{mode !== 'normal' ? ` · ${modeLabel(mode)}` : ''}
+          </button>
+        </div>
+      </div>
+
+      <BottomSheet
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        title={`Verlauf (${history.length})`}
+      >
+        {history.length === 0 ? (
+          <p className="py-6 text-center text-sm text-slate-500">Noch keine Würfe.</p>
+        ) : (
+          <>
+            <ul className="max-h-[60vh] divide-y divide-slate-200 overflow-y-auto dark:divide-slate-800">
+              {history.map((entry) => (
+                <li key={entry.id} className="flex items-center justify-between py-2 text-sm">
+                  <span className="text-slate-600 dark:text-slate-300">
+                    {entry.dice.map((d, i) => (
+                      <span key={i} className="mr-1.5">
+                        <span className="text-xs text-slate-400">{d.type}</span>{' '}
+                        <span className="font-medium tabular-nums">{d.value}</span>
+                      </span>
+                    ))}
+                  </span>
+                  <span className="font-semibold tabular-nums">{entry.sum}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={handleClearHistory}
+              className="mt-4 min-h-11 w-full rounded-lg border border-red-300 px-3 text-sm text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-950/40"
+            >
+              Verlauf löschen
+            </button>
+          </>
+        )}
+      </BottomSheet>
     </div>
   );
 }

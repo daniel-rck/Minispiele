@@ -81,6 +81,34 @@ export function setDieType(die: Die, type: DieType): Die {
   return { ...die, type, value: Math.min(die.value, faces) };
 }
 
+export type RollMode = 'normal' | 'advantage' | 'disadvantage';
+
+export function rollWithMode(die: Die, mode: RollMode, rand?: (faces: number) => number): Die {
+  if (mode === 'normal') return rollDie(die, rand);
+  const a = rollValue(die.type, rand);
+  const b = rollValue(die.type, rand);
+  const value = mode === 'advantage' ? Math.max(a, b) : Math.min(a, b);
+  return { ...die, value };
+}
+
+export function rollAllWithMode(
+  dice: readonly Die[],
+  mode: RollMode,
+  rand?: (faces: number) => number,
+): Die[] {
+  return dice.map((d) => (d.held ? d : rollWithMode(d, mode, rand)));
+}
+
+export function minValue(dice: readonly Die[]): number {
+  if (dice.length === 0) return 0;
+  return dice.reduce((acc, d) => Math.min(acc, d.value), Infinity);
+}
+
+export function maxValue(dice: readonly Die[]): number {
+  if (dice.length === 0) return 0;
+  return dice.reduce((acc, d) => Math.max(acc, d.value), -Infinity);
+}
+
 export function toggleHeld(die: Die): Die {
   return { ...die, held: !die.held };
 }
