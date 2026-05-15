@@ -7,8 +7,11 @@ import {
   pegCapacity,
   RINGS_PER_COLOR,
   selectPeg,
+  solve,
   tryMove,
+  undoMove,
   type GameState,
+  type Move,
   type Peg,
   type Ring,
   type RingColor,
@@ -219,5 +222,99 @@ describe('tryMove', () => {
     };
     const next = tryMove(s, 0, 2);
     expect(next).toBe(s);
+  });
+});
+
+describe('undoMove', () => {
+  it('reverts the last move and clears selection', () => {
+    let s: GameState = {
+      pegs: [pegOf(r('red'), r('blue')), [], [], []],
+      selectedPegIndex: null,
+      moves: 0,
+      won: false,
+      difficulty: 'medium',
+      allowColorMix: false,
+    };
+    const after = tryMove(s, 0, 1);
+    const history: Move[] = [{ from: 0, to: 1 }];
+    const result = undoMove(after, history);
+    expect(result.state.pegs[0]).toEqual([r('red'), r('blue')]);
+    expect(result.state.pegs[1]).toEqual([]);
+    expect(result.history).toEqual([]);
+    expect(result.state.won).toBe(false);
+    s = result.state;
+  });
+
+  it('is a no-op when history is empty', () => {
+    const s: GameState = {
+      pegs: [pegOf(r('red')), [], [], []],
+      selectedPegIndex: null,
+      moves: 0,
+      won: false,
+      difficulty: 'easy',
+      allowColorMix: false,
+    };
+    const result = undoMove(s, []);
+    expect(result.state).toBe(s);
+    expect(result.history).toEqual([]);
+  });
+});
+
+describe('solve', () => {
+  it('returns an empty path for a solved state', () => {
+    const s = createInitialState('easy', false, 1);
+    // Synthesize a solved state.
+    const solved: GameState = {
+      ...s,
+      pegs: [pegOf(r('red'), r('red', 1)), pegOf(r('blue')), [], []],
+    };
+    expect(solve(solved)).toEqual([]);
+  });
+
+  it('finds a short path for a near-solved state', () => {
+    const s: GameState = {
+      pegs: [pegOf(r('red'), r('blue')), [], [], []],
+      selectedPegIndex: null,
+      moves: 0,
+      won: false,
+      difficulty: 'medium',
+      allowColorMix: false,
+    };
+    const path = solve(s, 5);
+    expect(path).not.toBeNull();
+    expect(path!.length).toBeGreaterThan(0);
+    expect(path![0]).toEqual({ from: 0, to: 1 });
+  });
+
+  it('returns null when no solution fits the depth budget', () => {
+    const s: GameState = {
+      pegs: [pegOf(r('red'), r('blue')), [], [], []],
+      selectedPegIndex: null,
+      moves: 0,
+      won: false,
+      difficulty: 'medium',
+      allowColorMix: false,
+    };
+    expect(solve(s, 0)).toBeNull();
+  });
+
+  it('solves freshly shuffled easy boards across multiple seeds', () => {
+    for (const seed of [1, 7, 42, 99, 256]) {
+      const s = createInitialState('easy', false, seed);
+      const path = solve(s, 40);
+      expect(path).not.toBeNull();
+      // Apply the path to confirm it really solves.
+      const pegs = s.pegs.map((p) => p.slice());
+      for (const m of path!) {
+        const src = pegs[m.from];
+        const dst = pegs[m.to];
+        expect(src).toBeDefined();
+        expect(dst).toBeDefined();
+        const ring = src!.pop();
+        expect(ring).toBeDefined();
+        dst!.push(ring!);
+      }
+      expect(isSolved(pegs)).toBe(true);
+    }
   });
 });
