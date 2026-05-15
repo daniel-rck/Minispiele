@@ -1,90 +1,39 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  MAX_TIMER_SECONDS,
-  clampSeconds,
-  formatRemaining,
-  joinSeconds,
-  splitSeconds,
-} from '../lib/clickerTimer';
-
-const DURATION_KEY = 'minispiele.timer.durationSeconds';
+import { MAX_TIMER_SECONDS, formatRemaining, joinSeconds, splitSeconds } from '../lib/clickerTimer';
+import { STORAGE_KEYS } from '../lib/constants';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import { DurationSchema } from '../lib/persistedSchemas';
+import { AlarmAudio } from '../lib/audio';
 
 const PRESETS: readonly number[] = [10, 30, 60, 180, 300, 600];
 
 type Status = 'idle' | 'running' | 'alarming';
 
-function loadDuration(): number {
-  if (typeof window === 'undefined') return 60;
-  const stored = window.localStorage.getItem(DURATION_KEY);
-  if (stored === null) return 60;
-  const n = Number(stored);
-  if (!Number.isFinite(n)) return 60;
-  return clampSeconds(n);
-}
-
-interface AudioWindow extends Window {
-  webkitAudioContext?: typeof AudioContext;
-}
-
-function getAudioCtor(): typeof AudioContext | null {
-  if (typeof window === 'undefined') return null;
-  const w = window as AudioWindow;
-  return window.AudioContext ?? w.webkitAudioContext ?? null;
-}
-
 export default function ClickerTimer() {
-  const [duration, setDuration] = useState<number>(loadDuration);
-  const [remainingMs, setRemainingMs] = useState<number>(loadDuration() * 1000);
+  const [duration, setDuration] = useLocalStorage<number>(
+    STORAGE_KEYS.TIMER_DURATION,
+    DurationSchema,
+    60,
+  );
+  const [remainingMs, setRemainingMs] = useState<number>(duration * 1000);
   const [status, setStatus] = useState<Status>('idle');
+  const [audioAvailable, setAudioAvailable] = useState<boolean>(true);
 
   const endAtRef = useRef<number | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const alarmIntervalRef = useRef<number | null>(null);
+  const alarmRef = useRef<AlarmAudio | null>(null);
+
+  if (alarmRef.current === null) {
+    alarmRef.current = new AlarmAudio();
+  }
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(DURATION_KEY, String(duration));
-  }, [duration]);
+    setAudioAvailable(alarmRef.current?.isAvailable() ?? false);
+  }, []);
 
   // Keep displayed time in sync with the configured duration while idle.
   useEffect(() => {
     if (status === 'idle') setRemainingMs(duration * 1000);
   }, [duration, status]);
-
-  const stopAlarm = useCallback(() => {
-    if (alarmIntervalRef.current !== null) {
-      window.clearInterval(alarmIntervalRef.current);
-      alarmIntervalRef.current = null;
-    }
-  }, []);
-
-  const beep = useCallback((frequency: number, durationS: number) => {
-    const ctx = audioCtxRef.current;
-    if (!ctx) return;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = frequency;
-    const now = ctx.currentTime;
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.3, now + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + durationS);
-    osc.connect(gain).connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + durationS + 0.02);
-  }, []);
-
-  const startAlarm = useCallback(() => {
-    stopAlarm();
-    const Ctor = getAudioCtor();
-    if (Ctor && !audioCtxRef.current) {
-      audioCtxRef.current = new Ctor();
-    }
-    const ctx = audioCtxRef.current;
-    if (ctx && ctx.state === 'suspended') void ctx.resume();
-    beep(880, 0.35);
-    alarmIntervalRef.current = window.setInterval(() => beep(880, 0.35), 600);
-  }, [beep, stopAlarm]);
 
   // Animation tick while running.
   useEffect(() => {
@@ -97,7 +46,8 @@ export default function ClickerTimer() {
       if (left <= 0) {
         setRemainingMs(0);
         setStatus('alarming');
-        startAlarm();
+        const started = alarmRef.current?.start() ?? false;
+        if (!started) setAudioAvailable(false);
         return;
       }
       setRemainingMs(left);
@@ -105,45 +55,37 @@ export default function ClickerTimer() {
     };
     raf = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(raf);
-  }, [status, startAlarm]);
+  }, [status]);
 
   // Clean up on unmount.
   useEffect(
     () => () => {
-      stopAlarm();
-      if (audioCtxRef.current) {
-        void audioCtxRef.current.close().catch(() => undefined);
-        audioCtxRef.current = null;
-      }
+      alarmRef.current?.dispose();
+      alarmRef.current = null;
     },
-    [stopAlarm],
+    [],
   );
 
   const handlePress = useCallback(() => {
-    stopAlarm();
-    // Prime the audio context on a user gesture so the alarm can play later.
-    const Ctor = getAudioCtor();
-    if (Ctor && !audioCtxRef.current) {
-      try {
-        audioCtxRef.current = new Ctor();
-      } catch {
-        audioCtxRef.current = null;
-      }
+    const alarm = alarmRef.current;
+    if (alarm) {
+      alarm.stop();
+      const primed = alarm.prime();
+      setAudioAvailable(primed);
+      alarm.resume();
     }
-    const ctx = audioCtxRef.current;
-    if (ctx && ctx.state === 'suspended') void ctx.resume();
 
     endAtRef.current = Date.now() + duration * 1000;
     setRemainingMs(duration * 1000);
     setStatus('running');
-  }, [duration, stopAlarm]);
+  }, [duration]);
 
   const handleReset = useCallback(() => {
-    stopAlarm();
+    alarmRef.current?.stop();
     endAtRef.current = null;
     setStatus('idle');
     setRemainingMs(duration * 1000);
-  }, [duration, stopAlarm]);
+  }, [duration]);
 
   const { minutes, seconds } = splitSeconds(duration);
   const totalMs = duration * 1000;
@@ -151,29 +93,37 @@ export default function ClickerTimer() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+      {!audioAvailable && (
+        <div
+          role="status"
+          className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+        >
+          Sound nicht verfügbar — Alarm wird visuell angezeigt.
+        </div>
+      )}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm flex flex-col">
-            <span className="text-slate-600 dark:text-slate-300 mb-1">Minuten</span>
+          <label className="flex flex-col text-sm">
+            <span className="mb-1 text-slate-600 dark:text-slate-300">Minuten</span>
             <input
               type="number"
               min={0}
               max={Math.floor(MAX_TIMER_SECONDS / 60)}
               value={minutes}
               onChange={(e) => setDuration(joinSeconds(Number(e.target.value), seconds))}
-              className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-base tabular-nums"
+              className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-base tabular-nums dark:border-slate-700 dark:bg-slate-900"
               inputMode="numeric"
             />
           </label>
-          <label className="text-sm flex flex-col">
-            <span className="text-slate-600 dark:text-slate-300 mb-1">Sekunden</span>
+          <label className="flex flex-col text-sm">
+            <span className="mb-1 text-slate-600 dark:text-slate-300">Sekunden</span>
             <input
               type="number"
               min={0}
               max={59}
               value={seconds}
               onChange={(e) => setDuration(joinSeconds(minutes, Number(e.target.value)))}
-              className="w-20 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-1.5 text-base tabular-nums"
+              className="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-base tabular-nums dark:border-slate-700 dark:bg-slate-900"
               inputMode="numeric"
             />
           </label>
@@ -187,7 +137,7 @@ export default function ClickerTimer() {
                 className={`rounded-lg border px-2.5 py-1 text-sm transition ${
                   duration === p
                     ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-                    : 'border-slate-300 dark:border-slate-700 hover:border-brand-300'
+                    : 'border-slate-300 hover:border-brand-300 dark:border-slate-700'
                 }`}
               >
                 {p < 60 ? `${p}s` : `${p / 60}m`}
@@ -201,12 +151,12 @@ export default function ClickerTimer() {
         type="button"
         onClick={handlePress}
         aria-label="Timer starten oder neu starten"
-        className={`relative overflow-hidden rounded-3xl border-2 px-6 py-12 sm:py-16 text-center select-none transition ${
+        className={`relative overflow-hidden rounded-3xl border-2 px-6 py-12 text-center select-none transition sm:py-16 ${
           status === 'alarming'
-            ? 'border-red-500 bg-red-50 dark:bg-red-950/40 animate-pulse'
+            ? 'animate-pulse border-red-500 bg-red-50 dark:bg-red-950/40'
             : status === 'running'
               ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-              : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-brand-300'
+              : 'border-slate-300 bg-white hover:border-brand-300 dark:border-slate-700 dark:bg-slate-900'
         }`}
       >
         <div
@@ -218,7 +168,7 @@ export default function ClickerTimer() {
           }`}
           style={{ width: `${progress * 100}%` }}
         />
-        <div className="relative z-10 text-6xl sm:text-7xl font-bold tabular-nums">
+        <div className="relative z-10 text-6xl font-bold tabular-nums sm:text-7xl">
           {formatRemaining(remainingMs)}
         </div>
         <div className="relative z-10 mt-2 text-sm text-slate-600 dark:text-slate-300">
@@ -241,7 +191,7 @@ export default function ClickerTimer() {
           type="button"
           onClick={handleReset}
           disabled={status === 'idle'}
-          className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm disabled:opacity-50 hover:border-brand-300"
+          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm hover:border-brand-300 disabled:opacity-50 dark:border-slate-700"
         >
           Anhalten
         </button>

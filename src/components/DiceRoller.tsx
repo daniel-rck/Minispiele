@@ -16,42 +16,68 @@ import {
   type Die,
   type DieType,
 } from '../lib/dice';
+import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
+import { PersistedDiceSchema, type PersistedDie } from '../lib/persistedSchemas';
 
-const STORAGE_KEY = 'minispiele.dice.state.v1';
+const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>> = {
+  1: [[1, 1]],
+  2: [
+    [0, 0],
+    [2, 2],
+  ],
+  3: [
+    [0, 0],
+    [1, 1],
+    [2, 2],
+  ],
+  4: [
+    [0, 0],
+    [0, 2],
+    [2, 0],
+    [2, 2],
+  ],
+  5: [
+    [0, 0],
+    [0, 2],
+    [1, 1],
+    [2, 0],
+    [2, 2],
+  ],
+  6: [
+    [0, 0],
+    [0, 1],
+    [0, 2],
+    [2, 0],
+    [2, 1],
+    [2, 2],
+  ],
+};
 
-interface PersistedDie {
-  type: DieType;
-  color: string;
-  value: number;
-  held: boolean;
+function hydrateDice(persisted: readonly PersistedDie[]): Die[] {
+  return persisted.slice(0, MAX_DICE).map((d) => ({
+    ...createDie(d.type, d.color),
+    color: d.color,
+    held: d.held,
+    value: Math.min(Math.max(1, Math.floor(d.value)), DIE_FACES[d.type]),
+  }));
+}
+
+function defaultDice(): Die[] {
+  const preset = DICE_PRESETS[0];
+  if (preset) return buildPreset(preset);
+  return [createDie('d6', DICE_COLOR_PALETTE[0] ?? '#f8fafc')];
 }
 
 function loadDice(): Die[] | null {
   if (typeof window === 'undefined') return null;
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as PersistedDie[];
-    if (!Array.isArray(parsed)) return null;
-    return parsed
-      .filter(
-        (d) =>
-          d &&
-          typeof d.color === 'string' &&
-          typeof d.value === 'number' &&
-          typeof d.held === 'boolean' &&
-          DIE_TYPES.includes(d.type),
-      )
-      .slice(0, MAX_DICE)
-      .map((d) => {
-        const faces = DIE_FACES[d.type];
-        return {
-          ...createDie(d.type, d.color),
-          color: d.color,
-          held: d.held,
-          value: Math.min(Math.max(1, Math.floor(d.value)), faces),
-        };
-      });
+    const raw = window.localStorage.getItem(STORAGE_KEYS.DICE_STATE);
+    if (!raw) return null;
+    const parsed = PersistedDiceSchema.safeParse(JSON.parse(raw));
+    if (!parsed.success) return null;
+    if (parsed.data.length === 0) return null;
+    const filtered = parsed.data.filter((d) => (DIE_TYPES as readonly DieType[]).includes(d.type));
+    return filtered.length > 0 ? hydrateDice(filtered) : null;
   } catch {
     return null;
   }
@@ -59,50 +85,21 @@ function loadDice(): Die[] | null {
 
 function persistDice(dice: readonly Die[]): void {
   if (typeof window === 'undefined') return;
-  const slim: PersistedDie[] = dice.map((d) => ({
-    type: d.type,
-    color: d.color,
-    value: d.value,
-    held: d.held,
-  }));
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+  try {
+    const slim: PersistedDie[] = dice.map((d) => ({
+      type: d.type,
+      color: d.color,
+      value: d.value,
+      held: d.held,
+    }));
+    window.localStorage.setItem(STORAGE_KEYS.DICE_STATE, JSON.stringify(slim));
+  } catch (err) {
+    console.warn('persistDice: write failed', err);
+  }
 }
 
 function D6Pips({ value, color }: { value: number; color: string }) {
-  const positions: Record<number, [number, number][]> = {
-    1: [[1, 1]],
-    2: [
-      [0, 0],
-      [2, 2],
-    ],
-    3: [
-      [0, 0],
-      [1, 1],
-      [2, 2],
-    ],
-    4: [
-      [0, 0],
-      [0, 2],
-      [2, 0],
-      [2, 2],
-    ],
-    5: [
-      [0, 0],
-      [0, 2],
-      [1, 1],
-      [2, 0],
-      [2, 2],
-    ],
-    6: [
-      [0, 0],
-      [0, 1],
-      [0, 2],
-      [2, 0],
-      [2, 1],
-      [2, 2],
-    ],
-  };
-  const dots = positions[value] ?? [];
+  const dots = D6_PIP_POSITIONS[value] ?? [];
   return (
     <svg viewBox="0 0 60 60" aria-hidden className="w-full h-full" role="img">
       {dots.map(([col, row], i) => (
@@ -142,14 +139,7 @@ function DieFace({ die, rolling }: { die: Die; rolling: boolean }) {
 }
 
 export default function DiceRoller() {
-  const [dice, setDice] = useState<Die[]>(() => {
-    const restored = loadDice();
-    if (restored && restored.length > 0) return restored;
-    const defaultPreset = DICE_PRESETS[0];
-    return defaultPreset
-      ? buildPreset(defaultPreset)
-      : [createDie('d6', DICE_COLOR_PALETTE[0] ?? '#f8fafc')];
-  });
+  const [dice, setDice] = useState<Die[]>(() => loadDice() ?? defaultDice());
   const [rollingIds, setRollingIds] = useState<ReadonlySet<string>>(new Set());
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
 
@@ -184,7 +174,7 @@ export default function DiceRoller() {
           next.delete(id);
           return next;
         });
-      }, 450);
+      }, ANIMATION.DICE_ROLL_MS);
       timeouts.set(id, t);
     });
   }, []);
