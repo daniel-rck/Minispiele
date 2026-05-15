@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import AppShell from './components/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
+import PWAUpdatePrompt from './components/PWAUpdatePrompt';
 import Home from './pages/Home';
 
 const RingSort = lazy(() => import('./pages/RingSort'));
@@ -27,6 +28,7 @@ function LazyRoute({ children, label }: { children: React.ReactNode; label: stri
 export default function App() {
   return (
     <ErrorBoundary label="root">
+      <PWAUpdatePrompt />
       <BrowserRouter>
         <Routes>
           <Route element={<AppShell />}>
