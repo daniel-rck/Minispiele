@@ -2,9 +2,11 @@
 
 Sammlung kleiner Browser-Minispiele. Lokal, ohne Account, ohne Tracking — alles läuft im Browser.
 
-Aktuelle Spiele:
+Aktuelle Spiele & Mini-Apps:
 
 - **Ringe sortieren** — sortiere bunte Ringe in drei Farben auf vier Stäben.
+- **Clicker Timer** — Countdown einstellen; jeder Tipp startet ihn neu und beendet den Alarm.
+- **Würfel** — frei konfigurierbares Würfelset (Anzahl, Würfeltyp, Farbe) mit Halten-Funktion für Kniffel, Mäxle & Co.
 
 ## Tech-Stack
 

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Würfel">
+  <rect width="640" height="360" rx="20" fill="#f1f5f9"/>
+
+  <!-- Die 1: red, showing 5 -->
+  <g transform="translate(100 110) rotate(-8 70 70)">
+    <rect width="140" height="140" rx="22" fill="#ef4444" stroke="#b91c1c" stroke-width="3"/>
+    <circle cx="35" cy="35" r="12" fill="#ffffff"/>
+    <circle cx="105" cy="35" r="12" fill="#ffffff"/>
+    <circle cx="70" cy="70" r="12" fill="#ffffff"/>
+    <circle cx="35" cy="105" r="12" fill="#ffffff"/>
+    <circle cx="105" cy="105" r="12" fill="#ffffff"/>
+  </g>
+
+  <!-- Die 2: white, showing 3 -->
+  <g transform="translate(260 90) rotate(4 70 70)">
+    <rect width="140" height="140" rx="22" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+    <circle cx="35" cy="35" r="12" fill="#0f172a"/>
+    <circle cx="70" cy="70" r="12" fill="#0f172a"/>
+    <circle cx="105" cy="105" r="12" fill="#0f172a"/>
+  </g>
+
+  <!-- Die 3: violet, showing 6 -->
+  <g transform="translate(420 110) rotate(-3 70 70)">
+    <rect width="140" height="140" rx="22" fill="#8b5cf6" stroke="#6d28d9" stroke-width="3"/>
+    <circle cx="35" cy="35" r="11" fill="#ffffff"/>
+    <circle cx="35" cy="70" r="11" fill="#ffffff"/>
+    <circle cx="35" cy="105" r="11" fill="#ffffff"/>
+    <circle cx="105" cy="35" r="11" fill="#ffffff"/>
+    <circle cx="105" cy="70" r="11" fill="#ffffff"/>
+    <circle cx="105" cy="105" r="11" fill="#ffffff"/>
+  </g>
+</svg>
