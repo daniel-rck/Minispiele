@@ -9,6 +9,13 @@ interface PegProps {
   onClick: (index: number) => void;
 }
 
+function ringWidthPercent(size: number, capacity: number): number {
+  const minWidth = 45;
+  const maxWidth = 90;
+  if (capacity <= 1) return maxWidth;
+  return minWidth + (size / (capacity - 1)) * (maxWidth - minWidth);
+}
+
 export default function Peg({ peg, index, capacity, selected, onClick }: PegProps) {
   const slotHeightRem = 1.75;
   const reservedHeight = capacity * slotHeightRem;
@@ -31,14 +38,13 @@ export default function Peg({ peg, index, capacity, selected, onClick }: PegProp
         className="relative flex flex-col-reverse items-center gap-0.5 w-full"
         style={{ minHeight: `${reservedHeight}rem` }}
       >
-        {peg.map((color, i) => {
+        {peg.map((ring, i) => {
           const isTop = i === peg.length - 1;
-          const width = 55 + i * 8;
           return (
             <Ring
-              key={i}
-              color={color}
-              width={Math.min(width, 95)}
+              key={ring.id}
+              color={ring.color}
+              widthPercent={ringWidthPercent(ring.size, capacity)}
               lifted={selected && isTop}
             />
           );

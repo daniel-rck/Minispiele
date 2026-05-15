@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createInitialState,
   pegCapacity,
@@ -7,9 +7,11 @@ import {
   type Difficulty,
   type GameState,
 } from '../lib/ringSort';
+import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import Peg from './Peg';
 
-const STORAGE_KEY = 'minispiele.ringSort.difficulty';
+const DIFFICULTY_KEY = 'minispiele.ringSort.difficulty';
+const MIX_KEY = 'minispiele.ringSort.allowColorMix';
 
 const difficultyLabels: Record<Difficulty, string> = {
   easy: 'Leicht',
@@ -19,20 +21,40 @@ const difficultyLabels: Record<Difficulty, string> = {
 
 function loadDifficulty(): Difficulty {
   if (typeof window === 'undefined') return 'medium';
-  const stored = window.localStorage.getItem(STORAGE_KEY);
+  const stored = window.localStorage.getItem(DIFFICULTY_KEY);
   if (stored === 'easy' || stored === 'medium' || stored === 'hard') return stored;
   return 'medium';
 }
 
+function loadAllowColorMix(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(MIX_KEY) === 'true';
+}
+
 export default function RingSortGame() {
   const [state, setState] = useState<GameState>(() =>
-    createInitialState(loadDifficulty()),
+    createInitialState(loadDifficulty(), loadAllowColorMix()),
   );
+  const timer = useGameTimer();
+  const prevMovesRef = useRef(state.moves);
+  const prevWonRef = useRef(state.won);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(STORAGE_KEY, state.difficulty);
+    window.localStorage.setItem(DIFFICULTY_KEY, state.difficulty);
   }, [state.difficulty]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(MIX_KEY, String(state.allowColorMix));
+  }, [state.allowColorMix]);
+
+  useEffect(() => {
+    if (state.moves > prevMovesRef.current) timer.start();
+    if (state.won && !prevWonRef.current) timer.stop();
+    prevMovesRef.current = state.moves;
+    prevWonRef.current = state.won;
+  }, [state.moves, state.won, timer]);
 
   const handlePegClick = useCallback((index: number) => {
     setState((s) => {
@@ -43,13 +65,24 @@ export default function RingSortGame() {
     });
   }, []);
 
-  const restart = useCallback((difficulty: Difficulty = state.difficulty) => {
-    setState(createInitialState(difficulty));
-  }, [state.difficulty]);
+  const restart = useCallback(
+    (difficulty: Difficulty = state.difficulty, allowColorMix: boolean = state.allowColorMix) => {
+      timer.reset();
+      prevMovesRef.current = 0;
+      prevWonRef.current = false;
+      setState(createInitialState(difficulty, allowColorMix));
+    },
+    [state.difficulty, state.allowColorMix, timer],
+  );
 
   const onDifficultyChange = (next: Difficulty) => {
     if (next === state.difficulty) return;
-    restart(next);
+    restart(next, state.allowColorMix);
+  };
+
+  const onMixToggle = (next: boolean) => {
+    if (next === state.allowColorMix) return;
+    restart(state.difficulty, next);
   };
 
   const capacity = pegCapacity(state.difficulty);
@@ -71,8 +104,23 @@ export default function RingSortGame() {
             ))}
           </select>
         </label>
+        <label className="text-sm flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={state.allowColorMix}
+            onChange={(e) => onMixToggle(e.target.checked)}
+            className="h-4 w-4 rounded border-slate-300 dark:border-slate-700"
+          />
+          <span className="text-slate-600 dark:text-slate-300">Farbmix erlaubt</span>
+        </label>
         <div className="text-sm text-slate-600 dark:text-slate-300">
           Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
+        </div>
+        <div className="text-sm text-slate-600 dark:text-slate-300">
+          Zeit:{' '}
+          <span className="font-semibold tabular-nums" aria-label="Spielzeit">
+            {formatDuration(timer.elapsedSeconds)}
+          </span>
         </div>
         <button
           type="button"
@@ -105,7 +153,7 @@ export default function RingSortGame() {
               </div>
               <div className="text-lg font-semibold mb-1">Gewonnen!</div>
               <div className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                Sortiert in {state.moves} Zügen.
+                Sortiert in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
               </div>
               <button
                 type="button"

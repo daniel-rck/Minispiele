@@ -8,17 +8,17 @@ const colorClasses: Record<RingColor, string> = {
 
 interface RingProps {
   color: RingColor;
-  width: number;
+  widthPercent: number;
   lifted?: boolean;
 }
 
-export default function Ring({ color, width, lifted = false }: RingProps) {
+export default function Ring({ color, widthPercent, lifted = false }: RingProps) {
   return (
     <div
       className={`h-6 sm:h-7 rounded-full shadow ring-2 transition-transform ${
         colorClasses[color]
       } ${lifted ? '-translate-y-3' : ''}`}
-      style={{ width: `${width}%` }}
+      style={{ width: `${widthPercent}%` }}
     />
   );
 }

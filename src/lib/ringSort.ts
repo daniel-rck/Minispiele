@@ -1,5 +1,12 @@
 export type RingColor = 'red' | 'blue' | 'green';
-export type Peg = RingColor[];
+
+export interface Ring {
+  color: RingColor;
+  size: number;
+  id: string;
+}
+
+export type Peg = Ring[];
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export interface GameState {
@@ -8,6 +15,7 @@ export interface GameState {
   moves: number;
   won: boolean;
   difficulty: Difficulty;
+  allowColorMix: boolean;
 }
 
 export const NUM_PEGS = 4;
@@ -45,21 +53,24 @@ function shuffle<T>(items: T[], rng: () => number): T[] {
 
 export function createInitialState(
   difficulty: Difficulty,
+  allowColorMix: boolean = false,
   seed: number = Date.now(),
 ): GameState {
   const ringsPerColor = RINGS_PER_COLOR[difficulty];
   const rng = mulberry32(seed);
 
-  const bag: RingColor[] = [];
+  const bag: Ring[] = [];
   for (const color of COLORS) {
-    for (let i = 0; i < ringsPerColor; i++) bag.push(color);
+    for (let size = 0; size < ringsPerColor; size++) {
+      bag.push({ color, size, id: `${color}-${size}` });
+    }
   }
   const shuffled = shuffle(bag, rng);
 
   const filledPegs = NUM_PEGS - 1;
   const pegs: Peg[] = Array.from({ length: NUM_PEGS }, () => [] as Peg);
-  shuffled.forEach((color, i) => {
-    pegs[i % filledPegs].push(color);
+  shuffled.forEach((ring, i) => {
+    pegs[i % filledPegs].push(ring);
   });
 
   return {
@@ -68,6 +79,7 @@ export function createInitialState(
     moves: 0,
     won: isSolved(pegs),
     difficulty,
+    allowColorMix,
   };
 }
 
@@ -75,8 +87,8 @@ export function isSolved(pegs: Peg[]): boolean {
   const seenColors = new Set<RingColor>();
   for (const peg of pegs) {
     if (peg.length === 0) continue;
-    const first = peg[0];
-    if (!peg.every((c) => c === first)) return false;
+    const first = peg[0].color;
+    if (!peg.every((r) => r.color === first)) return false;
     if (seenColors.has(first)) return false;
     seenColors.add(first);
   }
@@ -100,6 +112,7 @@ export function canMove(
   from: number,
   to: number,
   difficulty: Difficulty,
+  allowColorMix: boolean,
 ): boolean {
   if (from === to) return false;
   const src = pegs[from];
@@ -108,12 +121,13 @@ export function canMove(
   if (src.length === 0) return false;
   if (dst.length >= pegCapacity(difficulty)) return false;
   if (dst.length === 0) return true;
-  return dst[dst.length - 1] === src[src.length - 1];
+  if (allowColorMix) return true;
+  return dst[dst.length - 1].color === src[src.length - 1].color;
 }
 
 export function tryMove(state: GameState, from: number, to: number): GameState {
   if (state.won) return state;
-  if (!canMove(state.pegs, from, to, state.difficulty)) {
+  if (!canMove(state.pegs, from, to, state.difficulty, state.allowColorMix)) {
     return { ...state, selectedPegIndex: null };
   }
   const pegs = state.pegs.map((p) => p.slice());
