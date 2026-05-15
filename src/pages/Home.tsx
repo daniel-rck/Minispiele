@@ -16,6 +16,22 @@ const games: GameCard[] = [
     preview: '/games/ring-sort-preview.svg',
     previewAlt: 'Vorschau: vier Stäbe mit gestapelten roten, blauen und grünen Ringen',
   },
+  {
+    to: '/timer',
+    title: 'Clicker Timer',
+    description:
+      'Countdown einstellen. Jeder Tipp startet ihn neu und beendet den Alarm.',
+    preview: '/games/timer-preview.svg',
+    previewAlt: 'Vorschau: ein Stoppuhr-Zifferblatt mit Countdown',
+  },
+  {
+    to: '/dice',
+    title: 'Würfel',
+    description:
+      'Würfelset zum Pen-and-Paper-Spielen: Kniffel, Mäxle & mehr — frei konfigurierbar.',
+    preview: '/games/dice-preview.svg',
+    previewAlt: 'Vorschau: drei farbige Würfel mit Augen',
+  },
 ];
 
 export default function Home() {
