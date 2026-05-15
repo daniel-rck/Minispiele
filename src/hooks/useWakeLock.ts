@@ -16,6 +16,13 @@ export function useWakeLock(active: boolean): { isSupported: boolean } {
     if (sentinelRef.current && !sentinelRef.current.released) return;
     try {
       const sentinel = await api.request('screen');
+      // The hook may have switched to inactive while the request was pending.
+      // Release the freshly acquired sentinel right away instead of keeping
+      // the screen awake against the caller's wishes.
+      if (!desiredRef.current) {
+        void sentinel.release().catch(() => undefined);
+        return;
+      }
       sentinelRef.current = sentinel;
       sentinel.addEventListener('release', () => {
         sentinelRef.current = null;

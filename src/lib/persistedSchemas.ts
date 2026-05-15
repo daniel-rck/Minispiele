@@ -51,6 +51,8 @@ export const HighscoresSchema = z.object({
 
 export const TimerUserPresetsSchema = z.array(DurationSchema).max(3);
 
+export const DiceModifierSchema = z.number().int().min(-999).max(999);
+
 export type HighscoreEntry = z.infer<typeof HighscoreEntrySchema>;
 export type Highscores = z.infer<typeof HighscoresSchema>;
 export type DiceHistoryEntry = z.infer<typeof DiceHistoryEntrySchema>;

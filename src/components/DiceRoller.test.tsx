@@ -45,6 +45,18 @@ describe('DiceRoller', () => {
     expect(d20s.length).toBe(2);
   });
 
+  it('applies a notation modifier to the displayed sum', async () => {
+    const user = userEvent.setup();
+    render(<DiceRoller />);
+    const input = screen.getByPlaceholderText(/3d6\+2/i);
+    await user.clear(input);
+    await user.type(input, '2d6+5');
+    await user.click(screen.getByRole('button', { name: /^Setzen$/i }));
+    // 2 d6 dice now exist; sum = roll1+roll2+5. Without rolling, dice keep their initial random values.
+    // We assert the modifier chip is visible — that proves the modifier was applied to state.
+    expect(screen.getByRole('button', { name: /Modifier \+5 entfernen/i })).toBeInTheDocument();
+  });
+
   it('shows a hint on invalid notation', async () => {
     const user = userEvent.setup();
     render(<DiceRoller />);

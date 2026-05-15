@@ -25,6 +25,7 @@ export const STORAGE_KEYS = {
   RING_MIX: 'minispiele.ringSort.allowColorMix',
   RING_HIGHSCORES: 'minispiele.ringSort.highscores.v1',
   DICE_STATE: 'minispiele.dice.state.v1',
+  DICE_MODIFIER: 'minispiele.dice.modifier.v1',
   DICE_HISTORY: 'minispiele.dice.history.v1',
   TIMER_DURATION: 'minispiele.timer.durationSeconds',
   TIMER_PRESETS: 'minispiele.timer.userPresets.v1',
