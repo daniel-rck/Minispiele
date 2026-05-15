@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Timer', () => {
-  test('start, pause, resume, reset cycle', async ({ page }) => {
+  test('start, pause, resume, restart cycle', async ({ page }) => {
     await page.goto('/timer');
     const big = page.getByRole('button', { name: /Starten\./ });
     await big.click();
@@ -15,8 +15,9 @@ test.describe('Timer', () => {
     await resumeBtn.click();
     await expect(page.getByText(/Status:/)).toContainText(/läuft/);
 
-    await page.getByRole('button', { name: 'Zurücksetzen' }).click();
-    await expect(page.getByText(/Status:/)).toContainText(/bereit/);
+    // ↺ restarts the run immediately, status stays 'läuft'.
+    await page.getByRole('button', { name: 'Neu starten', exact: true }).click();
+    await expect(page.getByText(/Status:/)).toContainText(/läuft/);
   });
 
   test('stepper buttons adjust minutes and seconds', async ({ page }) => {
