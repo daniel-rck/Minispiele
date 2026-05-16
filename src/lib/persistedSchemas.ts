@@ -83,6 +83,19 @@ export const TwentyFortyEightBestSchema = z.number().int().nonnegative();
 
 export const SimonBestSchema = z.number().int().nonnegative();
 
+export const MinesDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+
+export const MinesEntrySchema = z.object({
+  seconds: z.number().int().nonnegative(),
+  at: z.number().int().nonnegative(),
+});
+
+export const MinesHighscoresSchema = z.object({
+  easy: MinesEntrySchema.nullable(),
+  medium: MinesEntrySchema.nullable(),
+  hard: MinesEntrySchema.nullable(),
+});
+
 export type HighscoreEntry = z.infer<typeof HighscoreEntrySchema>;
 export type Highscores = z.infer<typeof HighscoresSchema>;
 export type DiceHistoryEntry = z.infer<typeof DiceHistoryEntrySchema>;
@@ -94,6 +107,11 @@ export type SlidingDifficulty = z.infer<typeof SlidingDifficultySchema>;
 export type SlidingHighscores = z.infer<typeof SlidingHighscoresSchema>;
 export type TwentyFortyEightState = z.infer<typeof TwentyFortyEightStateSchema>;
 export type TimerDisplayMode = z.infer<typeof TimerDisplayModeSchema>;
+export type MinesDifficulty = z.infer<typeof MinesDifficultySchema>;
+export type MinesEntry = z.infer<typeof MinesEntrySchema>;
+export type MinesHighscores = z.infer<typeof MinesHighscoresSchema>;
+
+export const EMPTY_MINES_HIGHSCORES: MinesHighscores = { easy: null, medium: null, hard: null };
 
 export const EMPTY_HIGHSCORES: Highscores = { easy: null, medium: null, hard: null };
 export const EMPTY_MEMORY_HIGHSCORES: MemoryHighscores = { easy: null, medium: null, hard: null };

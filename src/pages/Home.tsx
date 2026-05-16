@@ -60,6 +60,13 @@ const games: GameCard[] = [
     previewAlt:
       'Vorschau: vier farbige Viertelkreise (grün, rot, gelb, blau) um eine zentrale Scheibe',
   },
+  {
+    to: '/minesweeper',
+    title: 'Minensucher',
+    description: 'Decke Felder auf, ohne eine Mine zu treffen. Drei Schwierigkeitsstufen.',
+    preview: '/games/minesweeper-preview.svg',
+    previewAlt: 'Vorschau: ein Raster mit aufgedeckten Zahlen, Flaggen und einer sichtbaren Mine',
+  },
 ];
 
 export default function Home() {

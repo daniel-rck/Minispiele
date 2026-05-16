@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Minensucher">
+  <rect width="640" height="360" rx="20" fill="#cbd5e1"/>
+  <g transform="translate(160 40)" font-family="system-ui, sans-serif" font-size="34" font-weight="700" text-anchor="middle">
+    <!-- 8x4 grid of cells, 40px each, gap 4px -->
+    <g>
+      <!-- Row 1 -->
+      <rect x="0"   y="0"   width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="20" y="32" fill="#2563eb">1</text>
+      <rect x="44"  y="0"   width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="64" y="32" fill="#2563eb">1</text>
+      <rect x="88"  y="0"   width="40" height="40" rx="4" fill="#94a3b8"/>
+      <rect x="132" y="0"   width="40" height="40" rx="4" fill="#94a3b8"/>
+      <text x="152" y="32" fill="#1e293b">🚩</text>
+      <rect x="176" y="0"   width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="196" y="32" fill="#16a34a">2</text>
+      <rect x="220" y="0"   width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <rect x="264" y="0"   width="40" height="40" rx="4" fill="#94a3b8"/>
+      <rect x="308" y="0"   width="40" height="40" rx="4" fill="#94a3b8"/>
+      <!-- Row 2 -->
+      <rect x="0"   y="44"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <rect x="44"  y="44"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="64" y="76" fill="#2563eb">1</text>
+      <rect x="88"  y="44"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="108" y="76" fill="#16a34a">2</text>
+      <rect x="132" y="44"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="152" y="76" fill="#dc2626">3</text>
+      <rect x="176" y="44"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="196" y="76" fill="#2563eb">1</text>
+      <rect x="220" y="44"  width="40" height="40" rx="4" fill="#94a3b8"/>
+      <text x="240" y="76" fill="#1e293b">🚩</text>
+      <rect x="264" y="44"  width="40" height="40" rx="4" fill="#fca5a5"/>
+      <text x="284" y="78">💣</text>
+      <rect x="308" y="44"  width="40" height="40" rx="4" fill="#94a3b8"/>
+      <!-- Row 3 -->
+      <rect x="0"   y="88"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <rect x="44"  y="88"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <rect x="88"  y="88"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="108" y="120" fill="#2563eb">1</text>
+      <rect x="132" y="88"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="152" y="120" fill="#2563eb">1</text>
+      <rect x="176" y="88"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="196" y="120" fill="#16a34a">2</text>
+      <rect x="220" y="88"  width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="240" y="120" fill="#dc2626">3</text>
+      <rect x="264" y="88"  width="40" height="40" rx="4" fill="#94a3b8"/>
+      <rect x="308" y="88"  width="40" height="40" rx="4" fill="#94a3b8"/>
+      <!-- Row 4 -->
+      <rect x="0"   y="132" width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <rect x="44"  y="132" width="40" height="40" rx="4" fill="#94a3b8"/>
+      <rect x="88"  y="132" width="40" height="40" rx="4" fill="#94a3b8"/>
+      <rect x="132" y="132" width="40" height="40" rx="4" fill="#e2e8f0"/>
+      <text x="152" y="164" fill="#2563eb">1</text>
+      <rect x="176" y="132" width="40" height="40" rx="4" fill="#94a3b8"/>
+      <text x="196" y="164">🚩</text>
+      <rect x="220" y="132" width="40" height="40" rx="4" fill="#94a3b8"/>
+      <rect x="264" y="132" width="40" height="40" rx="4" fill="#94a3b8"/>
+      <rect x="308" y="132" width="40" height="40" rx="4" fill="#94a3b8"/>
+    </g>
+  </g>
+</svg>

@@ -46,4 +46,6 @@ export const STORAGE_KEYS = {
   SLIDING_DIFFICULTY: 'minispiele.sliding.difficulty.v1',
   SLIDING_HIGHSCORES: 'minispiele.sliding.highscores.v1',
   SIMON_BEST: 'minispiele.simon.bestLevel.v1',
+  MINES_DIFFICULTY: 'minispiele.mines.difficulty.v1',
+  MINES_HIGHSCORES: 'minispiele.mines.highscores.v1',
 } as const;
