@@ -19,7 +19,7 @@ export default function Peg({ peg, index, capacity, selected, onClick }: PegProp
       aria-label={`Stab ${index + 1}${peg.length === 0 ? ' (leer)' : `, ${peg.length} Ringe`}`}
       aria-pressed={selected}
       className="group relative flex w-full touch-manipulation flex-col items-center justify-end rounded-2xl px-1 pt-3 pb-1 select-none sm:px-2 md:px-3 md:pt-4"
-      style={{ minHeight: `calc(var(--slot-h, 2rem) * ${capacity} + 2.5rem)` }}
+      style={{ minHeight: `calc(var(--slot-h, 2.4rem) * ${capacity} + 3rem)` }}
     >
       {selected && (
         <div
@@ -34,18 +34,23 @@ export default function Peg({ peg, index, capacity, selected, onClick }: PegProp
         }`}
       />
       <div
-        className="relative flex w-full flex-col-reverse items-center"
-        style={{ minHeight: `calc(var(--slot-h, 2rem) * ${capacity})` }}
+        className="relative w-full overflow-visible"
+        style={{ height: `calc(var(--slot-h, 2.4rem) * ${capacity})` }}
       >
         {peg.map((ring, i) => {
           const isTop = i === peg.length - 1;
           return (
-            <Ring
+            <div
               key={ring.id}
-              color={ring.color}
-              widthPercent={RING_WIDTH_PERCENT}
-              lifted={selected && isTop}
-            />
+              className="absolute inset-x-0 flex justify-center"
+              style={{ bottom: `calc(var(--slot-h, 2.4rem) * ${i})` }}
+            >
+              <Ring
+                color={ring.color}
+                widthPercent={RING_WIDTH_PERCENT}
+                lifted={selected && isTop}
+              />
+            </div>
           );
         })}
       </div>
