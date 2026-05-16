@@ -32,14 +32,15 @@ body:
   - type: dropdown
     id: genre
     attributes:
-      label: Genre
+      label: Kategorie
+      description: Passt zu den Filterchips auf der Startseite.
       options:
-        - Logik / Denksport
-        - Wort- / Sprachspiel
-        - Schnelle Action / Arcade
-        - Brettspiel-Klassiker
-        - Kartenspiel
+        - Logik & Denksport
+        - Wort & Sprache
+        - Action & Arcade
         - Gehirntraining
+        - Karten
+        - Werkzeuge
         - Sonstiges
     validations:
       required: true
