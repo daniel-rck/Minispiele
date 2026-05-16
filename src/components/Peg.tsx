@@ -9,12 +9,7 @@ interface PegProps {
   onClick: (index: number) => void;
 }
 
-function ringWidthPercent(size: number, capacity: number): number {
-  const minWidth = 45;
-  const maxWidth = 90;
-  if (capacity <= 1) return maxWidth;
-  return minWidth + (size / (capacity - 1)) * (maxWidth - minWidth);
-}
+const RING_WIDTH_PERCENT = 88;
 
 export default function Peg({ peg, index, capacity, selected, onClick }: PegProps) {
   return (
@@ -23,14 +18,21 @@ export default function Peg({ peg, index, capacity, selected, onClick }: PegProp
       onClick={() => onClick(index)}
       aria-label={`Stab ${index + 1}${peg.length === 0 ? ' (leer)' : `, ${peg.length} Ringe`}`}
       aria-pressed={selected}
-      className={`group relative flex flex-col items-center justify-end rounded-2xl border-2 px-1 pt-2 pb-1 sm:px-3 md:px-4 md:pt-3 select-none transition ${
-        selected
-          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-          : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-brand-300'
-      }`}
+      className="group relative flex w-full touch-manipulation flex-col items-center justify-end rounded-2xl px-1 pt-3 pb-1 select-none sm:px-2 md:px-3 md:pt-4"
       style={{ minHeight: `calc(var(--slot-h, 2rem) * ${capacity} + 2.5rem)` }}
     >
-      <div className="absolute top-2 bottom-6 left-1/2 -translate-x-1/2 w-2 md:w-2.5 rounded-full bg-slate-300 shadow-[inset_0_0_2px_rgba(0,0,0,0.3)] dark:bg-slate-700" />
+      {selected && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-1 inset-y-1 rounded-2xl bg-brand-100/60 dark:bg-brand-900/30"
+        />
+      )}
+      <div
+        aria-hidden
+        className={`absolute top-3 bottom-7 left-1/2 w-2 -translate-x-1/2 rounded-full shadow-[inset_0_0_2px_rgba(0,0,0,0.35)] md:w-2.5 ${
+          selected ? 'bg-brand-500' : 'bg-slate-400 dark:bg-slate-500'
+        }`}
+      />
       <div
         className="relative flex w-full flex-col-reverse items-center"
         style={{ minHeight: `calc(var(--slot-h, 2rem) * ${capacity})` }}
@@ -41,13 +43,18 @@ export default function Peg({ peg, index, capacity, selected, onClick }: PegProp
             <Ring
               key={ring.id}
               color={ring.color}
-              widthPercent={ringWidthPercent(ring.size, capacity)}
+              widthPercent={RING_WIDTH_PERCENT}
               lifted={selected && isTop}
             />
           );
         })}
       </div>
-      <div className="mt-1 h-2.5 md:h-3 w-full rounded-full bg-slate-400 shadow-md dark:bg-slate-600" />
+      <div
+        aria-hidden
+        className={`relative mt-1 h-3 w-full rounded-full shadow-md md:h-3.5 ${
+          selected ? 'bg-brand-500' : 'bg-slate-500 dark:bg-slate-600'
+        }`}
+      />
     </button>
   );
 }
