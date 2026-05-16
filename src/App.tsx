@@ -8,6 +8,9 @@ import Home from './pages/Home';
 const RingSort = lazy(() => import('./pages/RingSort'));
 const Timer = lazy(() => import('./pages/Timer'));
 const Dice = lazy(() => import('./pages/Dice'));
+const Memory = lazy(() => import('./pages/Memory'));
+const TwentyFortyEight = lazy(() => import('./pages/TwentyFortyEight'));
+const SlidingPuzzle = lazy(() => import('./pages/SlidingPuzzle'));
 
 function RouteFallback() {
   return (
@@ -61,6 +64,30 @@ export default function App() {
               element={
                 <LazyRoute label="dice">
                   <Dice />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="memory"
+              element={
+                <LazyRoute label="memory">
+                  <Memory />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="twenty-forty-eight"
+              element={
+                <LazyRoute label="twenty-forty-eight">
+                  <TwentyFortyEight />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="sliding-puzzle"
+              element={
+                <LazyRoute label="sliding-puzzle">
+                  <SlidingPuzzle />
                 </LazyRoute>
               }
             />
