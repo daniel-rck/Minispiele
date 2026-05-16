@@ -9,48 +9,57 @@ interface PegProps {
   onClick: (index: number) => void;
 }
 
-function ringWidthPercent(size: number, capacity: number): number {
-  const minWidth = 45;
-  const maxWidth = 90;
-  if (capacity <= 1) return maxWidth;
-  return minWidth + (size / (capacity - 1)) * (maxWidth - minWidth);
-}
+const RING_WIDTH_PERCENT = 88;
 
 export default function Peg({ peg, index, capacity, selected, onClick }: PegProps) {
-  const slotHeightRem = 1.75;
-  const reservedHeight = capacity * slotHeightRem;
-
   return (
     <button
       type="button"
       onClick={() => onClick(index)}
       aria-label={`Stab ${index + 1}${peg.length === 0 ? ' (leer)' : `, ${peg.length} Ringe`}`}
       aria-pressed={selected}
-      className={`group relative flex flex-col items-center justify-end rounded-2xl border-2 px-2 pt-2 pb-1 select-none transition ${
-        selected
-          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-          : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-brand-300'
-      }`}
-      style={{ minHeight: `${reservedHeight + 3}rem` }}
+      className="group relative flex w-full touch-manipulation flex-col items-center justify-end rounded-2xl px-1 pt-3 pb-1 select-none sm:px-2 md:px-3 md:pt-4"
+      style={{ minHeight: `calc(var(--slot-h, 2.4rem) * ${capacity} + 3rem)` }}
     >
-      <div className="absolute top-2 bottom-6 left-1/2 -translate-x-1/2 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+      {selected && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-1 inset-y-1 rounded-2xl bg-brand-100/60 dark:bg-brand-900/30"
+        />
+      )}
       <div
-        className="relative flex flex-col-reverse items-center gap-0.5 w-full"
-        style={{ minHeight: `${reservedHeight}rem` }}
+        aria-hidden
+        className={`absolute top-3 bottom-7 left-1/2 w-2 -translate-x-1/2 rounded-full shadow-[inset_0_0_2px_rgba(0,0,0,0.35)] md:w-2.5 ${
+          selected ? 'bg-brand-500' : 'bg-slate-400 dark:bg-slate-500'
+        }`}
+      />
+      <div
+        className="relative w-full overflow-visible"
+        style={{ height: `calc(var(--slot-h, 2.4rem) * ${capacity})` }}
       >
         {peg.map((ring, i) => {
           const isTop = i === peg.length - 1;
           return (
-            <Ring
+            <div
               key={ring.id}
-              color={ring.color}
-              widthPercent={ringWidthPercent(ring.size, capacity)}
-              lifted={selected && isTop}
-            />
+              className="absolute inset-x-0 flex justify-center"
+              style={{ bottom: `calc(var(--slot-h, 2.4rem) * ${i})` }}
+            >
+              <Ring
+                color={ring.color}
+                widthPercent={RING_WIDTH_PERCENT}
+                lifted={selected && isTop}
+              />
+            </div>
           );
         })}
       </div>
-      <div className="mt-1 h-2 w-full rounded-full bg-slate-400 dark:bg-slate-600" />
+      <div
+        aria-hidden
+        className={`relative mt-1 h-3 w-full rounded-full shadow-md md:h-3.5 ${
+          selected ? 'bg-brand-500' : 'bg-slate-500 dark:bg-slate-600'
+        }`}
+      />
     </button>
   );
 }

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Memory">
+  <rect width="640" height="360" rx="20" fill="#f1f5f9"/>
+  <g font-family="system-ui, sans-serif" font-size="36" text-anchor="middle">
+    <!-- Row 1 -->
+    <rect x="120" y="50" width="80" height="80" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="160" y="100" fill="#94a3b8">?</text>
+    <rect x="220" y="50" width="80" height="80" rx="14" fill="#fef3c7" stroke="#f59e0b" stroke-width="3"/>
+    <text x="260" y="102">🍎</text>
+    <rect x="320" y="50" width="80" height="80" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="360" y="100" fill="#94a3b8">?</text>
+    <rect x="420" y="50" width="80" height="80" rx="14" fill="#d1fae5" stroke="#10b981" stroke-width="3"/>
+    <text x="460" y="102">🍇</text>
+    <!-- Row 2 -->
+    <rect x="120" y="150" width="80" height="80" rx="14" fill="#d1fae5" stroke="#10b981" stroke-width="3"/>
+    <text x="160" y="202">🍇</text>
+    <rect x="220" y="150" width="80" height="80" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="260" y="200" fill="#94a3b8">?</text>
+    <rect x="320" y="150" width="80" height="80" rx="14" fill="#fef3c7" stroke="#f59e0b" stroke-width="3"/>
+    <text x="360" y="202">🍎</text>
+    <rect x="420" y="150" width="80" height="80" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="460" y="200" fill="#94a3b8">?</text>
+    <!-- Row 3 -->
+    <rect x="120" y="250" width="80" height="80" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="160" y="300" fill="#94a3b8">?</text>
+    <rect x="220" y="250" width="80" height="80" rx="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="3"/>
+    <text x="260" y="302">🐰</text>
+    <rect x="320" y="250" width="80" height="80" rx="14" fill="#fff" stroke="#cbd5e1" stroke-width="3"/>
+    <text x="360" y="300" fill="#94a3b8">?</text>
+    <rect x="420" y="250" width="80" height="80" rx="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="3"/>
+    <text x="460" y="302">🐰</text>
+  </g>
+</svg>

@@ -25,6 +25,7 @@ import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
 import {
   DiceHistorySchema,
   DiceModifierSchema,
+  DiceRollDurationSchema,
   PersistedDiceSchema,
   type DiceHistory,
   type DiceHistoryEntry,
@@ -162,30 +163,46 @@ function D6Pips({ value, color }: { value: number; color: string }) {
   );
 }
 
-function DieFace({ die, rolling }: { die: Die; rolling: boolean }) {
+function DieFace({
+  die,
+  rolling,
+  displayValue,
+  rollDurationMs,
+}: {
+  die: Die;
+  rolling: boolean;
+  displayValue: number;
+  rollDurationMs: number;
+}) {
   const fg = readableTextColor(die.color);
   return (
-    <div
-      className={`relative flex aspect-square w-full items-center justify-center rounded-2xl border border-black/10 shadow-inner transition-transform duration-200 motion-reduce:transform-none dark:border-white/10 ${
-        rolling ? 'rotate-6 scale-95' : 'rotate-0 scale-100'
-      }`}
-      style={{ backgroundColor: die.color }}
-      aria-label={`Würfel ${die.type}: ${die.value}`}
-    >
-      {die.type === 'd6' ? (
-        <div className="h-3/4 w-3/4" style={{ color: fg }}>
-          <D6Pips value={die.value} color={fg} />
-        </div>
-      ) : (
-        <div className="text-3xl font-bold tabular-nums sm:text-4xl" style={{ color: fg }}>
-          {die.value}
-        </div>
-      )}
+    <div className="dice-perspective">
       <div
-        className="absolute right-2 bottom-1 text-[10px] font-medium uppercase opacity-70 sm:text-xs"
-        style={{ color: fg }}
+        key={rolling ? `roll-${rollDurationMs}` : 'idle'}
+        className={`relative flex aspect-square w-full items-center justify-center rounded-2xl border border-black/10 shadow-inner dark:border-white/10 ${
+          rolling ? 'dice-tumble' : ''
+        }`}
+        style={{
+          backgroundColor: die.color,
+          animationDuration: rolling ? `${rollDurationMs}ms` : undefined,
+        }}
+        aria-label={`Würfel ${die.type}: ${die.value}`}
       >
-        {die.type}
+        {die.type === 'd6' ? (
+          <div className="h-3/4 w-3/4" style={{ color: fg }}>
+            <D6Pips value={displayValue} color={fg} />
+          </div>
+        ) : (
+          <div className="text-3xl font-bold tabular-nums sm:text-4xl" style={{ color: fg }}>
+            {displayValue}
+          </div>
+        )}
+        <div
+          className="absolute right-2 bottom-1 text-[10px] font-medium uppercase opacity-70 sm:text-xs"
+          style={{ color: fg }}
+        >
+          {die.type}
+        </div>
       </div>
     </div>
   );
@@ -194,14 +211,21 @@ function DieFace({ die, rolling }: { die: Die; rolling: boolean }) {
 export default function DiceRoller() {
   const [dice, setDice] = useState<Die[]>(() => loadDice() ?? defaultDice());
   const [rollingIds, setRollingIds] = useState<ReadonlySet<string>>(new Set());
+  const [cycleValues, setCycleValues] = useState<ReadonlyMap<string, number>>(new Map());
   const [mode, setMode] = useState<RollMode>('normal');
   const [notationInput, setNotationInput] = useState('');
   const [notationError, setNotationError] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [modifier, setModifier] = useLocalStorage<number>(
     STORAGE_KEYS.DICE_MODIFIER,
     DiceModifierSchema,
     0,
+  );
+  const [rollDuration, setRollDuration] = useLocalStorage<number>(
+    STORAGE_KEYS.DICE_ROLL_DURATION,
+    DiceRollDurationSchema,
+    ANIMATION.DICE_ROLL_DEFAULT_MS,
   );
   const [history, setHistory] = useLocalStorage<DiceHistory>(
     STORAGE_KEYS.DICE_HISTORY,
@@ -211,6 +235,44 @@ export default function DiceRoller() {
   const [lastAnnouncement, setLastAnnouncement] = useState('');
 
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
+  const cycleIntervalRef = useRef<number | null>(null);
+  const diceRef = useRef<Die[]>(dice);
+  diceRef.current = dice;
+  const rollingIdsRef = useRef<ReadonlySet<string>>(rollingIds);
+  rollingIdsRef.current = rollingIds;
+
+  useEffect(() => {
+    if (rollingIds.size === 0) {
+      if (cycleIntervalRef.current !== null) {
+        window.clearInterval(cycleIntervalRef.current);
+        cycleIntervalRef.current = null;
+      }
+      if (cycleValues.size > 0) setCycleValues(new Map());
+      return;
+    }
+    if (cycleIntervalRef.current !== null) return;
+    const tick = () => {
+      const active = rollingIdsRef.current;
+      if (active.size === 0) return;
+      const next = new Map<string, number>();
+      const currentDice = diceRef.current;
+      currentDice.forEach((d) => {
+        if (active.has(d.id)) {
+          const faces = DIE_FACES[d.type];
+          next.set(d.id, Math.floor(Math.random() * faces) + 1);
+        }
+      });
+      setCycleValues(next);
+    };
+    tick();
+    cycleIntervalRef.current = window.setInterval(tick, ANIMATION.DICE_CYCLE_INTERVAL_MS);
+    return () => {
+      if (cycleIntervalRef.current !== null) {
+        window.clearInterval(cycleIntervalRef.current);
+        cycleIntervalRef.current = null;
+      }
+    };
+  }, [rollingIds, cycleValues.size]);
 
   useEffect(() => {
     persistDice(dice);
@@ -224,29 +286,32 @@ export default function DiceRoller() {
     };
   }, []);
 
-  const animateRoll = useCallback((ids: readonly string[]) => {
-    if (ids.length === 0) return;
-    const timeouts = rollTimeoutsRef.current;
-    setRollingIds((prev) => {
-      const next = new Set(prev);
-      ids.forEach((id) => next.add(id));
-      return next;
-    });
-    ids.forEach((id) => {
-      const existing = timeouts.get(id);
-      if (existing !== undefined) window.clearTimeout(existing);
-      const t = window.setTimeout(() => {
-        timeouts.delete(id);
-        setRollingIds((prev) => {
-          if (!prev.has(id)) return prev;
-          const next = new Set(prev);
-          next.delete(id);
-          return next;
-        });
-      }, ANIMATION.DICE_ROLL_MS);
-      timeouts.set(id, t);
-    });
-  }, []);
+  const animateRoll = useCallback(
+    (ids: readonly string[]) => {
+      if (ids.length === 0) return;
+      const timeouts = rollTimeoutsRef.current;
+      setRollingIds((prev) => {
+        const next = new Set(prev);
+        ids.forEach((id) => next.add(id));
+        return next;
+      });
+      ids.forEach((id) => {
+        const existing = timeouts.get(id);
+        if (existing !== undefined) window.clearTimeout(existing);
+        const t = window.setTimeout(() => {
+          timeouts.delete(id);
+          setRollingIds((prev) => {
+            if (!prev.has(id)) return prev;
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+        }, rollDuration);
+        timeouts.set(id, t);
+      });
+    },
+    [rollDuration],
+  );
 
   const recordHistory = useCallback(
     (next: readonly Die[]) => {
@@ -477,6 +542,14 @@ export default function DiceRoller() {
             </span>
           )}
         </button>
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Einstellungen"
+          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+        >
+          ⚙︎
+        </button>
       </div>
 
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -497,7 +570,12 @@ export default function DiceRoller() {
                 aria-label={`Würfel ${die.type} (${die.value}) neu werfen`}
                 className="w-full touch-manipulation"
               >
-                <DieFace die={die} rolling={rolling} />
+                <DieFace
+                  die={die}
+                  rolling={rolling}
+                  displayValue={rolling ? (cycleValues.get(die.id) ?? die.value) : die.value}
+                  rollDurationMs={rollDuration}
+                />
               </button>
               <div className="flex flex-wrap items-center gap-2">
                 <label className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
@@ -617,6 +695,67 @@ export default function DiceRoller() {
           </button>
         </div>
       </div>
+
+      <BottomSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Einstellungen">
+        <div className="flex flex-col gap-4">
+          <div>
+            <div className="mb-1 flex items-baseline justify-between">
+              <label htmlFor="dice-roll-duration" className="text-sm font-medium">
+                Würfel-Animation
+              </label>
+              <span className="text-xs tabular-nums text-slate-500">
+                {(rollDuration / 1000).toFixed(1)}s
+              </span>
+            </div>
+            <input
+              id="dice-roll-duration"
+              type="range"
+              min={ANIMATION.DICE_ROLL_MIN_MS}
+              max={ANIMATION.DICE_ROLL_MAX_MS}
+              step={50}
+              value={rollDuration}
+              onChange={(e) => setRollDuration(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {(
+                [
+                  ['Schnell', 400],
+                  ['Normal', ANIMATION.DICE_ROLL_DEFAULT_MS],
+                  ['Langsam', 1600],
+                ] as const
+              ).map(([label, ms]) => {
+                const active = rollDuration === ms;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setRollDuration(ms)}
+                    aria-pressed={active}
+                    className={`min-h-9 rounded-full border px-3 py-1 text-xs ${
+                      active
+                        ? 'border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200'
+                        : 'border-slate-300 hover:border-brand-300 dark:border-slate-700'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const ids = diceRef.current.map((d) => d.id);
+              animateRoll(ids);
+            }}
+            className="min-h-11 rounded-lg border border-brand-500 px-3 text-sm font-medium text-brand-700 hover:bg-brand-50 dark:text-brand-300 dark:hover:bg-brand-900/30"
+          >
+            Vorschau
+          </button>
+        </div>
+      </BottomSheet>
 
       <BottomSheet
         open={historyOpen}

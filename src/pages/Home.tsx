@@ -31,6 +31,27 @@ const games: GameCard[] = [
     preview: '/games/dice-preview.svg',
     previewAlt: 'Vorschau: drei farbige Würfel mit Augen',
   },
+  {
+    to: '/memory',
+    title: 'Memory',
+    description: 'Finde alle Paare mit möglichst wenigen Zügen. Drei Schwierigkeitsstufen.',
+    preview: '/games/memory-preview.svg',
+    previewAlt: 'Vorschau: ein Raster mit teilweise aufgedeckten Karten',
+  },
+  {
+    to: '/twenty-forty-eight',
+    title: '2048',
+    description: 'Wische Kacheln zusammen, bis die 2048 erscheint. Pfeiltasten oder Touch.',
+    preview: '/games/twenty-forty-eight-preview.svg',
+    previewAlt: 'Vorschau: ein 4×4-Raster mit Zahlenkacheln',
+  },
+  {
+    to: '/sliding-puzzle',
+    title: 'Schiebepuzzle',
+    description: 'Klassisches 15er-Puzzle — schiebe Plättchen in die richtige Reihenfolge.',
+    preview: '/games/sliding-puzzle-preview.svg',
+    previewAlt: 'Vorschau: ein 4×4-Raster mit nummerierten Plättchen und einer Lücke',
+  },
 ];
 
 export default function Home() {

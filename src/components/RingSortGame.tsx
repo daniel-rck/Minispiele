@@ -223,8 +223,8 @@ export default function RingSortGame() {
         </div>
       </div>
 
-      <div className="relative">
-        <div className="grid grid-cols-4 gap-2 sm:gap-4">
+      <div className="peg-board relative mx-auto w-full max-w-[720px]">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-6">
           {state.pegs.map((peg, i) => {
             const highlighted =
               hint !== null && (i === hint.from || i === hint.to)
