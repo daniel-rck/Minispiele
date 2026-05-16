@@ -51,7 +51,7 @@ describe('ClickerTimer', () => {
     const user = userEvent.setup();
     render(<ClickerTimer />);
     await user.click(screen.getByRole('button', { name: /Hundertstel-Sekunden/i }));
-    expect(screen.getByLabelText(/01:00 verbleibend/)).toHaveTextContent('01:00.00');
+    expect(screen.getByLabelText(/01:00\.00 verbleibend/)).toHaveTextContent('01:00.00');
   });
 
   it('starts the timer when the big button is pressed', async () => {

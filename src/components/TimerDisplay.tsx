@@ -11,9 +11,10 @@ interface Props {
 
 export default function TimerDisplay({ mode, ms, animate = true }: Props) {
   if (mode === 'continuous') {
+    const hundredths = formatHundredths(ms);
     return (
-      <span className="tabular-nums" aria-label={`${formatRemaining(ms)} verbleibend`}>
-        {formatHundredths(ms)}
+      <span className="tabular-nums" aria-label={`${hundredths} verbleibend`}>
+        {hundredths}
       </span>
     );
   }
