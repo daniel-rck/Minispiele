@@ -51,6 +51,8 @@ export const HighscoresSchema = z.object({
 
 export const TimerUserPresetsSchema = z.array(DurationSchema).max(3);
 
+export const TimerDisplayModeSchema = z.enum(['flip', 'continuous']);
+
 export const DiceModifierSchema = z.number().int().min(-999).max(999);
 
 export const DiceRollDurationSchema = z.number().int().min(200).max(2500);
@@ -89,6 +91,7 @@ export type MemoryHighscores = z.infer<typeof MemoryHighscoresSchema>;
 export type SlidingDifficulty = z.infer<typeof SlidingDifficultySchema>;
 export type SlidingHighscores = z.infer<typeof SlidingHighscoresSchema>;
 export type TwentyFortyEightState = z.infer<typeof TwentyFortyEightStateSchema>;
+export type TimerDisplayMode = z.infer<typeof TimerDisplayModeSchema>;
 
 export const EMPTY_HIGHSCORES: Highscores = { easy: null, medium: null, hard: null };
 export const EMPTY_MEMORY_HIGHSCORES: MemoryHighscores = { easy: null, medium: null, hard: null };

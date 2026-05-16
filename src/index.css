@@ -151,3 +151,30 @@ select:focus-visible,
     transform: none !important;
   }
 }
+
+.flip-digit {
+  display: inline-block;
+  transform-origin: center center;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.flip-digit-active {
+  animation-name: flip-digit-flip;
+  animation-duration: 300ms;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes flip-digit-flip {
+  0% {
+    transform: rotateX(0);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0);
+  }
+}

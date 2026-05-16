@@ -3,6 +3,7 @@ import {
   MAX_TIMER_SECONDS,
   MIN_TIMER_SECONDS,
   clampSeconds,
+  formatHundredths,
   formatRemaining,
   joinSeconds,
   pauseTimer,
@@ -54,6 +55,33 @@ describe('formatRemaining', () => {
 
   it('clamps negative input to zero', () => {
     expect(formatRemaining(-1000)).toBe('00:00');
+  });
+});
+
+describe('formatHundredths', () => {
+  it('formats zero', () => {
+    expect(formatHundredths(0)).toBe('00:00.00');
+  });
+
+  it('formats sub-second values with hundredths', () => {
+    expect(formatHundredths(10)).toBe('00:00.01');
+    expect(formatHundredths(990)).toBe('00:00.99');
+    expect(formatHundredths(1000)).toBe('00:01.00');
+    expect(formatHundredths(1234)).toBe('00:01.23');
+  });
+
+  it('formats minutes and hundredths together', () => {
+    expect(formatHundredths(60_000)).toBe('01:00.00');
+    expect(formatHundredths(125_450)).toBe('02:05.45');
+  });
+
+  it('floors hundredths (does not round up)', () => {
+    expect(formatHundredths(1239)).toBe('00:01.23');
+    expect(formatHundredths(9_999)).toBe('00:09.99');
+  });
+
+  it('clamps negative input to zero', () => {
+    expect(formatHundredths(-1234)).toBe('00:00.00');
   });
 });
 

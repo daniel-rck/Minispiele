@@ -35,6 +35,7 @@ export const STORAGE_KEYS = {
   DICE_ROLL_DURATION: 'minispiele.dice.rollDurationMs.v1',
   TIMER_DURATION: 'minispiele.timer.durationSeconds',
   TIMER_PRESETS: 'minispiele.timer.userPresets.v1',
+  TIMER_DISPLAY_MODE: 'minispiele.timer.displayMode.v1',
   MEMORY_DIFFICULTY: 'minispiele.memory.difficulty.v1',
   MEMORY_HIGHSCORES: 'minispiele.memory.highscores.v1',
   TFE_STATE: 'minispiele.tfe.state.v1',

@@ -43,8 +43,15 @@ beforeEach(() => {
 describe('ClickerTimer', () => {
   it('renders the duration display and a start button', () => {
     render(<ClickerTimer />);
-    expect(screen.getByText(/00:60|01:00|00:01/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/01:00 verbleibend/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Starten/i })).toBeInTheDocument();
+  });
+
+  it('switches to the continuous (hundredths) display mode', async () => {
+    const user = userEvent.setup();
+    render(<ClickerTimer />);
+    await user.click(screen.getByRole('button', { name: /Hundertstel-Sekunden/i }));
+    expect(screen.getByLabelText(/01:00 verbleibend/)).toHaveTextContent('01:00.00');
   });
 
   it('starts the timer when the big button is pressed', async () => {

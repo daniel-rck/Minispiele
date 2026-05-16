@@ -9,11 +9,17 @@ import {
 } from '../lib/clickerTimer';
 import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import { DurationSchema, TimerUserPresetsSchema } from '../lib/persistedSchemas';
+import {
+  DurationSchema,
+  TimerDisplayModeSchema,
+  TimerUserPresetsSchema,
+  type TimerDisplayMode,
+} from '../lib/persistedSchemas';
 import { AlarmAudio } from '../lib/audio';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { useVibration } from '../hooks/useVibration';
 import AriaLive from './AriaLive';
+import TimerDisplay from './TimerDisplay';
 
 const BUILTIN_PRESETS: readonly number[] = [10, 30, 60, 180, 300, 600];
 const MAX_USER_PRESETS = 3;
@@ -30,6 +36,11 @@ export default function ClickerTimer() {
     STORAGE_KEYS.TIMER_PRESETS,
     TimerUserPresetsSchema,
     [],
+  );
+  const [displayMode, setDisplayMode] = useLocalStorage<TimerDisplayMode>(
+    STORAGE_KEYS.TIMER_DISPLAY_MODE,
+    TimerDisplayModeSchema,
+    'flip',
   );
   const [remainingMs, setRemainingMs] = useState<number>(duration * 1000);
   const [status, setStatus] = useState<Status>('idle');
@@ -270,6 +281,38 @@ export default function ClickerTimer() {
             + speichern
           </button>
         </div>
+
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <span className="text-xs text-slate-500 dark:text-slate-400">Anzeige</span>
+          <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 text-xs dark:border-slate-700 dark:bg-slate-900">
+            <button
+              type="button"
+              aria-pressed={displayMode === 'flip'}
+              aria-label="Anzeige: Sekunden mit Umklapp-Animation"
+              onClick={() => setDisplayMode('flip')}
+              className={`min-h-9 rounded-md px-3 py-1 transition ${
+                displayMode === 'flip'
+                  ? 'bg-brand-600 text-white'
+                  : 'text-slate-600 hover:text-brand-600 dark:text-slate-300'
+              }`}
+            >
+              Sekunden
+            </button>
+            <button
+              type="button"
+              aria-pressed={displayMode === 'continuous'}
+              aria-label="Anzeige: Hundertstel-Sekunden"
+              onClick={() => setDisplayMode('continuous')}
+              className={`min-h-9 rounded-md px-3 py-1 transition ${
+                displayMode === 'continuous'
+                  ? 'bg-brand-600 text-white'
+                  : 'text-slate-600 hover:text-brand-600 dark:text-slate-300'
+              }`}
+            >
+              Hundertstel
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="relative">
@@ -304,7 +347,7 @@ export default function ClickerTimer() {
             style={{ width: `${progress * 100}%` }}
           />
           <div className="relative z-10 text-7xl font-bold tabular-nums sm:text-8xl">
-            {formatRemaining(remainingMs)}
+            <TimerDisplay mode={displayMode} ms={remainingMs} />
           </div>
           <div className="relative z-10 mt-2 text-sm text-slate-600 dark:text-slate-300">
             {buttonLabel}
