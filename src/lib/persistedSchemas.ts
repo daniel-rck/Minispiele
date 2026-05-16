@@ -81,6 +81,8 @@ export const TwentyFortyEightStateSchema = z.object({
 
 export const TwentyFortyEightBestSchema = z.number().int().nonnegative();
 
+export const SimonBestSchema = z.number().int().nonnegative();
+
 export type HighscoreEntry = z.infer<typeof HighscoreEntrySchema>;
 export type Highscores = z.infer<typeof HighscoresSchema>;
 export type DiceHistoryEntry = z.infer<typeof DiceHistoryEntrySchema>;

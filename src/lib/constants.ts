@@ -18,6 +18,9 @@ export const ANIMATION = {
   LONG_PRESS_MS: 700,
   ARIA_LIVE_DEBOUNCE_MS: 50,
   MEMORY_PEEK_MS: 800,
+  SIMON_FLASH_MS: 600,
+  SIMON_GAP_MS: 150,
+  SIMON_PRESS_MS: 200,
 } as const;
 
 export const HAPTICS = {
@@ -42,4 +45,5 @@ export const STORAGE_KEYS = {
   TFE_BEST: 'minispiele.tfe.bestScore.v1',
   SLIDING_DIFFICULTY: 'minispiele.sliding.difficulty.v1',
   SLIDING_HIGHSCORES: 'minispiele.sliding.highscores.v1',
+  SIMON_BEST: 'minispiele.simon.bestLevel.v1',
 } as const;

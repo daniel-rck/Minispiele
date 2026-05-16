@@ -11,6 +11,7 @@ const Dice = lazy(() => import('./pages/Dice'));
 const Memory = lazy(() => import('./pages/Memory'));
 const TwentyFortyEight = lazy(() => import('./pages/TwentyFortyEight'));
 const SlidingPuzzle = lazy(() => import('./pages/SlidingPuzzle'));
+const Simon = lazy(() => import('./pages/Simon'));
 
 function RouteFallback() {
   return (
@@ -88,6 +89,14 @@ export default function App() {
               element={
                 <LazyRoute label="sliding-puzzle">
                   <SlidingPuzzle />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="simon"
+              element={
+                <LazyRoute label="simon">
+                  <Simon />
                 </LazyRoute>
               }
             />

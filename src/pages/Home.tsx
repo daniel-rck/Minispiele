@@ -52,6 +52,14 @@ const games: GameCard[] = [
     preview: '/games/sliding-puzzle-preview.svg',
     previewAlt: 'Vorschau: ein 4×4-Raster mit nummerierten Plättchen und einer Lücke',
   },
+  {
+    to: '/simon',
+    title: 'Simon Says',
+    description: 'Merke dir wachsende Farb- und Tonfolgen und wiederhole sie korrekt.',
+    preview: '/games/simon-preview.svg',
+    previewAlt:
+      'Vorschau: vier farbige Viertelkreise (grün, rot, gelb, blau) um eine zentrale Scheibe',
+  },
 ];
 
 export default function Home() {
