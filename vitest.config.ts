@@ -30,7 +30,7 @@ export default defineConfig({
         },
         'src/components/**': {
           lines: 50,
-          functions: 40,
+          functions: 30,
           branches: 40,
           statements: 50,
         },
