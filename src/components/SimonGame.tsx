@@ -233,7 +233,7 @@ export default function SimonGame() {
         </button>
       )}
 
-      <BottomSheet open={lostOpen} onClose={() => setLostOpen(false)} title="Game Over">
+      <BottomSheet open={lostOpen} onClose={() => setLostOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             💥

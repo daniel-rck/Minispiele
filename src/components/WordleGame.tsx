@@ -242,7 +242,7 @@ export default function WordleGame() {
           onClick={newGame}
           className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
         >
-          Neues Spiel
+          Nochmal spielen
         </button>
       )}
 
@@ -292,7 +292,7 @@ export default function WordleGame() {
             onClick={newGame}
             className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
-            Neues Spiel
+            Nochmal spielen
           </button>
         </div>
       </BottomSheet>

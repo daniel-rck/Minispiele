@@ -18,6 +18,7 @@ import {
   type HighscoreEntry,
 } from '../lib/persistedSchemas';
 import { isBetter } from '../lib/highscores';
+import { useWakeLock } from '../hooks/useWakeLock';
 
 const difficultyLabels: Record<MemoryDifficulty, string> = {
   easy: 'Leicht (6 Paare)',
@@ -41,6 +42,7 @@ export default function MemoryGame() {
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
   const timer = useGameTimer();
+  useWakeLock(timer.status === 'running');
   const peekTimeoutRef = useRef<number | null>(null);
   const prevWonRef = useRef(false);
 

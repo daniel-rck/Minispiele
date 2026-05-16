@@ -5,6 +5,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { NonogramBestSchema, NonogramSizeSchema } from '../lib/persistedSchemas';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
 import BottomSheet from './BottomSheet';
 import AriaLive from './AriaLive';
 
@@ -31,6 +32,7 @@ export default function NonogramGame() {
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  useWakeLock(timer.status === 'running');
 
   const solved = useMemo(() => isSolved(puzzle, cells), [puzzle, cells]);
 

@@ -128,11 +128,9 @@ export default function SnakeGame() {
     touchStartRef.current = null;
   };
 
-  const occupied = new Map<number, 'head' | 'body' | 'food'>();
-  state.snake.forEach((s, i) => {
-    occupied.set(s.y * state.cols + s.x, i === 0 ? 'head' : 'body');
-  });
-  occupied.set(state.food.y * state.cols + state.food.x, 'food');
+  const cellW = 100 / state.cols;
+  const cellH = 100 / state.rows;
+  const tickMs = tickIntervalMs(state.score);
 
   return (
     <div className="flex flex-col items-center gap-3 pb-24">
@@ -149,7 +147,7 @@ export default function SnakeGame() {
               ? 'läuft'
               : phase === 'paused'
                 ? 'Pause'
-                : 'Game Over'}
+                : 'Spiel vorbei'}
         </div>
         <div className="text-right">
           Best: <span className="font-semibold tabular-nums">{best}</span>
@@ -162,29 +160,51 @@ export default function SnakeGame() {
         onTouchEnd={onTouchEnd}
       >
         <div
-          className="grid aspect-square gap-[1px] rounded-lg bg-slate-300 p-[2px] dark:bg-slate-700"
-          style={{ gridTemplateColumns: `repeat(${state.cols}, minmax(0, 1fr))` }}
+          className="relative aspect-square overflow-hidden rounded-lg bg-slate-50 p-[2px] dark:bg-slate-900"
           role="grid"
           aria-label={`Snake-Spielfeld ${state.cols}×${state.rows}`}
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)',
+            backgroundSize: `${cellW}% ${cellH}%`,
+          }}
         >
-          {Array.from({ length: state.cols * state.rows }, (_, i) => {
-            const kind = occupied.get(i);
+          {state.snake.map((s, i) => {
+            const isHead = i === 0;
             return (
               <div
                 key={i}
                 aria-hidden
                 className={
-                  kind === 'head'
-                    ? 'bg-emerald-700 dark:bg-emerald-400'
-                    : kind === 'body'
-                      ? 'bg-emerald-500 dark:bg-emerald-600'
-                      : kind === 'food'
-                        ? 'rounded-full bg-red-500'
-                        : 'bg-slate-50 dark:bg-slate-900'
+                  isHead
+                    ? 'absolute rounded-md bg-emerald-700 shadow-[0_0_8px_rgba(16,185,129,0.6)] dark:bg-emerald-400'
+                    : 'absolute rounded-[3px] bg-emerald-500 dark:bg-emerald-600'
                 }
+                style={{
+                  width: `${cellW}%`,
+                  height: `${cellH}%`,
+                  left: 0,
+                  top: 0,
+                  transform: `translate3d(${s.x * 100}%, ${s.y * 100}%, 0)`,
+                  transition:
+                    phase === 'playing'
+                      ? `transform ${Math.max(60, tickMs - 20)}ms linear`
+                      : 'none',
+                }}
               />
             );
           })}
+          <div
+            aria-hidden
+            className="absolute rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.7)]"
+            style={{
+              width: `${cellW * 0.8}%`,
+              height: `${cellH * 0.8}%`,
+              left: `${cellW * 0.1}%`,
+              top: `${cellH * 0.1}%`,
+              transform: `translate3d(${state.food.x * 100}%, ${state.food.y * 100}%, 0)`,
+            }}
+          />
         </div>
       </div>
 
@@ -236,7 +256,7 @@ export default function SnakeGame() {
               onClick={start}
               className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
             >
-              {phase === 'over' ? 'Nochmal' : 'Starten'}
+              {phase === 'over' ? 'Nochmal spielen' : 'Starten'}
             </button>
           ) : (
             <button
@@ -250,7 +270,7 @@ export default function SnakeGame() {
         </div>
       </div>
 
-      <BottomSheet open={overOpen} onClose={() => setOverOpen(false)} title="Game Over">
+      <BottomSheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🐍

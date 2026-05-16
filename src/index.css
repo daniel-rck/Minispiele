@@ -197,3 +197,23 @@ select:focus-visible,
     transform: translateX(6px);
   }
 }
+
+.blocks-line-sweep {
+  animation: blocks-line-sweep 180ms ease-out forwards;
+}
+
+@keyframes blocks-line-sweep {
+  0% {
+    filter: brightness(1.6) saturate(1.4);
+    transform: scaleY(1);
+  }
+  60% {
+    filter: brightness(2) saturate(1.6);
+    transform: scaleY(0.9);
+  }
+  100% {
+    filter: brightness(2.4) saturate(2);
+    transform: scaleY(0.2);
+    opacity: 0;
+  }
+}
