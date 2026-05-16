@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Snake">
+  <rect width="640" height="360" rx="20" fill="#0f172a"/>
+  <g transform="translate(180 40)">
+    <!-- 14x7 grid background -->
+    <g fill="#1e293b">
+      <rect x="0"   y="0"   width="280" height="280" rx="8"/>
+    </g>
+    <!-- Snake body (light to dark gradient suggestion via solid colors) -->
+    <g fill="#10b981">
+      <rect x="40"  y="40"  width="36" height="36" rx="4"/>
+      <rect x="80"  y="40"  width="36" height="36" rx="4"/>
+      <rect x="120" y="40"  width="36" height="36" rx="4"/>
+      <rect x="120" y="80"  width="36" height="36" rx="4"/>
+      <rect x="120" y="120" width="36" height="36" rx="4"/>
+      <rect x="160" y="120" width="36" height="36" rx="4"/>
+    </g>
+    <!-- Head (darker green) -->
+    <rect x="200" y="120" width="36" height="36" rx="6" fill="#047857"/>
+    <!-- Food -->
+    <circle cx="98" cy="218" r="16" fill="#ef4444"/>
+  </g>
+</svg>

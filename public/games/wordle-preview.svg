@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Wordle">
+  <rect width="640" height="360" rx="20" fill="#f1f5f9"/>
+  <g transform="translate(200 50)" font-family="system-ui, sans-serif" font-size="36" font-weight="700" text-anchor="middle">
+    <!-- Row 1: A P F E L  (target word, shown as a partially-correct guess "TAFEL") -->
+    <!-- Actually let's show: row1 "BLUME" with mostly absent, row2 "APFEL" all correct -->
+    <!-- Row 1: BLUME with some hits -->
+    <g>
+      <rect x="0"   y="0"   width="44" height="44" rx="6" fill="#94a3b8"/>
+      <text x="22"  y="32" fill="white">B</text>
+      <rect x="48"  y="0"   width="44" height="44" rx="6" fill="#94a3b8"/>
+      <text x="70"  y="32" fill="white">L</text>
+      <rect x="96"  y="0"   width="44" height="44" rx="6" fill="#fbbf24"/>
+      <text x="118" y="32" fill="white">U</text>
+      <rect x="144" y="0"   width="44" height="44" rx="6" fill="#94a3b8"/>
+      <text x="166" y="32" fill="white">M</text>
+      <rect x="192" y="0"   width="44" height="44" rx="6" fill="#10b981"/>
+      <text x="214" y="32" fill="white">E</text>
+    </g>
+    <!-- Row 2: APFEL all correct -->
+    <g>
+      <rect x="0"   y="52"  width="44" height="44" rx="6" fill="#10b981"/>
+      <text x="22"  y="84" fill="white">A</text>
+      <rect x="48"  y="52"  width="44" height="44" rx="6" fill="#10b981"/>
+      <text x="70"  y="84" fill="white">P</text>
+      <rect x="96"  y="52"  width="44" height="44" rx="6" fill="#10b981"/>
+      <text x="118" y="84" fill="white">F</text>
+      <rect x="144" y="52"  width="44" height="44" rx="6" fill="#10b981"/>
+      <text x="166" y="84" fill="white">E</text>
+      <rect x="192" y="52"  width="44" height="44" rx="6" fill="#10b981"/>
+      <text x="214" y="84" fill="white">L</text>
+    </g>
+    <!-- Row 3-6: empty cells -->
+    <g fill="white" stroke="#cbd5e1" stroke-width="2">
+      <rect x="0"   y="104" width="44" height="44" rx="6"/>
+      <rect x="48"  y="104" width="44" height="44" rx="6"/>
+      <rect x="96"  y="104" width="44" height="44" rx="6"/>
+      <rect x="144" y="104" width="44" height="44" rx="6"/>
+      <rect x="192" y="104" width="44" height="44" rx="6"/>
+      <rect x="0"   y="156" width="44" height="44" rx="6"/>
+      <rect x="48"  y="156" width="44" height="44" rx="6"/>
+      <rect x="96"  y="156" width="44" height="44" rx="6"/>
+      <rect x="144" y="156" width="44" height="44" rx="6"/>
+      <rect x="192" y="156" width="44" height="44" rx="6"/>
+      <rect x="0"   y="208" width="44" height="44" rx="6"/>
+      <rect x="48"  y="208" width="44" height="44" rx="6"/>
+      <rect x="96"  y="208" width="44" height="44" rx="6"/>
+      <rect x="144" y="208" width="44" height="44" rx="6"/>
+      <rect x="192" y="208" width="44" height="44" rx="6"/>
+    </g>
+  </g>
+</svg>

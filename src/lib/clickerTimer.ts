@@ -16,6 +16,16 @@ export function formatRemaining(ms: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+export function formatHundredths(ms: number): string {
+  const safe = Math.max(0, ms);
+  const totalCs = Math.floor(safe / 10);
+  const cs = totalCs % 100;
+  const totalSec = Math.floor(totalCs / 100);
+  const s = totalSec % 60;
+  const m = Math.floor(totalSec / 60);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+}
+
 export function splitSeconds(seconds: number): { minutes: number; seconds: number } {
   const safe = clampSeconds(seconds);
   return { minutes: Math.floor(safe / 60), seconds: safe % 60 };

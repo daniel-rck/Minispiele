@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Simon Says">
+  <rect width="640" height="360" rx="20" fill="#0f172a"/>
+  <g transform="translate(220 30)">
+    <circle cx="100" cy="150" r="150" fill="#0b0f1a"/>
+    <path d="M100,10 A140,140 0 0,1 240,150 L100,150 Z" fill="#dc2626"/>
+    <path d="M240,150 A140,140 0 0,1 100,290 L100,150 Z" fill="#0284c7"/>
+    <path d="M100,290 A140,140 0 0,1 -40,150 L100,150 Z" fill="#f59e0b"/>
+    <path d="M-40,150 A140,140 0 0,1 100,10 L100,150 Z" fill="#059669"/>
+    <circle cx="100" cy="150" r="40" fill="#0f172a"/>
+    <text x="100" y="158" font-family="system-ui, sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#e2e8f0">Simon</text>
+  </g>
+</svg>

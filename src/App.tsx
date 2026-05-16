@@ -11,6 +11,10 @@ const Dice = lazy(() => import('./pages/Dice'));
 const Memory = lazy(() => import('./pages/Memory'));
 const TwentyFortyEight = lazy(() => import('./pages/TwentyFortyEight'));
 const SlidingPuzzle = lazy(() => import('./pages/SlidingPuzzle'));
+const Simon = lazy(() => import('./pages/Simon'));
+const Minesweeper = lazy(() => import('./pages/Minesweeper'));
+const Snake = lazy(() => import('./pages/Snake'));
+const Wordle = lazy(() => import('./pages/Wordle'));
 
 function RouteFallback() {
   return (
@@ -88,6 +92,38 @@ export default function App() {
               element={
                 <LazyRoute label="sliding-puzzle">
                   <SlidingPuzzle />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="simon"
+              element={
+                <LazyRoute label="simon">
+                  <Simon />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="minesweeper"
+              element={
+                <LazyRoute label="minesweeper">
+                  <Minesweeper />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="snake"
+              element={
+                <LazyRoute label="snake">
+                  <Snake />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="wordle"
+              element={
+                <LazyRoute label="wordle">
+                  <Wordle />
                 </LazyRoute>
               }
             />
