@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Lichter aus Vorschau">
+  <rect width="320" height="180" fill="#020617"/>
+  <g>
+    <rect x="100" y="20" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="128" y="20" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="156" y="20" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="184" y="20" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="212" y="20" width="24" height="24" rx="5" fill="#334155"/>
+
+    <rect x="100" y="48" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="128" y="48" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="156" y="48" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="184" y="48" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="212" y="48" width="24" height="24" rx="5" fill="#fcd34d"/>
+
+    <rect x="100" y="76" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="128" y="76" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="156" y="76" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="184" y="76" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="212" y="76" width="24" height="24" rx="5" fill="#334155"/>
+
+    <rect x="100" y="104" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="128" y="104" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="156" y="104" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="184" y="104" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="212" y="104" width="24" height="24" rx="5" fill="#fcd34d"/>
+
+    <rect x="100" y="132" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="128" y="132" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="156" y="132" width="24" height="24" rx="5" fill="#334155"/>
+    <rect x="184" y="132" width="24" height="24" rx="5" fill="#fcd34d"/>
+    <rect x="212" y="132" width="24" height="24" rx="5" fill="#334155"/>
+  </g>
+</svg>

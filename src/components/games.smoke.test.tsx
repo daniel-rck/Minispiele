@@ -1,0 +1,94 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render } from '@testing-library/react';
+
+import AnagramGame from './AnagramGame';
+import BlocksGame from './BlocksGame';
+import BreakoutGame from './BreakoutGame';
+import BubblesGame from './BubblesGame';
+import FlowGame from './FlowGame';
+import FreecellGame from './FreecellGame';
+import HangmanGame from './HangmanGame';
+import HanoiGame from './HanoiGame';
+import LightsOutGame from './LightsOutGame';
+import MastermindGame from './MastermindGame';
+import MemoryGame from './MemoryGame';
+import NonogramGame from './NonogramGame';
+import ReactionGame from './ReactionGame';
+import SchulteGame from './SchulteGame';
+import SlidingPuzzleGame from './SlidingPuzzleGame';
+import SokobanGame from './SokobanGame';
+import StroopGame from './StroopGame';
+import SudokuGame from './SudokuGame';
+import TangramGame from './TangramGame';
+import TwentyFortyEightGame from './TwentyFortyEightGame';
+import WordsearchGame from './WordsearchGame';
+
+beforeEach(() => {
+  window.localStorage.clear();
+
+  class StubAudioContext {
+    state = 'running';
+    currentTime = 0;
+    destination = {};
+    createOscillator() {
+      return {
+        type: 'sine',
+        frequency: { value: 0, setValueAtTime: () => undefined },
+        connect: () => ({ connect: () => undefined }),
+        start: () => undefined,
+        stop: () => undefined,
+      };
+    }
+    createGain() {
+      return {
+        gain: {
+          value: 0,
+          setValueAtTime: () => undefined,
+          linearRampToValueAtTime: () => undefined,
+          exponentialRampToValueAtTime: () => undefined,
+        },
+        connect: (t: unknown) => t,
+      };
+    }
+    resume() {
+      return Promise.resolve();
+    }
+    close() {
+      return Promise.resolve();
+    }
+  }
+  vi.stubGlobal('AudioContext', StubAudioContext);
+});
+
+const cases: Array<[string, () => React.ReactElement]> = [
+  ['AnagramGame', () => <AnagramGame />],
+  ['BlocksGame', () => <BlocksGame />],
+  ['BreakoutGame', () => <BreakoutGame />],
+  ['BubblesGame', () => <BubblesGame />],
+  ['FlowGame', () => <FlowGame />],
+  ['FreecellGame', () => <FreecellGame />],
+  ['HangmanGame', () => <HangmanGame />],
+  ['HanoiGame', () => <HanoiGame />],
+  ['LightsOutGame', () => <LightsOutGame />],
+  ['MastermindGame', () => <MastermindGame />],
+  ['MemoryGame', () => <MemoryGame />],
+  ['NonogramGame', () => <NonogramGame />],
+  ['ReactionGame', () => <ReactionGame />],
+  ['SchulteGame', () => <SchulteGame />],
+  ['SlidingPuzzleGame', () => <SlidingPuzzleGame />],
+  ['SokobanGame', () => <SokobanGame />],
+  ['StroopGame', () => <StroopGame />],
+  ['SudokuGame', () => <SudokuGame />],
+  ['TangramGame', () => <TangramGame />],
+  ['TwentyFortyEightGame', () => <TwentyFortyEightGame />],
+  ['WordsearchGame', () => <WordsearchGame />],
+];
+
+describe('game components smoke render', () => {
+  for (const [name, factory] of cases) {
+    it(`${name} mounts without crashing`, () => {
+      const { container } = render(factory());
+      expect(container.firstChild).toBeTruthy();
+    });
+  }
+});

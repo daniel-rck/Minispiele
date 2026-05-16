@@ -1,0 +1,92 @@
+name: 🎮 Neues Spiel vorschlagen
+description: Schlage ein neues Mini-Spiel für die Sammlung vor.
+title: '[Spiel] '
+labels: ['new-game', 'enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du ein neues Spiel vorschlägst! Beantworte ein paar kurze Fragen — je
+        konkreter, desto leichter die Umsetzung.
+
+  - type: input
+    id: title
+    attributes:
+      label: Spielname (deutsch)
+      description: Wie soll das Spiel in der Übersicht heißen?
+      placeholder: z. B. „Vier Gewinnt“ oder „Memory de Luxe“
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Kurzbeschreibung
+      description: In ein bis zwei Sätzen — was macht der Spieler?
+      placeholder: |
+        z. B. „Spieler wirft Steine in ein Raster und versucht, vier in einer Reihe zu
+        verbinden — gegen eine einfache KI.“
+    validations:
+      required: true
+
+  - type: dropdown
+    id: genre
+    attributes:
+      label: Kategorie
+      description: Passt zu den Filterchips auf der Startseite.
+      options:
+        - Logik & Denksport
+        - Wort & Sprache
+        - Action & Arcade
+        - Gehirntraining
+        - Karten
+        - Werkzeuge
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: dropdown
+    id: players
+    attributes:
+      label: Spielmodus
+      options:
+        - Solo (gegen sich selbst)
+        - Solo (gegen Computer/KI)
+        - Lokal Couch (2+ Spieler an einem Gerät)
+    validations:
+      required: true
+
+  - type: textarea
+    id: mechanics
+    attributes:
+      label: Spielmechanik
+      description: Wie funktioniert die Steuerung und der Sieg/Ende-Zustand?
+      placeholder: |
+        - Steuerung (Touch, Tasten, Drag …)
+        - Sieg-Bedingung
+        - Ende-Bedingung / Game Over
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Vorbilder / Inspiration (optional)
+      description: Links oder Screenshots von ähnlichen Spielen.
+
+  - type: textarea
+    id: extras
+    attributes:
+      label: Sonstige Wünsche (optional)
+      description: Schwierigkeitsgrade, Bestenliste, Audio/Haptik, Themes, Accessibility …
+
+  - type: checkboxes
+    id: criteria
+    attributes:
+      label: Passt zur Sammlung
+      description: Bitte kurz prüfen — Vorschläge, die diese Punkte erfüllen, werden bevorzugt.
+      options:
+        - label: Läuft komplett lokal im Browser (kein Backend, kein Account)
+        - label: Mobile-first — Touch-freundlich und auf kleinen Bildschirmen spielbar
+        - label: Kurze Sessions (1 – 10 Minuten reichen für eine Runde)
+        - label: Deutschsprachige UI passt zum Stil
