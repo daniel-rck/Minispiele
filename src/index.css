@@ -92,6 +92,25 @@ select:focus-visible,
   top: 0;
 }
 
+.peg-board {
+  --slot-h: 2rem;
+}
+@media (min-width: 640px) {
+  .peg-board {
+    --slot-h: 2.4rem;
+  }
+}
+@media (min-width: 768px) {
+  .peg-board {
+    --slot-h: 2.8rem;
+  }
+}
+@media (min-width: 1024px) {
+  .peg-board {
+    --slot-h: 3.2rem;
+  }
+}
+
 .dice-perspective {
   perspective: 700px;
 }

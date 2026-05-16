@@ -17,9 +17,6 @@ function ringWidthPercent(size: number, capacity: number): number {
 }
 
 export default function Peg({ peg, index, capacity, selected, onClick }: PegProps) {
-  const slotHeightRem = 1.95;
-  const reservedHeight = capacity * slotHeightRem;
-
   return (
     <button
       type="button"
@@ -31,12 +28,12 @@ export default function Peg({ peg, index, capacity, selected, onClick }: PegProp
           ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
           : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-brand-300'
       }`}
-      style={{ minHeight: `${reservedHeight + 2.5}rem` }}
+      style={{ minHeight: `calc(var(--slot-h, 2rem) * ${capacity} + 2.5rem)` }}
     >
       <div className="absolute top-2 bottom-6 left-1/2 -translate-x-1/2 w-2 md:w-2.5 rounded-full bg-slate-300 shadow-[inset_0_0_2px_rgba(0,0,0,0.3)] dark:bg-slate-700" />
       <div
-        className="relative flex flex-col-reverse items-center gap-px w-full"
-        style={{ minHeight: `${reservedHeight}rem` }}
+        className="relative flex w-full flex-col-reverse items-center"
+        style={{ minHeight: `calc(var(--slot-h, 2rem) * ${capacity})` }}
       >
         {peg.map((ring, i) => {
           const isTop = i === peg.length - 1;
