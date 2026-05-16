@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Blasenschießen Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g>
+    <circle cx="60" cy="30" r="12" fill="#ef4444"/>
+    <circle cx="86" cy="30" r="12" fill="#3b82f6"/>
+    <circle cx="112" cy="30" r="12" fill="#22c55e"/>
+    <circle cx="138" cy="30" r="12" fill="#22c55e"/>
+    <circle cx="164" cy="30" r="12" fill="#a855f7"/>
+    <circle cx="190" cy="30" r="12" fill="#f59e0b"/>
+    <circle cx="216" cy="30" r="12" fill="#ef4444"/>
+    <circle cx="242" cy="30" r="12" fill="#3b82f6"/>
+    <circle cx="73" cy="56" r="12" fill="#22c55e"/>
+    <circle cx="99" cy="56" r="12" fill="#3b82f6"/>
+    <circle cx="125" cy="56" r="12" fill="#f59e0b"/>
+    <circle cx="151" cy="56" r="12" fill="#f59e0b"/>
+    <circle cx="177" cy="56" r="12" fill="#ef4444"/>
+    <circle cx="203" cy="56" r="12" fill="#a855f7"/>
+    <circle cx="229" cy="56" r="12" fill="#22c55e"/>
+    <circle cx="60" cy="82" r="12" fill="#a855f7"/>
+    <circle cx="86" cy="82" r="12" fill="#ef4444"/>
+    <circle cx="112" cy="82" r="12" fill="#3b82f6"/>
+    <circle cx="138" cy="82" r="12" fill="#ef4444"/>
+    <circle cx="164" cy="82" r="12" fill="#22c55e"/>
+    <circle cx="190" cy="82" r="12" fill="#a855f7"/>
+    <circle cx="216" cy="82" r="12" fill="#f59e0b"/>
+  </g>
+  <circle cx="160" cy="150" r="14" fill="#fcd34d" stroke="#ffffff" stroke-width="2"/>
+  <path d="M 160 138 L 160 110" stroke="#ffffff" stroke-width="2" stroke-dasharray="4 4"/>
+</svg>

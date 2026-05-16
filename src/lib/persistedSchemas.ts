@@ -135,3 +135,66 @@ export const EMPTY_WORDLE_STATS: WordleStats = {
 export const EMPTY_HIGHSCORES: Highscores = { easy: null, medium: null, hard: null };
 export const EMPTY_MEMORY_HIGHSCORES: MemoryHighscores = { easy: null, medium: null, hard: null };
 export const EMPTY_SLIDING_HIGHSCORES: SlidingHighscores = { easy: null, medium: null, hard: null };
+
+// New games (brainstorm round 2)
+
+export const NullableNonNegInt = z.number().int().nonnegative().nullable();
+
+export const ReactionBestSchema = NullableNonNegInt;
+export const StroopBestSchema = z.number().int().nonnegative();
+export const SchulteSizeSchema = z.number().int().min(3).max(7);
+export const SchulteBestSchema = z.record(z.string(), z.number().int().nonnegative());
+export const HanoiDisksSchema = z.number().int().min(3).max(8);
+export const HanoiBestSchema = z.record(z.string(), z.number().int().nonnegative());
+export const LightsBestSchema = NullableNonNegInt;
+export const MastermindBestSchema = NullableNonNegInt;
+
+export const HangmanStatsSchema = z.object({
+  played: z.number().int().nonnegative(),
+  won: z.number().int().nonnegative(),
+  currentStreak: z.number().int().nonnegative(),
+  maxStreak: z.number().int().nonnegative(),
+});
+export type HangmanStats = z.infer<typeof HangmanStatsSchema>;
+export const EMPTY_HANGMAN_STATS: HangmanStats = {
+  played: 0,
+  won: 0,
+  currentStreak: 0,
+  maxStreak: 0,
+};
+
+export const AnagramBestSchema = z.number().int().nonnegative();
+
+export const SudokuDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type SudokuDifficulty = z.infer<typeof SudokuDifficultySchema>;
+
+export const SudokuCellSchema = z.object({
+  value: z.number().int().min(0).max(9),
+  given: z.boolean(),
+  notes: z.array(z.number().int().min(1).max(9)).max(9),
+});
+export const SudokuStateSchema = z
+  .object({
+    difficulty: SudokuDifficultySchema,
+    puzzle: z.array(SudokuCellSchema).length(81),
+    solution: z.array(z.number().int().min(1).max(9)).length(81),
+    seconds: z.number().int().nonnegative(),
+  })
+  .nullable();
+export type SudokuState = z.infer<typeof SudokuStateSchema>;
+
+export const SudokuBestSchema = z.record(z.string(), z.number().int().nonnegative());
+
+export const NonogramSizeSchema = z.number().int().min(5).max(10);
+export const NonogramBestSchema = z.record(z.string(), z.number().int().nonnegative());
+
+export const SokobanLevelSchema = z.number().int().min(0).max(99);
+export const SokobanBestSchema = z.record(z.string(), z.number().int().nonnegative());
+
+export const WordsearchBestSchema = NullableNonNegInt;
+export const BreakoutBestSchema = z.number().int().nonnegative();
+export const BubblesBestSchema = z.number().int().nonnegative();
+export const BlocksBestSchema = z.number().int().nonnegative();
+export const FreecellBestSchema = NullableNonNegInt;
+export const TangramLevelSchema = z.number().int().min(0).max(99);
+export const FlowBestSchema = z.record(z.string(), z.number().int().nonnegative());

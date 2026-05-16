@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Codeknacker Vorschau">
+  <rect width="320" height="180" fill="#f1f5f9"/>
+  <rect x="40" y="20" width="240" height="140" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+  <g>
+    <circle cx="70" cy="50" r="11" fill="#ef4444"/>
+    <circle cx="100" cy="50" r="11" fill="#3b82f6"/>
+    <circle cx="130" cy="50" r="11" fill="#22c55e"/>
+    <circle cx="160" cy="50" r="11" fill="#f59e0b"/>
+    <circle cx="195" cy="46" r="4" fill="#0f172a"/>
+    <circle cx="207" cy="46" r="4" fill="#0f172a"/>
+    <circle cx="195" cy="54" r="4" fill="#ffffff" stroke="#94a3b8"/>
+    <circle cx="207" cy="54" r="4" fill="#cbd5e1"/>
+
+    <circle cx="70" cy="80" r="11" fill="#a855f7"/>
+    <circle cx="100" cy="80" r="11" fill="#ec4899"/>
+    <circle cx="130" cy="80" r="11" fill="#3b82f6"/>
+    <circle cx="160" cy="80" r="11" fill="#22c55e"/>
+    <circle cx="195" cy="76" r="4" fill="#0f172a"/>
+    <circle cx="207" cy="76" r="4" fill="#cbd5e1"/>
+    <circle cx="195" cy="84" r="4" fill="#cbd5e1"/>
+    <circle cx="207" cy="84" r="4" fill="#cbd5e1"/>
+
+    <circle cx="70" cy="110" r="11" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+    <circle cx="100" cy="110" r="11" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+    <circle cx="130" cy="110" r="11" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+    <circle cx="160" cy="110" r="11" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+  </g>
+  <g>
+    <circle cx="220" cy="135" r="9" fill="#ef4444"/>
+    <circle cx="240" cy="135" r="9" fill="#f59e0b"/>
+    <circle cx="260" cy="135" r="9" fill="#22c55e"/>
+  </g>
+</svg>

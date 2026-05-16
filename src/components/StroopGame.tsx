@@ -1,0 +1,171 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import { STORAGE_KEYS } from '../lib/constants';
+import { StroopBestSchema } from '../lib/persistedSchemas';
+import { useVibration } from '../hooks/useVibration';
+import AriaLive from './AriaLive';
+
+interface ColorDef {
+  key: string;
+  label: string;
+  textClass: string;
+  bgClass: string;
+}
+
+const COLORS: ColorDef[] = [
+  { key: 'red', label: 'Rot', textClass: 'text-red-500', bgClass: 'bg-red-500' },
+  { key: 'green', label: 'Grün', textClass: 'text-emerald-500', bgClass: 'bg-emerald-500' },
+  { key: 'blue', label: 'Blau', textClass: 'text-sky-500', bgClass: 'bg-sky-500' },
+  { key: 'yellow', label: 'Gelb', textClass: 'text-amber-500', bgClass: 'bg-amber-500' },
+];
+
+const ROUND_SECONDS = 30;
+
+interface Challenge {
+  word: ColorDef;
+  ink: ColorDef;
+}
+
+function nextChallenge(prev?: Challenge): Challenge {
+  for (let i = 0; i < 50; i++) {
+    const word = COLORS[Math.floor(Math.random() * COLORS.length)]!;
+    const ink = COLORS[Math.floor(Math.random() * COLORS.length)]!;
+    if (word.key === ink.key) continue;
+    if (prev && prev.word.key === word.key && prev.ink.key === ink.key) continue;
+    return { word, ink };
+  }
+  return { word: COLORS[0]!, ink: COLORS[1]! };
+}
+
+type Phase = 'idle' | 'playing' | 'done';
+
+export default function StroopGame() {
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [challenge, setChallenge] = useState<Challenge>(() => nextChallenge());
+  const [score, setScore] = useState(0);
+  const [wrong, setWrong] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
+  const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.STROOP_BEST, StroopBestSchema, 0);
+  const [announce, setAnnounce] = useState('');
+  const tickRef = useRef<number | null>(null);
+  const { vibrate } = useVibration();
+
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    tickRef.current = window.setInterval(() => {
+      setTimeLeft((t) => Math.max(0, t - 1));
+    }, 1000);
+    return () => {
+      if (tickRef.current !== null) window.clearInterval(tickRef.current);
+    };
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase === 'playing' && timeLeft === 0) {
+      setPhase('done');
+      if (score > best) setBest(score);
+      setAnnounce(`Fertig. ${score} Punkte`);
+    }
+  }, [timeLeft, phase, score, best, setBest]);
+
+  const startRound = useCallback(() => {
+    setScore(0);
+    setWrong(0);
+    setTimeLeft(ROUND_SECONDS);
+    setChallenge(nextChallenge());
+    setPhase('playing');
+    setAnnounce('Spiel gestartet');
+  }, []);
+
+  const handleAnswer = useCallback(
+    (colorKey: string) => {
+      if (phase !== 'playing') return;
+      const correct = colorKey === challenge.ink.key;
+      if (correct) {
+        setScore((s) => s + 1);
+        vibrate(15);
+      } else {
+        setWrong((w) => w + 1);
+        vibrate([50, 30, 50]);
+      }
+      setChallenge((prev) => nextChallenge(prev));
+    },
+    [phase, challenge, vibrate],
+  );
+
+  return (
+    <div className="flex flex-col items-center gap-4 pb-4">
+      <AriaLive message={announce} />
+
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+        <div>
+          Zeit: <span className="font-semibold tabular-nums">{timeLeft}s</span>
+        </div>
+        <div className="text-center">
+          Punkte: <span className="font-semibold tabular-nums">{score}</span>
+        </div>
+        <div className="text-right">
+          Best: <span className="font-semibold tabular-nums">{best}</span>
+        </div>
+      </div>
+
+      <div className="flex aspect-video w-full max-w-md items-center justify-center rounded-2xl border-2 border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+        {phase === 'idle' && (
+          <button
+            type="button"
+            onClick={startRound}
+            className="min-h-12 rounded-xl bg-brand-600 px-6 py-3 text-base font-medium text-white hover:bg-brand-700"
+          >
+            Starten
+          </button>
+        )}
+        {phase === 'playing' && (
+          <span
+            aria-label={`Wort ${challenge.word.label}, Farbe ${challenge.ink.label}`}
+            className={`text-5xl font-extrabold uppercase tracking-wide ${challenge.ink.textClass}`}
+          >
+            {challenge.word.label}
+          </span>
+        )}
+        {phase === 'done' && (
+          <div className="text-center">
+            <div className="mb-2 text-3xl font-bold tabular-nums">{score} Punkte</div>
+            <div className="mb-3 text-xs text-slate-500">
+              Fehler: <span className="tabular-nums">{wrong}</span>
+            </div>
+            <button
+              type="button"
+              onClick={startRound}
+              className="min-h-12 rounded-xl bg-brand-600 px-6 py-3 text-base font-medium text-white hover:bg-brand-700"
+            >
+              Nochmal
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div
+        className="grid w-full max-w-md grid-cols-2 gap-2"
+        role="group"
+        aria-label="Farb-Antworten"
+      >
+        {COLORS.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            onClick={() => handleAnswer(c.key)}
+            disabled={phase !== 'playing'}
+            aria-label={c.label}
+            className={`min-h-14 rounded-xl text-base font-semibold text-white shadow-sm disabled:opacity-50 ${c.bgClass}`}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="max-w-md text-center text-xs text-slate-500">
+        Tippe auf die <strong>Schriftfarbe</strong>, nicht auf das gelesene Wort.
+      </p>
+    </div>
+  );
+}

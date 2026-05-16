@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Wortsalat Vorschau">
+  <rect width="320" height="180" fill="#f8fafc"/>
+  <g font-family="ui-sans-serif,system-ui" font-size="26" font-weight="800" fill="#ffffff">
+    <rect x="25" y="40" width="42" height="56" rx="8" fill="#7c3aed"/>
+    <text x="46" y="78" text-anchor="middle">M</text>
+    <rect x="75" y="40" width="42" height="56" rx="8" fill="#0ea5e9"/>
+    <text x="96" y="78" text-anchor="middle">L</text>
+    <rect x="125" y="40" width="42" height="56" rx="8" fill="#ec4899"/>
+    <text x="146" y="78" text-anchor="middle">B</text>
+    <rect x="175" y="40" width="42" height="56" rx="8" fill="#10b981"/>
+    <text x="196" y="78" text-anchor="middle">E</text>
+    <rect x="225" y="40" width="42" height="56" rx="8" fill="#f59e0b"/>
+    <text x="246" y="78" text-anchor="middle">U</text>
+  </g>
+  <g font-family="ui-sans-serif,system-ui" font-size="22" font-weight="800" fill="#94a3b8">
+    <rect x="40" y="115" width="40" height="48" rx="6" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+    <rect x="85" y="115" width="40" height="48" rx="6" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+    <rect x="130" y="115" width="40" height="48" rx="6" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+    <rect x="175" y="115" width="40" height="48" rx="6" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+    <rect x="220" y="115" width="40" height="48" rx="6" stroke="#cbd5e1" stroke-dasharray="3 2" fill="none"/>
+  </g>
+</svg>

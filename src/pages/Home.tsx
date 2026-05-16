@@ -81,7 +81,136 @@ const games: GameCard[] = [
     preview: '/games/wordle-preview.svg',
     previewAlt: 'Vorschau: ein Raster mit teils grün, gelb und grau eingefärbten Buchstabenfeldern',
   },
+  {
+    to: '/sudoku',
+    title: 'Sudoku',
+    description: 'Fülle das 9×9-Gitter so, dass jede Zahl pro Zeile, Spalte und Block vorkommt.',
+    preview: '/games/sudoku-preview.svg',
+    previewAlt: 'Vorschau: ein 9×9-Sudoku-Gitter mit teils gefüllten Zellen',
+  },
+  {
+    to: '/nonogram',
+    title: 'Bildrätsel',
+    description: 'Picross: füll die Zellen anhand der Zahlenhinweise, bis ein Bild entsteht.',
+    preview: '/games/nonogram-preview.svg',
+    previewAlt: 'Vorschau: ein Nonogramm mit gefüllten Zellen und Zahlen am Rand',
+  },
+  {
+    to: '/lights-out',
+    title: 'Lichter aus',
+    description: 'Ein Tipp schaltet ein Feld und seine Nachbarn um. Schalte alle Lichter aus.',
+    preview: '/games/lights-out-preview.svg',
+    previewAlt: 'Vorschau: 5×5-Gitter mit teils leuchtenden Feldern',
+  },
+  {
+    to: '/mastermind',
+    title: 'Codeknacker',
+    description: 'Errate die 4-Farben-Kombination des Computers in zehn Versuchen.',
+    preview: '/games/mastermind-preview.svg',
+    previewAlt: 'Vorschau: Reihen farbiger Steine mit kleinen Bewertungsmarkern',
+  },
+  {
+    to: '/hanoi',
+    title: 'Türme von Hanoi',
+    description: 'Bewege alle Scheiben vom linken zum rechten Stab. Möglichst wenige Züge.',
+    preview: '/games/hanoi-preview.svg',
+    previewAlt: 'Vorschau: drei Stäbe mit gestapelten farbigen Scheiben',
+  },
+  {
+    to: '/sokoban',
+    title: 'Kistenschieber',
+    description: 'Schiebe Kisten auf die markierten Zielfelder im Lagerhaus-Puzzle.',
+    preview: '/games/sokoban-preview.svg',
+    previewAlt: 'Vorschau: Lagerhaus-Gitter mit Spielfigur, Kisten und Zielen',
+  },
+  {
+    to: '/flow',
+    title: 'Verbinden',
+    description: 'Zeichne Linien zwischen gleichfarbigen Punkten ohne sich zu kreuzen.',
+    preview: '/games/flow-preview.svg',
+    previewAlt: 'Vorschau: ein Gitter mit farbigen Endpunkten und verbindenden Linien',
+  },
+  {
+    to: '/tangram',
+    title: 'Tangram',
+    description: 'Setze sieben geometrische Teile zu vorgegebenen Silhouetten zusammen.',
+    preview: '/games/tangram-preview.svg',
+    previewAlt: 'Vorschau: sieben geometrische Tangram-Teile in Quadratform',
+  },
+  {
+    to: '/freecell',
+    title: 'FreeCell',
+    description: 'Klassische Solitär-Variante: sortiere alle Karten auf die vier Foundations.',
+    preview: '/games/freecell-preview.svg',
+    previewAlt: 'Vorschau: vier freie Zellen, vier Foundations und Tableau-Stapel mit Karten',
+  },
+  {
+    to: '/hangman',
+    title: 'Galgenmännchen',
+    description: 'Errate das Wort Buchstabe für Buchstabe — bevor der Galgen fertig ist.',
+    preview: '/games/hangman-preview.svg',
+    previewAlt: 'Vorschau: ein Galgen-Strichgerüst und Unterstriche für Buchstaben',
+  },
+  {
+    to: '/wordsearch',
+    title: 'Wortgitter',
+    description: 'Finde versteckte deutsche Wörter im Buchstaben-Gitter — horizontal und vertikal.',
+    preview: '/games/wordsearch-preview.svg',
+    previewAlt: 'Vorschau: ein Gitter aus Buchstaben mit markierten Wörtern',
+  },
+  {
+    to: '/anagram',
+    title: 'Wortsalat',
+    description: 'Aus durcheinander gewürfelten Buchstaben das richtige Wort bilden.',
+    preview: '/games/anagram-preview.svg',
+    previewAlt: 'Vorschau: einzelne Buchstabenkacheln in zufälliger Reihenfolge',
+  },
+  {
+    to: '/breakout',
+    title: 'Ziegelbruch',
+    description: 'Halte den Ball im Spiel und räume alle Ziegel ab. Bewege das Paddel per Wisch.',
+    preview: '/games/breakout-preview.svg',
+    previewAlt: 'Vorschau: bunte Ziegelreihen, Ball und Paddel am unteren Bildrand',
+  },
+  {
+    to: '/bubbles',
+    title: 'Blasenschießen',
+    description: 'Schieße farbige Blasen ab und bringe drei oder mehr gleichfarbige zum Platzen.',
+    preview: '/games/bubbles-preview.svg',
+    previewAlt: 'Vorschau: farbige Blasen im oberen Bereich, Schussvorrichtung unten',
+  },
+  {
+    to: '/blocks',
+    title: 'Blockstapler',
+    description: 'Fallende Blöcke drehen und einreihen — vollständige Reihen verschwinden.',
+    preview: '/games/blocks-preview.svg',
+    previewAlt: 'Vorschau: ein hoher Schacht mit gestapelten farbigen Blöcken',
+  },
+  {
+    to: '/reaction',
+    title: 'Reaktionstest',
+    description: 'Wie schnell bist du? Tippe sobald die Fläche grün wird — nicht früher.',
+    preview: '/games/reaction-preview.svg',
+    previewAlt: 'Vorschau: eine grüne Fläche mit dem Wort JETZT!',
+  },
+  {
+    to: '/schulte',
+    title: 'Zahlentafel',
+    description: 'Tippe die Zahlen 1 bis 25 der Schulte-Tabelle der Reihe nach an.',
+    preview: '/games/schulte-preview.svg',
+    previewAlt: 'Vorschau: ein 5×5-Gitter mit zufällig verteilten Zahlen',
+  },
+  {
+    to: '/stroop',
+    title: 'Stroop-Test',
+    description: 'Tippe auf die Schriftfarbe — nicht auf das Wort. 30 Sekunden lang.',
+    preview: '/games/stroop-preview.svg',
+    previewAlt: 'Vorschau: das Wort BLAU in roter Schrift, darunter vier Farbtasten',
+  },
 ];
+
+const NEW_GAME_ISSUE_URL =
+  'https://github.com/daniel-rck/minispiele/issues/new?template=new-game.yml';
 
 export default function Home() {
   return (
@@ -113,6 +242,24 @@ export default function Home() {
           </li>
         ))}
       </ul>
+
+      <div className="mt-8 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/50 p-6 text-center dark:border-slate-700 dark:bg-slate-900/50">
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          Du vermisst ein Spiel? Schlag es vor — wir bauen es vielleicht.
+        </p>
+        <a
+          href={NEW_GAME_ISSUE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-brand-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
+        >
+          <span aria-hidden className="mr-2">
+            🎮
+          </span>
+          Neues Spiel vorschlagen
+        </a>
+        <span className="text-xs text-slate-500">Öffnet ein GitHub-Issue mit kurzem Formular.</span>
+      </div>
     </div>
   );
 }
