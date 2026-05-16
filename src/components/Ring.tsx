@@ -34,18 +34,18 @@ export default function Ring({ color, widthPercent, lifted = false }: RingProps)
   const c = colorClasses[color];
   return (
     <div
-      className={`relative h-6 sm:h-7 md:h-8 lg:h-9 rounded-full shadow-md ring-2 transition-transform ${c.gradient} ${c.outline} ${
+      className={`relative h-7 sm:h-8 md:h-9 lg:h-10 rounded-full shadow-md ring-2 transition-transform ${c.gradient} ${c.outline} ${
         lifted ? '-translate-y-3 md:-translate-y-4' : ''
       }`}
       style={{ width: `${widthPercent}%` }}
     >
       <div
         aria-hidden
-        className={`pointer-events-none absolute left-[10%] right-[10%] top-[12%] h-[22%] rounded-full opacity-80 ${c.gloss}`}
+        className={`pointer-events-none absolute left-[12%] right-[12%] top-[12%] h-[24%] rounded-full opacity-80 ${c.gloss}`}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute top-1/2 left-1/2 h-[60%] w-[14%] min-w-[8px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-300 shadow-[inset_0_1px_2px_rgba(0,0,0,0.45)] dark:bg-slate-700"
+        className="pointer-events-none absolute top-1/2 left-1/2 h-[60%] w-3 md:w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-slate-300 shadow-[inset_0_1px_2px_rgba(0,0,0,0.45)] dark:bg-slate-700"
       />
     </div>
   );
