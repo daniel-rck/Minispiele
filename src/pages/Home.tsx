@@ -74,6 +74,13 @@ const games: GameCard[] = [
     preview: '/games/snake-preview.svg',
     previewAlt: 'Vorschau: eine grüne Schlange auf dunklem Raster mit rotem Apfel',
   },
+  {
+    to: '/wordle',
+    title: 'Wordle',
+    description: 'Errate das 5-Buchstaben-Wort in sechs Versuchen — mit Farbfeedback.',
+    preview: '/games/wordle-preview.svg',
+    previewAlt: 'Vorschau: ein Raster mit teils grün, gelb und grau eingefärbten Buchstabenfeldern',
+  },
 ];
 
 export default function Home() {

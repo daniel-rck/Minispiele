@@ -49,4 +49,5 @@ export const STORAGE_KEYS = {
   MINES_DIFFICULTY: 'minispiele.mines.difficulty.v1',
   MINES_HIGHSCORES: 'minispiele.mines.highscores.v1',
   SNAKE_BEST: 'minispiele.snake.bestScore.v1',
+  WORDLE_STATS: 'minispiele.wordle.stats.v1',
 } as const;

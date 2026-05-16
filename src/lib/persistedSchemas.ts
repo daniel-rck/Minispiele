@@ -115,6 +115,23 @@ export const EMPTY_MINES_HIGHSCORES: MinesHighscores = { easy: null, medium: nul
 
 export const SnakeBestSchema = z.number().int().nonnegative();
 
+export const WordleStatsSchema = z.object({
+  played: z.number().int().nonnegative(),
+  won: z.number().int().nonnegative(),
+  currentStreak: z.number().int().nonnegative(),
+  maxStreak: z.number().int().nonnegative(),
+  distribution: z.array(z.number().int().nonnegative()).length(6),
+});
+
+export type WordleStats = z.infer<typeof WordleStatsSchema>;
+export const EMPTY_WORDLE_STATS: WordleStats = {
+  played: 0,
+  won: 0,
+  currentStreak: 0,
+  maxStreak: 0,
+  distribution: [0, 0, 0, 0, 0, 0],
+};
+
 export const EMPTY_HIGHSCORES: Highscores = { easy: null, medium: null, hard: null };
 export const EMPTY_MEMORY_HIGHSCORES: MemoryHighscores = { easy: null, medium: null, hard: null };
 export const EMPTY_SLIDING_HIGHSCORES: SlidingHighscores = { easy: null, medium: null, hard: null };
