@@ -113,6 +113,8 @@ export type MinesHighscores = z.infer<typeof MinesHighscoresSchema>;
 
 export const EMPTY_MINES_HIGHSCORES: MinesHighscores = { easy: null, medium: null, hard: null };
 
+export const SnakeBestSchema = z.number().int().nonnegative();
+
 export const EMPTY_HIGHSCORES: Highscores = { easy: null, medium: null, hard: null };
 export const EMPTY_MEMORY_HIGHSCORES: MemoryHighscores = { easy: null, medium: null, hard: null };
 export const EMPTY_SLIDING_HIGHSCORES: SlidingHighscores = { easy: null, medium: null, hard: null };

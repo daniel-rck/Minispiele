@@ -13,6 +13,7 @@ const TwentyFortyEight = lazy(() => import('./pages/TwentyFortyEight'));
 const SlidingPuzzle = lazy(() => import('./pages/SlidingPuzzle'));
 const Simon = lazy(() => import('./pages/Simon'));
 const Minesweeper = lazy(() => import('./pages/Minesweeper'));
+const Snake = lazy(() => import('./pages/Snake'));
 
 function RouteFallback() {
   return (
@@ -106,6 +107,14 @@ export default function App() {
               element={
                 <LazyRoute label="minesweeper">
                   <Minesweeper />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="snake"
+              element={
+                <LazyRoute label="snake">
+                  <Snake />
                 </LazyRoute>
               }
             />

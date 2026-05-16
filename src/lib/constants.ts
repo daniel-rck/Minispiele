@@ -48,4 +48,5 @@ export const STORAGE_KEYS = {
   SIMON_BEST: 'minispiele.simon.bestLevel.v1',
   MINES_DIFFICULTY: 'minispiele.mines.difficulty.v1',
   MINES_HIGHSCORES: 'minispiele.mines.highscores.v1',
+  SNAKE_BEST: 'minispiele.snake.bestScore.v1',
 } as const;
