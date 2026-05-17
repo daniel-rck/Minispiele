@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['logo.svg', 'logo-maskable.svg'],
       manifest: {
-        name: 'Spielwiese',
-        short_name: 'Spielwiese',
+        name: 'Minispiele',
+        short_name: 'Minispiele',
         description: 'Kleine Browser-Minispiele — lokal, ohne Account.',
         theme_color: '#11b3b3',
         background_color: '#ffffff',
