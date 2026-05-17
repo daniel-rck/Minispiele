@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, createRef, type ErrorInfo, type ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -11,6 +11,7 @@ interface State {
 
 export default class ErrorBoundary extends Component<Props, State> {
   state: State = { error: null };
+  private alertRef = createRef<HTMLDivElement>();
 
   static getDerivedStateFromError(error: Error): State {
     return { error };
@@ -18,6 +19,9 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     console.error(`ErrorBoundary[${this.props.label ?? 'root'}]`, error, info);
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => this.alertRef.current?.focus());
+    }
   }
 
   private handleReset = (): void => {
@@ -34,8 +38,10 @@ export default class ErrorBoundary extends Component<Props, State> {
 
     return (
       <div
+        ref={this.alertRef}
         role="alert"
-        className="mx-auto max-w-md rounded-2xl border border-red-300 bg-red-50 p-5 text-sm text-red-900 dark:border-red-700 dark:bg-red-950/40 dark:text-red-100"
+        tabIndex={-1}
+        className="mx-auto max-w-md rounded-2xl border border-red-300 bg-red-50 p-5 text-sm text-red-900 outline-none dark:border-red-700 dark:bg-red-950/40 dark:text-red-100"
       >
         <div className="mb-2 text-base font-semibold">Etwas ist schiefgelaufen.</div>
         <p className="mb-3">

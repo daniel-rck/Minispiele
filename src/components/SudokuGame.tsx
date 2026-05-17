@@ -12,6 +12,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { SudokuBestSchema, SudokuDifficultySchema } from '../lib/persistedSchemas';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
 import BottomSheet from './BottomSheet';
 import AriaLive from './AriaLive';
 
@@ -53,6 +54,7 @@ export default function SudokuGame() {
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  useWakeLock(timer.status === 'running');
 
   useEffect(() => {
     if (timer.status === 'idle' && !startedRef.current) {

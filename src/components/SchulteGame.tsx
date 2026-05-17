@@ -167,7 +167,7 @@ export default function SchulteGame() {
         onClick={() => reset()}
         className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
       >
-        {finishedSec !== null ? 'Nochmal' : 'Neu mischen'}
+        {finishedSec !== null ? 'Nochmal spielen' : 'Neu mischen'}
       </button>
 
       <p className="max-w-md text-center text-xs text-slate-500">

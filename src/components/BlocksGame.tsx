@@ -184,6 +184,22 @@ interface GameState {
   level: number;
   lines: number;
   status: 'idle' | 'playing' | 'over';
+  flashingRows: number[];
+}
+
+function fullRowIndices(board: number[]): number[] {
+  const rows: number[] = [];
+  for (let r = 0; r < ROWS; r++) {
+    let full = true;
+    for (let c = 0; c < COLS; c++) {
+      if (board[r * COLS + c] === 0) {
+        full = false;
+        break;
+      }
+    }
+    if (full) rows.push(r);
+  }
+  return rows;
 }
 
 function emptyBoard(): number[] {
@@ -242,30 +258,36 @@ export default function BlocksGame() {
     level: 0,
     lines: 0,
     status: 'idle',
+    flashingRows: [],
   });
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.BLOCKS_BEST, BlocksBestSchema, 0);
   const [doneOpen, setDoneOpen] = useState(false);
   const [announce, setAnnounce] = useState('');
   const tickRef = useRef<number | null>(null);
+  const clearTimerRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
 
-  const tick = useCallback(() => {
+  useEffect(() => {
+    return () => {
+      if (clearTimerRef.current !== null) {
+        window.clearTimeout(clearTimerRef.current);
+        clearTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  const finalizeClear = useCallback((merged: number[]) => {
+    clearTimerRef.current = null;
     setState((s) => {
-      if (s.status !== 'playing' || !s.piece) return s;
-      const moved: Piece = { ...s.piece, y: s.piece.y + 1 };
-      if (fits(s.board, moved)) return { ...s, piece: moved };
-      // lock
-      const merged = merge(s.board, s.piece);
       const { board: cleared, cleared: lineCount } = clearLines(merged);
       const newLines = s.lines + lineCount;
       const newLevel = Math.floor(newLines / 10);
       const scoreAdd = [0, 100, 300, 500, 800][lineCount] ?? 0;
       const nextPiece = spawnPiece();
       if (!fits(cleared, nextPiece)) {
-        return { ...s, board: cleared, piece: null, status: 'over' };
+        return { ...s, board: cleared, piece: null, status: 'over', flashingRows: [] };
       }
-      if (lineCount > 0) vibrate(25);
       return {
         ...s,
         board: cleared,
@@ -273,9 +295,33 @@ export default function BlocksGame() {
         score: s.score + scoreAdd,
         lines: newLines,
         level: newLevel,
+        flashingRows: [],
       };
     });
-  }, [vibrate]);
+  }, []);
+
+  const tick = useCallback(() => {
+    setState((s) => {
+      if (s.status !== 'playing' || !s.piece) return s;
+      if (s.flashingRows.length > 0) return s; // hold while line-sweep plays
+      const moved: Piece = { ...s.piece, y: s.piece.y + 1 };
+      if (fits(s.board, moved)) return { ...s, piece: moved };
+      // lock
+      const merged = merge(s.board, s.piece);
+      const rows = fullRowIndices(merged);
+      if (rows.length > 0) {
+        vibrate(25);
+        if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+        clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
+        return { ...s, board: merged, piece: null, flashingRows: rows };
+      }
+      const nextPiece = spawnPiece();
+      if (!fits(merged, nextPiece)) {
+        return { ...s, board: merged, piece: null, status: 'over' };
+      }
+      return { ...s, board: merged, piece: nextPiece };
+    });
+  }, [vibrate, finalizeClear]);
 
   useEffect(() => {
     if (state.status !== 'playing') return;
@@ -290,7 +336,7 @@ export default function BlocksGame() {
     if (state.status === 'over' && !finishedRef.current) {
       finishedRef.current = true;
       if (state.score > best) setBest(state.score);
-      setAnnounce(`Game Over. ${state.score} Punkte`);
+      setAnnounce(`Spiel vorbei. ${state.score} Punkte`);
       vibrate([80, 60, 80]);
       const id = window.setTimeout(() => setDoneOpen(true), 400);
       return () => window.clearTimeout(id);
@@ -300,6 +346,10 @@ export default function BlocksGame() {
   const start = () => {
     finishedRef.current = false;
     setDoneOpen(false);
+    if (clearTimerRef.current !== null) {
+      window.clearTimeout(clearTimerRef.current);
+      clearTimerRef.current = null;
+    }
     setState({
       board: emptyBoard(),
       piece: spawnPiece(),
@@ -307,6 +357,7 @@ export default function BlocksGame() {
       level: 0,
       lines: 0,
       status: 'playing',
+      flashingRows: [],
     });
   };
 
@@ -330,26 +381,27 @@ export default function BlocksGame() {
 
   const hardDrop = useCallback(() => {
     setState((s) => {
-      if (!s.piece || s.status !== 'playing') return s;
+      if (!s.piece || s.status !== 'playing' || s.flashingRows.length > 0) return s;
       let p = s.piece;
       while (fits(s.board, { ...p, y: p.y + 1 })) p = { ...p, y: p.y + 1 };
       const merged = merge(s.board, p);
-      const { board: cleared, cleared: lineCount } = clearLines(merged);
+      const rows = fullRowIndices(merged);
+      if (rows.length > 0) {
+        if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+        clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
+        return { ...s, board: merged, piece: null, flashingRows: rows };
+      }
       const next = spawnPiece();
-      const status = fits(cleared, next) ? 'playing' : 'over';
-      const scoreAdd = [0, 100, 300, 500, 800][lineCount] ?? 0;
+      const status = fits(merged, next) ? 'playing' : 'over';
       return {
         ...s,
-        board: cleared,
+        board: merged,
         piece: status === 'playing' ? next : null,
-        score: s.score + scoreAdd,
-        lines: s.lines + lineCount,
-        level: Math.floor((s.lines + lineCount) / 10),
         status,
       };
     });
     vibrate(20);
-  }, [vibrate]);
+  }, [vibrate, finalizeClear]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -390,6 +442,7 @@ export default function BlocksGame() {
       if (y >= 0 && y < ROWS && x >= 0 && x < COLS) displayBoard[y * COLS + x] = def.color;
     }
   }
+  const flashSet = new Set(state.flashingRows);
 
   return (
     <div className="flex flex-col items-center gap-3 pb-4">
@@ -417,14 +470,18 @@ export default function BlocksGame() {
           role="grid"
           aria-label="Blockstapler-Feld"
         >
-          {displayBoard.map((v, i) => (
-            <div
-              key={i}
-              className="rounded-[2px]"
-              style={{ background: v === 0 ? 'rgba(255,255,255,0.04)' : COLORS[v] }}
-              aria-hidden
-            />
-          ))}
+          {displayBoard.map((v, i) => {
+            const row = Math.floor(i / COLS);
+            const flashing = flashSet.has(row);
+            return (
+              <div
+                key={i}
+                className={`rounded-[2px] ${flashing ? 'blocks-line-sweep' : ''}`}
+                style={{ background: v === 0 ? 'rgba(255,255,255,0.04)' : COLORS[v] }}
+                aria-hidden
+              />
+            );
+          })}
         </div>
         {state.status === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
@@ -482,7 +539,7 @@ export default function BlocksGame() {
         </button>
       </div>
 
-      <BottomSheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Game Over">
+      <BottomSheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🧱
@@ -495,7 +552,7 @@ export default function BlocksGame() {
             onClick={start}
             className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
-            Nochmal
+            Nochmal spielen
           </button>
         </div>
       </BottomSheet>

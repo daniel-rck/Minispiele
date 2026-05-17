@@ -1,0 +1,57 @@
+import { test, expect } from '@playwright/test';
+
+const games: { path: string; title: RegExp }[] = [
+  { path: '/memory', title: /Memory/i },
+  { path: '/twenty-forty-eight', title: /2048/ },
+  { path: '/sliding-puzzle', title: /Schiebepuzzle/i },
+  { path: '/simon', title: /Simon/i },
+  { path: '/minesweeper', title: /Minensucher/i },
+  { path: '/snake', title: /Snake/i },
+  { path: '/wordle', title: /Wordle/i },
+  { path: '/sudoku', title: /Sudoku/i },
+  { path: '/nonogram', title: /Bildr.tsel/i },
+  { path: '/lights-out', title: /Lichter aus/i },
+  { path: '/mastermind', title: /Codeknacker/i },
+  { path: '/hanoi', title: /Hanoi/i },
+  { path: '/sokoban', title: /Kistenschieber/i },
+  { path: '/flow', title: /Verbinden/i },
+  { path: '/tangram', title: /Tangram/i },
+  { path: '/freecell', title: /FreeCell/i },
+  { path: '/hangman', title: /Galgenm.nnchen/i },
+  { path: '/wordsearch', title: /Wortgitter/i },
+  { path: '/anagram', title: /Wortsalat/i },
+  { path: '/breakout', title: /Ziegelbruch/i },
+  { path: '/bubbles', title: /Blasenschie.en/i },
+  { path: '/blocks', title: /Blockstapler/i },
+  { path: '/reaction', title: /Reaktionstest/i },
+  { path: '/schulte', title: /Zahlentafel/i },
+  { path: '/stroop', title: /Stroop/i },
+];
+
+test.describe('All games smoke render', () => {
+  for (const game of games) {
+    test(`${game.path} loads with title`, async ({ page }) => {
+      await page.goto(game.path);
+      await expect(page.getByRole('heading', { name: game.title }).first()).toBeVisible();
+    });
+  }
+});
+
+test.describe('Home category filter', () => {
+  test('filters to action games', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: /Action.*Arcade/i }).click();
+    await expect(page.getByRole('link', { name: /Snake/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Ziegelbruch/i })).toBeVisible();
+  });
+});
+
+test.describe('Restart-Label-Vereinheitlichung', () => {
+  for (const game of games) {
+    test(`${game.path} zeigt kein "Game Over" in englisch`, async ({ page }) => {
+      await page.goto(game.path);
+      const bodyText = await page.locator('body').innerText();
+      expect(bodyText).not.toContain('Game Over');
+    });
+  }
+});

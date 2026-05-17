@@ -3,8 +3,12 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { BreakoutBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
+import { useAnimationFrame } from '../hooks/useAnimationFrame';
+import { particleOpacity, spawnBurst, stepParticles, type Particle } from '../lib/particles';
 import BottomSheet from './BottomSheet';
 import AriaLive from './AriaLive';
+
+const TRAIL_LENGTH = 6;
 
 const FIELD_W = 320;
 const FIELD_H = 480;
@@ -76,6 +80,10 @@ export default function BreakoutGame() {
   );
   const [doneOpen, setDoneOpen] = useState(false);
   const [announce, setAnnounce] = useState('');
+  const [trail, setTrail] = useState<{ x: number; y: number }[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [paddleFlash, setPaddleFlash] = useState(false);
+  const paddleFlashTimerRef = useRef<number | null>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
   const rafRef = useRef<number | null>(null);
@@ -83,72 +91,125 @@ export default function BreakoutGame() {
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
 
+  const flashPaddle = useCallback(() => {
+    setPaddleFlash(true);
+    if (paddleFlashTimerRef.current !== null) {
+      window.clearTimeout(paddleFlashTimerRef.current);
+    }
+    paddleFlashTimerRef.current = window.setTimeout(() => setPaddleFlash(false), 160);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (paddleFlashTimerRef.current !== null) {
+        window.clearTimeout(paddleFlashTimerRef.current);
+      }
+    };
+  }, []);
+
   const step = useCallback(() => {
-    setState((s) => {
-      if (s.status !== 'playing') return s;
-      let { ballX, ballY, vx, vy, lives, score } = s;
-      let bricks = s.bricks;
-      ballX += vx;
-      ballY += vy;
-      if (ballX < BALL_R) {
-        ballX = BALL_R;
-        vx = -vx;
-      } else if (ballX > FIELD_W - BALL_R) {
-        ballX = FIELD_W - BALL_R;
-        vx = -vx;
+    const s = stateRef.current;
+    if (s.status !== 'playing') {
+      rafRef.current = window.requestAnimationFrame(step);
+      return;
+    }
+    let { ballX, ballY, vx, vy, lives, score } = s;
+    let bricks = s.bricks;
+    ballX += vx;
+    ballY += vy;
+    if (ballX < BALL_R) {
+      ballX = BALL_R;
+      vx = -vx;
+    } else if (ballX > FIELD_W - BALL_R) {
+      ballX = FIELD_W - BALL_R;
+      vx = -vx;
+    }
+    if (ballY < BALL_R) {
+      ballY = BALL_R;
+      vy = -vy;
+    }
+    // paddle
+    let paddleHit = false;
+    if (ballY > FIELD_H - PADDLE_H - BALL_R - 4 && ballY < FIELD_H - 4) {
+      if (ballX > s.paddleX && ballX < s.paddleX + PADDLE_W && vy > 0) {
+        vy = -Math.abs(vy);
+        const hitPos = (ballX - s.paddleX) / PADDLE_W - 0.5;
+        vx = hitPos * 5;
+        paddleHit = true;
       }
-      if (ballY < BALL_R) {
-        ballY = BALL_R;
-        vy = -vy;
+    }
+    // bricks
+    let mutated = false;
+    const burstParticles: Particle[] = [];
+    const newBricks = bricks.map((b) => {
+      if (!b.alive) return b;
+      if (
+        ballX + BALL_R > b.x &&
+        ballX - BALL_R < b.x + BRICK_W &&
+        ballY + BALL_R > b.y &&
+        ballY - BALL_R < b.y + BRICK_H
+      ) {
+        mutated = true;
+        score += 10;
+        // simple reflection by deeper axis
+        const overlapX = Math.min(ballX + BALL_R - b.x, b.x + BRICK_W - (ballX - BALL_R));
+        const overlapY = Math.min(ballY + BALL_R - b.y, b.y + BRICK_H - (ballY - BALL_R));
+        if (overlapX < overlapY) vx = -vx;
+        else vy = -vy;
+        burstParticles.push(
+          ...spawnBurst({
+            x: b.x + BRICK_W / 2,
+            y: b.y + BRICK_H / 2,
+            count: 8,
+            speed: 1.6,
+            color: b.color,
+            lifeMs: 500,
+            size: 2,
+          }),
+        );
+        return { ...b, alive: false };
       }
-      // paddle
-      if (ballY > FIELD_H - PADDLE_H - BALL_R - 4 && ballY < FIELD_H - 4) {
-        if (ballX > s.paddleX && ballX < s.paddleX + PADDLE_W && vy > 0) {
-          vy = -Math.abs(vy);
-          const hitPos = (ballX - s.paddleX) / PADDLE_W - 0.5;
-          vx = hitPos * 5;
-          vibrate(8);
-        }
-      }
-      // bricks
-      let mutated = false;
-      const newBricks = bricks.map((b) => {
-        if (!b.alive) return b;
-        if (
-          ballX + BALL_R > b.x &&
-          ballX - BALL_R < b.x + BRICK_W &&
-          ballY + BALL_R > b.y &&
-          ballY - BALL_R < b.y + BRICK_H
-        ) {
-          mutated = true;
-          score += 10;
-          // simple reflection by deeper axis
-          const overlapX = Math.min(ballX + BALL_R - b.x, b.x + BRICK_W - (ballX - BALL_R));
-          const overlapY = Math.min(ballY + BALL_R - b.y, b.y + BRICK_H - (ballY - BALL_R));
-          if (overlapX < overlapY) vx = -vx;
-          else vy = -vy;
-          return { ...b, alive: false };
-        }
-        return b;
-      });
-      if (mutated) bricks = newBricks;
-      // bottom
-      if (ballY > FIELD_H) {
-        lives -= 1;
-        if (lives <= 0) {
-          return { ...s, lives, score, status: 'lost' as const };
-        }
+      return b;
+    });
+    if (mutated) bricks = newBricks;
+    // bottom
+    let status: State['status'] = s.status;
+    if (ballY > FIELD_H) {
+      lives -= 1;
+      if (lives <= 0) {
+        status = 'lost';
+      } else {
         ballX = FIELD_W / 2;
         ballY = FIELD_H - 40;
         vx = 2.6;
         vy = -3.4;
       }
+    }
+    if (status !== 'lost') {
       const aliveLeft = bricks.some((b) => b.alive);
-      const status = !aliveLeft ? ('won' as const) : ('playing' as const);
-      return { ...s, ballX, ballY, vx, vy, bricks, score, lives, status };
+      status = !aliveLeft ? 'won' : 'playing';
+    }
+    // Commit state via updater so concurrent paddle updates aren't clobbered.
+    setState((prev) => ({ ...prev, ballX, ballY, vx, vy, bricks, score, lives, status }));
+    if (burstParticles.length > 0) {
+      setParticles((p) => [...p, ...burstParticles]);
+    }
+    setTrail((t) => {
+      const next = [{ x: ballX, y: ballY }, ...t];
+      if (next.length > TRAIL_LENGTH) next.length = TRAIL_LENGTH;
+      return next;
     });
+    if (paddleHit) {
+      vibrate(8);
+      flashPaddle();
+    }
     rafRef.current = window.requestAnimationFrame(step);
-  }, [vibrate]);
+  }, [vibrate, flashPaddle]);
+
+  // particles loop (independent of game step so they keep flying briefly after a hit)
+  useAnimationFrame((delta) => {
+    setParticles((prev) => stepParticles(prev, delta, 0.05));
+  }, particles.length > 0);
 
   useEffect(() => {
     if (state.status === 'playing') {
@@ -177,6 +238,9 @@ export default function BreakoutGame() {
   const start = () => {
     finishedRef.current = false;
     setDoneOpen(false);
+    setTrail([]);
+    setParticles([]);
+    setPaddleFlash(false);
     setState({ ...createState(), status: 'playing' });
   };
 
@@ -258,9 +322,29 @@ export default function BreakoutGame() {
             width={PADDLE_W}
             height={PADDLE_H}
             rx={3}
-            fill="#e2e8f0"
+            fill={paddleFlash ? '#fde68a' : '#e2e8f0'}
           />
+          {trail.map((p, i) => (
+            <circle
+              key={i}
+              cx={p.x}
+              cy={p.y}
+              r={BALL_R * (1 - i / TRAIL_LENGTH)}
+              fill="#fcd34d"
+              opacity={(1 - i / TRAIL_LENGTH) * 0.35}
+            />
+          ))}
           <circle cx={state.ballX} cy={state.ballY} r={BALL_R} fill="#fcd34d" />
+          {particles.map((p, i) => (
+            <circle
+              key={i}
+              cx={p.x}
+              cy={p.y}
+              r={p.size}
+              fill={p.color}
+              opacity={particleOpacity(p)}
+            />
+          ))}
         </svg>
         {state.status === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
@@ -283,7 +367,7 @@ export default function BreakoutGame() {
       <BottomSheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
-        title={state.status === 'won' ? 'Gewonnen!' : 'Game Over'}
+        title={state.status === 'won' ? 'Gewonnen!' : 'Spiel vorbei'}
       >
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
@@ -299,7 +383,7 @@ export default function BreakoutGame() {
             onClick={start}
             className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
-            Nochmal
+            Nochmal spielen
           </button>
         </div>
       </BottomSheet>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useWakeLock } from '../hooks/useWakeLock';
 import {
   GRID_SIZE,
   createInitialGrid,
@@ -63,6 +64,7 @@ export default function TwentyFortyEightGame() {
   const [gameOver, setGameOver] = useState(false);
   const [winShown, setWinShown] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  useWakeLock(state.score > 0 && !gameOver);
 
   useEffect(() => {
     if (state.score > bestScore) setBestScore(state.score);
@@ -203,7 +205,7 @@ export default function TwentyFortyEightGame() {
             onClick={restart}
             className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
           >
-            Neu
+            Nochmal spielen
           </button>
         </div>
       </div>
@@ -229,13 +231,13 @@ export default function TwentyFortyEightGame() {
               onClick={restart}
               className="min-h-12 flex-1 rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
             >
-              Neu starten
+              Nochmal spielen
             </button>
           </div>
         </div>
       </BottomSheet>
 
-      <BottomSheet open={gameOver && !state.won} onClose={restart} title="Game Over">
+      <BottomSheet open={gameOver && !state.won} onClose={restart} title="Spiel vorbei">
         <div className="text-center">
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Keine Züge mehr möglich. Score: {state.score}.

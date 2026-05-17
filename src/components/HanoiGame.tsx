@@ -168,7 +168,7 @@ export default function HanoiGame() {
         onClick={() => restart()}
         className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
       >
-        Neu starten
+        Nochmal spielen
       </button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
@@ -194,7 +194,7 @@ export default function HanoiGame() {
             onClick={() => restart()}
             className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
-            Nochmal
+            Nochmal spielen
           </button>
         </div>
       </BottomSheet>

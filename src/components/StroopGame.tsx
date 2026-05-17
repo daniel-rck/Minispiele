@@ -138,7 +138,7 @@ export default function StroopGame() {
               onClick={startRound}
               className="min-h-12 rounded-xl bg-brand-600 px-6 py-3 text-base font-medium text-white hover:bg-brand-700"
             >
-              Nochmal
+              Nochmal spielen
             </button>
           </div>
         )}

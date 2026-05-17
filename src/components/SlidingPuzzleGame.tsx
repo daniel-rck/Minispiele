@@ -19,6 +19,7 @@ import {
   type HighscoreEntry,
 } from '../lib/persistedSchemas';
 import { isBetter } from '../lib/highscores';
+import { useWakeLock } from '../hooks/useWakeLock';
 
 const difficultyLabels: Record<SlidingDifficulty, string> = {
   easy: 'Leicht (3×3)',
@@ -42,6 +43,7 @@ export default function SlidingPuzzleGame() {
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
   const timer = useGameTimer();
+  useWakeLock(timer.status === 'running');
   const prevMovesRef = useRef(0);
   const prevWonRef = useRef(false);
 

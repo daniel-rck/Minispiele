@@ -23,6 +23,7 @@ import {
   type HighscoreEntry,
 } from '../lib/persistedSchemas';
 import { applyHighscore } from '../lib/highscores';
+import { useWakeLock } from '../hooks/useWakeLock';
 
 const difficultyLabels: Record<Difficulty, string> = {
   easy: 'Leicht',
@@ -63,6 +64,7 @@ export default function RingSortGame() {
   const [scoreIsNew, setScoreIsNew] = useState(false);
 
   const timer = useGameTimer();
+  useWakeLock(timer.status === 'running');
   const prevMovesRef = useRef(state.moves);
   const prevWonRef = useRef(state.won);
   const hintTimeoutRef = useRef<number | null>(null);

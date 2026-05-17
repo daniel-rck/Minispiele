@@ -249,7 +249,7 @@ export default function MastermindGame() {
             onClick={restart}
             className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
-            Nochmal
+            Nochmal spielen
           </button>
         </div>
       </BottomSheet>
