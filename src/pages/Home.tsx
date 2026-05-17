@@ -1,384 +1,301 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
-
-type Category = 'logik' | 'wort' | 'action' | 'gehirntraining' | 'karten' | 'werkzeuge';
-
-interface GameCard {
-  to: string;
-  title: string;
-  description: string;
-  preview: string;
-  previewAlt: string;
-  category: Category;
-}
-
-const CATEGORIES: { id: Category; label: string }[] = [
-  { id: 'logik', label: 'Logik & Denksport' },
-  { id: 'wort', label: 'Wort & Sprache' },
-  { id: 'action', label: 'Action & Arcade' },
-  { id: 'gehirntraining', label: 'Gehirntraining' },
-  { id: 'karten', label: 'Karten' },
-  { id: 'werkzeuge', label: 'Werkzeuge' },
-];
-
-const games: GameCard[] = [
-  {
-    to: '/ring-sort',
-    title: 'Ringe sortieren',
-    description: 'Sortiere bunte Ringe in drei Farben auf vier Stäben.',
-    preview: '/games/ring-sort-preview.svg',
-    previewAlt: 'Vorschau: vier Stäbe mit gestapelten roten, blauen und grünen Ringen',
-    category: 'logik',
-  },
-  {
-    to: '/timer',
-    title: 'Clicker Timer',
-    description: 'Countdown einstellen. Jeder Tipp startet ihn neu und beendet den Alarm.',
-    preview: '/games/timer-preview.svg',
-    previewAlt: 'Vorschau: ein Stoppuhr-Zifferblatt mit Countdown',
-    category: 'werkzeuge',
-  },
-  {
-    to: '/dice',
-    title: 'Würfel',
-    description:
-      'Würfelset zum Pen-and-Paper-Spielen: Kniffel, Mäxle & mehr — frei konfigurierbar.',
-    preview: '/games/dice-preview.svg',
-    previewAlt: 'Vorschau: drei farbige Würfel mit Augen',
-    category: 'werkzeuge',
-  },
-  {
-    to: '/memory',
-    title: 'Memory',
-    description: 'Finde alle Paare mit möglichst wenigen Zügen. Drei Schwierigkeitsstufen.',
-    preview: '/games/memory-preview.svg',
-    previewAlt: 'Vorschau: ein Raster mit teilweise aufgedeckten Karten',
-    category: 'gehirntraining',
-  },
-  {
-    to: '/twenty-forty-eight',
-    title: '2048',
-    description: 'Wische Kacheln zusammen, bis die 2048 erscheint. Pfeiltasten oder Touch.',
-    preview: '/games/twenty-forty-eight-preview.svg',
-    previewAlt: 'Vorschau: ein 4×4-Raster mit Zahlenkacheln',
-    category: 'logik',
-  },
-  {
-    to: '/sliding-puzzle',
-    title: 'Schiebepuzzle',
-    description: 'Klassisches 15er-Puzzle — schiebe Plättchen in die richtige Reihenfolge.',
-    preview: '/games/sliding-puzzle-preview.svg',
-    previewAlt: 'Vorschau: ein 4×4-Raster mit nummerierten Plättchen und einer Lücke',
-    category: 'logik',
-  },
-  {
-    to: '/simon',
-    title: 'Simon Says',
-    description: 'Merke dir wachsende Farb- und Tonfolgen und wiederhole sie korrekt.',
-    preview: '/games/simon-preview.svg',
-    previewAlt:
-      'Vorschau: vier farbige Viertelkreise (grün, rot, gelb, blau) um eine zentrale Scheibe',
-    category: 'gehirntraining',
-  },
-  {
-    to: '/minesweeper',
-    title: 'Minensucher',
-    description: 'Decke Felder auf, ohne eine Mine zu treffen. Drei Schwierigkeitsstufen.',
-    preview: '/games/minesweeper-preview.svg',
-    previewAlt: 'Vorschau: ein Raster mit aufgedeckten Zahlen, Flaggen und einer sichtbaren Mine',
-    category: 'logik',
-  },
-  {
-    to: '/snake',
-    title: 'Snake',
-    description: 'Sammle Futter, wachse und kollidiere nicht. Wisch- oder Pfeiltasten-Steuerung.',
-    preview: '/games/snake-preview.svg',
-    previewAlt: 'Vorschau: eine grüne Schlange auf dunklem Raster mit rotem Apfel',
-    category: 'action',
-  },
-  {
-    to: '/wordle',
-    title: 'Wordle',
-    description: 'Errate das 5-Buchstaben-Wort in sechs Versuchen — mit Farbfeedback.',
-    preview: '/games/wordle-preview.svg',
-    previewAlt: 'Vorschau: ein Raster mit teils grün, gelb und grau eingefärbten Buchstabenfeldern',
-    category: 'wort',
-  },
-  {
-    to: '/sudoku',
-    title: 'Sudoku',
-    description: 'Fülle das 9×9-Gitter so, dass jede Zahl pro Zeile, Spalte und Block vorkommt.',
-    preview: '/games/sudoku-preview.svg',
-    previewAlt: 'Vorschau: ein 9×9-Sudoku-Gitter mit teils gefüllten Zellen',
-    category: 'logik',
-  },
-  {
-    to: '/nonogram',
-    title: 'Bildrätsel',
-    description: 'Picross: füll die Zellen anhand der Zahlenhinweise, bis ein Bild entsteht.',
-    preview: '/games/nonogram-preview.svg',
-    previewAlt: 'Vorschau: ein Nonogramm mit gefüllten Zellen und Zahlen am Rand',
-    category: 'logik',
-  },
-  {
-    to: '/lights-out',
-    title: 'Lichter aus',
-    description: 'Ein Tipp schaltet ein Feld und seine Nachbarn um. Schalte alle Lichter aus.',
-    preview: '/games/lights-out-preview.svg',
-    previewAlt: 'Vorschau: 5×5-Gitter mit teils leuchtenden Feldern',
-    category: 'logik',
-  },
-  {
-    to: '/mastermind',
-    title: 'Codeknacker',
-    description: 'Errate die 4-Farben-Kombination des Computers in zehn Versuchen.',
-    preview: '/games/mastermind-preview.svg',
-    previewAlt: 'Vorschau: Reihen farbiger Steine mit kleinen Bewertungsmarkern',
-    category: 'logik',
-  },
-  {
-    to: '/hanoi',
-    title: 'Türme von Hanoi',
-    description: 'Bewege alle Scheiben vom linken zum rechten Stab. Möglichst wenige Züge.',
-    preview: '/games/hanoi-preview.svg',
-    previewAlt: 'Vorschau: drei Stäbe mit gestapelten farbigen Scheiben',
-    category: 'logik',
-  },
-  {
-    to: '/sokoban',
-    title: 'Kistenschieber',
-    description: 'Schiebe Kisten auf die markierten Zielfelder im Lagerhaus-Puzzle.',
-    preview: '/games/sokoban-preview.svg',
-    previewAlt: 'Vorschau: Lagerhaus-Gitter mit Spielfigur, Kisten und Zielen',
-    category: 'logik',
-  },
-  {
-    to: '/flow',
-    title: 'Verbinden',
-    description: 'Zeichne Linien zwischen gleichfarbigen Punkten ohne sich zu kreuzen.',
-    preview: '/games/flow-preview.svg',
-    previewAlt: 'Vorschau: ein Gitter mit farbigen Endpunkten und verbindenden Linien',
-    category: 'logik',
-  },
-  {
-    to: '/tangram',
-    title: 'Tangram',
-    description: 'Setze sieben geometrische Teile zu vorgegebenen Silhouetten zusammen.',
-    preview: '/games/tangram-preview.svg',
-    previewAlt: 'Vorschau: sieben geometrische Tangram-Teile in Quadratform',
-    category: 'logik',
-  },
-  {
-    to: '/freecell',
-    title: 'FreeCell',
-    description: 'Klassische Solitär-Variante: sortiere alle Karten auf die vier Foundations.',
-    preview: '/games/freecell-preview.svg',
-    previewAlt: 'Vorschau: vier freie Zellen, vier Foundations und Tableau-Stapel mit Karten',
-    category: 'karten',
-  },
-  {
-    to: '/hangman',
-    title: 'Galgenmännchen',
-    description: 'Errate das Wort Buchstabe für Buchstabe — bevor der Galgen fertig ist.',
-    preview: '/games/hangman-preview.svg',
-    previewAlt: 'Vorschau: ein Galgen-Strichgerüst und Unterstriche für Buchstaben',
-    category: 'wort',
-  },
-  {
-    to: '/wordsearch',
-    title: 'Wortgitter',
-    description: 'Finde versteckte deutsche Wörter im Buchstaben-Gitter — horizontal und vertikal.',
-    preview: '/games/wordsearch-preview.svg',
-    previewAlt: 'Vorschau: ein Gitter aus Buchstaben mit markierten Wörtern',
-    category: 'wort',
-  },
-  {
-    to: '/anagram',
-    title: 'Wortsalat',
-    description: 'Aus durcheinander gewürfelten Buchstaben das richtige Wort bilden.',
-    preview: '/games/anagram-preview.svg',
-    previewAlt: 'Vorschau: einzelne Buchstabenkacheln in zufälliger Reihenfolge',
-    category: 'wort',
-  },
-  {
-    to: '/breakout',
-    title: 'Ziegelbruch',
-    description: 'Halte den Ball im Spiel und räume alle Ziegel ab. Bewege das Paddel per Wisch.',
-    preview: '/games/breakout-preview.svg',
-    previewAlt: 'Vorschau: bunte Ziegelreihen, Ball und Paddel am unteren Bildrand',
-    category: 'action',
-  },
-  {
-    to: '/bubbles',
-    title: 'Blasenschießen',
-    description: 'Schieße farbige Blasen ab und bringe drei oder mehr gleichfarbige zum Platzen.',
-    preview: '/games/bubbles-preview.svg',
-    previewAlt: 'Vorschau: farbige Blasen im oberen Bereich, Schussvorrichtung unten',
-    category: 'action',
-  },
-  {
-    to: '/blocks',
-    title: 'Blockstapler',
-    description: 'Fallende Blöcke drehen und einreihen — vollständige Reihen verschwinden.',
-    preview: '/games/blocks-preview.svg',
-    previewAlt: 'Vorschau: ein hoher Schacht mit gestapelten farbigen Blöcken',
-    category: 'action',
-  },
-  {
-    to: '/reaction',
-    title: 'Reaktionstest',
-    description: 'Wie schnell bist du? Tippe sobald die Fläche grün wird — nicht früher.',
-    preview: '/games/reaction-preview.svg',
-    previewAlt: 'Vorschau: eine grüne Fläche mit dem Wort JETZT!',
-    category: 'gehirntraining',
-  },
-  {
-    to: '/schulte',
-    title: 'Zahlentafel',
-    description: 'Tippe die Zahlen 1 bis 25 der Schulte-Tabelle der Reihe nach an.',
-    preview: '/games/schulte-preview.svg',
-    previewAlt: 'Vorschau: ein 5×5-Gitter mit zufällig verteilten Zahlen',
-    category: 'gehirntraining',
-  },
-  {
-    to: '/stroop',
-    title: 'Stroop-Test',
-    description: 'Tippe auf die Schriftfarbe — nicht auf das Wort. 30 Sekunden lang.',
-    preview: '/games/stroop-preview.svg',
-    previewAlt: 'Vorschau: das Wort BLAU in roter Schrift, darunter vier Farbtasten',
-    category: 'gehirntraining',
-  },
-];
+import Card from '../components/ui/Card';
+import Chip from '../components/ui/Chip';
+import SearchInput from '../components/ui/SearchInput';
+import StarToggle from '../components/ui/StarToggle';
+import Badge from '../components/ui/Badge';
+import MascotIcon from '../components/ui/MascotIcon';
+import { ClockIcon, SparkleIcon } from '../components/ui/icons';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import { STORAGE_KEYS } from '../lib/constants';
+import { HomeCategoryFilterSchema, type HomeCategoryFilter } from '../lib/persistedSchemas';
+import { useFavorites } from '../lib/useFavorites';
+import { useRecents } from '../lib/useRecents';
+import { formatRelativeShort, isToday } from '../lib/relativeTime';
+import { BRAND_TAGLINE } from '../lib/brand';
+import { CATEGORIES, GAMES, gameByPath, type GameCard } from '../lib/games';
 
 const NEW_GAME_ISSUE_URL =
   'https://github.com/daniel-rck/minispiele/issues/new?template=new-game.yml';
 
-type Filter = Category | 'all';
+function greeting(now: Date = new Date()): string {
+  const h = now.getHours();
+  if (h < 5) return 'Späte Runde gefällig?';
+  if (h < 11) return 'Guten Morgen!';
+  if (h < 14) return 'Mahlzeit!';
+  if (h < 18) return 'Schön, dass du da bist!';
+  if (h < 22) return 'Guten Abend!';
+  return 'Lust auf ein Spiel?';
+}
 
-const STORAGE_KEY = 'minispiele.home.categoryFilter.v1';
+interface GameTileProps {
+  game: GameCard;
+  isFavorite: boolean;
+  onToggleFavorite: (path: string) => void;
+  todayAt?: number;
+  index?: number;
+}
 
-function loadFilter(): Filter {
-  try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (v === 'all') return 'all';
-    if (CATEGORIES.some((c) => c.id === v)) return v as Category;
-  } catch {
-    // ignore
-  }
-  return 'all';
+function GameTile({ game, isFavorite, onToggleFavorite, todayAt, index = 0 }: GameTileProps) {
+  return (
+    <li className="card-pop-in" style={{ animationDelay: `${Math.min(index * 30, 240)}ms` }}>
+      <div className="relative">
+        <Link to={game.to} aria-label={game.title} className="block rounded-2xl focus:outline-none">
+          <Card interactive accent={game.category} className="h-full">
+            <div className="relative">
+              <img
+                src={game.preview}
+                alt={game.previewAlt}
+                loading="lazy"
+                className="w-full aspect-[16/9] object-cover"
+              />
+              {todayAt !== undefined && (
+                <div className="absolute bottom-2 left-2">
+                  <Badge variant="accent" size="sm">
+                    Heute gespielt
+                  </Badge>
+                </div>
+              )}
+            </div>
+            <div className="p-3 sm:p-4">
+              <div className="font-display text-base font-extrabold sm:text-lg">{game.title}</div>
+              <div className="mt-1 text-xs text-surface-700 dark:text-surface-300 sm:text-sm">
+                {game.description}
+              </div>
+            </div>
+          </Card>
+        </Link>
+        <StarToggle
+          active={isFavorite}
+          onToggle={() => onToggleFavorite(game.to)}
+          label={
+            isFavorite
+              ? `${game.title} aus Favoriten entfernen`
+              : `${game.title} zu Favoriten hinzufügen`
+          }
+        />
+      </div>
+    </li>
+  );
+}
+
+function RecentTile({ game, at }: { game: GameCard; at: number }) {
+  return (
+    <li className="snap-start">
+      <Link
+        to={game.to}
+        aria-label={`${game.title} fortsetzen`}
+        className="block focus:outline-none"
+      >
+        <Card interactive accent={game.category} className="w-44 sm:w-52">
+          <img
+            src={game.preview}
+            alt=""
+            loading="lazy"
+            className="w-full aspect-[16/9] object-cover"
+          />
+          <div className="p-3">
+            <div className="font-display text-sm font-extrabold">{game.title}</div>
+            <div className="mt-1 inline-flex items-center gap-1 text-xs text-surface-600 dark:text-surface-400">
+              <ClockIcon size={14} />
+              {formatRelativeShort(at)}
+            </div>
+          </div>
+        </Card>
+      </Link>
+    </li>
+  );
 }
 
 export default function Home() {
-  const [filter, setFilter] = useState<Filter>(() => loadFilter());
+  const [filter, setFilter] = useLocalStorage<HomeCategoryFilter>(
+    STORAGE_KEYS.HOME_CATEGORY_FILTER,
+    HomeCategoryFilterSchema,
+    'all',
+  );
+  const [search, setSearch] = useState('');
+  const { favorites, isFavorite, toggle: toggleFavorite } = useFavorites();
+  const { recents } = useRecents();
 
   const counts = useMemo(() => {
-    const map = new Map<Category, number>();
-    for (const g of games) map.set(g.category, (map.get(g.category) ?? 0) + 1);
+    const map = new Map<string, number>();
+    for (const g of GAMES) map.set(g.category, (map.get(g.category) ?? 0) + 1);
     return map;
   }, []);
 
-  const filtered = useMemo(
-    () => (filter === 'all' ? games : games.filter((g) => g.category === filter)),
-    [filter],
+  const searchQuery = search.trim().toLowerCase();
+
+  const filtered = useMemo(() => {
+    let list: GameCard[] = filter === 'all' ? GAMES : GAMES.filter((g) => g.category === filter);
+    if (searchQuery) {
+      list = list.filter(
+        (g) =>
+          g.title.toLowerCase().includes(searchQuery) ||
+          g.description.toLowerCase().includes(searchQuery),
+      );
+    }
+    return list;
+  }, [filter, searchQuery]);
+
+  const recentTiles = useMemo(() => {
+    return recents
+      .map((r) => ({ at: r.at, game: gameByPath(r.path) }))
+      .filter((r): r is { at: number; game: GameCard } => Boolean(r.game))
+      .slice(0, 6);
+  }, [recents]);
+
+  const favoriteTiles = useMemo(
+    () => favorites.map((p) => gameByPath(p)).filter((g): g is GameCard => Boolean(g)),
+    [favorites],
   );
 
-  function selectFilter(next: Filter) {
-    setFilter(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // ignore
-    }
-  }
+  const recentMap = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of recents) m.set(r.path, r.at);
+    return m;
+  }, [recents]);
 
-  const chipBase =
-    'inline-flex min-h-9 items-center rounded-full border px-3 py-1.5 text-xs sm:text-sm font-medium transition';
-  const chipActive =
-    'border-brand-600 bg-brand-600 text-white shadow-sm dark:border-brand-500 dark:bg-brand-500';
-  const chipInactive =
-    'border-slate-200 bg-white text-slate-700 hover:border-brand-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-brand-500';
+  const hasRecents = recentTiles.length > 0;
+  const hasFavorites = favoriteTiles.length > 0;
+  const noResults = filtered.length === 0;
+  const isSearching = searchQuery.length > 0;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">Minispiele</h1>
-      <p className="text-slate-600 dark:text-slate-300 mb-4">
-        Kleine Browser-Spiele. Lokal, ohne Account, ohne Tracking.
-      </p>
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
+      {/* Hero */}
+      <section className="mb-6 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-primary-50 to-white p-4 sm:gap-5 sm:p-6 dark:from-primary-900/30 dark:to-surface-900">
+        <MascotIcon size={84} className="shrink-0 drop-shadow-md sm:size-24" />
+        <div className="min-w-0">
+          <h1 className="font-display text-2xl font-black leading-tight text-surface-900 dark:text-surface-50 sm:text-3xl">
+            {greeting()}
+          </h1>
+          <p className="mt-1 text-sm text-surface-700 dark:text-surface-300 sm:text-base">
+            {BRAND_TAGLINE}
+          </p>
+        </div>
+      </section>
 
-      <div role="group" aria-label="Nach Kategorie filtern" className="mb-6 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => selectFilter('all')}
-          aria-pressed={filter === 'all'}
-          className={`${chipBase} ${filter === 'all' ? chipActive : chipInactive}`}
-        >
-          Alle <span className="ml-1 opacity-70">({games.length})</span>
-        </button>
+      {/* Recent / Continue */}
+      {hasRecents && (
+        <section className="mb-6">
+          <div className="mb-3 flex items-center gap-2">
+            <ClockIcon size={20} className="text-primary-600 dark:text-primary-300" />
+            <h2 className="font-display text-lg font-extrabold">Weiter spielen</h2>
+          </div>
+          <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+            {recentTiles.map(({ game, at }) => (
+              <RecentTile key={game.to} game={game} at={at} />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Favorites */}
+      {hasFavorites && (
+        <section className="mb-6">
+          <div className="mb-3 flex items-center gap-2">
+            <SparkleIcon size={20} className="text-accent-500" />
+            <h2 className="font-display text-lg font-extrabold">Deine Favoriten</h2>
+            <Badge variant="neutral" size="sm">
+              {favoriteTiles.length}
+            </Badge>
+          </div>
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+            {favoriteTiles.map((game, i) => (
+              <GameTile
+                key={`fav-${game.to}`}
+                game={game}
+                isFavorite
+                onToggleFavorite={toggleFavorite}
+                todayAt={recentMap.get(game.to)}
+                index={i}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Search */}
+      <section className="mb-4">
+        <SearchInput value={search} onValueChange={setSearch} />
+      </section>
+
+      {/* Category chips */}
+      <div role="group" aria-label="Nach Kategorie filtern" className="mb-5 flex flex-wrap gap-2">
+        <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
+          Alle{' '}
+          <Badge variant={filter === 'all' ? 'accent' : 'neutral'} size="sm">
+            {GAMES.length}
+          </Badge>
+        </Chip>
         {CATEGORIES.map((c) => {
           const count = counts.get(c.id) ?? 0;
           if (count === 0) return null;
           const active = filter === c.id;
           return (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => selectFilter(c.id)}
-              aria-pressed={active}
-              className={`${chipBase} ${active ? chipActive : chipInactive}`}
-            >
-              {c.label} <span className="ml-1 opacity-70">({count})</span>
-            </button>
+            <Chip key={c.id} active={active} accent={c.id} onClick={() => setFilter(c.id)}>
+              {c.label}{' '}
+              <Badge variant={active ? 'accent' : 'neutral'} size="sm">
+                {count}
+              </Badge>
+            </Chip>
           );
         })}
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500 dark:border-slate-700">
-          Keine Spiele in dieser Kategorie.
-        </p>
+      {/* Main grid */}
+      {noResults ? (
+        <div className="rounded-2xl border-2 border-dashed border-surface-300 p-8 text-center dark:border-surface-700">
+          <p className="text-sm text-surface-600 dark:text-surface-300">
+            {isSearching ? `Keine Treffer für „${search}".` : 'Keine Spiele in dieser Kategorie.'}
+          </p>
+          {isSearching && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="mt-3 inline-flex min-h-10 items-center rounded-full bg-primary-500 px-4 text-sm font-bold text-white hover:bg-primary-400"
+            >
+              Suche zurücksetzen
+            </button>
+          )}
+        </div>
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:gap-4">
-          {filtered.map((g) => (
-            <li key={g.to}>
-              <Link
-                to={g.to}
-                className="block rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden hover:border-brand-500 hover:shadow-md transition"
-              >
-                <img
-                  src={g.preview}
-                  alt={g.previewAlt}
-                  loading="lazy"
-                  className="w-full aspect-[16/9] object-cover bg-slate-100 dark:bg-slate-800"
-                />
-                <div className="p-3 sm:p-5">
-                  <div className="font-semibold text-base sm:text-lg">{g.title}</div>
-                  <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
-                    {g.description}
-                  </div>
-                </div>
-              </Link>
-            </li>
-          ))}
+          {filtered.map((game, i) => {
+            const at = recentMap.get(game.to);
+            return (
+              <GameTile
+                key={game.to}
+                game={game}
+                isFavorite={isFavorite(game.to)}
+                onToggleFavorite={toggleFavorite}
+                todayAt={at !== undefined && isToday(at) ? at : undefined}
+                index={i}
+              />
+            );
+          })}
         </ul>
       )}
 
-      <div className="mt-8 flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-300 bg-white/50 p-6 text-center dark:border-slate-700 dark:bg-slate-900/50">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+      {/* New game CTA */}
+      <section className="mt-8 flex flex-col items-center gap-2 rounded-3xl border-2 border-dashed border-surface-300 bg-white/50 p-6 text-center dark:border-surface-700 dark:bg-surface-900/50">
+        <p className="text-sm text-surface-600 dark:text-surface-300">
           Du vermisst ein Spiel? Schlag es vor — wir bauen es vielleicht.
         </p>
         <a
           href={NEW_GAME_ISSUE_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-brand-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent-500 px-6 py-3 text-sm font-extrabold text-white shadow-[0_4px_0_0_var(--color-accent-700)] hover:bg-accent-400 active:translate-y-1 active:shadow-[0_0_0_0_var(--color-accent-700)]"
         >
-          <span aria-hidden className="mr-2">
-            🎮
-          </span>
+          <SparkleIcon size={18} />
           Neues Spiel vorschlagen
         </a>
-        <span className="text-xs text-slate-500">Öffnet ein GitHub-Issue mit kurzem Formular.</span>
-      </div>
+        <span className="text-xs text-surface-500 dark:text-surface-400">
+          Öffnet ein GitHub-Issue mit kurzem Formular.
+        </span>
+      </section>
     </div>
   );
 }

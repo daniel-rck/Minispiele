@@ -3,6 +3,9 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import AppShell from './components/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAUpdatePrompt from './components/PWAUpdatePrompt';
+import { ThemeProvider } from './components/ui/ThemeProvider';
+import { SettingsProvider } from './components/ui/SettingsProvider';
+import { RouteTracker } from './lib/useRecents';
 import Home from './pages/Home';
 
 const RingSort = lazy(() => import('./pages/RingSort'));
@@ -53,245 +56,250 @@ function LazyRoute({ children, label }: { children: React.ReactNode; label: stri
 export default function App() {
   return (
     <ErrorBoundary label="root">
-      <PWAUpdatePrompt />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route
-              index
-              element={
-                <ErrorBoundary label="home">
-                  <Home />
-                </ErrorBoundary>
-              }
-            />
-            <Route
-              path="ring-sort"
-              element={
-                <LazyRoute label="ring-sort">
-                  <RingSort />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="timer"
-              element={
-                <LazyRoute label="timer">
-                  <Timer />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="dice"
-              element={
-                <LazyRoute label="dice">
-                  <Dice />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="memory"
-              element={
-                <LazyRoute label="memory">
-                  <Memory />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="twenty-forty-eight"
-              element={
-                <LazyRoute label="twenty-forty-eight">
-                  <TwentyFortyEight />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="sliding-puzzle"
-              element={
-                <LazyRoute label="sliding-puzzle">
-                  <SlidingPuzzle />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="simon"
-              element={
-                <LazyRoute label="simon">
-                  <Simon />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="minesweeper"
-              element={
-                <LazyRoute label="minesweeper">
-                  <Minesweeper />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="snake"
-              element={
-                <LazyRoute label="snake">
-                  <Snake />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="wordle"
-              element={
-                <LazyRoute label="wordle">
-                  <Wordle />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="reaction"
-              element={
-                <LazyRoute label="reaction">
-                  <Reaction />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="stroop"
-              element={
-                <LazyRoute label="stroop">
-                  <Stroop />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="schulte"
-              element={
-                <LazyRoute label="schulte">
-                  <Schulte />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="hanoi"
-              element={
-                <LazyRoute label="hanoi">
-                  <Hanoi />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="lights-out"
-              element={
-                <LazyRoute label="lights-out">
-                  <LightsOut />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="mastermind"
-              element={
-                <LazyRoute label="mastermind">
-                  <Mastermind />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="hangman"
-              element={
-                <LazyRoute label="hangman">
-                  <Hangman />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="anagram"
-              element={
-                <LazyRoute label="anagram">
-                  <Anagram />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="sudoku"
-              element={
-                <LazyRoute label="sudoku">
-                  <Sudoku />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="nonogram"
-              element={
-                <LazyRoute label="nonogram">
-                  <Nonogram />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="sokoban"
-              element={
-                <LazyRoute label="sokoban">
-                  <Sokoban />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="wordsearch"
-              element={
-                <LazyRoute label="wordsearch">
-                  <Wordsearch />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="breakout"
-              element={
-                <LazyRoute label="breakout">
-                  <Breakout />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="bubbles"
-              element={
-                <LazyRoute label="bubbles">
-                  <Bubbles />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="blocks"
-              element={
-                <LazyRoute label="blocks">
-                  <Blocks />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="freecell"
-              element={
-                <LazyRoute label="freecell">
-                  <Freecell />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="tangram"
-              element={
-                <LazyRoute label="tangram">
-                  <Tangram />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="flow"
-              element={
-                <LazyRoute label="flow">
-                  <Flow />
-                </LazyRoute>
-              }
-            />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <ThemeProvider>
+        <SettingsProvider>
+          <PWAUpdatePrompt />
+          <BrowserRouter>
+            <RouteTracker />
+            <Routes>
+              <Route element={<AppShell />}>
+                <Route
+                  index
+                  element={
+                    <ErrorBoundary label="home">
+                      <Home />
+                    </ErrorBoundary>
+                  }
+                />
+                <Route
+                  path="ring-sort"
+                  element={
+                    <LazyRoute label="ring-sort">
+                      <RingSort />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="timer"
+                  element={
+                    <LazyRoute label="timer">
+                      <Timer />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="dice"
+                  element={
+                    <LazyRoute label="dice">
+                      <Dice />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="memory"
+                  element={
+                    <LazyRoute label="memory">
+                      <Memory />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="twenty-forty-eight"
+                  element={
+                    <LazyRoute label="twenty-forty-eight">
+                      <TwentyFortyEight />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="sliding-puzzle"
+                  element={
+                    <LazyRoute label="sliding-puzzle">
+                      <SlidingPuzzle />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="simon"
+                  element={
+                    <LazyRoute label="simon">
+                      <Simon />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="minesweeper"
+                  element={
+                    <LazyRoute label="minesweeper">
+                      <Minesweeper />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="snake"
+                  element={
+                    <LazyRoute label="snake">
+                      <Snake />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="wordle"
+                  element={
+                    <LazyRoute label="wordle">
+                      <Wordle />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="reaction"
+                  element={
+                    <LazyRoute label="reaction">
+                      <Reaction />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="stroop"
+                  element={
+                    <LazyRoute label="stroop">
+                      <Stroop />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="schulte"
+                  element={
+                    <LazyRoute label="schulte">
+                      <Schulte />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="hanoi"
+                  element={
+                    <LazyRoute label="hanoi">
+                      <Hanoi />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="lights-out"
+                  element={
+                    <LazyRoute label="lights-out">
+                      <LightsOut />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="mastermind"
+                  element={
+                    <LazyRoute label="mastermind">
+                      <Mastermind />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="hangman"
+                  element={
+                    <LazyRoute label="hangman">
+                      <Hangman />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="anagram"
+                  element={
+                    <LazyRoute label="anagram">
+                      <Anagram />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="sudoku"
+                  element={
+                    <LazyRoute label="sudoku">
+                      <Sudoku />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="nonogram"
+                  element={
+                    <LazyRoute label="nonogram">
+                      <Nonogram />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="sokoban"
+                  element={
+                    <LazyRoute label="sokoban">
+                      <Sokoban />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="wordsearch"
+                  element={
+                    <LazyRoute label="wordsearch">
+                      <Wordsearch />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="breakout"
+                  element={
+                    <LazyRoute label="breakout">
+                      <Breakout />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="bubbles"
+                  element={
+                    <LazyRoute label="bubbles">
+                      <Bubbles />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="blocks"
+                  element={
+                    <LazyRoute label="blocks">
+                      <Blocks />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="freecell"
+                  element={
+                    <LazyRoute label="freecell">
+                      <Freecell />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="tangram"
+                  element={
+                    <LazyRoute label="tangram">
+                      <Tangram />
+                    </LazyRoute>
+                  }
+                />
+                <Route
+                  path="flow"
+                  element={
+                    <LazyRoute label="flow">
+                      <Flow />
+                    </LazyRoute>
+                  }
+                />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </SettingsProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

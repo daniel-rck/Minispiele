@@ -1,3 +1,5 @@
+import { isAudioEnabled } from './audioSettings';
+
 interface AudioWindow extends Window {
   webkitAudioContext?: typeof AudioContext;
 }
@@ -48,6 +50,7 @@ export class ToneAudio {
   }
 
   playTone(freq: number, durationMs: number, opts: PlayToneOptions = {}): void {
+    if (!isAudioEnabled()) return;
     if (!this.prime()) return;
     this.resume();
     const ctx = this.ctx;

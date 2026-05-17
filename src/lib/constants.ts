@@ -74,4 +74,9 @@ export const STORAGE_KEYS = {
   FREECELL_BEST: 'minispiele.freecell.bestMoves.v1',
   TANGRAM_LEVEL: 'minispiele.tangram.level.v1',
   FLOW_BEST: 'minispiele.flow.best.v1',
+  UI_THEME: 'minispiele.ui.theme.v1',
+  UI_SETTINGS: 'minispiele.ui.settings.v1',
+  HOME_FAVORITES: 'minispiele.home.favorites.v1',
+  HOME_RECENTS: 'minispiele.home.recents.v1',
+  HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
 } as const;

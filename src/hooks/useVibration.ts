@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { isHapticsEnabled } from '../lib/audioSettings';
 
 export function useVibration(): {
   vibrate: (pattern: number | readonly number[]) => boolean;
@@ -9,6 +10,7 @@ export function useVibration(): {
   const vibrate = useCallback(
     (pattern: number | readonly number[]): boolean => {
       if (!isSupported) return false;
+      if (!isHapticsEnabled()) return false;
       try {
         return navigator.vibrate(pattern as number | number[]);
       } catch {
