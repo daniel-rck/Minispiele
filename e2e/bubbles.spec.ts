@@ -11,6 +11,8 @@ test.describe('Blasenschießen', () => {
   test('shooting changes the bubble count on the field', async ({ page }) => {
     await page.goto('/bubbles');
     const cells = page.locator('[data-testid="bubble-cell"]');
+    // Wait for the lazy-loaded game chunk to render its cells.
+    await expect(cells.first()).toBeVisible();
     const startCount = await cells.count();
     expect(startCount).toBeGreaterThan(0);
     await page.getByRole('button', { name: 'Spalte 4' }).click();
