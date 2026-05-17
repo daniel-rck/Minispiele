@@ -28,8 +28,8 @@ function normalize(input: string): string {
 }
 
 function matchesQuery(game: GameCard, q: string): boolean {
-  if (!q) return true;
-  const needle = normalize(q);
+  const needle = normalize(q.trim());
+  if (!needle) return true;
   return normalize(game.title).includes(needle) || normalize(game.description).includes(needle);
 }
 

@@ -35,6 +35,23 @@ function applyTheme(theme: Theme): void {
   root.classList.toggle('dark', dark);
 }
 
+function readStoredTheme(): Theme {
+  if (typeof window === 'undefined') return DEFAULT_SETTINGS.theme;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    if (raw === null) return DEFAULT_SETTINGS.theme;
+    const parsed: unknown = JSON.parse(raw);
+    const result = SettingsSchema.safeParse(parsed);
+    return result.success ? result.data.theme : DEFAULT_SETTINGS.theme;
+  } catch {
+    return DEFAULT_SETTINGS.theme;
+  }
+}
+
+// Apply theme synchronously at module load to avoid a flash of incorrect theme
+// before the SettingsProvider's effect runs after first paint.
+applyTheme(readStoredTheme());
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useLocalStorage<Settings>(
     STORAGE_KEYS.SETTINGS,

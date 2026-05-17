@@ -47,7 +47,7 @@ export default function GameLayout({ title, description, actions, children }: Ga
         </div>
       </div>
       {description ? (
-        <p className="text-slate-600 dark:text-slate-300 mb-4 text-sm">{description}</p>
+        <div className="text-slate-600 dark:text-slate-300 mb-4 text-sm">{description}</div>
       ) : null}
       {children}
     </div>
