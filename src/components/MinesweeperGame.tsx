@@ -19,6 +19,8 @@ import {
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
 import Button from './ui/Button';
+import GameStats from './ui/GameStats';
+import GameFooter from './ui/GameFooter';
 import AriaLive from './AriaLive';
 
 const NUMBER_COLOR: Readonly<Record<number, string>> = {
@@ -200,25 +202,20 @@ export default function MinesweeperGame() {
         </label>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          🚩 <span className="font-semibold tabular-nums">{minesRemaining}</span>
-        </div>
-        <div className="text-center">
-          ⏱{' '}
-          <span className="font-semibold tabular-nums">{formatDuration(timer.elapsedSeconds)}</span>
-        </div>
-        <div className="text-right">
-          {best ? (
-            <>
-              Best:{' '}
-              <span className="font-semibold tabular-nums">{formatDuration(best.seconds)}</span>
-            </>
-          ) : (
-            <span className="text-slate-400">noch keine Bestzeit</span>
-          )}
-        </div>
-      </div>
+      <GameStats
+        items={[
+          { label: '🚩', value: minesRemaining },
+          { label: '⏱', value: formatDuration(timer.elapsedSeconds) },
+          {
+            label: 'Best',
+            value: best ? (
+              formatDuration(best.seconds)
+            ) : (
+              <span className="font-normal text-slate-400">noch keine Bestzeit</span>
+            ),
+          },
+        ]}
+      />
 
       <div className="mx-auto w-full max-w-md overflow-x-auto sm:max-w-lg">
         <div
@@ -279,29 +276,24 @@ export default function MinesweeperGame() {
         </div>
       </div>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          <button
-            type="button"
-            onClick={() => setFlagMode((m) => !m)}
-            aria-pressed={flagMode}
-            aria-label={flagMode ? 'Flaggen-Modus aktiv (umschalten)' : 'Flaggen-Modus einschalten'}
-            className={`min-h-12 min-w-12 rounded-xl px-3 text-base ${
-              flagMode
-                ? 'bg-amber-500 text-white'
-                : 'border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
-            }`}
-          >
-            🚩
-          </button>
-          <Button variant="primary" className="flex-1" onClick={() => restart()}>
-            Neu
-          </Button>
-        </div>
-      </div>
+      <GameFooter>
+        <button
+          type="button"
+          onClick={() => setFlagMode((m) => !m)}
+          aria-pressed={flagMode}
+          aria-label={flagMode ? 'Flaggen-Modus aktiv (umschalten)' : 'Flaggen-Modus einschalten'}
+          className={`min-h-12 min-w-12 rounded-xl px-3 text-base ${
+            flagMode
+              ? 'bg-amber-500 text-white'
+              : 'border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+          }`}
+        >
+          🚩
+        </button>
+        <Button variant="primary" className="flex-1" onClick={() => restart()}>
+          Neu
+        </Button>
+      </GameFooter>
 
       <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
         <div className="text-center">

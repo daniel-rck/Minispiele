@@ -11,6 +11,8 @@ import {
 } from '../lib/twentyFortyEight';
 import Sheet from './ui/Sheet';
 import Button from './ui/Button';
+import GameStats from './ui/GameStats';
+import GameFooter from './ui/GameFooter';
 import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -155,17 +157,18 @@ export default function TwentyFortyEightGame() {
 
   return (
     <div className="flex flex-col gap-3 pb-24">
-      <div className="grid grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          Score: <span className="font-semibold tabular-nums">{state.score}</span>
-        </div>
-        <div>
-          Best: <span className="font-semibold tabular-nums">{bestScore}</span>
-        </div>
-        <div className="text-right">
-          {state.won && <span className="text-emerald-600 dark:text-emerald-400">2048 ✓</span>}
-        </div>
-      </div>
+      <GameStats
+        items={[
+          { label: 'Score', value: state.score },
+          { label: 'Best', value: bestScore },
+          {
+            label: '',
+            value: state.won ? (
+              <span className="text-emerald-600 dark:text-emerald-400">2048 ✓</span>
+            ) : null,
+          },
+        ]}
+      />
 
       <div className="mx-auto w-full max-w-md sm:max-w-lg">
         <div
@@ -196,16 +199,11 @@ export default function TwentyFortyEightGame() {
         Pfeiltasten oder Wischen, um Kacheln zu bewegen.
       </p>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          <Button variant="primary" className="flex-1" onClick={restart}>
-            Nochmal spielen
-          </Button>
-        </div>
-      </div>
+      <GameFooter>
+        <Button variant="primary" className="flex-1" onClick={restart}>
+          Nochmal spielen
+        </Button>
+      </GameFooter>
 
       <Sheet open={winShown} onClose={() => setWinShown(false)} title="2048 erreicht!">
         <div className="text-center">

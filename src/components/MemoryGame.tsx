@@ -10,6 +10,8 @@ import {
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import Sheet from './ui/Sheet';
 import Button from './ui/Button';
+import GameStats from './ui/GameStats';
+import GameFooter from './ui/GameFooter';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -125,29 +127,26 @@ export default function MemoryGame() {
         </label>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
-        </div>
-        <div>
-          Zeit:{' '}
-          <span className="font-semibold tabular-nums" aria-label="Spielzeit">
-            {formatDuration(timer.elapsedSeconds)}
-          </span>
-        </div>
-        <div className="text-right">
-          {best ? (
-            <>
-              Best:{' '}
-              <span className="font-semibold tabular-nums">
+      <GameStats
+        items={[
+          { label: 'Züge', value: state.moves },
+          {
+            label: 'Zeit',
+            value: formatDuration(timer.elapsedSeconds),
+            valueAriaLabel: 'Spielzeit',
+          },
+          {
+            label: 'Best',
+            value: best ? (
+              <>
                 {best.moves}Z · {formatDuration(best.seconds)}
-              </span>
-            </>
-          ) : (
-            <span className="text-slate-400">noch keine Bestzeit</span>
-          )}
-        </div>
-      </div>
+              </>
+            ) : (
+              <span className="font-normal text-surface-400">noch keine Bestzeit</span>
+            ),
+          },
+        ]}
+      />
 
       <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
         <div
@@ -186,16 +185,11 @@ export default function MemoryGame() {
         </div>
       </div>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          <Button variant="primary" onClick={() => restart()} className="flex-1">
-            Neu
-          </Button>
-        </div>
-      </div>
+      <GameFooter>
+        <Button variant="primary" onClick={() => restart()} className="flex-1">
+          Neu
+        </Button>
+      </GameFooter>
 
       <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
         <div className="text-center">

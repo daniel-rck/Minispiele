@@ -19,8 +19,8 @@ describe('RingSortGame', () => {
   it('starts with 0 moves and ticks the counter after a successful move', async () => {
     const user = userEvent.setup();
     render(<RingSortGame />);
-    const movesNode = screen.getByText(/Züge:/i);
-    expect(movesNode.textContent).toMatch(/0/);
+    const movesLabel = screen.getByText(/Züge:/i);
+    expect(movesLabel.parentElement?.textContent).toMatch(/0/);
     const pegs = screen.getAllByRole('button', { name: /Stab/i });
     // Find a non-empty peg to start from; we don't assume which is non-empty for the seed,
     // so try a few combinations of click targets.
@@ -41,7 +41,7 @@ describe('RingSortGame', () => {
     const user = userEvent.setup();
     render(<RingSortGame />);
     await user.click(screen.getByRole('button', { name: /^neu$/i }));
-    expect(screen.getByText(/Züge:/i).textContent).toMatch(/0/);
+    expect(screen.getByText(/Züge:/i).parentElement?.textContent).toMatch(/0/);
   });
 
   it('passes axe-core checks on default render', async () => {

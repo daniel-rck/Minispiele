@@ -14,6 +14,8 @@ import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
 import Sheet from './ui/Sheet';
 import Button from './ui/Button';
+import GameStats from './ui/GameStats';
+import GameFooter from './ui/GameFooter';
 import AriaLive from './AriaLive';
 
 const COLS = 20;
@@ -137,23 +139,24 @@ export default function SnakeGame() {
     <div className="flex flex-col items-center gap-3 pb-24">
       <AriaLive message={announcement} />
 
-      <div className="grid w-full grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
-        </div>
-        <div className="text-center">
-          {phase === 'idle'
-            ? 'Bereit'
-            : phase === 'playing'
-              ? 'läuft'
-              : phase === 'paused'
-                ? 'Pause'
-                : 'Spiel vorbei'}
-        </div>
-        <div className="text-right">
-          Best: <span className="font-semibold tabular-nums">{best}</span>
-        </div>
-      </div>
+      <GameStats
+        className="w-full"
+        items={[
+          { label: 'Punkte', value: state.score },
+          {
+            label: '',
+            value:
+              phase === 'idle'
+                ? 'Bereit'
+                : phase === 'playing'
+                  ? 'läuft'
+                  : phase === 'paused'
+                    ? 'Pause'
+                    : 'Spiel vorbei',
+          },
+          { label: 'Best', value: best },
+        ]}
+      />
 
       <div
         className="relative w-full max-w-md select-none sm:max-w-lg"
@@ -246,22 +249,17 @@ export default function SnakeGame() {
         </button>
       </div>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          {phase === 'idle' || phase === 'over' ? (
-            <Button variant="primary" className="flex-1" onClick={start}>
-              {phase === 'over' ? 'Nochmal spielen' : 'Starten'}
-            </Button>
-          ) : (
-            <Button variant="primary" className="flex-1" onClick={togglePause}>
-              {phase === 'playing' ? 'Pause' : 'Fortsetzen'}
-            </Button>
-          )}
-        </div>
-      </div>
+      <GameFooter>
+        {phase === 'idle' || phase === 'over' ? (
+          <Button variant="primary" className="flex-1" onClick={start}>
+            {phase === 'over' ? 'Nochmal spielen' : 'Starten'}
+          </Button>
+        ) : (
+          <Button variant="primary" className="flex-1" onClick={togglePause}>
+            {phase === 'playing' ? 'Pause' : 'Fortsetzen'}
+          </Button>
+        )}
+      </GameFooter>
 
       <Sheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
         <div className="text-center">
