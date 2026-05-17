@@ -10,9 +10,7 @@ test.describe('Blasenschießen', () => {
 
   test('shooting changes the bubble count on the field', async ({ page }) => {
     await page.goto('/bubbles');
-    // Only the rendered cells carry aria-hidden — flight, particles and the
-    // preview circle don't — so this selector counts only the field bubbles.
-    const cells = page.locator('[role="application"] circle[aria-hidden="true"]');
+    const cells = page.locator('[data-testid="bubble-cell"]');
     const startCount = await cells.count();
     expect(startCount).toBeGreaterThan(0);
     await page.getByRole('button', { name: 'Spalte 4' }).click();

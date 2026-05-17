@@ -359,6 +359,7 @@ export default function BubblesGame() {
               transform: popping ? 'scale(0.1)' : 'scale(1)',
               opacity: popping ? 0 : 1,
             }}
+            data-testid="bubble-cell"
             aria-hidden
           />,
         );
