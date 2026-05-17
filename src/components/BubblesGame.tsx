@@ -119,16 +119,6 @@ function dropFloating(grid: Cell[]): { grid: Cell[]; removed: number; removedIdx
   return { grid: next, removed, removedIdx };
 }
 
-function findEmptyTarget(grid: Cell[], targetCol: number): number | null {
-  for (let r = ROWS - 1; r >= 0; r--) {
-    const idx = r * COLS + targetCol;
-    if (grid[idx] !== -1) continue;
-    const ns = neighbors(idx);
-    if (r === 0 || ns.some((n) => grid[n] !== -1)) return idx;
-  }
-  return null;
-}
-
 function cellCenter(idx: number): { x: number; y: number } {
   const r = Math.floor(idx / COLS);
   const c = idx % COLS;
@@ -139,10 +129,105 @@ function cellCenter(idx: number): { x: number; y: number } {
   };
 }
 
+const START_X = FIELD_W / 2;
+const START_Y = FIELD_H - CELL * 0.6;
+const MAX_AIM_ANGLE_RAD = (85 * Math.PI) / 180;
+const AIM_KEY_STEP_RAD = (3 * Math.PI) / 180;
+const AIM_STEP = 0.4;
+const AIM_MAX_STEPS = 1500;
+const COLLISION_FACTOR = 1.7; // multiplied by RADIUS for circle-circle hit test
+
+interface AimResult {
+  idx: number;
+  path: { x: number; y: number }[];
+}
+
+function findCeilingTarget(grid: Cell[], x: number): number | null {
+  let best: { idx: number; dist: number } | null = null;
+  for (let cc = 0; cc < COLS; cc++) {
+    if (grid[cc] !== -1) continue;
+    const c = cellCenter(cc);
+    const d = Math.abs(c.x - x);
+    if (best === null || d < best.dist) best = { idx: cc, dist: d };
+  }
+  return best?.idx ?? null;
+}
+
+function findFilledCollision(grid: Cell[], x: number, y: number): number | null {
+  const rApprox = Math.floor(y / CELL);
+  for (let rr = Math.max(0, rApprox - 1); rr <= Math.min(ROWS - 1, rApprox + 1); rr++) {
+    for (let cc = 0; cc < COLS; cc++) {
+      const idx = rr * COLS + cc;
+      const v = grid[idx];
+      if (v === undefined || v < 0) continue;
+      const c = cellCenter(idx);
+      if (Math.hypot(c.x - x, c.y - y) < RADIUS * COLLISION_FACTOR) return idx;
+    }
+  }
+  return null;
+}
+
+function findLandingNear(grid: Cell[], x: number, y: number, hitIdx: number): number | null {
+  let best: { idx: number; dist: number } | null = null;
+  for (const i of neighbors(hitIdx)) {
+    if (grid[i] !== -1) continue;
+    const c = cellCenter(i);
+    const d = Math.hypot(c.x - x, c.y - y);
+    if (best === null || d < best.dist) best = { idx: i, dist: d };
+  }
+  return best?.idx ?? null;
+}
+
+function castShot(grid: Cell[], angle: number): AimResult | null {
+  let x = START_X;
+  let y = START_Y;
+  let vx = Math.sin(angle);
+  const vy = -Math.cos(angle);
+  const path: { x: number; y: number }[] = [{ x, y }];
+  for (let i = 0; i < AIM_MAX_STEPS; i++) {
+    x += vx * AIM_STEP;
+    y += vy * AIM_STEP;
+    if (x < RADIUS) {
+      x = RADIUS;
+      vx = -vx;
+      path.push({ x, y });
+    } else if (x > FIELD_W - RADIUS) {
+      x = FIELD_W - RADIUS;
+      vx = -vx;
+      path.push({ x, y });
+    }
+    if (y < RADIUS) {
+      const idx = findCeilingTarget(grid, x);
+      if (idx === null) return null;
+      const c = cellCenter(idx);
+      path.push({ x: c.x, y: c.y });
+      return { idx, path };
+    }
+    const hit = findFilledCollision(grid, x, y);
+    if (hit !== null) {
+      const idx = findLandingNear(grid, x, y, hit);
+      if (idx === null) return null;
+      const c = cellCenter(idx);
+      path.push({ x: c.x, y: c.y });
+      return { idx, path };
+    }
+  }
+  return null;
+}
+
+function pointToAngle(sx: number, sy: number): number | null {
+  const dx = sx - START_X;
+  const dy = sy - START_Y;
+  if (dy >= 0) return null;
+  const angle = Math.atan2(dx, -dy);
+  return Math.max(-MAX_AIM_ANGLE_RAD, Math.min(MAX_AIM_ANGLE_RAD, angle));
+}
+
 export default function BubblesGame() {
   const [state, setState] = useState<State>(buildInitial);
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.BUBBLES_BEST, BubblesBestSchema, 0);
-  const [aimCol, setAimCol] = useState<number>(Math.floor(COLS / 2));
+  const [aimAngle, setAimAngle] = useState(0);
+  const [dragging, setDragging] = useState(false);
   const [doneOpen, setDoneOpen] = useState(false);
   const [announce, setAnnounce] = useState('');
   const [flight, setFlight] = useState<Flight | null>(null);
@@ -153,6 +238,8 @@ export default function BubblesGame() {
   flightRef.current = flight;
   const pendingLandingRef = useRef<{ color: number; idx: number } | null>(null);
   const popTimerRef = useRef<number | null>(null);
+  const pendingShotRef = useRef(false);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
 
@@ -255,28 +342,88 @@ export default function BubblesGame() {
   );
 
   const shoot = useCallback(
-    (col: number) => {
+    (angle: number) => {
       if (state.done || flight) return;
-      const target = findEmptyTarget(state.grid, col);
-      if (target === null) return;
-      const center = cellCenter(target);
-      // start from bottom-center of the field
-      const startX = FIELD_W / 2;
-      const startY = FIELD_H - CELL * 0.6;
-      const dx = center.x - startX;
-      const dy = center.y - startY;
-      const dist = Math.hypot(dx, dy) || 1;
-      flightTargetRef.current = { idx: target, col };
+      const shot = castShot(state.grid, angle);
+      if (!shot) return;
+      flightTargetRef.current = { idx: shot.idx, col: shot.idx % COLS };
       setFlight({
-        x: startX,
-        y: startY,
-        vx: (dx / dist) * FLIGHT_SPEED,
-        vy: (dy / dist) * FLIGHT_SPEED,
+        x: START_X,
+        y: START_Y,
+        vx: Math.sin(angle) * FLIGHT_SPEED,
+        vy: -Math.cos(angle) * FLIGHT_SPEED,
         color: state.nextColor,
       });
     },
     [state.done, state.grid, state.nextColor, flight],
   );
+
+  const aimPreview = useMemo(() => {
+    if (state.done || flight) return null;
+    return castShot(state.grid, aimAngle);
+  }, [state.done, flight, state.grid, aimAngle]);
+
+  const updateAimFromPointer = useCallback((clientX: number, clientY: number) => {
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const sx = ((clientX - rect.left) / rect.width) * FIELD_W;
+    const sy = ((clientY - rect.top) / rect.height) * FIELD_H;
+    const a = pointToAngle(sx, sy);
+    if (a !== null) setAimAngle(a);
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (state.done || flight) return;
+    e.preventDefault();
+    setDragging(true);
+    pendingShotRef.current = true;
+    updateAimFromPointer(e.clientX, e.clientY);
+    try {
+      svgRef.current?.setPointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+  };
+
+  const onPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!dragging) return;
+    updateAimFromPointer(e.clientX, e.clientY);
+  };
+
+  const finishDrag = (e: React.PointerEvent<SVGSVGElement>, doShoot: boolean) => {
+    if (!dragging) return;
+    setDragging(false);
+    try {
+      svgRef.current?.releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+    if (doShoot && pendingShotRef.current) {
+      pendingShotRef.current = false;
+      shoot(aimAngle);
+    } else {
+      pendingShotRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (state.done) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (flight) return;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setAimAngle((a) => Math.max(-MAX_AIM_ANGLE_RAD, a - AIM_KEY_STEP_RAD));
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setAimAngle((a) => Math.min(MAX_AIM_ANGLE_RAD, a + AIM_KEY_STEP_RAD));
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        shoot(aimAngle);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [state.done, flight, aimAngle, shoot]);
 
   // Flight animation loop: ride the bubble along the trajectory, bounce off side walls,
   // and resolve when it reaches the target cell.
@@ -325,12 +472,14 @@ export default function BubblesGame() {
     finishedRef.current = false;
     setDoneOpen(false);
     setState(buildInitial());
-    setAimCol(Math.floor(COLS / 2));
+    setAimAngle(0);
+    setDragging(false);
     setFlight(null);
     setPoppingIdx(new Set());
     setParticles([]);
     flightTargetRef.current = null;
     pendingLandingRef.current = null;
+    pendingShotRef.current = false;
     if (popTimerRef.current !== null) {
       window.clearTimeout(popTimerRef.current);
       popTimerRef.current = null;
@@ -382,17 +531,44 @@ export default function BubblesGame() {
       </div>
 
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-2xl bg-slate-900 dark:bg-slate-950"
+        className="relative w-full max-w-md touch-none select-none overflow-hidden rounded-2xl bg-slate-900 dark:bg-slate-950"
         style={{ aspectRatio: `${FIELD_W} / ${FIELD_H}` }}
         role="application"
         aria-label="Blasenschießen-Spielfeld"
       >
         <svg
+          ref={svgRef}
           viewBox={`0 0 ${FIELD_W} ${FIELD_H}`}
           className="absolute inset-0 h-full w-full"
           preserveAspectRatio="none"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={(e) => finishDrag(e, true)}
+          onPointerCancel={(e) => finishDrag(e, false)}
         >
           {renderCells()}
+          {aimPreview && (
+            <polyline
+              points={aimPreview.path.map((p) => `${p.x},${p.y}`).join(' ')}
+              fill="none"
+              stroke="rgba(255,255,255,0.45)"
+              strokeWidth={0.4}
+              strokeDasharray="1.5 1.5"
+              aria-hidden
+            />
+          )}
+          {aimPreview && !flight && (
+            <circle
+              cx={aimPreview.path[aimPreview.path.length - 1]!.x}
+              cy={aimPreview.path[aimPreview.path.length - 1]!.y}
+              r={RADIUS}
+              fill="none"
+              stroke="rgba(255,255,255,0.5)"
+              strokeWidth={0.4}
+              strokeDasharray="1 1"
+              aria-hidden
+            />
+          )}
           {flight && (
             <circle
               cx={flight.x}
@@ -414,8 +590,8 @@ export default function BubblesGame() {
           ))}
           {!flight && (
             <circle
-              cx={FIELD_W / 2}
-              cy={FIELD_H - CELL * 0.6}
+              cx={START_X}
+              cy={START_Y}
               r={RADIUS}
               fill={COLORS[state.nextColor]}
               stroke="rgba(255,255,255,0.6)"
@@ -423,30 +599,6 @@ export default function BubblesGame() {
             />
           )}
         </svg>
-      </div>
-
-      <div
-        className="grid w-full max-w-md grid-cols-8 gap-1"
-        role="group"
-        aria-label="Schussspalten"
-      >
-        {Array.from({ length: COLS }, (_, c) => (
-          <button
-            key={c}
-            type="button"
-            onPointerEnter={() => setAimCol(c)}
-            onClick={() => shoot(c)}
-            disabled={state.done || flight !== null}
-            aria-label={`Spalte ${c + 1}`}
-            className={`min-h-11 rounded-lg text-sm font-medium ${
-              aimCol === c
-                ? 'bg-brand-600 text-white'
-                : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
-            }`}
-          >
-            {c + 1}
-          </button>
-        ))}
       </div>
 
       <button
@@ -458,7 +610,8 @@ export default function BubblesGame() {
       </button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
-        Wähle eine Spalte und schieße die Blase ab. Drei oder mehr gleichfarbige Blasen platzen.
+        Ziele durch Ziehen auf dem Spielfeld, beim Loslassen wird geschossen. Pfeiltasten ändern den
+        Winkel, Leertaste schießt. Drei oder mehr gleichfarbige Blasen platzen.
       </p>
 
       <BottomSheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
