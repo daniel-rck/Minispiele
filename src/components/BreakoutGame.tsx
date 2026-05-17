@@ -108,91 +108,101 @@ export default function BreakoutGame() {
   }, []);
 
   const step = useCallback(() => {
-    setState((s) => {
-      if (s.status !== 'playing') return s;
-      let { ballX, ballY, vx, vy, lives, score } = s;
-      let bricks = s.bricks;
-      ballX += vx;
-      ballY += vy;
-      if (ballX < BALL_R) {
-        ballX = BALL_R;
-        vx = -vx;
-      } else if (ballX > FIELD_W - BALL_R) {
-        ballX = FIELD_W - BALL_R;
-        vx = -vx;
+    const s = stateRef.current;
+    if (s.status !== 'playing') {
+      rafRef.current = window.requestAnimationFrame(step);
+      return;
+    }
+    let { ballX, ballY, vx, vy, lives, score } = s;
+    let bricks = s.bricks;
+    ballX += vx;
+    ballY += vy;
+    if (ballX < BALL_R) {
+      ballX = BALL_R;
+      vx = -vx;
+    } else if (ballX > FIELD_W - BALL_R) {
+      ballX = FIELD_W - BALL_R;
+      vx = -vx;
+    }
+    if (ballY < BALL_R) {
+      ballY = BALL_R;
+      vy = -vy;
+    }
+    // paddle
+    let paddleHit = false;
+    if (ballY > FIELD_H - PADDLE_H - BALL_R - 4 && ballY < FIELD_H - 4) {
+      if (ballX > s.paddleX && ballX < s.paddleX + PADDLE_W && vy > 0) {
+        vy = -Math.abs(vy);
+        const hitPos = (ballX - s.paddleX) / PADDLE_W - 0.5;
+        vx = hitPos * 5;
+        paddleHit = true;
       }
-      if (ballY < BALL_R) {
-        ballY = BALL_R;
-        vy = -vy;
+    }
+    // bricks
+    let mutated = false;
+    const burstParticles: Particle[] = [];
+    const newBricks = bricks.map((b) => {
+      if (!b.alive) return b;
+      if (
+        ballX + BALL_R > b.x &&
+        ballX - BALL_R < b.x + BRICK_W &&
+        ballY + BALL_R > b.y &&
+        ballY - BALL_R < b.y + BRICK_H
+      ) {
+        mutated = true;
+        score += 10;
+        // simple reflection by deeper axis
+        const overlapX = Math.min(ballX + BALL_R - b.x, b.x + BRICK_W - (ballX - BALL_R));
+        const overlapY = Math.min(ballY + BALL_R - b.y, b.y + BRICK_H - (ballY - BALL_R));
+        if (overlapX < overlapY) vx = -vx;
+        else vy = -vy;
+        burstParticles.push(
+          ...spawnBurst({
+            x: b.x + BRICK_W / 2,
+            y: b.y + BRICK_H / 2,
+            count: 8,
+            speed: 1.6,
+            color: b.color,
+            lifeMs: 500,
+            size: 2,
+          }),
+        );
+        return { ...b, alive: false };
       }
-      // paddle
-      if (ballY > FIELD_H - PADDLE_H - BALL_R - 4 && ballY < FIELD_H - 4) {
-        if (ballX > s.paddleX && ballX < s.paddleX + PADDLE_W && vy > 0) {
-          vy = -Math.abs(vy);
-          const hitPos = (ballX - s.paddleX) / PADDLE_W - 0.5;
-          vx = hitPos * 5;
-          vibrate(8);
-          flashPaddle();
-        }
-      }
-      // bricks
-      let mutated = false;
-      const burstParticles: Particle[] = [];
-      const newBricks = bricks.map((b) => {
-        if (!b.alive) return b;
-        if (
-          ballX + BALL_R > b.x &&
-          ballX - BALL_R < b.x + BRICK_W &&
-          ballY + BALL_R > b.y &&
-          ballY - BALL_R < b.y + BRICK_H
-        ) {
-          mutated = true;
-          score += 10;
-          // simple reflection by deeper axis
-          const overlapX = Math.min(ballX + BALL_R - b.x, b.x + BRICK_W - (ballX - BALL_R));
-          const overlapY = Math.min(ballY + BALL_R - b.y, b.y + BRICK_H - (ballY - BALL_R));
-          if (overlapX < overlapY) vx = -vx;
-          else vy = -vy;
-          burstParticles.push(
-            ...spawnBurst({
-              x: b.x + BRICK_W / 2,
-              y: b.y + BRICK_H / 2,
-              count: 8,
-              speed: 1.6,
-              color: b.color,
-              lifeMs: 500,
-              size: 2,
-            }),
-          );
-          return { ...b, alive: false };
-        }
-        return b;
-      });
-      if (mutated) {
-        bricks = newBricks;
-        setParticles((prev) => [...prev, ...burstParticles]);
-      }
-      // bottom
-      if (ballY > FIELD_H) {
-        lives -= 1;
-        if (lives <= 0) {
-          return { ...s, lives, score, status: 'lost' as const };
-        }
+      return b;
+    });
+    if (mutated) bricks = newBricks;
+    // bottom
+    let status: State['status'] = s.status;
+    if (ballY > FIELD_H) {
+      lives -= 1;
+      if (lives <= 0) {
+        status = 'lost';
+      } else {
         ballX = FIELD_W / 2;
         ballY = FIELD_H - 40;
         vx = 2.6;
         vy = -3.4;
       }
+    }
+    if (status !== 'lost') {
       const aliveLeft = bricks.some((b) => b.alive);
-      const status = !aliveLeft ? ('won' as const) : ('playing' as const);
-      // update ball trail
-      setTrail((t) => {
-        const next = [{ x: ballX, y: ballY }, ...t];
-        if (next.length > TRAIL_LENGTH) next.length = TRAIL_LENGTH;
-        return next;
-      });
-      return { ...s, ballX, ballY, vx, vy, bricks, score, lives, status };
+      status = !aliveLeft ? 'won' : 'playing';
+    }
+    // Commit state via updater so concurrent paddle updates aren't clobbered.
+    setState((prev) => ({ ...prev, ballX, ballY, vx, vy, bricks, score, lives, status }));
+    if (burstParticles.length > 0) {
+      setParticles((p) => [...p, ...burstParticles]);
+    }
+    setTrail((t) => {
+      const next = [{ x: ballX, y: ballY }, ...t];
+      if (next.length > TRAIL_LENGTH) next.length = TRAIL_LENGTH;
+      return next;
     });
+    if (paddleHit) {
+      vibrate(8);
+      flashPaddle();
+    }
     rafRef.current = window.requestAnimationFrame(step);
   }, [vibrate, flashPaddle]);
 

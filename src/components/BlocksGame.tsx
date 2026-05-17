@@ -264,10 +264,21 @@ export default function BlocksGame() {
   const [doneOpen, setDoneOpen] = useState(false);
   const [announce, setAnnounce] = useState('');
   const tickRef = useRef<number | null>(null);
+  const clearTimerRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
 
+  useEffect(() => {
+    return () => {
+      if (clearTimerRef.current !== null) {
+        window.clearTimeout(clearTimerRef.current);
+        clearTimerRef.current = null;
+      }
+    };
+  }, []);
+
   const finalizeClear = useCallback((merged: number[]) => {
+    clearTimerRef.current = null;
     setState((s) => {
       const { board: cleared, cleared: lineCount } = clearLines(merged);
       const newLines = s.lines + lineCount;
@@ -300,7 +311,8 @@ export default function BlocksGame() {
       const rows = fullRowIndices(merged);
       if (rows.length > 0) {
         vibrate(25);
-        window.setTimeout(() => finalizeClear(merged), 180);
+        if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+        clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
         return { ...s, board: merged, piece: null, flashingRows: rows };
       }
       const nextPiece = spawnPiece();
@@ -334,6 +346,10 @@ export default function BlocksGame() {
   const start = () => {
     finishedRef.current = false;
     setDoneOpen(false);
+    if (clearTimerRef.current !== null) {
+      window.clearTimeout(clearTimerRef.current);
+      clearTimerRef.current = null;
+    }
     setState({
       board: emptyBoard(),
       piece: spawnPiece(),
@@ -371,7 +387,8 @@ export default function BlocksGame() {
       const merged = merge(s.board, p);
       const rows = fullRowIndices(merged);
       if (rows.length > 0) {
-        window.setTimeout(() => finalizeClear(merged), 180);
+        if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
+        clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
         return { ...s, board: merged, piece: null, flashingRows: rows };
       }
       const next = spawnPiece();

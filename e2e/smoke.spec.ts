@@ -47,9 +47,11 @@ test.describe('Home category filter', () => {
 });
 
 test.describe('Restart-Label-Vereinheitlichung', () => {
-  test('alle Spiele zeigen kein "Game Over" in englisch', async ({ page }) => {
-    await page.goto('/');
-    const bodyText = await page.locator('body').innerText();
-    expect(bodyText).not.toContain('Game Over');
-  });
+  for (const game of games) {
+    test(`${game.path} zeigt kein "Game Over" in englisch`, async ({ page }) => {
+      await page.goto(game.path);
+      const bodyText = await page.locator('body').innerText();
+      expect(bodyText).not.toContain('Game Over');
+    });
+  }
 });

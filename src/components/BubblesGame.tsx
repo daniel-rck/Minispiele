@@ -149,8 +149,21 @@ export default function BubblesGame() {
   const [poppingIdx, setPoppingIdx] = useState<Set<number>>(new Set());
   const [particles, setParticles] = useState<Particle[]>([]);
   const flightTargetRef = useRef<{ idx: number; col: number } | null>(null);
+  const flightRef = useRef<Flight | null>(null);
+  flightRef.current = flight;
+  const pendingLandingRef = useRef<{ color: number; idx: number } | null>(null);
+  const popTimerRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
+
+  useEffect(() => {
+    return () => {
+      if (popTimerRef.current !== null) {
+        window.clearTimeout(popTimerRef.current);
+        popTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const occupiedBottom = useMemo(
     () => state.grid.some((v, i) => v !== -1 && Math.floor(i / COLS) >= ROWS - 1),
@@ -200,7 +213,9 @@ export default function BubblesGame() {
         const bursts: Particle[] = [];
         for (const i of popIdxSet) {
           const c = cellCenter(i);
-          const colorIdx = state.grid[i] ?? color;
+          const original = state.grid[i];
+          // The just-shot cell is -1 in the previous state — fall back to the shot color.
+          const colorIdx = original !== undefined && original >= 0 ? original : color;
           bursts.push(
             ...spawnBurst({
               x: c.x,
@@ -214,7 +229,9 @@ export default function BubblesGame() {
           );
         }
         setParticles((prev) => [...prev, ...bursts]);
-        window.setTimeout(() => {
+        if (popTimerRef.current !== null) window.clearTimeout(popTimerRef.current);
+        popTimerRef.current = window.setTimeout(() => {
+          popTimerRef.current = null;
           setPoppingIdx(new Set());
           setState((s) => ({
             ...s,
@@ -264,33 +281,40 @@ export default function BubblesGame() {
   // Flight animation loop: ride the bubble along the trajectory, bounce off side walls,
   // and resolve when it reaches the target cell.
   useAnimationFrame((delta) => {
-    setFlight((f) => {
-      if (!f) return f;
-      let nx = f.x + f.vx * delta;
-      const ny = f.y + f.vy * delta;
-      let vx = f.vx;
-      if (nx < RADIUS) {
-        nx = RADIUS;
-        vx = -vx;
-      } else if (nx > FIELD_W - RADIUS) {
-        nx = FIELD_W - RADIUS;
-        vx = -vx;
+    const f = flightRef.current;
+    if (!f) return;
+    let nx = f.x + f.vx * delta;
+    const ny = f.y + f.vy * delta;
+    let vx = f.vx;
+    if (nx < RADIUS) {
+      nx = RADIUS;
+      vx = -vx;
+    } else if (nx > FIELD_W - RADIUS) {
+      nx = FIELD_W - RADIUS;
+      vx = -vx;
+    }
+    const target = flightTargetRef.current;
+    if (target) {
+      const c = cellCenter(target.idx);
+      if (Math.hypot(c.x - nx, c.y - ny) < CELL * 0.35 || ny < RADIUS) {
+        pendingLandingRef.current = { color: f.color, idx: target.idx };
+        flightTargetRef.current = null;
+        setFlight(null);
+        return;
       }
-      const target = flightTargetRef.current;
-      if (target) {
-        const c = cellCenter(target.idx);
-        if (Math.hypot(c.x - nx, c.y - ny) < CELL * 0.35 || ny < RADIUS) {
-          const color = f.color;
-          const idx = target.idx;
-          flightTargetRef.current = null;
-          // Defer state mutation so the RAF callback stays pure-ish.
-          window.setTimeout(() => resolveLanding(color, idx), 0);
-          return null;
-        }
-      }
-      return { ...f, x: nx, y: ny, vx };
-    });
+    }
+    setFlight({ ...f, x: nx, y: ny, vx });
   }, flight !== null);
+
+  // Resolve landing in an effect (outside the state updater) so it runs once
+  // even under Strict Mode double-invocation.
+  useEffect(() => {
+    if (flight === null && pendingLandingRef.current !== null) {
+      const { color, idx } = pendingLandingRef.current;
+      pendingLandingRef.current = null;
+      resolveLanding(color, idx);
+    }
+  }, [flight, resolveLanding]);
 
   // Particle animation loop
   useAnimationFrame((delta) => {
@@ -306,6 +330,11 @@ export default function BubblesGame() {
     setPoppingIdx(new Set());
     setParticles([]);
     flightTargetRef.current = null;
+    pendingLandingRef.current = null;
+    if (popTimerRef.current !== null) {
+      window.clearTimeout(popTimerRef.current);
+      popTimerRef.current = null;
+    }
   };
 
   const renderCells = () => {

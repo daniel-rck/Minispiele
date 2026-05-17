@@ -8,16 +8,15 @@ test.describe('Blasenschießen', () => {
     await expect(page.getByRole('button', { name: /Nochmal spielen/i }).first()).toBeVisible();
   });
 
-  test('shooting into a column raises the score over time', async ({ page }) => {
+  test('shooting changes the bubble count on the field', async ({ page }) => {
     await page.goto('/bubbles');
-    const startScore = await page.getByText(/Punkte:/).innerText();
-    // fire 5 shots — at least one is likely to score
-    for (let i = 1; i <= 5; i++) {
-      await page.getByRole('button', { name: `Spalte ${i}` }).click();
-      // wait briefly for the flight animation to resolve
-      await page.waitForTimeout(450);
-    }
-    const endScore = await page.getByText(/Punkte:/).innerText();
-    expect(endScore).not.toEqual(startScore);
+    // Only the rendered cells carry aria-hidden — flight, particles and the
+    // preview circle don't — so this selector counts only the field bubbles.
+    const cells = page.locator('[role="application"] circle[aria-hidden="true"]');
+    const startCount = await cells.count();
+    expect(startCount).toBeGreaterThan(0);
+    await page.getByRole('button', { name: 'Spalte 4' }).click();
+    // Either +1 (no pop) or net loss (pop) — never identical.
+    await expect.poll(() => cells.count(), { timeout: 2000 }).not.toBe(startCount);
   });
 });

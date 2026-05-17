@@ -27,18 +27,6 @@ describe('useAnimationFrame', () => {
     vi.restoreAllMocks();
   });
 
-  function flushFrame(advanceMs: number) {
-    now += advanceMs;
-    const ids = [...callbacks.keys()];
-    callbacks.clear();
-    for (const id of ids) {
-      const cb = callbacks.get(id);
-      // re-set: scheduled before clear
-      (cb ?? undefined)?.(now);
-    }
-    // Above loop is empty; use saved list:
-  }
-
   it('calls back each frame with delta time', () => {
     const cb = vi.fn();
     renderHook(() => useAnimationFrame(cb, true));
@@ -63,9 +51,6 @@ describe('useAnimationFrame', () => {
     secondCb(now);
     expect(cb).toHaveBeenCalledTimes(2);
     expect(cb).toHaveBeenLastCalledWith(20);
-
-    // unused helper kept so lints stay happy
-    void flushFrame;
   });
 
   it('does not schedule when inactive', () => {
