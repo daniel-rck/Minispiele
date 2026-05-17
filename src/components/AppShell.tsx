@@ -1,9 +1,13 @@
+import { lazy, Suspense, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 import OfflineIndicator from './OfflineIndicator';
+
+const SettingsModal = lazy(() => import('./SettingsModal'));
 
 export default function AppShell() {
   const { pathname } = useLocation();
   const isHome = pathname === '/';
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -24,20 +28,37 @@ export default function AppShell() {
             </span>
             Minispiele
           </Link>
-          {!isHome && (
-            <Link
-              to="/"
-              className="min-h-11 rounded-lg px-2 text-sm text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-300"
+          <div className="flex items-center gap-1">
+            {!isHome && (
+              <Link
+                to="/"
+                className="min-h-11 rounded-lg px-2 text-sm text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-300"
+              >
+                ← Übersicht
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Einstellungen öffnen"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-brand-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-brand-300"
             >
-              ← Übersicht
-            </Link>
-          )}
+              <span aria-hidden className="text-xl">
+                ⚙
+              </span>
+            </button>
+          </div>
         </div>
         <OfflineIndicator />
       </header>
       <main id="main" className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
+      {settingsOpen ? (
+        <Suspense fallback={null}>
+          <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+        </Suspense>
+      ) : null}
     </div>
   );
 }
