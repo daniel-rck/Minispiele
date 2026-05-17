@@ -12,7 +12,7 @@ import {
 } from '../lib/ringSort';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import Peg from './Peg';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -297,7 +297,7 @@ export default function RingSortGame() {
         </div>
       </div>
 
-      <BottomSheet open={winSheetOpen} onClose={() => setWinSheetOpen(false)} title="Gewonnen!">
+      <Sheet open={winSheetOpen} onClose={() => setWinSheetOpen(false)} title="Gewonnen!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🎉
@@ -326,7 +326,7 @@ export default function RingSortGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

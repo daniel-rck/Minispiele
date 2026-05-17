@@ -8,7 +8,7 @@ import {
   type HangmanStats,
 } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -210,7 +210,7 @@ export default function HangmanGame() {
         })}
       </div>
 
-      <BottomSheet
+      <Sheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
         title={won ? 'Gewonnen!' : 'Verloren'}
@@ -252,7 +252,7 @@ export default function HangmanGame() {
             Neues Wort
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

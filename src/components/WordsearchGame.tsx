@@ -6,7 +6,7 @@ import { WordsearchBestSchema } from '../lib/persistedSchemas';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const SIZE = 10;
@@ -197,7 +197,7 @@ export default function WordsearchGame() {
         senkrecht oder diagonal — vorwärts wie rückwärts.
       </p>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Alle gefunden!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Alle gefunden!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🔎
@@ -218,7 +218,7 @@ export default function WordsearchGame() {
             Neues Gitter
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

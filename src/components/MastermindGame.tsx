@@ -12,7 +12,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { MastermindBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const COLOR_CLASSES = [
@@ -214,7 +214,7 @@ export default function MastermindGame() {
         Position.
       </p>
 
-      <BottomSheet
+      <Sheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
         title={state.done === 'won' ? 'Geknackt!' : 'Verloren'}
@@ -252,7 +252,7 @@ export default function MastermindGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

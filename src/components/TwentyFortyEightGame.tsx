@@ -9,7 +9,7 @@ import {
   spawnRandom,
   type Direction,
 } from '../lib/twentyFortyEight';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -210,7 +210,7 @@ export default function TwentyFortyEightGame() {
         </div>
       </div>
 
-      <BottomSheet open={winShown} onClose={() => setWinShown(false)} title="2048 erreicht!">
+      <Sheet open={winShown} onClose={() => setWinShown(false)} title="2048 erreicht!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🏆
@@ -235,9 +235,9 @@ export default function TwentyFortyEightGame() {
             </button>
           </div>
         </div>
-      </BottomSheet>
+      </Sheet>
 
-      <BottomSheet open={gameOver && !state.won} onClose={restart} title="Spiel vorbei">
+      <Sheet open={gameOver && !state.won} onClose={restart} title="Spiel vorbei">
         <div className="text-center">
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Keine Züge mehr möglich. Score: {state.score}.
@@ -250,7 +250,7 @@ export default function TwentyFortyEightGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

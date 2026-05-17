@@ -14,7 +14,7 @@ import { useWakeLock } from '../hooks/useWakeLock';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { SimonBestSchema } from '../lib/persistedSchemas';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 interface PadDef {
@@ -233,7 +233,7 @@ export default function SimonGame() {
         </button>
       )}
 
-      <BottomSheet open={lostOpen} onClose={() => setLostOpen(false)} title="Spiel vorbei">
+      <Sheet open={lostOpen} onClose={() => setLostOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             💥
@@ -254,7 +254,7 @@ export default function SimonGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

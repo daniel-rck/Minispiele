@@ -3,7 +3,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { BlocksBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const COLS = 10;
@@ -539,7 +539,7 @@ export default function BlocksGame() {
         </button>
       </div>
 
-      <BottomSheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
+      <Sheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🧱
@@ -555,7 +555,7 @@ export default function BlocksGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

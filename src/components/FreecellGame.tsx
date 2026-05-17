@@ -17,7 +17,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { FreecellBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 function CardView({
@@ -274,7 +274,7 @@ export default function FreecellGame() {
         Foundation: Ass bis König pro Farbe.
       </p>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             👑
@@ -295,7 +295,7 @@ export default function FreecellGame() {
             Neue Partie
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

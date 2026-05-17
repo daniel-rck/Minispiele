@@ -13,7 +13,7 @@ import { SudokuBestSchema, SudokuDifficultySchema } from '../lib/persistedSchema
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const LABELS: Record<SudokuDifficulty, string> = {
@@ -304,7 +304,7 @@ export default function SudokuGame() {
         </button>
       </div>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🧩
@@ -325,7 +325,7 @@ export default function SudokuGame() {
             Neues Sudoku
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

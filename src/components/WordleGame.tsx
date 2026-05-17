@@ -15,7 +15,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { EMPTY_WORDLE_STATS, WordleStatsSchema, type WordleStats } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 import WordleKeyboard from './WordleKeyboard';
 
@@ -246,7 +246,7 @@ export default function WordleGame() {
         </button>
       )}
 
-      <BottomSheet
+      <Sheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
         title={state.done === 'won' ? 'Gewonnen!' : 'Verloren'}
@@ -295,7 +295,7 @@ export default function WordleGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

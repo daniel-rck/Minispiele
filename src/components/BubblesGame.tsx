@@ -5,7 +5,7 @@ import { BubblesBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
 import { particleOpacity, spawnBurst, stepParticles, type Particle } from '../lib/particles';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const ROWS = 9;
@@ -614,7 +614,7 @@ export default function BubblesGame() {
         Winkel, Leertaste schießt. Drei oder mehr gleichfarbige Blasen platzen.
       </p>
 
-      <BottomSheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
+      <Sheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             💥
@@ -630,7 +630,7 @@ export default function BubblesGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

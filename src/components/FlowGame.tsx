@@ -14,7 +14,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { FlowBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 export default function FlowGame() {
@@ -211,7 +211,7 @@ export default function FlowGame() {
         kreuzen, alle Felder sollten am Ende belegt sein.
       </p>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🔗
@@ -232,7 +232,7 @@ export default function FlowGame() {
             Nächstes Level
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

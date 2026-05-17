@@ -10,7 +10,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { HanoiBestSchema, HanoiDisksSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const DISK_OPTIONS = [3, 4, 5, 6, 7, 8] as const;
@@ -176,7 +176,7 @@ export default function HanoiGame() {
         größere Scheibe darf nie auf einer kleineren liegen.
       </p>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🗼
@@ -197,7 +197,7 @@ export default function HanoiGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { NonogramBestSchema, NonogramSizeSchema } from '../lib/persistedSchemas'
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const SIZES = [5, 7, 10] as const;
@@ -226,7 +226,7 @@ export default function NonogramGame() {
         </button>
       </div>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🖼️
@@ -247,7 +247,7 @@ export default function NonogramGame() {
             Neues Rätsel
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

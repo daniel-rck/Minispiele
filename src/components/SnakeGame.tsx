@@ -12,7 +12,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { SnakeBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const COLS = 20;
@@ -270,7 +270,7 @@ export default function SnakeGame() {
         </div>
       </div>
 
-      <BottomSheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
+      <Sheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🐍
@@ -291,7 +291,7 @@ export default function SnakeGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

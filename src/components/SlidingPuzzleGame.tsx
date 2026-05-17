@@ -9,7 +9,7 @@ import {
   type SlidingState,
 } from '../lib/slidingPuzzle';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -212,7 +212,7 @@ export default function SlidingPuzzleGame() {
         </div>
       </div>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🎉
@@ -233,7 +233,7 @@ export default function SlidingPuzzleGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

@@ -12,7 +12,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { SokobanBestSchema, SokobanLevelSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 export default function SokobanGame() {
@@ -286,7 +286,7 @@ export default function SokobanGame() {
         Level neustarten
       </button>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Level gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Level gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             📦
@@ -307,7 +307,7 @@ export default function SokobanGame() {
             Nächstes Level
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

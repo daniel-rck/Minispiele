@@ -17,7 +17,7 @@ import {
   type MinesEntry,
 } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const NUMBER_COLOR: Readonly<Record<number, string>> = {
@@ -306,7 +306,7 @@ export default function MinesweeperGame() {
         </div>
       </div>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🎉
@@ -327,9 +327,9 @@ export default function MinesweeperGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
 
-      <BottomSheet open={lostOpen} onClose={() => setLostOpen(false)} title="Bumm!">
+      <Sheet open={lostOpen} onClose={() => setLostOpen(false)} title="Bumm!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             💥
@@ -345,7 +345,7 @@ export default function MinesweeperGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

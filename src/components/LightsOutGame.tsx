@@ -4,7 +4,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { LightsBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const DIFFICULTY: Record<'easy' | 'medium' | 'hard', number> = {
@@ -141,7 +141,7 @@ export default function LightsOutGame() {
         Ein Tipp schaltet das Feld und alle direkten Nachbarn um. Ziel: alle Lichter aus.
       </p>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Geschafft!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Geschafft!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             💡
@@ -162,7 +162,7 @@ export default function LightsOutGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

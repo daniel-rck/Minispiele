@@ -33,7 +33,7 @@ import {
 } from '../lib/persistedSchemas';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 
 const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>> = {
   1: [[1, 1]],
@@ -696,7 +696,7 @@ export default function DiceRoller() {
         </div>
       </div>
 
-      <BottomSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Einstellungen">
+      <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Einstellungen">
         <div className="flex flex-col gap-4">
           <div>
             <div className="mb-1 flex items-baseline justify-between">
@@ -755,9 +755,9 @@ export default function DiceRoller() {
             Vorschau
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
 
-      <BottomSheet
+      <Sheet
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
         title={`Verlauf (${history.length})`}
@@ -790,7 +790,7 @@ export default function DiceRoller() {
             </button>
           </>
         )}
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

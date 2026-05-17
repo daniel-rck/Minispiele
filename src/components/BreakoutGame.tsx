@@ -5,7 +5,7 @@ import { BreakoutBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
 import { particleOpacity, spawnBurst, stepParticles, type Particle } from '../lib/particles';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
 import AriaLive from './AriaLive';
 
 const TRAIL_LENGTH = 6;
@@ -364,7 +364,7 @@ export default function BreakoutGame() {
         alle Ziegel ab.
       </p>
 
-      <BottomSheet
+      <Sheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
         title={state.status === 'won' ? 'Gewonnen!' : 'Spiel vorbei'}
@@ -386,7 +386,7 @@ export default function BreakoutGame() {
             Nochmal spielen
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }
