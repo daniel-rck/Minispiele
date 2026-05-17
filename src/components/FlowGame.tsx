@@ -15,6 +15,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { FlowBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 export default function FlowGame() {
@@ -198,13 +199,9 @@ export default function FlowGame() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => restart()}
-        className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-      >
+      <Button variant="primary" block className="max-w-md" onClick={() => restart()}>
         Level neustarten
-      </button>
+      </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
         Halte einen farbigen Punkt gedrückt und ziehe zur gleichen Farbe. Linien dürfen sich nicht
@@ -224,13 +221,13 @@ export default function FlowGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Level in {moves} Zügen gelöst.
           </p>
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            block
             onClick={() => changeLevel((levelIdx + 1) % LEVELS.length)}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
             Nächstes Level
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

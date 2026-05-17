@@ -7,6 +7,7 @@ import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const SIZES = [5, 7, 10] as const;
@@ -217,13 +218,9 @@ export default function NonogramGame() {
         >
           {mode === 'fill' ? '◼ Füllen' : '✕ Markieren'}
         </button>
-        <button
-          type="button"
-          onClick={() => restart()}
-          className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <Button variant="primary" className="flex-1" onClick={() => restart()}>
           Neues Rätsel
-        </button>
+        </Button>
       </div>
 
       <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
@@ -239,13 +236,9 @@ export default function NonogramGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Rätsel gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Neues Rätsel
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

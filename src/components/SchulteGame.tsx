@@ -5,6 +5,7 @@ import { SchulteBestSchema, SchulteSizeSchema } from '../lib/persistedSchemas';
 import { formatDuration } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
 
 const SIZES = [3, 4, 5, 6, 7] as const;
 type Size = (typeof SIZES)[number];
@@ -162,13 +163,9 @@ export default function SchulteGame() {
         })}
       </div>
 
-      <button
-        type="button"
-        onClick={() => reset()}
-        className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-      >
+      <Button variant="primary" block className="max-w-md" onClick={() => reset()}>
         {finishedSec !== null ? 'Nochmal spielen' : 'Neu mischen'}
-      </button>
+      </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
         Tippe die Zahlen in aufsteigender Reihenfolge von 1 bis {total} so schnell wie möglich.

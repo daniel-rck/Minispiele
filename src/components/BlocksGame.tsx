@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { BlocksBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const COLS = 10;
@@ -485,13 +486,9 @@ export default function BlocksGame() {
         </div>
         {state.status === 'idle' && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <button
-              type="button"
-              onClick={start}
-              className="min-h-12 rounded-xl bg-brand-600 px-6 py-3 text-base font-medium text-white hover:bg-brand-700"
-            >
+            <Button variant="primary" onClick={start}>
               Starten
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -547,13 +544,9 @@ export default function BlocksGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Du erreichst {state.score} Punkte ({state.lines} Reihen).
           </p>
-          <button
-            type="button"
-            onClick={start}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={start}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

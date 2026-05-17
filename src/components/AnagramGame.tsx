@@ -5,6 +5,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { AnagramBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
 
 interface Tile {
   id: number;
@@ -189,13 +190,9 @@ export default function AnagramGame() {
         >
           Leeren
         </button>
-        <button
-          type="button"
-          onClick={newRound}
-          className="min-h-12 flex-1 rounded-xl bg-brand-600 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <Button variant="primary" className="flex-1" onClick={newRound}>
           {feedback === 'correct' ? 'Nächstes Wort' : 'Überspringen'}
-        </button>
+        </Button>
       </div>
     </div>
   );

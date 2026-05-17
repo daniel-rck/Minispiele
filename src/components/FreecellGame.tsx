@@ -18,6 +18,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { FreecellBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 function CardView({
@@ -260,13 +261,9 @@ export default function FreecellGame() {
         >
           ↩ Rückgängig
         </button>
-        <button
-          type="button"
-          onClick={restart}
-          className="min-h-12 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <Button variant="primary" onClick={restart}>
           Neu mischen
-        </button>
+        </Button>
       </div>
 
       <p className="max-w-xl text-center text-xs text-slate-500">
@@ -287,13 +284,9 @@ export default function FreecellGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             FreeCell in {state.moves} Zügen gelöst.
           </p>
-          <button
-            type="button"
-            onClick={restart}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={restart}>
             Neue Partie
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

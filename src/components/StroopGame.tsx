@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { StroopBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
 
 interface ColorDef {
   key: string;
@@ -111,13 +112,9 @@ export default function StroopGame() {
 
       <div className="flex aspect-video w-full max-w-md items-center justify-center rounded-2xl border-2 border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
         {phase === 'idle' && (
-          <button
-            type="button"
-            onClick={startRound}
-            className="min-h-12 rounded-xl bg-brand-600 px-6 py-3 text-base font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" onClick={startRound}>
             Starten
-          </button>
+          </Button>
         )}
         {phase === 'playing' && (
           <span
@@ -133,13 +130,9 @@ export default function StroopGame() {
             <div className="mb-3 text-xs text-slate-500">
               Fehler: <span className="tabular-nums">{wrong}</span>
             </div>
-            <button
-              type="button"
-              onClick={startRound}
-              className="min-h-12 rounded-xl bg-brand-600 px-6 py-3 text-base font-medium text-white hover:bg-brand-700"
-            >
+            <Button variant="primary" onClick={startRound}>
               Nochmal spielen
-            </button>
+            </Button>
           </div>
         )}
       </div>

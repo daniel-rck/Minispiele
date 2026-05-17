@@ -34,6 +34,7 @@ import {
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 
 const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>> = {
   1: [[1, 1]],
@@ -686,13 +687,15 @@ export default function DiceRoller() {
               </button>
             ))}
           </div>
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="lg"
+            block
+            className="touch-manipulation"
             onClick={handleRollAll}
-            className="min-h-14 w-full touch-manipulation rounded-2xl bg-brand-600 px-4 py-3 text-lg font-semibold text-white hover:bg-brand-700"
           >
             🎲 Würfeln{mode !== 'normal' ? ` · ${modeLabel(mode)}` : ''}
-          </button>
+          </Button>
         </div>
       </div>
 

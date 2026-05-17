@@ -18,6 +18,7 @@ import {
 } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const NUMBER_COLOR: Readonly<Record<number, string>> = {
@@ -296,13 +297,9 @@ export default function MinesweeperGame() {
           >
             🚩
           </button>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" className="flex-1" onClick={() => restart()}>
             Neu
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -319,13 +316,9 @@ export default function MinesweeperGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
 
@@ -337,13 +330,9 @@ export default function MinesweeperGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Auf eine Mine getreten. Beim nächsten Mal!
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

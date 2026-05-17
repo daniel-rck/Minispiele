@@ -13,6 +13,7 @@ import { SnakeBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const COLS = 20;
@@ -251,21 +252,13 @@ export default function SnakeGame() {
       >
         <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
           {phase === 'idle' || phase === 'over' ? (
-            <button
-              type="button"
-              onClick={start}
-              className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-            >
+            <Button variant="primary" className="flex-1" onClick={start}>
               {phase === 'over' ? 'Nochmal spielen' : 'Starten'}
-            </button>
+            </Button>
           ) : (
-            <button
-              type="button"
-              onClick={togglePause}
-              className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-            >
+            <Button variant="primary" className="flex-1" onClick={togglePause}>
               {phase === 'playing' ? 'Pause' : 'Fortsetzen'}
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -283,13 +276,9 @@ export default function SnakeGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Du hast {state.score} Punkte erreicht.
           </p>
-          <button
-            type="button"
-            onClick={start}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={start}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

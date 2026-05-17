@@ -16,6 +16,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { EMPTY_WORDLE_STATS, WordleStatsSchema, type WordleStats } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 import WordleKeyboard from './WordleKeyboard';
 
@@ -237,13 +238,9 @@ export default function WordleGame() {
       />
 
       {state.done && (
-        <button
-          type="button"
-          onClick={newGame}
-          className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <Button variant="primary" block className="max-w-md" onClick={newGame}>
           Nochmal spielen
-        </button>
+        </Button>
       )}
 
       <Sheet
@@ -287,13 +284,9 @@ export default function WordleGame() {
               <div className="text-slate-500">Beste</div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={newGame}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={newGame}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

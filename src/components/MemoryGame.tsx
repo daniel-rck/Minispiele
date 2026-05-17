@@ -9,6 +9,7 @@ import {
 } from '../lib/memory';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -190,13 +191,9 @@ export default function MemoryGame() {
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" onClick={() => restart()} className="flex-1">
             Neu
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -213,13 +210,9 @@ export default function MemoryGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Gelöst in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

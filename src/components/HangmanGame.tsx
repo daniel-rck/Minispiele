@@ -9,6 +9,7 @@ import {
 } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -244,13 +245,9 @@ export default function HangmanGame() {
               <div className="text-slate-500">Beste</div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={restart}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={restart}>
             Neues Wort
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

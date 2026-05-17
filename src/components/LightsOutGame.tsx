@@ -5,6 +5,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { LightsBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const DIFFICULTY: Record<'easy' | 'medium' | 'hard', number> = {
@@ -129,13 +130,9 @@ export default function LightsOutGame() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => restart()}
-        className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-      >
+      <Button variant="primary" block className="max-w-md" onClick={() => restart()}>
         Neues Rätsel
-      </button>
+      </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
         Ein Tipp schaltet das Feld und alle direkten Nachbarn um. Ziel: alle Lichter aus.
@@ -154,13 +151,9 @@ export default function LightsOutGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Alle Lichter in {state.moves} Zügen ausgeschaltet.
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>

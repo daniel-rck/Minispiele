@@ -13,6 +13,7 @@ import {
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import Peg from './Peg';
 import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -287,13 +288,9 @@ export default function RingSortGame() {
           >
             {hintBusy ? '…' : '💡 Tipp'}
           </button>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" className="flex-1" onClick={() => restart()}>
             Neu
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -315,16 +312,16 @@ export default function RingSortGame() {
               Bestzeit: {currentBest.moves} Züge · {formatDuration(currentBest.seconds)}
             </p>
           )}
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            block
             onClick={() => {
               setWinSheetOpen(false);
               restart();
             }}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
             Nochmal spielen
-          </button>
+          </Button>
         </div>
       </Sheet>
     </div>
