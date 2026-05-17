@@ -8,7 +8,7 @@ import Home from '../pages/Home';
 import RingSortGame from './RingSortGame';
 import DiceRoller from './DiceRoller';
 import MemoryGame from './MemoryGame';
-import SettingsModal from './SettingsModal';
+import SettingsSheet from './SettingsSheet';
 import GameLayout from './GameLayout';
 
 beforeEach(() => {
@@ -49,8 +49,8 @@ describe('a11y smoke', () => {
     await expectNoA11yViolations(container);
   });
 
-  it('SettingsModal is free of axe violations when open', async () => {
-    const { container } = renderWithProviders(<SettingsModal open onClose={() => undefined} />);
+  it('SettingsSheet is free of axe violations when open', async () => {
+    const { container } = renderWithProviders(<SettingsSheet open onClose={() => undefined} />);
     await expectNoA11yViolations(container);
   });
 });

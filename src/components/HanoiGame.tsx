@@ -10,7 +10,8 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { HanoiBestSchema, HanoiDisksSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const DISK_OPTIONS = [3, 4, 5, 6, 7, 8] as const;
@@ -163,20 +164,16 @@ export default function HanoiGame() {
         })}
       </div>
 
-      <button
-        type="button"
-        onClick={() => restart()}
-        className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-      >
+      <Button variant="primary" block className="max-w-md" onClick={() => restart()}>
         Nochmal spielen
-      </button>
+      </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
         Tippe einen Stab um die oberste Scheibe auszuwählen, dann einen anderen Stab als Ziel. Eine
         größere Scheibe darf nie auf einer kleineren liegen.
       </p>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🗼
@@ -189,15 +186,11 @@ export default function HanoiGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             {state.disks} Scheiben in {state.moves} Zügen (Optimum: {optimal}).
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

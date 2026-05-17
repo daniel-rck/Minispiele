@@ -1,12 +1,17 @@
-import { lazy, Suspense, useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router';
+import { useState } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import OfflineIndicator from './OfflineIndicator';
-
-const SettingsModal = lazy(() => import('./SettingsModal'));
+import SettingsSheet from './SettingsSheet';
+import IconButton from './ui/IconButton';
+import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from './ui/icons';
+import { useSettings } from '../lib/useSettings';
+import { BRAND_NAME } from '../lib/brand';
 
 export default function AppShell() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const isHome = pathname === '/';
+  const { settings, setSound } = useSettings();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
@@ -15,38 +20,42 @@ export default function AppShell() {
         Zum Inhalt springen
       </a>
       <header
-        className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-900/80"
+        className="sticky top-0 z-20 border-b border-surface-200/60 bg-white/85 backdrop-blur-md dark:border-surface-800/80 dark:bg-surface-950/85"
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-lg font-semibold text-brand-700 dark:text-brand-300"
-          >
-            <span aria-hidden className="text-xl">
-              ◉
-            </span>
-            Minispiele
-          </Link>
-          <div className="flex items-center gap-1">
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-4 py-2.5">
+          <div className="flex items-center gap-2">
             {!isHome && (
-              <Link
-                to="/"
-                className="min-h-11 rounded-lg px-2 text-sm text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-300"
-              >
-                ← Übersicht
-              </Link>
+              <IconButton
+                icon={<ChevronLeftIcon />}
+                label="Zurück zur Übersicht"
+                size="md"
+                variant="ghost"
+                onClick={() => navigate('/')}
+              />
             )}
-            <button
-              type="button"
-              onClick={() => setSettingsOpen(true)}
-              aria-label="Einstellungen öffnen"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-brand-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-brand-300"
+            <Link
+              to="/"
+              className="flex items-center gap-2 rounded-xl px-1 py-1 font-display text-lg font-extrabold text-primary-700 dark:text-primary-200"
             >
-              <span aria-hidden className="text-xl">
-                ⚙
-              </span>
-            </button>
+              <img src="/logo.svg" alt="" width="32" height="32" className="size-8" />
+              <span>{BRAND_NAME}</span>
+            </Link>
+          </div>
+          <div className="flex items-center gap-1">
+            <IconButton
+              icon={settings.sound ? <Volume2Icon /> : <VolumeXIcon />}
+              label={settings.sound ? 'Töne ausschalten' : 'Töne einschalten'}
+              pressed={!settings.sound}
+              onClick={() => setSound(!settings.sound)}
+              variant="ghost"
+            />
+            <IconButton
+              icon={<SettingsIcon />}
+              label="Einstellungen öffnen"
+              onClick={() => setSettingsOpen(true)}
+              variant="ghost"
+            />
           </div>
         </div>
         <OfflineIndicator />
@@ -54,11 +63,7 @@ export default function AppShell() {
       <main id="main" className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
-      {settingsOpen ? (
-        <Suspense fallback={null}>
-          <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-        </Suspense>
-      ) : null}
+      <SettingsSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

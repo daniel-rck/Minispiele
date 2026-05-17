@@ -14,7 +14,8 @@ import { useWakeLock } from '../hooks/useWakeLock';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { SimonBestSchema } from '../lib/persistedSchemas';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 interface PadDef {
@@ -224,16 +225,12 @@ export default function SimonGame() {
       </div>
 
       {showStart && (
-        <button
-          type="button"
-          onClick={handleStart}
-          className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 py-3 text-base font-medium text-white hover:bg-brand-700"
-        >
+        <Button variant="primary" block className="max-w-md" onClick={handleStart}>
           {state.phase === 'lost' ? 'Nochmal spielen' : 'Starten'}
-        </button>
+        </Button>
       )}
 
-      <BottomSheet open={lostOpen} onClose={() => setLostOpen(false)} title="Spiel vorbei">
+      <Sheet open={lostOpen} onClose={() => setLostOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             💥
@@ -246,15 +243,11 @@ export default function SimonGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Du hast Level {Math.max(0, state.level - 1)} erreicht.
           </p>
-          <button
-            type="button"
-            onClick={handleStart}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={handleStart}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

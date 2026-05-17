@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import AppShell from './components/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAUpdatePrompt from './components/PWAUpdatePrompt';
-import { SettingsProvider } from './lib/useSettings';
+import { SettingsProvider, useSettings } from './lib/useSettings';
+import { setAudioSetting } from './lib/audioSettings';
 
 const Home = lazy(() => import('./pages/Home'));
 const RingSort = lazy(() => import('./pages/RingSort'));
@@ -37,7 +38,7 @@ const Flow = lazy(() => import('./pages/Flow'));
 
 function RouteFallback() {
   return (
-    <div className="flex justify-center py-12 text-sm text-slate-500" role="status">
+    <div className="flex justify-center py-12 text-sm text-surface-500" role="status">
       Lädt …
     </div>
   );
@@ -51,10 +52,21 @@ function LazyRoute({ children, label }: { children: React.ReactNode; label: stri
   );
 }
 
+// Bridges the React SettingsProvider's sound flag into the module-level singleton
+// that the non-React audio helpers (audio.ts, toneAudio.ts) read before producing output.
+function AudioSettingsBridge() {
+  const { settings } = useSettings();
+  useEffect(() => {
+    setAudioSetting(settings.sound);
+  }, [settings.sound]);
+  return null;
+}
+
 export default function App() {
   return (
     <ErrorBoundary label="root">
       <SettingsProvider>
+        <AudioSettingsBridge />
         <PWAUpdatePrompt />
         <BrowserRouter>
           <Routes>

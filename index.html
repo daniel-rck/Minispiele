@@ -4,12 +4,38 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#7c3aed" />
+    <meta name="theme-color" content="#11b3b3" />
     <meta
       name="description"
       content="Minispiele — kleine Browser-Spiele. Lokal, ohne Account, ohne Tracking."
     />
     <title>Minispiele</title>
+    <script>
+      // Avoid theme flash: set `.dark` class synchronously before React mounts.
+      (function () {
+        try {
+          var raw = localStorage.getItem('minispiele.settings.v1');
+          var mode = 'system';
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (
+              parsed &&
+              (parsed.theme === 'light' || parsed.theme === 'dark' || parsed.theme === 'system')
+            ) {
+              mode = parsed.theme;
+            }
+          }
+          var dark =
+            mode === 'dark' ||
+            (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('dark', dark);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', dark ? '#0a1014' : '#11b3b3');
+        } catch (e) {
+          /* no-op */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

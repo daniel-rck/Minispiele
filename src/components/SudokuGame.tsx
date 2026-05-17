@@ -13,7 +13,8 @@ import { SudokuBestSchema, SudokuDifficultySchema } from '../lib/persistedSchema
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const LABELS: Record<SudokuDifficulty, string> = {
@@ -295,16 +296,12 @@ export default function SudokuGame() {
         >
           Löschen
         </button>
-        <button
-          type="button"
-          onClick={() => restart()}
-          className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <Button variant="primary" className="flex-1" onClick={() => restart()}>
           Neu
-        </button>
+        </Button>
       </div>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🧩
@@ -317,15 +314,11 @@ export default function SudokuGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Neues Sudoku
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

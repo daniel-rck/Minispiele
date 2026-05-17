@@ -4,6 +4,7 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { TangramLevelSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
 
 interface Piece {
   id: number;
@@ -180,13 +181,9 @@ export default function TangramGame() {
         >
           Zurücksetzen
         </button>
-        <button
-          type="button"
-          onClick={nextPuzzle}
-          className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <Button variant="primary" className="flex-1" onClick={nextPuzzle}>
           {allPlaced ? 'Fertig — nächste' : 'Überspringen'}
-        </button>
+        </Button>
       </div>
     </div>
   );

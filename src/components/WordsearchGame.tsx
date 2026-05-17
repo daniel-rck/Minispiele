@@ -6,7 +6,8 @@ import { WordsearchBestSchema } from '../lib/persistedSchemas';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const SIZE = 10;
@@ -184,20 +185,16 @@ export default function WordsearchGame() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={restart}
-        className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-      >
+      <Button variant="primary" block className="max-w-md" onClick={restart}>
         Neues Gitter
-      </button>
+      </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
         Halte gedrückt und ziehe vom ersten zum letzten Buchstaben. Wörter verlaufen waagerecht,
         senkrecht oder diagonal — vorwärts wie rückwärts.
       </p>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Alle gefunden!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Alle gefunden!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🔎
@@ -210,15 +207,11 @@ export default function WordsearchGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Alle {puzzle.words.length} Wörter in {formatDuration(timer.elapsedSeconds)} gefunden.
           </p>
-          <button
-            type="button"
-            onClick={restart}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={restart}>
             Neues Gitter
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

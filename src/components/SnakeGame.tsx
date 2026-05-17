@@ -12,7 +12,10 @@ import { STORAGE_KEYS } from '../lib/constants';
 import { SnakeBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
+import GameStats from './ui/GameStats';
+import GameFooter from './ui/GameFooter';
 import AriaLive from './AriaLive';
 
 const COLS = 20;
@@ -136,23 +139,24 @@ export default function SnakeGame() {
     <div className="flex flex-col items-center gap-3 pb-24">
       <AriaLive message={announcement} />
 
-      <div className="grid w-full grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
-        </div>
-        <div className="text-center">
-          {phase === 'idle'
-            ? 'Bereit'
-            : phase === 'playing'
-              ? 'läuft'
-              : phase === 'paused'
-                ? 'Pause'
-                : 'Spiel vorbei'}
-        </div>
-        <div className="text-right">
-          Best: <span className="font-semibold tabular-nums">{best}</span>
-        </div>
-      </div>
+      <GameStats
+        className="w-full"
+        items={[
+          { label: 'Punkte', value: state.score },
+          {
+            label: '',
+            value:
+              phase === 'idle'
+                ? 'Bereit'
+                : phase === 'playing'
+                  ? 'läuft'
+                  : phase === 'paused'
+                    ? 'Pause'
+                    : 'Spiel vorbei',
+          },
+          { label: 'Best', value: best },
+        ]}
+      />
 
       <div
         className="relative w-full max-w-md select-none sm:max-w-lg"
@@ -245,32 +249,19 @@ export default function SnakeGame() {
         </button>
       </div>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          {phase === 'idle' || phase === 'over' ? (
-            <button
-              type="button"
-              onClick={start}
-              className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-            >
-              {phase === 'over' ? 'Nochmal spielen' : 'Starten'}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={togglePause}
-              className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-            >
-              {phase === 'playing' ? 'Pause' : 'Fortsetzen'}
-            </button>
-          )}
-        </div>
-      </div>
+      <GameFooter>
+        {phase === 'idle' || phase === 'over' ? (
+          <Button variant="primary" className="flex-1" onClick={start}>
+            {phase === 'over' ? 'Nochmal spielen' : 'Starten'}
+          </Button>
+        ) : (
+          <Button variant="primary" className="flex-1" onClick={togglePause}>
+            {phase === 'playing' ? 'Pause' : 'Fortsetzen'}
+          </Button>
+        )}
+      </GameFooter>
 
-      <BottomSheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
+      <Sheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🐍
@@ -283,15 +274,11 @@ export default function SnakeGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Du hast {state.score} Punkte erreicht.
           </p>
-          <button
-            type="button"
-            onClick={start}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={start}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

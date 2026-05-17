@@ -1,3 +1,4 @@
+import { isAudioEnabled } from './audioSettings';
 import { AUDIO } from './constants';
 
 interface AudioWindow extends Window {
@@ -34,8 +35,9 @@ export class AlarmAudio {
     }
   }
 
-  /** Start the repeating beep alarm. Returns false if audio is unavailable. */
+  /** Start the repeating beep alarm. Returns false if audio is unavailable or muted. */
   start(): boolean {
+    if (!isAudioEnabled()) return false;
     if (!this.prime()) return false;
     this.resume();
     this.beepOnce();
@@ -69,6 +71,7 @@ export class AlarmAudio {
   }
 
   private beepOnce(): void {
+    if (!isAudioEnabled()) return;
     const ctx = this.ctx;
     if (!ctx) return;
     try {

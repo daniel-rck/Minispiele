@@ -5,7 +5,8 @@ import { BubblesBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
 import { particleOpacity, spawnBurst, stepParticles, type Particle } from '../lib/particles';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const ROWS = 9;
@@ -601,20 +602,16 @@ export default function BubblesGame() {
         </svg>
       </div>
 
-      <button
-        type="button"
-        onClick={restart}
-        className="min-h-12 w-full max-w-md rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-      >
+      <Button variant="primary" block className="max-w-md" onClick={restart}>
         Nochmal spielen
-      </button>
+      </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
         Ziele durch Ziehen auf dem Spielfeld, beim Loslassen wird geschossen. Pfeiltasten ändern den
         Winkel, Leertaste schießt. Drei oder mehr gleichfarbige Blasen platzen.
       </p>
 
-      <BottomSheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
+      <Sheet open={doneOpen} onClose={() => setDoneOpen(false)} title="Spiel vorbei">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             💥
@@ -622,15 +619,11 @@ export default function BubblesGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Du erreichst {state.score} Punkte.
           </p>
-          <button
-            type="button"
-            onClick={restart}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={restart}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

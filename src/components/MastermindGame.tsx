@@ -12,7 +12,8 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
 import { MastermindBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 import AriaLive from './AriaLive';
 
 const COLOR_CLASSES = [
@@ -198,14 +199,14 @@ export default function MastermindGame() {
         >
           Zurück
         </button>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          className="flex-1"
           onClick={handleSubmit}
           disabled={!!state.done || state.current.length !== CODE_LENGTH}
-          className="min-h-12 flex-1 rounded-xl bg-brand-600 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
         >
           Prüfen
-        </button>
+        </Button>
       </div>
 
       <p className="max-w-md text-center text-xs text-slate-500">
@@ -214,7 +215,7 @@ export default function MastermindGame() {
         Position.
       </p>
 
-      <BottomSheet
+      <Sheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
         title={state.done === 'won' ? 'Geknackt!' : 'Verloren'}
@@ -244,15 +245,11 @@ export default function MastermindGame() {
               />
             ))}
           </div>
-          <button
-            type="button"
-            onClick={restart}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={restart}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

@@ -33,7 +33,8 @@ import {
 } from '../lib/persistedSchemas';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
 
 const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>> = {
   1: [[1, 1]],
@@ -686,17 +687,19 @@ export default function DiceRoller() {
               </button>
             ))}
           </div>
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="lg"
+            block
+            className="touch-manipulation"
             onClick={handleRollAll}
-            className="min-h-14 w-full touch-manipulation rounded-2xl bg-brand-600 px-4 py-3 text-lg font-semibold text-white hover:bg-brand-700"
           >
             🎲 Würfeln{mode !== 'normal' ? ` · ${modeLabel(mode)}` : ''}
-          </button>
+          </Button>
         </div>
       </div>
 
-      <BottomSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Einstellungen">
+      <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Einstellungen">
         <div className="flex flex-col gap-4">
           <div>
             <div className="mb-1 flex items-baseline justify-between">
@@ -755,9 +758,9 @@ export default function DiceRoller() {
             Vorschau
           </button>
         </div>
-      </BottomSheet>
+      </Sheet>
 
-      <BottomSheet
+      <Sheet
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
         title={`Verlauf (${history.length})`}
@@ -790,7 +793,7 @@ export default function DiceRoller() {
             </button>
           </>
         )}
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

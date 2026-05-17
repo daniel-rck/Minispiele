@@ -9,7 +9,10 @@ import {
   type SlidingState,
 } from '../lib/slidingPuzzle';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
+import GameStats from './ui/GameStats';
+import GameFooter from './ui/GameFooter';
 import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -139,29 +142,26 @@ export default function SlidingPuzzleGame() {
         </label>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
-        </div>
-        <div>
-          Zeit:{' '}
-          <span className="font-semibold tabular-nums" aria-label="Spielzeit">
-            {formatDuration(timer.elapsedSeconds)}
-          </span>
-        </div>
-        <div className="text-right">
-          {best ? (
-            <>
-              Best:{' '}
-              <span className="font-semibold tabular-nums">
+      <GameStats
+        items={[
+          { label: 'Züge', value: state.moves },
+          {
+            label: 'Zeit',
+            value: formatDuration(timer.elapsedSeconds),
+            valueAriaLabel: 'Spielzeit',
+          },
+          {
+            label: 'Best',
+            value: best ? (
+              <>
                 {best.moves}Z · {formatDuration(best.seconds)}
-              </span>
-            </>
-          ) : (
-            <span className="text-slate-400">noch keine Bestzeit</span>
-          )}
-        </div>
-      </div>
+              </>
+            ) : (
+              <span className="font-normal text-slate-400">noch keine Bestzeit</span>
+            ),
+          },
+        ]}
+      />
 
       <div className="mx-auto w-full max-w-md sm:max-w-lg">
         <div
@@ -197,22 +197,13 @@ export default function SlidingPuzzleGame() {
         Klick auf ein Plättchen neben der Lücke oder Pfeiltasten verwenden.
       </p>
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-          >
-            Neu mischen
-          </button>
-        </div>
-      </div>
+      <GameFooter>
+        <Button variant="primary" className="flex-1" onClick={() => restart()}>
+          Neu mischen
+        </Button>
+      </GameFooter>
 
-      <BottomSheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
+      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🎉
@@ -225,15 +216,11 @@ export default function SlidingPuzzleGame() {
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Gelöst in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
           </p>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }

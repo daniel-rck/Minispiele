@@ -12,7 +12,10 @@ import {
 } from '../lib/ringSort';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import Peg from './Peg';
-import BottomSheet from './BottomSheet';
+import Sheet from './ui/Sheet';
+import Button from './ui/Button';
+import GameStats from './ui/GameStats';
+import GameFooter from './ui/GameFooter';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
@@ -201,29 +204,26 @@ export default function RingSortGame() {
         </label>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
-        </div>
-        <div>
-          Zeit:{' '}
-          <span className="font-semibold tabular-nums" aria-label="Spielzeit">
-            {formatDuration(timer.elapsedSeconds)}
-          </span>
-        </div>
-        <div className="text-right">
-          {currentBest ? (
-            <>
-              Best:{' '}
-              <span className="font-semibold tabular-nums">
+      <GameStats
+        items={[
+          { label: 'Züge', value: state.moves },
+          {
+            label: 'Zeit',
+            value: formatDuration(timer.elapsedSeconds),
+            valueAriaLabel: 'Spielzeit',
+          },
+          {
+            label: 'Best',
+            value: currentBest ? (
+              <>
                 {currentBest.moves}Z · {formatDuration(currentBest.seconds)}
-              </span>
-            </>
-          ) : (
-            <span className="text-slate-400">noch keine Bestzeit</span>
-          )}
-        </div>
-      </div>
+              </>
+            ) : (
+              <span className="font-normal text-slate-400">noch keine Bestzeit</span>
+            ),
+          },
+        ]}
+      />
 
       <div className="peg-board relative mx-auto w-full max-w-[720px]">
         <div className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-6">
@@ -265,39 +265,30 @@ export default function RingSortGame() {
         </div>
       )}
 
-      <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3">
-          <button
-            type="button"
-            onClick={handleUndo}
-            disabled={history.length === 0 || state.won}
-            className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium hover:border-brand-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
-          >
-            ↶ Zurück
-          </button>
-          <button
-            type="button"
-            onClick={handleHint}
-            disabled={hintBusy || state.won}
-            aria-busy={hintBusy}
-            className="min-h-12 flex-1 rounded-xl border border-amber-300 bg-amber-50 px-3 text-sm font-medium text-amber-900 hover:border-amber-500 disabled:opacity-50 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
-          >
-            {hintBusy ? '…' : '💡 Tipp'}
-          </button>
-          <button
-            type="button"
-            onClick={() => restart()}
-            className="min-h-12 flex-1 rounded-xl bg-brand-600 px-3 text-sm font-medium text-white hover:bg-brand-700"
-          >
-            Neu
-          </button>
-        </div>
-      </div>
+      <GameFooter>
+        <button
+          type="button"
+          onClick={handleUndo}
+          disabled={history.length === 0 || state.won}
+          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium hover:border-brand-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
+        >
+          ↶ Zurück
+        </button>
+        <button
+          type="button"
+          onClick={handleHint}
+          disabled={hintBusy || state.won}
+          aria-busy={hintBusy}
+          className="min-h-12 flex-1 rounded-xl border border-amber-300 bg-amber-50 px-3 text-sm font-medium text-amber-900 hover:border-amber-500 disabled:opacity-50 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
+        >
+          {hintBusy ? '…' : '💡 Tipp'}
+        </button>
+        <Button variant="primary" className="flex-1" onClick={() => restart()}>
+          Neu
+        </Button>
+      </GameFooter>
 
-      <BottomSheet open={winSheetOpen} onClose={() => setWinSheetOpen(false)} title="Gewonnen!">
+      <Sheet open={winSheetOpen} onClose={() => setWinSheetOpen(false)} title="Gewonnen!">
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
             🎉
@@ -315,18 +306,18 @@ export default function RingSortGame() {
               Bestzeit: {currentBest.moves} Züge · {formatDuration(currentBest.seconds)}
             </p>
           )}
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            block
             onClick={() => {
               setWinSheetOpen(false);
               restart();
             }}
-            className="min-h-12 w-full rounded-xl bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
             Nochmal spielen
-          </button>
+          </Button>
         </div>
-      </BottomSheet>
+      </Sheet>
     </div>
   );
 }
