@@ -11,21 +11,28 @@
     />
     <title>Minispiele</title>
     <script>
-      // Avoid theme flash: set data-theme synchronously before React mounts.
+      // Avoid theme flash: set `.dark` class synchronously before React mounts.
       (function () {
         try {
-          var stored = localStorage.getItem('minispiele.ui.theme.v1');
-          var mode = stored ? JSON.parse(stored) : 'system';
-          var resolved =
+          var raw = localStorage.getItem('minispiele.settings.v1');
+          var mode = 'system';
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (
+              parsed &&
+              (parsed.theme === 'light' || parsed.theme === 'dark' || parsed.theme === 'system')
+            ) {
+              mode = parsed.theme;
+            }
+          }
+          var dark =
             mode === 'dark' ||
-            (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-              ? 'dark'
-              : 'light';
-          document.documentElement.dataset.theme = resolved;
+            (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.classList.toggle('dark', dark);
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute('content', resolved === 'dark' ? '#0a1014' : '#11b3b3');
+          if (meta) meta.setAttribute('content', dark ? '#0a1014' : '#11b3b3');
         } catch (e) {
-          document.documentElement.dataset.theme = 'light';
+          /* no-op */
         }
       })();
     </script>

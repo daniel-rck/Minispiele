@@ -4,7 +4,7 @@ import OfflineIndicator from './OfflineIndicator';
 import SettingsSheet from './SettingsSheet';
 import IconButton from './ui/IconButton';
 import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from './ui/icons';
-import { useSettings } from './ui/useSettings';
+import { useSettings } from '../lib/useSettings';
 import { BRAND_NAME } from '../lib/brand';
 
 export default function AppShell() {
@@ -44,10 +44,10 @@ export default function AppShell() {
           </div>
           <div className="flex items-center gap-1">
             <IconButton
-              icon={settings.soundEnabled ? <Volume2Icon /> : <VolumeXIcon />}
-              label={settings.soundEnabled ? 'Töne ausschalten' : 'Töne einschalten'}
-              pressed={!settings.soundEnabled}
-              onClick={() => setSound(!settings.soundEnabled)}
+              icon={settings.sound ? <Volume2Icon /> : <VolumeXIcon />}
+              label={settings.sound ? 'Töne ausschalten' : 'Töne einschalten'}
+              pressed={!settings.sound}
+              onClick={() => setSound(!settings.sound)}
               variant="ghost"
             />
             <IconButton

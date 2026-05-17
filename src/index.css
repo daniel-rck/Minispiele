@@ -1,8 +1,7 @@
 @import 'tailwindcss';
 
-/* Switch Tailwind v4 dark variant to data-theme attribute (set by ThemeProvider).
-   This replaces the default prefers-color-scheme behavior so users can override. */
-@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+/* Tailwind v4 dark variant tied to `.dark` class (set synchronously by SettingsProvider in src/lib/useSettings.ts) */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* Typography — rounded system stack with Nunito as enhancement when loaded */
@@ -138,14 +137,14 @@ body {
   color: var(--color-surface-900);
 }
 
-[data-theme='dark'] body {
+:where(.dark) body {
   background-color: var(--color-surface-950);
   color: var(--color-surface-100);
 }
 
 /* Category soft backgrounds swap for dark mode so cards stay readable.
    Same token name, different value — `bg-[var(--color-cat-*-soft)]` automatically picks the right one. */
-[data-theme='dark'] {
+:where(.dark) {
   --color-cat-logik-soft: oklch(0.26 0.05 195);
   --color-cat-wort-soft: oklch(0.26 0.05 305);
   --color-cat-action-soft: oklch(0.26 0.05 25);

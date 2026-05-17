@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import Card from '../components/ui/Card';
 import Chip from '../components/ui/Chip';
@@ -9,12 +9,12 @@ import MascotIcon from '../components/ui/MascotIcon';
 import { ClockIcon, SparkleIcon } from '../components/ui/icons';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import { STORAGE_KEYS } from '../lib/constants';
-import { HomeCategoryFilterSchema, type HomeCategoryFilter } from '../lib/persistedSchemas';
-import { useFavorites } from '../lib/useFavorites';
-import { useRecents } from '../lib/useRecents';
+import { HomeCategoryFilterSchema, type HomeCategoryFilter } from '../lib/crossGameSchemas';
+import { useFavorites } from '../hooks/useFavorites';
+import { useRecentGames } from '../hooks/useRecentGames';
 import { formatRelativeShort, isToday } from '../lib/relativeTime';
 import { BRAND_TAGLINE } from '../lib/brand';
-import { CATEGORIES, GAMES, gameByPath, type GameCard } from '../lib/games';
+import { CATEGORIES, GAMES, findGameBySlug, type GameCard } from '../lib/gamesCatalog';
 
 const NEW_GAME_ISSUE_URL =
   'https://github.com/daniel-rck/minispiele/issues/new?template=new-game.yml';
@@ -29,10 +29,20 @@ function greeting(now: Date = new Date()): string {
   return 'Lust auf ein Spiel?';
 }
 
+function normalize(input: string): string {
+  return input.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+}
+
+function matchesQuery(game: GameCard, q: string): boolean {
+  const needle = normalize(q.trim());
+  if (!needle) return true;
+  return normalize(game.title).includes(needle) || normalize(game.description).includes(needle);
+}
+
 interface GameTileProps {
   game: GameCard;
   isFavorite: boolean;
-  onToggleFavorite: (path: string) => void;
+  onToggleFavorite: (slug: string) => void;
   todayAt?: number;
   index?: number;
 }
@@ -68,7 +78,7 @@ function GameTile({ game, isFavorite, onToggleFavorite, todayAt, index = 0 }: Ga
         </Link>
         <StarToggle
           active={isFavorite}
-          onToggle={() => onToggleFavorite(game.to)}
+          onToggle={() => onToggleFavorite(game.slug)}
           label={
             isFavorite
               ? `${game.title} aus Favoriten entfernen`
@@ -115,8 +125,9 @@ export default function Home() {
     'all',
   );
   const [search, setSearch] = useState('');
-  const { favorites, isFavorite, toggle: toggleFavorite } = useFavorites();
-  const { recents } = useRecents();
+  const deferredSearch = useDeferredValue(search);
+  const { favoriteSet, isFavorite, toggleFavorite } = useFavorites();
+  const { recent, topSlugs } = useRecentGames();
 
   const counts = useMemo(() => {
     const map = new Map<string, number>();
@@ -124,42 +135,34 @@ export default function Home() {
     return map;
   }, []);
 
-  const searchQuery = search.trim().toLowerCase();
-
   const filtered = useMemo(() => {
-    let list: GameCard[] = filter === 'all' ? GAMES : GAMES.filter((g) => g.category === filter);
-    if (searchQuery) {
-      list = list.filter(
-        (g) =>
-          g.title.toLowerCase().includes(searchQuery) ||
-          g.description.toLowerCase().includes(searchQuery),
-      );
-    }
-    return list;
-  }, [filter, searchQuery]);
+    const byCat = filter === 'all' ? GAMES : GAMES.filter((g) => g.category === filter);
+    return byCat.filter((g) => matchesQuery(g, deferredSearch));
+  }, [filter, deferredSearch]);
 
   const recentTiles = useMemo(() => {
-    return recents
-      .map((r) => ({ at: r.at, game: gameByPath(r.path) }))
-      .filter((r): r is { at: number; game: GameCard } => Boolean(r.game))
-      .slice(0, 6);
-  }, [recents]);
+    return topSlugs
+      .map((slug) => {
+        const game = findGameBySlug(slug);
+        const entry = recent.find((e) => e.slug === slug);
+        if (!game || !entry) return null;
+        return { game, at: entry.at };
+      })
+      .filter((r): r is { game: GameCard; at: number } => r !== null);
+  }, [topSlugs, recent]);
 
-  const favoriteTiles = useMemo(
-    () => favorites.map((p) => gameByPath(p)).filter((g): g is GameCard => Boolean(g)),
-    [favorites],
-  );
+  const favoriteTiles = useMemo(() => GAMES.filter((g) => favoriteSet.has(g.slug)), [favoriteSet]);
 
   const recentMap = useMemo(() => {
     const m = new Map<string, number>();
-    for (const r of recents) m.set(r.path, r.at);
+    for (const r of recent) m.set(r.slug, r.at);
     return m;
-  }, [recents]);
+  }, [recent]);
 
   const hasRecents = recentTiles.length > 0;
   const hasFavorites = favoriteTiles.length > 0;
   const noResults = filtered.length === 0;
-  const isSearching = searchQuery.length > 0;
+  const isSearching = deferredSearch.trim().length > 0;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
@@ -185,7 +188,7 @@ export default function Home() {
           </div>
           <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
             {recentTiles.map(({ game, at }) => (
-              <RecentTile key={game.to} game={game} at={at} />
+              <RecentTile key={game.slug} game={game} at={at} />
             ))}
           </ul>
         </section>
@@ -204,11 +207,11 @@ export default function Home() {
           <ul className="grid grid-cols-2 gap-3 sm:gap-4">
             {favoriteTiles.map((game, i) => (
               <GameTile
-                key={`fav-${game.to}`}
+                key={`fav-${game.slug}`}
                 game={game}
                 isFavorite
                 onToggleFavorite={toggleFavorite}
-                todayAt={recentMap.get(game.to)}
+                todayAt={recentMap.get(game.slug)}
                 index={i}
               />
             ))}
@@ -263,12 +266,12 @@ export default function Home() {
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:gap-4">
           {filtered.map((game, i) => {
-            const at = recentMap.get(game.to);
+            const at = recentMap.get(game.slug);
             return (
               <GameTile
-                key={game.to}
+                key={game.slug}
                 game={game}
-                isFavorite={isFavorite(game.to)}
+                isFavorite={isFavorite(game.slug)}
                 onToggleFavorite={toggleFavorite}
                 todayAt={at !== undefined && isToday(at) ? at : undefined}
                 index={i}
@@ -278,24 +281,16 @@ export default function Home() {
         </ul>
       )}
 
-      {/* New game CTA */}
-      <section className="mt-8 flex flex-col items-center gap-2 rounded-3xl border-2 border-dashed border-surface-300 bg-white/50 p-6 text-center dark:border-surface-700 dark:bg-surface-900/50">
-        <p className="text-sm text-surface-600 dark:text-surface-300">
-          Du vermisst ein Spiel? Schlag es vor — wir bauen es vielleicht.
-        </p>
-        <a
-          href={NEW_GAME_ISSUE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent-500 px-6 py-3 text-sm font-extrabold text-white shadow-[0_4px_0_0_var(--color-accent-700)] hover:bg-accent-400 active:translate-y-1 active:shadow-[0_0_0_0_var(--color-accent-700)]"
-        >
-          <SparkleIcon size={18} />
-          Neues Spiel vorschlagen
-        </a>
-        <span className="text-xs text-surface-500 dark:text-surface-400">
-          Öffnet ein GitHub-Issue mit kurzem Formular.
-        </span>
-      </section>
+      {/* CTA — propose a new game */}
+      <a
+        href={NEW_GAME_ISSUE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-surface-300 p-4 text-sm font-bold text-surface-700 transition hover:border-primary-400 hover:text-primary-700 dark:border-surface-700 dark:text-surface-200 dark:hover:border-primary-400 dark:hover:text-primary-200"
+      >
+        <SparkleIcon size={18} />
+        Neues Spiel vorschlagen
+      </a>
     </div>
   );
 }

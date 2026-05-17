@@ -1,9 +1,10 @@
-import type { CategoryAccent } from '../components/ui/Card';
-
-export type Category = CategoryAccent;
+export type Category = 'logik' | 'wort' | 'action' | 'gehirntraining' | 'karten' | 'werkzeuge';
 
 export interface GameCard {
+  /** Route path, e.g. "/ring-sort" */
   to: string;
+  /** Stable slug used for stats/favorites/recent. Derived from `to` without leading slash. */
+  slug: string;
   title: string;
   description: string;
   preview: string;
@@ -20,7 +21,20 @@ export const CATEGORIES: { id: Category; label: string }[] = [
   { id: 'werkzeuge', label: 'Werkzeuge' },
 ];
 
-export const GAMES: GameCard[] = [
+interface GameCardInput {
+  to: string;
+  title: string;
+  description: string;
+  preview: string;
+  previewAlt: string;
+  category: Category;
+}
+
+function asGame(input: GameCardInput): GameCard {
+  return { ...input, slug: input.to.replace(/^\//, '') };
+}
+
+const GAME_INPUTS: GameCardInput[] = [
   {
     to: '/ring-sort',
     title: 'Ringe sortieren',
@@ -249,8 +263,13 @@ export const GAMES: GameCard[] = [
   },
 ];
 
-const GAMES_BY_PATH = new Map(GAMES.map((g) => [g.to, g]));
+export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
 
-export function gameByPath(path: string): GameCard | undefined {
-  return GAMES_BY_PATH.get(path);
+export function findGameBySlug(slug: string): GameCard | undefined {
+  return GAMES.find((g) => g.slug === slug);
+}
+
+export function findGameByPath(pathname: string): GameCard | undefined {
+  const normalized = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  return GAMES.find((g) => g.to === normalized);
 }
