@@ -18,8 +18,9 @@ test.describe('Hyperfokus', () => {
 
     // Upgrade sheet opens.
     await page.getByRole('button', { name: /Upgrades öffnen/i }).click();
-    await expect(page.getByText(/Tipp-Kraft/i)).toBeVisible();
-    await expect(page.getByText(/Auto-Tapper/i)).toBeVisible();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByText(/Tipp-Kraft/i)).toBeVisible();
+    await expect(dialog.getByText(/Auto-Tapper/i)).toBeVisible();
   });
 
   test('keyboard space triggers a tap', async ({ page }) => {
