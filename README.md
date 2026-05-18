@@ -5,7 +5,7 @@
 <h1 align="center">Minispiele</h1>
 
 <p align="center">
-  <strong>29 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.</strong>
+  <strong>28 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.</strong>
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@ Sammlung kleiner Browser-Minispiele als Progressive Web App. Alles läuft im Bro
 
 ## Spiele
 
-29 Spiele in sechs Kategorien — **Logik & Denksport** (12) · **Wort & Sprache** (4) · **Action & Arcade** (4) · **Gehirntraining** (5) · **Karten** (1) · **Werkzeuge** (2). Vollständige Liste in [`GAMES.md`](./GAMES.md). Quelle der Wahrheit ist [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts).
+28 Spiele in sechs Kategorien — **Logik & Denksport** (12) · **Wort & Sprache** (4) · **Action & Arcade** (4) · **Gehirntraining** (5) · **Karten** (1) · **Werkzeuge** (2). Vollständige Liste in [`GAMES.md`](./GAMES.md). Quelle der Wahrheit ist [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts).
 
 ## Quickstart
 
@@ -75,7 +75,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 - **Spielkatalog:** [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts) ist die **Single Source of Truth** für alle Spiele — Home, Suche, Kategorien, Favoriten lesen alles daraus.
 - **Layout:** Jedes Spiel wrapt in [`<GameLayout>`](./src/components/GameLayout.tsx) (Header, Back-Button, a11y-Landmarks).
-- **State:** Favoriten, Recent-Games und Settings hängen in Hooks unter [`src/hooks/`](./src/hooks/) — LocalStorage ist immer Zod-validiert (siehe [`src/lib/crossGameSchemas.ts`](./src/lib/crossGameSchemas.ts)).
+- **State:** Favoriten und Recent-Games liegen als Hooks in [`src/hooks/`](./src/hooks/), globale Settings (Theme, Vibration, Sound) im Context in [`src/lib/useSettings.ts`](./src/lib/useSettings.ts) — LocalStorage ist immer Zod-validiert (siehe [`src/lib/crossGameSchemas.ts`](./src/lib/crossGameSchemas.ts)).
 
 ## CI / Deployment
 
