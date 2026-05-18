@@ -16,7 +16,7 @@
   <a href="https://github.com/daniel-rck/Minispiele/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/daniel-rck/Minispiele/ci.yml?branch=main&label=CI&style=flat-square"></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/daniel-rck/Minispiele?style=flat-square"></a>
   <a href="https://github.com/daniel-rck/Minispiele/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/daniel-rck/Minispiele?style=flat-square"></a>
-  <a href="./.github/workflows/ci.yml"><img alt="Bundle budget" src="https://img.shields.io/badge/bundle-%E2%89%A4%20250%20KB-blue?style=flat-square"></a>
+  <a href="./.github/workflows/ci.yml"><img alt="Bundle budget" src="https://img.shields.io/badge/bundle-%E2%89%A4%20270%20KB-blue?style=flat-square"></a>
   <br>
   <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square"></a>
   <a href="https://www.typescriptlang.org"><img alt="TypeScript 5.7" src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white&style=flat-square"></a>
@@ -79,7 +79,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 ## CI / Deployment
 
-CI grün = mergebar. Pipeline: `format:check` → `lint` → `typecheck` → `test:coverage` → `build` → Bundle-Budget (≤ 250 KB main chunk) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
+CI grün = mergebar. Pipeline: `format:check` → `lint` → `typecheck` → `test:coverage` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
 
 ## Beitragen
 

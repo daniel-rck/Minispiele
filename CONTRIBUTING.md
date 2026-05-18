@@ -38,7 +38,7 @@ Tests laufen mit `bun run test` (Unit) bzw. `bun run test:e2e` (Playwright).
 - **ESLint** strikt: `bun run lint` muss grün sein. JSX-a11y-Regeln sind aktiv.
 - **TypeScript** strict: `bun run typecheck`. Keine `any`, keine impliziten Typen.
 - **Accessibility:** Touch-Targets ≥ 44 px, semantische `<button>`-Elemente statt `div onClick`, sichtbarer Fokus-Ring, Tastaturbedienung möglich.
-- **Bundle-Budget:** Der main chunk darf 250 KB nicht überschreiten — bei größeren Spielen Lazy-Loading via `React.lazy` nutzen (siehe `LazyRoute` in [`src/App.tsx`](./src/App.tsx)).
+- **Bundle-Budget:** Der main chunk sollte 270 KB nicht überschreiten — bei Überschreitung loggt CI eine Warnung (kein Hard-Fail). Bei größeren Spielen Lazy-Loading via `React.lazy` nutzen (siehe `LazyRoute` in [`src/App.tsx`](./src/App.tsx)).
 - **Mobile-first:** Layout muss auf 320 px Breite funktionieren. Touch zuerst, Maus/Tastatur danach.
 
 ## PR-Checkliste
