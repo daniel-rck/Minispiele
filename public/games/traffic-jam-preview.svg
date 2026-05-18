@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Stau-Puzzle">
+  <rect width="640" height="360" rx="20" fill="#f1f5f9"/>
+  <!-- Board: 6×6 grid centered, cell size 50px, total 300×300 -->
+  <g transform="translate(170 30)">
+    <rect width="300" height="300" rx="14" fill="#cbd5e1"/>
+    <!-- Grid background cells -->
+    <g fill="#f8fafc" stroke="#e2e8f0" stroke-width="1">
+      <!-- Row 0..5, Col 0..5 -->
+      <rect x="6" y="6" width="46" height="46" rx="6"/>
+      <rect x="56" y="6" width="46" height="46" rx="6"/>
+      <rect x="106" y="6" width="46" height="46" rx="6"/>
+      <rect x="156" y="6" width="46" height="46" rx="6"/>
+      <rect x="206" y="6" width="46" height="46" rx="6"/>
+      <rect x="256" y="6" width="46" height="46" rx="6"/>
+
+      <rect x="6" y="56" width="46" height="46" rx="6"/>
+      <rect x="56" y="56" width="46" height="46" rx="6"/>
+      <rect x="106" y="56" width="46" height="46" rx="6"/>
+      <rect x="156" y="56" width="46" height="46" rx="6"/>
+      <rect x="206" y="56" width="46" height="46" rx="6"/>
+      <rect x="256" y="56" width="46" height="46" rx="6"/>
+
+      <!-- Exit row (row 2) highlighted -->
+      <rect x="6"   y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
+      <rect x="56"  y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
+      <rect x="106" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
+      <rect x="156" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
+      <rect x="206" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
+      <rect x="256" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
+
+      <rect x="6" y="156" width="46" height="46" rx="6"/>
+      <rect x="56" y="156" width="46" height="46" rx="6"/>
+      <rect x="106" y="156" width="46" height="46" rx="6"/>
+      <rect x="156" y="156" width="46" height="46" rx="6"/>
+      <rect x="206" y="156" width="46" height="46" rx="6"/>
+      <rect x="256" y="156" width="46" height="46" rx="6"/>
+
+      <rect x="6" y="206" width="46" height="46" rx="6"/>
+      <rect x="56" y="206" width="46" height="46" rx="6"/>
+      <rect x="106" y="206" width="46" height="46" rx="6"/>
+      <rect x="156" y="206" width="46" height="46" rx="6"/>
+      <rect x="206" y="206" width="46" height="46" rx="6"/>
+      <rect x="256" y="206" width="46" height="46" rx="6"/>
+
+      <rect x="6" y="256" width="46" height="46" rx="6"/>
+      <rect x="56" y="256" width="46" height="46" rx="6"/>
+      <rect x="106" y="256" width="46" height="46" rx="6"/>
+      <rect x="156" y="256" width="46" height="46" rx="6"/>
+      <rect x="206" y="256" width="46" height="46" rx="6"/>
+      <rect x="256" y="256" width="46" height="46" rx="6"/>
+    </g>
+
+    <!-- Cars: each cell is 50px wide. Cars padded by 4px inside. -->
+    <!-- Truck B (amber) — vertical, col 2, rows 0-2 (length 3) -->
+    <rect x="110" y="10" width="42" height="138" rx="8" fill="#fbbf24" stroke="#d97706" stroke-width="2.5"/>
+
+    <!-- Car D (sky blue) — vertical, col 5, rows 0-1 (length 2) -->
+    <rect x="260" y="10" width="42" height="88" rx="8" fill="#0ea5e9" stroke="#0369a1" stroke-width="2.5"/>
+
+    <!-- Target car A (red) — horizontal, row 2, cols 0-1 (length 2) -->
+    <rect x="10" y="110" width="88" height="42" rx="8" fill="#ef4444" stroke="#b91c1c" stroke-width="2.5"/>
+    <text x="54" y="139" font-family="system-ui, sans-serif" font-weight="800" font-size="22" fill="#fff" text-anchor="middle">★</text>
+
+    <!-- Car E (violet) — vertical, col 4, rows 2-3 (length 2) -->
+    <rect x="210" y="110" width="42" height="88" rx="8" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2.5"/>
+
+    <!-- Car G (pink) — horizontal, row 5, cols 0-1 (length 2) -->
+    <rect x="10" y="260" width="88" height="42" rx="8" fill="#ec4899" stroke="#be185d" stroke-width="2.5"/>
+
+    <!-- Truck F (orange) — horizontal, row 4, cols 2-4 (length 3) -->
+    <rect x="110" y="210" width="138" height="42" rx="8" fill="#f97316" stroke="#c2410c" stroke-width="2.5"/>
+
+    <!-- Car H (teal) — vertical, col 5, rows 4-5 (length 2) -->
+    <rect x="260" y="210" width="42" height="88" rx="8" fill="#14b8a6" stroke="#0f766e" stroke-width="2.5"/>
+  </g>
+
+  <!-- Exit arrow on the right -->
+  <g transform="translate(485 130)">
+    <path d="M 0 10 L 30 10 L 30 0 L 50 20 L 30 40 L 30 30 L 0 30 Z"
+          fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+  </g>
+</svg>
