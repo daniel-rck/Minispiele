@@ -35,6 +35,7 @@ const Blocks = lazy(() => import('./pages/Blocks'));
 const Freecell = lazy(() => import('./pages/Freecell'));
 const Tangram = lazy(() => import('./pages/Tangram'));
 const Flow = lazy(() => import('./pages/Flow'));
+const Gfrett = lazy(() => import('./pages/Gfrett'));
 
 function RouteFallback() {
   return (
@@ -300,6 +301,14 @@ export default function App() {
                 element={
                   <LazyRoute label="flow">
                     <Flow />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="gfrett"
+                element={
+                  <LazyRoute label="gfrett">
+                    <Gfrett />
                   </LazyRoute>
                 }
               />

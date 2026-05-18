@@ -16,6 +16,7 @@ Aktueller Stand kommt aus [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts)
 - **Kistenschieber** — Sokoban-Lagerhaus-Puzzle.
 - **Verbinden** — Flow: gleichfarbige Punkte ohne Kreuzung verbinden.
 - **Tangram** — sieben Teile zu Silhouetten zusammensetzen.
+- **Gfrett** — Color-Block-Jam: Farbblöcke vom Feld schieben und Dreier in der Match-Leiste auflösen.
 
 ## Wort & Sprache
 

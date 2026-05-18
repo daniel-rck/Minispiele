@@ -198,3 +198,6 @@ export const BlocksBestSchema = z.number().int().nonnegative();
 export const FreecellBestSchema = NullableNonNegInt;
 export const TangramLevelSchema = z.number().int().min(0).max(99);
 export const FlowBestSchema = z.record(z.string(), z.number().int().nonnegative());
+
+export const GfrettLevelSchema = z.number().int().min(0).max(99);
+export const GfrettBestSchema = z.record(z.string(), z.number().int().nonnegative());
