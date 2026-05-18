@@ -1,94 +1,90 @@
-# Minispiele
+<p align="center">
+  <img src="./public/logo.svg" alt="Minispiele Logo" width="120" />
+</p>
 
-Sammlung kleiner Browser-Minispiele. Lokal, ohne Account, ohne Tracking — alles läuft im Browser.
+<h1 align="center">Minispiele</h1>
 
-Aktuelle Spiele & Mini-Apps (Quelle der Wahrheit: `src/pages/Home.tsx`):
+<p align="center">
+  <strong>28 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.</strong>
+</p>
 
-**Logik & Denksport**
+<p align="center">
+  <a href="https://minispiele.daniel-rck.workers.dev"><strong>▶ Jetzt spielen</strong></a>
+</p>
 
-- **Ringe sortieren** — sortiere bunte Ringe in drei Farben auf vier Stäben.
-- **2048** — wische Kacheln zusammen, bis die 2048 erscheint.
-- **Schiebepuzzle** — klassisches 15er-Puzzle.
-- **Minensucher** — decke Felder auf, ohne eine Mine zu treffen.
-- **Sudoku** — fülle das 9×9-Gitter regelkonform.
-- **Bildrätsel** — Picross/Nonogramm anhand Zahlenhinweisen.
-- **Lichter aus** — alle Felder ausschalten.
-- **Codeknacker** — 4-Farben-Mastermind.
-- **Türme von Hanoi** — alle Scheiben auf den rechten Stab.
-- **Kistenschieber** — Sokoban-Lagerhaus-Puzzle.
-- **Verbinden** — Flow: gleichfarbige Punkte ohne Kreuzung verbinden.
-- **Tangram** — sieben Teile zu Silhouetten zusammensetzen.
+<p align="center">
+  <a href="https://github.com/daniel-rck/Minispiele/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/daniel-rck/Minispiele/ci.yml?branch=main&label=CI&style=flat-square"></a>
+  <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/daniel-rck/Minispiele?style=flat-square"></a>
+  <a href="https://github.com/daniel-rck/Minispiele/commits/main"><img alt="Last commit" src="https://img.shields.io/github/last-commit/daniel-rck/Minispiele?style=flat-square"></a>
+  <a href="./.github/workflows/ci.yml"><img alt="Bundle budget" src="https://img.shields.io/badge/bundle-%E2%89%A4%20270%20KB-blue?style=flat-square"></a>
+  <br>
+  <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square"></a>
+  <a href="https://www.typescriptlang.org"><img alt="TypeScript 5.7" src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white&style=flat-square"></a>
+  <a href="https://vitejs.dev"><img alt="Vite 7" src="https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white&style=flat-square"></a>
+  <a href="https://tailwindcss.com"><img alt="Tailwind 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square"></a>
+  <img alt="PWA ready" src="https://img.shields.io/badge/PWA-ready-5A0FC8?logo=pwa&logoColor=white&style=flat-square">
+  <a href="https://prettier.io"><img alt="Code style: Prettier" src="https://img.shields.io/badge/code_style-prettier-F7B93E?logo=prettier&logoColor=white&style=flat-square"></a>
+</p>
 
-**Wort & Sprache**
+---
 
-- **Wordle** — 5-Buchstaben-Wort in sechs Versuchen erraten.
-- **Galgenmännchen** — Wort Buchstabe für Buchstabe erraten.
-- **Wortgitter** — versteckte deutsche Wörter im Buchstabengitter finden.
-- **Wortsalat** — Anagramme entwirren.
+## Was ist das?
 
-**Action & Arcade**
+Sammlung kleiner Browser-Minispiele als Progressive Web App. Alles läuft im Browser — keine Server, keine Accounts, keine Tracker. Mobile-first gebaut, offline-fähig via Service Worker, mit a11y-Smoke-Tests (axe-core) und Touch-Targets ≥ 44 px.
 
-- **Snake** — sammle Futter, wachse, kollidiere nicht.
-- **Ziegelbruch** — Breakout-Klon mit Paddel und Ball.
-- **Blasenschießen** — farbige Blasen zum Platzen bringen.
-- **Blockstapler** — Tetris-artige fallende Blöcke.
+## Spiele
 
-**Gehirntraining**
+28 Spiele in sechs Kategorien — **Logik & Denksport** (12) · **Wort & Sprache** (4) · **Action & Arcade** (4) · **Gehirntraining** (5) · **Karten** (1) · **Werkzeuge** (2). Vollständige Liste in [`GAMES.md`](./GAMES.md). Quelle der Wahrheit ist [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts).
 
-- **Memory** — finde alle Paare.
-- **Simon Says** — wachsende Farb- und Tonfolgen wiederholen.
-- **Reaktionstest** — möglichst schnell reagieren, sobald die Fläche grün wird.
-- **Zahlentafel** — Schulte-Tabelle 1 bis 25 in Reihenfolge antippen.
-- **Stroop-Test** — Schriftfarbe (nicht das Wort) erkennen.
-
-**Karten**
-
-- **FreeCell** — klassische Solitär-Variante.
-
-**Werkzeuge**
-
-- **Clicker Timer** — Countdown einstellen; jeder Tipp startet ihn neu und beendet den Alarm.
-- **Würfel** — frei konfigurierbares Würfelset (Anzahl, Würfeltyp, Farbe) mit Halten-Funktion für Kniffel, Mäxle & Co.
-
-## Tech-Stack
-
-- React 19 + TypeScript
-- Vite 7
-- Tailwind CSS 4
-- Vitest + Testing Library
-- PWA via `vite-plugin-pwa`
-- Cloudflare Workers (Static Assets) als Hosting
-- Bun als Package-Manager
-
-## Entwicklung
+## Quickstart
 
 ```sh
 bun install
-bun run dev          # Dev-Server
-bun run test         # Unit-Tests
-bun run lint         # ESLint
-bun run typecheck    # TypeScript
-bun run build        # Production-Build nach dist/
-bun run preview      # lokale Vorschau des Builds
+bun run dev
 ```
 
-## Deployment
+Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
-```sh
-bun run build
-bun run worker:deploy
-```
+## Tech-Stack
 
-Health-Check: `GET /healthz` → `ok`.
+- **React 19** + **TypeScript 5.7** + **Vite 7**
+- **Tailwind CSS 4** (Styling), **Zod** (Schema-Validierung)
+- **Vitest** + **Testing Library** (Unit), **Playwright** (E2E)
+- **PWA** via `vite-plugin-pwa` + Workbox
+- **Cloudflare Workers** (Hosting), **Bun** (Package-Manager)
 
-## CI / Auto-Deploy
+## Dev-Befehle
 
-GitHub Actions Workflows in `.github/workflows/`:
+| Befehl                  | Zweck                                          |
+| ----------------------- | ---------------------------------------------- |
+| `bun run dev`           | Dev-Server (HMR)                               |
+| `bun run test`          | Unit-Tests (einmalig)                          |
+| `bun run test:watch`    | Unit-Tests im Watch-Modus                      |
+| `bun run test:coverage` | Coverage-Report nach `coverage/`               |
+| `bun run test:e2e`      | Playwright-E2E auf gebauter App                |
+| `bun run lint`          | ESLint                                         |
+| `bun run format`        | Prettier (Schreiben)                           |
+| `bun run typecheck`     | TypeScript `--noEmit`                          |
+| `bun run build`         | Production-Build nach `dist/`                  |
+| `bun run preview`       | Lokale Vorschau des Builds                     |
+| `bun run analyze`       | Build + öffnet `dist/stats.html` (Bundle-View) |
+| `bun run worker:dev`    | Wrangler-Dev für den Cloudflare Worker         |
+| `bun run worker:deploy` | Cloudflare-Worker-Deploy (manuell)             |
 
-- **CI** (`ci.yml`) — auf jedem PR & Push auf `main`: format, lint, typecheck, test+coverage, build, bundle-budget, anschließend Playwright-E2E.
+## Architektur in einer Minute
 
-Deploys (Production & PR-Previews) übernimmt **Cloudflare Workers Builds** direkt über die GitHub-Integration — kein wrangler-Step im Workflow nötig.
+- **Spielkatalog:** [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts) ist die **Single Source of Truth** für alle Spiele — Home, Suche, Kategorien, Favoriten lesen alles daraus.
+- **Layout:** Jedes Spiel wrapt in [`<GameLayout>`](./src/components/GameLayout.tsx) (Header, Back-Button, a11y-Landmarks).
+- **State:** Favoriten und Recent-Games liegen als Hooks in [`src/hooks/`](./src/hooks/), globale Settings (Theme, Vibration, Sound) im Context in [`src/lib/useSettings.ts`](./src/lib/useSettings.ts) — LocalStorage ist immer Zod-validiert (siehe [`src/lib/crossGameSchemas.ts`](./src/lib/crossGameSchemas.ts)).
+
+## CI / Deployment
+
+CI grün = mergebar. Pipeline: `format:check` → `lint` → `typecheck` → `test:coverage` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
+
+## Beitragen
+
+PRs, Bug-Reports und Spielvorschläge sind willkommen — Details in [`CONTRIBUTING.md`](./CONTRIBUTING.md). Sicherheitslücken bitte gemäß [`SECURITY.md`](./SECURITY.md) melden.
 
 ## Lizenz
 
-MIT — siehe [LICENSE](./LICENSE).
+[MIT](./LICENSE) © Daniel Rück

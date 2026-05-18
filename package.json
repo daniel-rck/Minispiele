@@ -3,6 +3,25 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "description": "28 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.",
+  "homepage": "https://minispiele.daniel-rck.workers.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daniel-rck/Minispiele.git"
+  },
+  "bugs": {
+    "url": "https://github.com/daniel-rck/Minispiele/issues"
+  },
+  "author": "Daniel Rück",
+  "license": "MIT",
+  "keywords": [
+    "games",
+    "minispiele",
+    "browser-games",
+    "pwa",
+    "react",
+    "typescript"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

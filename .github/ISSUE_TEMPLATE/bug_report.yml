@@ -1,0 +1,78 @@
+name: 🐛 Bug melden
+description: Etwas funktioniert nicht wie erwartet.
+title: '[Bug] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke fürs Melden! Je konkreter du den Fehler beschreibst, desto schneller ist er behoben.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Wo tritt der Fehler auf?
+      options:
+        - Home / Startseite
+        - Logik & Denksport
+        - Wort & Sprache
+        - Action & Arcade
+        - Gehirntraining
+        - Karten
+        - Werkzeuge
+        - Einstellungen / Settings
+        - Installation / PWA
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: input
+    id: game
+    attributes:
+      label: Welches Spiel / welche Seite genau?
+      placeholder: z. B. „Sudoku" oder „Home-Suche"
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Was ist passiert?
+      description: Beschreibe das beobachtete Verhalten.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Was hattest du erwartet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zum Reproduzieren
+      placeholder: |
+        1. Öffne …
+        2. Tippe auf …
+        3. Beobachte …
+
+  - type: input
+    id: env
+    attributes:
+      label: Browser + Gerät
+      description: Browser-Version, OS und Gerät — hilft enorm bei mobil-spezifischen Bugs.
+      placeholder: z. B. „Firefox 128 · Android 14 · Pixel 7"
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Konsolen-Fehler (optional)
+      description: Falls die Browser-DevTools etwas Rotes zeigen — bitte hier einfügen.
+      render: shell
+
+  - type: textarea
+    id: extras
+    attributes:
+      label: Screenshots / Zusatzinfos (optional)
