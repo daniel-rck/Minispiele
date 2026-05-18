@@ -163,9 +163,9 @@ export const LEVELS: Level[] = [
     hint: 'Der eingesperrte Block öffnet sich, sobald sein Schlüssel weg ist.',
   },
 
-  // 4 — lock unlocks by adjacent match-3 pop. The locked blue sits directly
-  // below row 3; popping the three reds vacates (3,1)/(3,2), which is
-  // adjacent to the lockedB at (4,1).
+  // 4 — locks unlock when any match-3 pop fires (see releaseLocksOnPop).
+  // Player exits the three reds → match-3 pops in the sidebar → lockB
+  // unlocks → row 5's blues finish the level.
   {
     rows: 7,
     cols: 7,

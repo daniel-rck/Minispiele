@@ -181,21 +181,22 @@ describe('gfrett — win / lose / gridlock', () => {
     expect(next.status).toBe('won');
   });
 
-  it('reports lost when move limit is exceeded', () => {
+  it('reports lost when a slide pushes moves past the limit', () => {
+    // b1 can move 1 cell right before colliding with the vertical b2, leaving
+    // blocks on the grid. moves = 0 → 1, limit = 1, so status becomes 'lost'.
     const s = build({
-      rows: 3,
-      cols: 5,
-      layout: ['#####', '#...>', '#####'],
+      rows: 4,
+      cols: 6,
+      layout: ['######', '#....#', '#....#', '######'],
       blocks: [
         { id: 'b1', color: 'red', orientation: 'horizontal', length: 2, anchor: { r: 1, c: 1 } },
-        { id: 'b2', color: 'red', orientation: 'vertical', length: 2, anchor: { r: 1, c: 1 } }, // ignored if overlapping, but engine tolerates
+        { id: 'b2', color: 'blue', orientation: 'vertical', length: 2, anchor: { r: 1, c: 4 } },
       ],
       moveLimit: 1,
     });
-    // We just push the move count over the limit by sliding a block one way then the other.
-    const s2: GameState = { ...s, moves: 1 };
-    const next = slide(s2, 'b1', 1);
-    expect(['lost', 'won', 'gridlock', 'playing']).toContain(next.status);
+    const next = slide(s, 'b1', 1);
+    expect(next.status).toBe('lost');
+    expect(isLost(next)).toBe(true);
   });
 
   it('detects gridlock when match area fills without any match', () => {
