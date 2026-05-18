@@ -160,6 +160,21 @@ export function parsePuzzle(encoded: string): Car[] {
   if (!cars.some((c) => c.isTarget)) {
     throw new Error(`Puzzle missing target car "${TARGET_ID}"`);
   }
+  // Reject disconnected duplicates: every occurrence of each id must belong to
+  // the single contiguous car we parsed.
+  const counts = new Map<string, number>();
+  for (const ch of encoded) {
+    if (ch === '.') continue;
+    counts.set(ch, (counts.get(ch) ?? 0) + 1);
+  }
+  for (const car of cars) {
+    const total = counts.get(car.id) ?? 0;
+    if (total !== car.length) {
+      throw new Error(
+        `Car "${car.id}" has ${total} cells in the puzzle string but parsed length ${car.length} — cells must be contiguous`,
+      );
+    }
+  }
   return cars.sort((a, b) => a.id.localeCompare(b.id));
 }
 
@@ -298,10 +313,12 @@ export function encodeBoard(cars: readonly Car[]): string {
 }
 
 // BFS solver: returns minimum move count (1 cell = 1 move) or null if unsolvable.
-// Used by tests to verify every shipped puzzle is solvable.
+// Used by tests to verify every shipped puzzle is solvable. The winning state is
+// produced naturally by `slideCar` when the target crosses the exit, so each
+// right-slide on the target counts as one move.
 export function solveBFS(initial: TrafficJamState, maxStates = 200_000): number | null {
+  if (initial.won) return 0;
   const startKey = encodeBoard(initial.cars);
-  if (isWinnableNow(initial)) return 0;
   const visited = new Set<string>([startKey]);
   let frontier: { state: TrafficJamState; depth: number }[] = [{ state: initial, depth: 0 }];
   while (frontier.length > 0 && visited.size < maxStates) {
@@ -323,15 +340,4 @@ export function solveBFS(initial: TrafficJamState, maxStates = 200_000): number 
     frontier = next;
   }
   return null;
-}
-
-// Returns true if the target car has a clear path to slide off the right edge
-// from its current position. This is the BFS goal predicate's local form.
-function isWinnableNow(state: TrafficJamState): boolean {
-  const target = state.cars.find((c) => c.isTarget);
-  if (!target) return state.won;
-  for (let c = target.col + target.length; c < BOARD_SIZE; c++) {
-    if (isBlocked(state.cars, EXIT_ROW, c, target.id)) return false;
-  }
-  return true;
 }

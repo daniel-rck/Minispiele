@@ -40,6 +40,13 @@ describe('parsePuzzle', () => {
     expect(() => parsePuzzle(encoded)).toThrow(/neighbor|length/i);
   });
 
+  it('rejects disconnected duplicate cells for an id', () => {
+    // A appears as a valid 2-car in row 2 (cols 0-1) AND as an extra disconnected
+    // cell at (4,4). Must throw rather than silently dropping the stray cell.
+    const encoded = '......' + '......' + 'AA....' + '......' + '....A.' + '......';
+    expect(() => parsePuzzle(encoded)).toThrow(/contiguous|cells/i);
+  });
+
   it('parses a simple horizontal target + vertical blocker', () => {
     const encoded = '...C..' + '...C..' + 'AA.C..' + '......' + '......' + '......';
     const cars = parsePuzzle(encoded);
@@ -91,6 +98,24 @@ describe('PUZZLES pool', () => {
     const solution = solveBFS(state);
     expect(solution).not.toBeNull();
     expect(solution).toBeGreaterThan(0);
+  });
+});
+
+describe('solveBFS', () => {
+  it('counts the required right-slides even when the path is clear from the start', () => {
+    // Target at col 0, path completely clear; minimum is 5 right moves
+    // (4 to reach col 4 + 1 to slide off the right edge).
+    const encoded = '......' + '......' + 'AA....' + '......' + '......' + '......';
+    const cars = parsePuzzle(encoded);
+    const state = {
+      cars,
+      difficulty: 'easy' as const,
+      puzzleIndex: 0,
+      moves: 0,
+      selectedCarId: null,
+      won: false,
+    };
+    expect(solveBFS(state)).toBe(5);
   });
 });
 
