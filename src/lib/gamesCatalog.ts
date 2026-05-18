@@ -261,6 +261,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: das Wort BLAU in roter Schrift, darunter vier Farbtasten',
     category: 'gehirntraining',
   },
+  {
+    to: '/hyperfokus',
+    title: 'Hyperfokus',
+    description: 'Endloser Tap-Loop mit Crits, Combos, Auto-Tapper, Ereignissen und Prestige.',
+    preview: '/games/hyperfokus-preview.svg',
+    previewAlt: 'Vorschau: ein leuchtender Kern in einem Aurora-Gradient mit fliegenden Zahlen',
+    category: 'gehirntraining',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
