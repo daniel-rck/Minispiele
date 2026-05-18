@@ -45,9 +45,8 @@ import Button from './ui/Button';
 const PENTATONIC_HZ = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
 const CRIT_CHORD_HZ = [523.25, 659.25, 783.99];
 const MAX_FLOATERS = 24;
-const SAVE_DEBOUNCE_MS = 1500;
-const COMBO_FRAME_MS = 80;
 const AUTOTAP_TICK_MS = 200;
+const COMBO_FRAME_MS = 80;
 
 interface Floater {
   id: number;
@@ -122,8 +121,11 @@ export default function HyperfokusGame() {
   const floaterIdRef = useRef(0);
   const toastIdRef = useRef(0);
   const lastSavedAtRef = useRef(Date.now());
-  const saveTimerRef = useRef<number | null>(null);
+  const mountedRef = useRef(true);
+  const nextEventTimerRef = useRef<number | null>(null);
+  const tapsRemainderRef = useRef(0);
   const coreRef = useRef<HTMLButtonElement | null>(null);
+  const floaterLayerRef = useRef<HTMLDivElement | null>(null);
 
   const { vibrate } = useVibration();
   const [, forceTick] = useReducer((n: number) => n + 1, 0);
@@ -148,35 +150,29 @@ export default function HyperfokusGame() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Debounced persistence.
-  const queueSave = useCallback(() => {
-    if (saveTimerRef.current !== null) window.clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = window.setTimeout(() => {
-      saveTimerRef.current = null;
-      setSave((s) => ({ ...s, lastSavedAt: Date.now() }));
-      lastSavedAtRef.current = Date.now();
-    }, SAVE_DEBOUNCE_MS);
+  // Stamp `lastSavedAt` only on tab hide / page unload. `useLocalStorage` already
+  // serializes every state change; this stamp bounds offline-income on next load.
+  useEffect(() => {
+    const stamp = () => {
+      const now = Date.now();
+      lastSavedAtRef.current = now;
+      setSave((s) => ({ ...s, lastSavedAt: now }));
+    };
+    document.addEventListener('visibilitychange', stamp);
+    window.addEventListener('beforeunload', stamp);
+    return () => {
+      document.removeEventListener('visibilitychange', stamp);
+      window.removeEventListener('beforeunload', stamp);
+    };
   }, [setSave]);
 
-  // Flush save on hide / unmount.
+  // Track mounted state so deferred timeouts can no-op after unmount.
   useEffect(() => {
-    const onHide = () => {
-      if (saveTimerRef.current !== null) {
-        window.clearTimeout(saveTimerRef.current);
-        saveTimerRef.current = null;
-      }
-      setSave((s) => ({ ...s, lastSavedAt: Date.now() }));
-    };
-    document.addEventListener('visibilitychange', onHide);
-    window.addEventListener('beforeunload', onHide);
+    mountedRef.current = true;
     return () => {
-      document.removeEventListener('visibilitychange', onHide);
-      window.removeEventListener('beforeunload', onHide);
-      if (saveTimerRef.current !== null) {
-        window.clearTimeout(saveTimerRef.current);
-      }
+      mountedRef.current = false;
     };
-  }, [setSave]);
+  }, []);
 
   // Smooth score display.
   useEffect(() => {
@@ -218,7 +214,8 @@ export default function HyperfokusGame() {
     return () => window.clearInterval(id);
   }, []);
 
-  // Auto-tapper passive income + frenzy.
+  // Auto-tapper passive income + frenzy. Fractional-tap accumulator keeps
+  // totalTaps honest (achievements depend on it) without overflowing each tick.
   useEffect(() => {
     const id = window.setInterval(() => {
       const s = saveRef.current;
@@ -227,24 +224,31 @@ export default function HyperfokusGame() {
       const frenzyRate =
         ev && EVENTS[ev.kind].autoTapsPerSec ? (EVENTS[ev.kind].autoTapsPerSec ?? 0) : 0;
       const totalRate = rate + frenzyRate;
-      if (totalRate <= 0) return;
+      if (totalRate <= 0) {
+        tapsRemainderRef.current = 0;
+        return;
+      }
       const ticksPerSec = 1000 / AUTOTAP_TICK_MS;
       const tapsThisTick = totalRate / ticksPerSec;
       const power = tapPowerValue(s.upgrades.tapPower);
       const pmult = prestigeBonus(s.prestigeCrystals);
       const eventMul = ev ? EVENTS[ev.kind].rewardMultiplier : 1;
       const reward = power * pmult * eventMul * tapsThisTick;
-      if (reward > 0) {
+
+      tapsRemainderRef.current += tapsThisTick;
+      const wholeTaps = Math.floor(tapsRemainderRef.current);
+      tapsRemainderRef.current -= wholeTaps;
+
+      if (reward > 0 || wholeTaps > 0) {
         setSave((cur) => ({
           ...cur,
           coins: cur.coins + reward,
-          totalTaps: cur.totalTaps + (frenzyRate > 0 ? 1 : 0),
+          totalTaps: cur.totalTaps + wholeTaps,
         }));
-        queueSave();
       }
     }, AUTOTAP_TICK_MS);
     return () => window.clearInterval(id);
-  }, [setSave, queueSave]);
+  }, [setSave]);
 
   // Event lifecycle (end-check).
   useEffect(() => {
@@ -266,8 +270,13 @@ export default function HyperfokusGame() {
   }, [activeEvent]);
 
   const pushFloater = useCallback(
-    (x: number, y: number, text: string, kind: Floater['kind']) => {
+    (clientX: number, clientY: number, text: string, kind: Floater['kind']) => {
       if (reducedMotion) return;
+      // Translate viewport coords → coords local to the floater container
+      // so the rendered floater appears centered on the actual tap point.
+      const rect = floaterLayerRef.current?.getBoundingClientRect();
+      const x = rect ? clientX - rect.left : clientX;
+      const y = rect ? clientY - rect.top : clientY;
       const id = floaterIdRef.current++;
       setFloaters((prev) => {
         const next = [...prev, { id, x, y, text, kind, bornAt: performance.now() }];
@@ -275,6 +284,7 @@ export default function HyperfokusGame() {
         return next;
       });
       window.setTimeout(() => {
+        if (!mountedRef.current) return;
         setFloaters((prev) => prev.filter((f) => f.id !== id));
       }, 950);
     },
@@ -285,14 +295,19 @@ export default function HyperfokusGame() {
     const id = toastIdRef.current++;
     setToasts((prev) => [...prev, { id, text, sub }]);
     window.setTimeout(() => {
+      if (!mountedRef.current) return;
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 2600);
   }, []);
 
   const scheduleNextEvent = useCallback(() => {
+    if (nextEventTimerRef.current !== null) {
+      window.clearTimeout(nextEventTimerRef.current);
+    }
     const delay = nextEventDelayMs(saveRef.current.upgrades.eventRate);
-    window.setTimeout(() => {
-      if (eventRef.current) return;
+    nextEventTimerRef.current = window.setTimeout(() => {
+      nextEventTimerRef.current = null;
+      if (!mountedRef.current || eventRef.current) return;
       const kind = pickRandomEvent();
       const def = EVENTS[kind];
       const ev: ActiveEvent = {
@@ -306,6 +321,16 @@ export default function HyperfokusGame() {
       audioRef.current?.playTone(660, 220, { type: 'triangle' });
     }, delay);
   }, [pushToast]);
+
+  // Clear the pending "next event" timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (nextEventTimerRef.current !== null) {
+        window.clearTimeout(nextEventTimerRef.current);
+        nextEventTimerRef.current = null;
+      }
+    };
+  }, []);
 
   // ----- Particle canvas (declared before handleCoreTap so it can reference spawnParticleBurst) -----
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -427,7 +452,6 @@ export default function HyperfokusGame() {
         }
         return { ...s, coins: nextCoins, totalTaps: nextTaps, allTimeBest: nextBest };
       });
-      queueSave();
 
       // Floating number + flash + particles + sound.
       const label =
@@ -450,7 +474,10 @@ export default function HyperfokusGame() {
       }
 
       setCoreFlash(bossKilled ? 'boss' : reward.isCrit ? 'crit' : 'tap');
-      window.setTimeout(() => setCoreFlash('none'), 120);
+      window.setTimeout(() => {
+        if (!mountedRef.current) return;
+        setCoreFlash('none');
+      }, 120);
 
       if (newCombo === 1 || newCombo % 10 === 0) {
         setAnnouncement(`Combo ${newCombo}`);
@@ -463,7 +490,6 @@ export default function HyperfokusGame() {
       reducedMotion,
       scheduleNextEvent,
       setSave,
-      queueSave,
       spawnParticleBurst,
       vibrate,
     ],
@@ -535,9 +561,8 @@ export default function HyperfokusGame() {
         return applyUpgrade(s, id);
       });
       audioRef.current?.playTone(740, 120, { type: 'square', peak: 0.13 });
-      queueSave();
     },
-    [setSave, queueSave],
+    [setSave],
   );
 
   const onPrestige = useCallback(() => {
@@ -549,16 +574,14 @@ export default function HyperfokusGame() {
     setShowUpgrades(false);
     pushToast(`+${gained} Aurora-Kristall${gained === 1 ? '' : 'e'}`, 'Prestige aktiviert');
     audioRef.current?.playTone(880, 600, { type: 'triangle', peak: 0.16 });
-    queueSave();
-  }, [setSave, pushToast, queueSave]);
+  }, [setSave, pushToast]);
 
   const onSwitchTheme = useCallback(
     (t: HyperfokusTheme) => {
       if (!isThemeUnlocked(t, saveRef.current.prestigeCrystals)) return;
       setSave((s) => ({ ...s, currentTheme: t }));
-      queueSave();
     },
-    [setSave, queueSave],
+    [setSave],
   );
 
   // ----- Derived display values -----
@@ -594,8 +617,7 @@ export default function HyperfokusGame() {
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col">
             <div
-              aria-live="polite"
-              aria-atomic="true"
+              aria-label={`${formatNumber(Math.floor(scoreDisplay))} Coins`}
               className="text-3xl font-extrabold tabular-nums sm:text-4xl"
             >
               {formatNumber(Math.floor(scoreDisplay))}
@@ -687,7 +709,10 @@ export default function HyperfokusGame() {
             isBoss={activeEvent?.kind === 'boss'}
           />
           {/* Floaters */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div
+            ref={floaterLayerRef}
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+          >
             {floaters.map((f) => (
               <FloaterPip key={f.id} f={f} />
             ))}
