@@ -279,6 +279,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein leuchtender Kern in einem Aurora-Gradient mit fliegenden Zahlen',
     category: 'gehirntraining',
   },
+  {
+    to: '/gfrett',
+    title: 'Gfrett',
+    description: 'Schiebe Farbblöcke vom Spielfeld und löse Dreier in der Match-Leiste auf.',
+    preview: '/games/gfrett-preview.svg',
+    previewAlt: 'Vorschau: bunte Blöcke auf einem Raster mit Match-Leiste am Rand',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
