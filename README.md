@@ -5,7 +5,7 @@
 <h1 align="center">Minispiele</h1>
 
 <p align="center">
-  <strong>29 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.</strong>
+  <strong>31 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.</strong>
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@ Sammlung kleiner Browser-Minispiele als Progressive Web App. Alles läuft im Bro
 
 ## Spiele
 
-29 Spiele in sechs Kategorien — **Logik & Denksport** (13) · **Wort & Sprache** (4) · **Action & Arcade** (4) · **Gehirntraining** (5) · **Karten** (1) · **Werkzeuge** (2). Vollständige Liste in [`GAMES.md`](./GAMES.md). Quelle der Wahrheit ist [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts).
+31 Spiele in sechs Kategorien — **Logik & Denksport** (14) · **Wort & Sprache** (4) · **Action & Arcade** (4) · **Gehirntraining** (6) · **Karten** (1) · **Werkzeuge** (2). Vollständige Liste in [`GAMES.md`](./GAMES.md). Quelle der Wahrheit ist [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts).
 
 ## Quickstart
 

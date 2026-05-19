@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
 
 import AnagramGame from './AnagramGame';
+import HyperfokusGame from './HyperfokusGame';
 import BlocksGame from './BlocksGame';
 import BreakoutGame from './BreakoutGame';
 import BubblesGame from './BubblesGame';
@@ -21,6 +22,7 @@ import SokobanGame from './SokobanGame';
 import StroopGame from './StroopGame';
 import SudokuGame from './SudokuGame';
 import TangramGame from './TangramGame';
+import TrafficJamGame from './TrafficJamGame';
 import TwentyFortyEightGame from './TwentyFortyEightGame';
 import WordsearchGame from './WordsearchGame';
 
@@ -82,8 +84,10 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['StroopGame', () => <StroopGame />],
   ['SudokuGame', () => <SudokuGame />],
   ['TangramGame', () => <TangramGame />],
+  ['TrafficJamGame', () => <TrafficJamGame />],
   ['TwentyFortyEightGame', () => <TwentyFortyEightGame />],
   ['WordsearchGame', () => <WordsearchGame />],
+  ['HyperfokusGame', () => <HyperfokusGame />],
 ];
 
 describe('game components smoke render', () => {
