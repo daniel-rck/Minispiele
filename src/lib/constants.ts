@@ -74,6 +74,8 @@ export const STORAGE_KEYS = {
   FREECELL_BEST: 'minispiele.freecell.bestMoves.v1',
   TANGRAM_LEVEL: 'minispiele.tangram.level.v1',
   FLOW_BEST: 'minispiele.flow.best.v1',
+  TRAFFIC_JAM_DIFFICULTY: 'minispiele.trafficJam.difficulty.v1',
+  TRAFFIC_JAM_HIGHSCORES: 'minispiele.trafficJam.highscores.v2',
   HYPERFOKUS_SAVE: 'minispiele.hyperfokus.save.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',

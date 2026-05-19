@@ -26,6 +26,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/reaction', title: /Reaktionstest/i },
   { path: '/schulte', title: /Zahlentafel/i },
   { path: '/stroop', title: /Stroop/i },
+  { path: '/traffic-jam', title: /Stau/i },
   { path: '/hyperfokus', title: /Hyperfokus/i },
 ];
 

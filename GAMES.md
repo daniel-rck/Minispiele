@@ -16,6 +16,7 @@ Aktueller Stand kommt aus [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts)
 - **Kistenschieber** — Sokoban-Lagerhaus-Puzzle.
 - **Verbinden** — Flow: gleichfarbige Punkte ohne Kreuzung verbinden.
 - **Tangram** — sieben Teile zu Silhouetten zusammensetzen.
+- **Stau** — Rush-Hour-Puzzle: rotes Auto aus dem Verkehrschaos befreien.
 
 ## Wort & Sprache
 
@@ -38,6 +39,7 @@ Aktueller Stand kommt aus [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts)
 - **Reaktionstest** — möglichst schnell reagieren, sobald die Fläche grün wird.
 - **Zahlentafel** — Schulte-Tabelle 1 bis 25 in Reihenfolge antippen.
 - **Stroop-Test** — Schriftfarbe (nicht das Wort) erkennen.
+- **Hyperfokus** — endloser Tap-Loop mit Crits, Combos, Auto-Tapper und Prestige.
 
 ## Karten
 

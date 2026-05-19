@@ -199,6 +199,20 @@ export const FreecellBestSchema = NullableNonNegInt;
 export const TangramLevelSchema = z.number().int().min(0).max(99);
 export const FlowBestSchema = z.record(z.string(), z.number().int().nonnegative());
 
+export const TrafficJamDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const TrafficJamHighscoresSchema = z.object({
+  easy: HighscoreEntrySchema.nullable(),
+  medium: HighscoreEntrySchema.nullable(),
+  hard: HighscoreEntrySchema.nullable(),
+});
+export type TrafficJamDifficulty = z.infer<typeof TrafficJamDifficultySchema>;
+export type TrafficJamHighscores = z.infer<typeof TrafficJamHighscoresSchema>;
+export const EMPTY_TRAFFIC_JAM_HIGHSCORES: TrafficJamHighscores = {
+  easy: null,
+  medium: null,
+  hard: null,
+};
+
 export const HyperfokusThemeSchema = z.enum(['default', 'neon', 'kosmos', 'aurora']);
 export type HyperfokusTheme = z.infer<typeof HyperfokusThemeSchema>;
 

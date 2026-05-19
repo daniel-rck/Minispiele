@@ -262,6 +262,16 @@ const GAME_INPUTS: GameCardInput[] = [
     category: 'gehirntraining',
   },
   {
+    to: '/traffic-jam',
+    title: 'Stau',
+    description:
+      'Rush-Hour-Puzzle: schiebe blockierende Autos beiseite, bis das rote Auto rechts ausfahren kann.',
+    preview: '/games/traffic-jam-preview.svg',
+    previewAlt:
+      'Vorschau: ein 6×6-Gitter mit bunten Autos, einem roten Zielauto und einem Ausfahrt-Pfeil rechts',
+    category: 'logik',
+  },
+  {
     to: '/hyperfokus',
     title: 'Hyperfokus',
     description: 'Endloser Tap-Loop mit Crits, Combos, Auto-Tapper, Ereignissen und Prestige.',
