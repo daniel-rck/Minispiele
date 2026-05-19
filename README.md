@@ -48,6 +48,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 ## Tech-Stack
 
 - **React 19** + **TypeScript 5.7** + **Vite 7**
+- **React Compiler** aktiv — automatische Memoization, weniger `useMemo`/`useCallback`-Boilerplate
 - **Tailwind CSS 4** (Styling), **Zod** (Schema-Validierung)
 - **Vitest** + **Testing Library** (Unit), **Playwright** (E2E)
 - **PWA** via `vite-plugin-pwa` + Workbox
