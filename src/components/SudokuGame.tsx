@@ -15,6 +15,7 @@ import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
+import DifficultySelector from './ui/DifficultySelector';
 import Sheet from './ui/Sheet';
 
 const LABELS: Record<SudokuDifficulty, string> = {
@@ -173,20 +174,11 @@ export default function SudokuGame() {
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
-          <select
-            value={game.difficulty}
-            onChange={(e) => changeDifficulty(e.target.value as SudokuDifficulty)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            {(Object.keys(LABELS) as SudokuDifficulty[]).map((d) => (
-              <option key={d} value={d}>
-                {LABELS[d]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <DifficultySelector<SudokuDifficulty>
+          value={game.difficulty}
+          options={LABELS}
+          onChange={changeDifficulty}
+        />
       </div>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">

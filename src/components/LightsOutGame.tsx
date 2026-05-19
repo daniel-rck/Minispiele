@@ -6,6 +6,7 @@ import { LightsBestSchema } from '../lib/persistedSchemas';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
+import DifficultySelector from './ui/DifficultySelector';
 import Sheet from './ui/Sheet';
 
 const DIFFICULTY: Record<'easy' | 'medium' | 'hard', number> = {
@@ -76,20 +77,11 @@ export default function LightsOutGame() {
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
-          <select
-            value={difficulty}
-            onChange={(e) => changeDifficulty(e.target.value as Difficulty)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            {(Object.keys(LABELS) as Difficulty[]).map((d) => (
-              <option key={d} value={d}>
-                {LABELS[d]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <DifficultySelector<Difficulty>
+          value={difficulty}
+          options={LABELS}
+          onChange={changeDifficulty}
+        />
       </div>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">

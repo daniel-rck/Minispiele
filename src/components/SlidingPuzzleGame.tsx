@@ -20,6 +20,7 @@ import {
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import Button from './ui/Button';
+import DifficultySelector from './ui/DifficultySelector';
 import GameFooter from './ui/GameFooter';
 import GameStats from './ui/GameStats';
 import Sheet from './ui/Sheet';
@@ -126,20 +127,11 @@ export default function SlidingPuzzleGame() {
   return (
     <div className="flex flex-col gap-3 pb-24">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
-          <select
-            value={state.difficulty}
-            onChange={(e) => onDifficultyChange(e.target.value as SlidingDifficulty)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            {(Object.keys(difficultyLabels) as SlidingDifficulty[]).map((d) => (
-              <option key={d} value={d}>
-                {difficultyLabels[d]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <DifficultySelector<SlidingDifficulty>
+          value={state.difficulty}
+          options={difficultyLabels}
+          onChange={onDifficultyChange}
+        />
       </div>
 
       <GameStats
