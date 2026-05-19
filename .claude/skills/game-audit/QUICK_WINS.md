@@ -4,13 +4,13 @@ Nur die hier gelisteten Änderungen darf der Skill automatisch ins Working-Tree 
 
 ---
 
-## QW-1: Prettier-Formatierung
+## QW-1: Biome-Formatierung
 
 **Bedingung**: Datei wurde im Audit gelesen oder verändert.
 
-**Aktion**: `bunx prettier --write <files>` als letzter Schritt nach allen anderen Quick-Wins.
+**Aktion**: `bunx biome format --write <files>` als letzter Schritt nach allen anderen Quick-Wins (oder `bunx biome check --write <files>` für Format + safe Lint-Fixes).
 
-**Risiko**: keins — pre-commit-Hook würde das ohnehin tun.
+**Risiko**: keins — pre-commit-Hook (lint-staged → `biome check --write`) würde das ohnehin tun.
 
 ---
 
@@ -42,7 +42,7 @@ Nur die hier gelisteten Änderungen darf der Skill automatisch ins Working-Tree 
 
 **Aktion**:
 
-1. Import ergänzen: `import { Button } from "@/components/ui/Button"` (oder Projekt-Konvention)
+1. Import ergänzen: `import Button from './ui/Button';` (relativer Pfad, **default export**, anpassen je nach Datei-Tiefe — z.B. `'../components/ui/Button'` aus `src/pages/`).
 2. `<button className="..." onClick={...}>Text</button>` → `<Button onClick={...} variant="primary">Text</Button>`
 3. Variant-Wahl: Wenn Klassen `bg-primary`/`bg-cyan` enthalten → `primary`; `bg-accent`/`bg-orange` → `accent`; `bg-red`/`bg-danger` → `danger`; `bg-green`/`bg-success` → `success`; sonst → **kein** Quick-Win.
 
@@ -127,13 +127,11 @@ describe('<slug>', () => {
 
 **Aktion**:
 
-1. Import einfügen: `import { AriaLive } from "@/components/ui/AriaLive";` (Pfad an Projekt-Konvention anpassen)
+1. Import einfügen: `import AriaLive from './AriaLive';` (relativer Pfad, **default export**, `AriaLive` liegt direkt unter `src/components/`, nicht unter `ui/`).
 2. Direkt vor dem `</GameLayout>` (oder am Ende des Render-Trees) einfügen:
    ```tsx
-   {
-     /* TODO(game-audit): konkrete Status-Nachrichten ergänzen — z.B. `${score} Punkte` oder "Spiel beendet". */
-   }
-   <AriaLive message="" />;
+   {/* TODO(game-audit): konkrete Status-Nachrichten ergänzen — z.B. `${score} Punkte` oder "Spiel beendet". */}
+   <AriaLive message="" />
    ```
 
 **Risiko**: niedrig — leere `message` macht keine Announcement.
@@ -143,7 +141,7 @@ describe('<slug>', () => {
 ## Reihenfolge
 
 1. QW-2 bis QW-7 in beliebiger Reihenfolge anwenden.
-2. **Zum Schluss** QW-1 (Prettier) über alle veränderten Dateien.
+2. **Zum Schluss** QW-1 (Biome-Format) über alle veränderten Dateien.
 
 ## Was NICHT als Quick-Win
 

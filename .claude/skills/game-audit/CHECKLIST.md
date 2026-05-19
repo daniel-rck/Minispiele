@@ -251,7 +251,7 @@ Sokoban (Kistenschieber), Sudoku, Mastermind (Codeknacker), Tangram, FreeCell, N
 | Pattern                                                                | Severity | Hinweis             |
 | ---------------------------------------------------------------------- | -------- | ------------------- |
 | Game-Component nicht von `ErrorBoundary` umgeben (Check `App.tsx`)     | 🟡       |                     |
-| `console.log` / `console.warn` im Code (außer mit `// eslint-disable`) | 🟡       |                     |
+| `console.log` / `console.warn` im Code (außer mit `// biome-ignore`)   | 🟡       |                     |
 | Englisch-Strings in User-facing Texts                                  | 🟡       | Projekt ist Deutsch |
 | Du-Form-Bruch (Sie-Form)                                               | 🔵       |                     |
 | Slug ≠ Dateiname-Kebab-Case                                            | 🟡       | Konsistenz          |
@@ -310,7 +310,7 @@ Sokoban (Kistenschieber), Sudoku, Mastermind (Codeknacker), Tangram, FreeCell, N
 ### Vorgehen
 
 1. Grep im Datei-Set + `src/index.css` Verweisen: `animate-`, `motion-`, `transition`, `@keyframes` Referenzen.
-2. Grep nach Audio-Imports: `from "@/lib/audio"`, `from "@/lib/toneAudio"`, `playTone`, `playSound`.
+2. Grep nach Audio-Imports: `from '../lib/audio'`, `from '../lib/toneAudio'`, `playTone`, `playSound`. (Repo nutzt relative Pfade — kein `@/`-Alias.)
 3. Wenn Spiel weder Animation noch Sound auf Spieler-Aktion hat → 🔴.
 4. Bei vorhandener Animation prüfen: respektiert `prefers-reduced-motion`?
 5. **Befund-Vorschlag** im Report konkret: „Empfohlene Animation: `star-pop` auf Level-Up in Zeile XY" — keinen automatischen Quick-Win (zu inhaltlich), aber konkreten Codeschnipsel im Report bereitstellen.

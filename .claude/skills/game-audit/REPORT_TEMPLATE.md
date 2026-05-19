@@ -66,7 +66,7 @@
 
 ## Angewandte Quick-Wins (⚡)
 
-- ✅ **Prettier-Format** auf 3 Dateien (`SnakeGame.tsx`, `Snake.tsx`, `snake.test.ts`)
+- ✅ **Biome-Format** auf 3 Dateien (`SnakeGame.tsx`, `Snake.tsx`, `snake.test.ts`)
 - ✅ **aria-label** an IconButton (`SnakeGame.tsx:87`, Label: „Pause")
 - ✅ **`<button>` → `<Button>`** (`SnakeGame.tsx:201`)
 - ✅ **Test-Skeleton** angelegt (`src/lib/snake.test.ts` — falls noch nicht vorhanden)
@@ -131,7 +131,7 @@ Zelle = schlimmste Severity der Kategorie für das Spiel.
 
 | Typ                       | Anzahl |
 | ------------------------- | -----: |
-| Prettier-Format           |    <P> |
+| Biome-Format              |    <P> |
 | aria-label ergänzt        |    <A> |
 | `<button>` → `<Button>`   |    <B> |
 | Hardcoded Farbe → Token   |    <C> |
