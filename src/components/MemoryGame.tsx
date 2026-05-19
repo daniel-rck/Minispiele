@@ -20,8 +20,8 @@ import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import Button from './ui/Button';
 import GameFooter from './ui/GameFooter';
+import GameOverSheet from './ui/GameOverSheet';
 import GameStats from './ui/GameStats';
-import Sheet from './ui/Sheet';
 
 const difficultyLabels: Record<MemoryDifficulty, string> = {
   easy: 'Leicht (6 Paare)',
@@ -191,24 +191,16 @@ export default function MemoryGame() {
         </Button>
       </GameFooter>
 
-      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
-        <div className="text-center">
-          <div className="mb-2 text-4xl" aria-hidden>
-            🎉
-          </div>
-          {scoreIsNew && (
-            <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-              Neue Bestzeit!
-            </div>
-          )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Gelöst in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
-          </p>
-          <Button variant="primary" block onClick={() => restart()}>
-            Nochmal spielen
-          </Button>
-        </div>
-      </Sheet>
+      <GameOverSheet
+        open={winOpen}
+        onClose={() => setWinOpen(false)}
+        title="Gewonnen!"
+        emoji="🎉"
+        isNewRecord={scoreIsNew}
+        recordLabel="Neue Bestzeit!"
+        message={`Gelöst in ${state.moves} Zügen, Zeit ${formatDuration(timer.elapsedSeconds)}.`}
+        primaryAction={{ label: 'Nochmal spielen', onClick: () => restart() }}
+      />
     </div>
   );
 }

@@ -15,8 +15,8 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
 import GameFooter from './ui/GameFooter';
+import GameOverSheet from './ui/GameOverSheet';
 import GameStats from './ui/GameStats';
-import Sheet from './ui/Sheet';
 
 const COLS = 20;
 const ROWS = 20;
@@ -261,24 +261,15 @@ export default function SnakeGame() {
         )}
       </GameFooter>
 
-      <Sheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
-        <div className="text-center">
-          <div className="mb-2 text-4xl" aria-hidden>
-            🐍
-          </div>
-          {scoreIsNew && (
-            <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-              Neue Bestmarke!
-            </div>
-          )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Du hast {state.score} Punkte erreicht.
-          </p>
-          <Button variant="primary" block onClick={start}>
-            Nochmal spielen
-          </Button>
-        </div>
-      </Sheet>
+      <GameOverSheet
+        open={overOpen}
+        onClose={() => setOverOpen(false)}
+        title="Spiel vorbei"
+        emoji="🐍"
+        isNewRecord={scoreIsNew}
+        message={`Du hast ${state.score} Punkte erreicht.`}
+        primaryAction={{ label: 'Nochmal spielen', onClick: start }}
+      />
     </div>
   );
 }
