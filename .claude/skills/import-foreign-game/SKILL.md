@@ -25,6 +25,7 @@ git show origin/feat/add-foreign-games:todo/<slug>.html | head -50   # Quelle ex
 ```
 
 Wenn die HTML-Datei nicht existiert: stoppen, dem User die verfügbaren Dateien nennen via:
+
 ```sh
 git show origin/feat/add-foreign-games --stat -- 'todo/*.html' | head -50
 ```
@@ -47,21 +48,22 @@ Optional, falls das Spiel persistierten State hat: Zod-Schema in `src/lib/persis
 
 Die HTML-Originale folgen einem festen Muster: Dark-Theme (`#1a1a2e` / `#16213e` / `#c9b458`), eine `<canvas>`-Spielfläche oder DOM-Gitter, `localStorage` für Highscore, deutsche UI. Beim Port gilt:
 
-| HTML-Original                              | React-Port                                                                                                |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| Inline-`<style>` mit `#1a1a2e` etc.        | **Verwerfen.** Tailwind-Klassen + Dark/Light-Mode (`bg-slate-900 dark:bg-slate-950`, `text-amber-400`, …) |
-| `<a class="back-link" href="spiele.html">` | **Verwerfen.** Back-Button stellt `<GameLayout>` automatisch                                              |
-| `<h1>TITEL</h1>` als Seitenüberschrift     | **Verwerfen.** Titel kommt aus `<GameLayout title="…">`                                                   |
-| Inline `<script>` mit globalen `var`/`let` | React-Hooks: `useState`, `useEffect`, `useRef`, `useCallback`                                             |
-| `document.getElementById(...)`             | `useRef<HTMLCanvasElement>(null)` + `ref={canvasRef}`                                                     |
-| `localStorage.getItem('snake-high')`       | `useLocalStorage(STORAGE_KEYS.SNAKE_BEST, Schema, default)`                                               |
-| `window.addEventListener('keydown', …)`    | `useEffect` mit Cleanup (`return () => window.removeEventListener(…)`)                                    |
-| `setInterval` / `requestAnimationFrame`    | `useEffect` mit `clearInterval` / `cancelAnimationFrame` im Cleanup                                       |
+| HTML-Original                              | React-Port                                                                                                 |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Inline-`<style>` mit `#1a1a2e` etc.        | **Verwerfen.** Tailwind-Klassen + Dark/Light-Mode (`bg-slate-900 dark:bg-slate-950`, `text-amber-400`, …)  |
+| `<a class="back-link" href="spiele.html">` | **Verwerfen.** Back-Button stellt `<GameLayout>` automatisch                                               |
+| `<h1>TITEL</h1>` als Seitenüberschrift     | **Verwerfen.** Titel kommt aus `<GameLayout title="…">`                                                    |
+| Inline `<script>` mit globalen `var`/`let` | React-Hooks: `useState`, `useEffect`, `useRef`, `useCallback`                                              |
+| `document.getElementById(...)`             | `useRef<HTMLCanvasElement>(null)` + `ref={canvasRef}`                                                      |
+| `localStorage.getItem('snake-high')`       | `useLocalStorage(STORAGE_KEYS.SNAKE_BEST, Schema, default)`                                                |
+| `window.addEventListener('keydown', …)`    | `useEffect` mit Cleanup (`return () => window.removeEventListener(…)`)                                     |
+| `setInterval` / `requestAnimationFrame`    | `useEffect` mit `clearInterval` / `cancelAnimationFrame` im Cleanup                                        |
 | `alert()` / "Game Over"-Englisch           | Deutsche Texte (z. B. "Vorbei!", "Verloren") — `e2e/smoke.spec.ts` testet, dass kein "Game Over" erscheint |
-| Audio via `new Audio('...')`               | `useAudioBeep()` / `useToneAudio()` aus `src/lib/` (nutzt `setAudioSetting`-Bridge)                       |
-| Touch-Events `touchstart`/`touchmove`      | React-`onTouchStart` / `onPointerDown` oder `usePointerSwipe`-Hook (falls vorhanden), 44×44px Mindest-Tap |
+| Audio via `new Audio('...')`               | `useAudioBeep()` / `useToneAudio()` aus `src/lib/` (nutzt `setAudioSetting`-Bridge)                        |
+| Touch-Events `touchstart`/`touchmove`      | React-`onTouchStart` / `onPointerDown` oder `usePointerSwipe`-Hook (falls vorhanden), 44×44px Mindest-Tap  |
 
 **Mindestziele aus CONTRIBUTING.md:**
+
 - Mobile-first ab 320 px Breite
 - Touch-Targets ≥ 44 px (Tailwind: `min-h-11 min-w-11`)
 - Keine `any`-Typen, kein Inline-Style außer für dynamisch berechnete Werte
@@ -77,6 +79,7 @@ wc -l /tmp/<slug>.html
 ```
 
 Notiere:
+
 - **Slug** (URL-Pfad, kebab-case): meist Dateiname ohne `.html`. Falls schon belegt (vgl. `gamesCatalog.ts`): umbenennen oder mit User klären.
 - **Komponentenname** (PascalCase): z. B. `WhackAMole` für `whack-a-mole.html`.
 - **Titel** (deutsch, Catalog-Titel): aus `<h1>` im HTML, oder besser, kürzerer/idiomatischer deutscher Name.
@@ -92,6 +95,7 @@ Vorlagen je nach Spieltyp:
 - **Reaktion/Tap** (whack-a-mole, simon): `src/components/ReactionGame.tsx`
 
 Die HTML-Game-Logik (Zustand, Loop, Eingabe-Handling) 1:1 portieren, dabei:
+
 - Globale Variablen → `useState` / `useRef`
 - Init-Funktion → `useEffect` mit `[]`-Deps für einmaligen Start, plus separates `useEffect` für Game-Loop
 - Render-Funktion (Canvas) → `useEffect`, das auf State-Änderungen reagiert
@@ -202,6 +206,7 @@ Grund: ein Commit pro Spiel macht spätere Bisects und Rollbacks trivial. Hat si
 ## Ergebnis dem User melden
 
 Nach erfolgreichem Push 1–2 Sätze:
+
 > "<Spiel> portiert und gepusht. Komponente: `src/components/<Name>Game.tsx`, Route: `/<slug>`, Catalog-Eintrag in Kategorie `<cat>`. Draft-PR: <url>."
 
 Bei mehreren Spielen Punktliste mit je 1 Zeile pro Spiel.
