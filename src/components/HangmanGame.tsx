@@ -10,6 +10,7 @@ import {
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
+import LetterKeyboard, { type LetterStatus } from './ui/LetterKeyboard';
 import Sheet from './ui/Sheet';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -181,35 +182,17 @@ export default function HangmanGame() {
         })}
       </div>
 
-      <div
-        className="grid w-full max-w-lg grid-cols-7 gap-1.5 sm:grid-cols-9"
-        role="group"
-        aria-label="Buchstaben"
-      >
-        {ALPHABET.map((ch) => {
-          const used = state.guessed.has(ch);
-          const correct = used && state.word.includes(ch);
-          const wrong = used && !state.word.includes(ch);
-          return (
-            <button
-              key={ch}
-              type="button"
-              onClick={() => guess(ch)}
-              disabled={used || done}
-              aria-label={ch}
-              className={`min-h-11 rounded-lg text-sm font-semibold uppercase ${
-                correct
-                  ? 'bg-emerald-500 text-white'
-                  : wrong
-                    ? 'bg-slate-400 text-white dark:bg-slate-700'
-                    : 'bg-white text-slate-700 hover:bg-brand-50 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800'
-              } border border-slate-300 disabled:opacity-70 dark:border-slate-700`}
-            >
-              {ch}
-            </button>
-          );
-        })}
-      </div>
+      <LetterKeyboard
+        alphabet={ALPHABET}
+        status={Object.fromEntries(
+          Array.from(state.guessed).map((ch): [string, LetterStatus] => [
+            ch,
+            state.word.includes(ch) ? 'correct' : 'wrong',
+          ]),
+        )}
+        onLetter={guess}
+        disabled={done}
+      />
 
       <Sheet
         open={doneOpen}
