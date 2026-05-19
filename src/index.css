@@ -395,3 +395,30 @@ input[type='search']::-webkit-search-decoration {
     opacity: 0;
   }
 }
+
+.hyperfokus-floater {
+  animation: hyperfokus-float 950ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes hyperfokus-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -80%) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -180%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hyperfokus-floater {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}

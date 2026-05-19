@@ -36,6 +36,7 @@ const Freecell = lazy(() => import('./pages/Freecell'));
 const Tangram = lazy(() => import('./pages/Tangram'));
 const Flow = lazy(() => import('./pages/Flow'));
 const TrafficJam = lazy(() => import('./pages/TrafficJam'));
+const Hyperfokus = lazy(() => import('./pages/Hyperfokus'));
 
 function RouteFallback() {
   return (
@@ -309,6 +310,14 @@ export default function App() {
                 element={
                   <LazyRoute label="traffic-jam">
                     <TrafficJam />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="hyperfokus"
+                element={
+                  <LazyRoute label="hyperfokus">
+                    <Hyperfokus />
                   </LazyRoute>
                 }
               />

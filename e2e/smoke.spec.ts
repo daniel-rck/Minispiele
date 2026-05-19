@@ -27,6 +27,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/schulte', title: /Zahlentafel/i },
   { path: '/stroop', title: /Stroop/i },
   { path: '/traffic-jam', title: /Stau/i },
+  { path: '/hyperfokus', title: /Hyperfokus/i },
 ];
 
 test.describe('All games smoke render', () => {

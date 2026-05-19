@@ -212,3 +212,30 @@ export const EMPTY_TRAFFIC_JAM_HIGHSCORES: TrafficJamHighscores = {
   medium: null,
   hard: null,
 };
+
+export const HyperfokusThemeSchema = z.enum(['default', 'neon', 'kosmos', 'aurora']);
+export type HyperfokusTheme = z.infer<typeof HyperfokusThemeSchema>;
+
+export const HyperfokusUpgradesSchema = z.object({
+  tapPower: z.number().int().nonnegative(),
+  autoTapper: z.number().int().nonnegative(),
+  critChance: z.number().int().nonnegative(),
+  critMulti: z.number().int().nonnegative(),
+  comboDecay: z.number().int().nonnegative(),
+  eventRate: z.number().int().nonnegative(),
+});
+export type HyperfokusUpgrades = z.infer<typeof HyperfokusUpgradesSchema>;
+
+export const HyperfokusSaveSchema = z.object({
+  version: z.literal(1),
+  coins: z.number().nonnegative(),
+  totalTaps: z.number().int().nonnegative(),
+  allTimeBest: z.number().nonnegative(),
+  prestigeCrystals: z.number().int().nonnegative(),
+  prestigeCount: z.number().int().nonnegative(),
+  upgrades: HyperfokusUpgradesSchema,
+  unlockedAchievements: z.array(z.string().max(64)).max(64),
+  currentTheme: HyperfokusThemeSchema,
+  lastSavedAt: z.number().nonnegative(),
+});
+export type HyperfokusSave = z.infer<typeof HyperfokusSaveSchema>;

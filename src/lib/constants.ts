@@ -76,6 +76,7 @@ export const STORAGE_KEYS = {
   FLOW_BEST: 'minispiele.flow.best.v1',
   TRAFFIC_JAM_DIFFICULTY: 'minispiele.trafficJam.difficulty.v1',
   TRAFFIC_JAM_HIGHSCORES: 'minispiele.trafficJam.highscores.v2',
+  HYPERFOKUS_SAVE: 'minispiele.hyperfokus.save.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',
