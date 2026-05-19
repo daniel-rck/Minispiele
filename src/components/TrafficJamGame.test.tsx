@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TrafficJamGame from './TrafficJamGame';
 
@@ -34,6 +34,14 @@ describe('TrafficJamGame', () => {
   it('shows the puzzle counter (Rätsel X / N)', () => {
     render(<TrafficJamGame />);
     expect(screen.getByText(/R.tsel\s+1\s*\/\s*\d+/)).toBeInTheDocument();
+  });
+
+  it('auto-selects the target car when an arrow key is pressed with no selection', () => {
+    render(<TrafficJamGame />);
+    const target = screen.getByRole('button', { name: /Rotes Zielauto/i });
+    expect(target).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(target).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('passes axe-core checks on default render', async () => {

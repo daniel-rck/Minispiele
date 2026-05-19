@@ -29,6 +29,7 @@ import {
 } from '../lib/persistedSchemas';
 import { isBetter } from '../lib/highscores';
 import { useWakeLock } from '../hooks/useWakeLock';
+import { useVibration } from '../hooks/useVibration';
 
 const difficultyLabels: Record<TrafficJamDifficulty, string> = {
   easy: 'Leicht',
@@ -58,7 +59,8 @@ function colorFor(id: string) {
   return CAR_COLORS[id] ?? FALLBACK_COLOR;
 }
 
-const SWIPE_THRESHOLD = 20;
+const SWIPE_THRESHOLD = 16;
+const MAX_SWIPE_CELLS = 5;
 
 export default function TrafficJamGame() {
   const [difficulty, setDifficulty] = useLocalStorage<TrafficJamDifficulty>(
@@ -81,6 +83,8 @@ export default function TrafficJamGame() {
   const prevMovesRef = useRef(0);
   const prevWonRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number; carId: string | null } | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const { vibrate } = useVibration();
 
   useEffect(() => {
     if (state.moves > prevMovesRef.current) timer.start();
@@ -124,12 +128,18 @@ export default function TrafficJamGame() {
       }
       if (dir) {
         e.preventDefault();
-        setState((s) => moveSelected(s, dir));
+        const arrowDir = dir;
+        setState((s) => {
+          const withSelection = s.selectedCarId ? s : selectCar(s, TARGET_ID);
+          const after = moveSelected(withSelection, arrowDir);
+          if (after.moves > s.moves) vibrate(15);
+          return after;
+        });
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [vibrate]);
 
   const restart = useCallback(
     (nextDifficulty: TrafficJamDifficulty = difficulty, nextIndex: number = 0) => {
@@ -158,13 +168,17 @@ export default function TrafficJamGame() {
   const onSelectCar = (carId: string) => {
     setState((s) => selectCar(s, carId));
     setAnnounce(carId === TARGET_ID ? 'Rotes Zielauto ausgewählt' : `Auto ${carId} ausgewählt`);
+    vibrate(8);
   };
 
   const onCarTouchStart = (carId: string) => (e: React.TouchEvent<HTMLButtonElement>) => {
     const t = e.touches[0];
     if (!t) return;
+    // Lock the gesture to the car so the page can't scroll while sliding.
+    e.preventDefault();
     touchStartRef.current = { x: t.clientX, y: t.clientY, carId };
     setState((s) => selectCar(s, carId));
+    vibrate(8);
   };
 
   const onBoardTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -176,16 +190,33 @@ export default function TrafficJamGame() {
     }
     const dx = t.clientX - start.x;
     const dy = t.clientY - start.y;
+    touchStartRef.current = null;
     if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) {
       // Treat as a tap — selection already happened on touchstart.
-      touchStartRef.current = null;
       return;
     }
-    const dir: Direction =
-      Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
-    if (start.carId) {
-      setState((s) => slideCar(s, start.carId!, dir));
-    }
+    if (!start.carId) return;
+    const horizontal = Math.abs(dx) > Math.abs(dy);
+    const primary = horizontal ? dx : dy;
+    const dir: Direction = horizontal ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+    // Translate swipe distance into a cell count using the live grid size.
+    const rect = gridRef.current?.getBoundingClientRect();
+    const cellSize = rect ? rect.width / BOARD_SIZE : 48;
+    const cells = Math.max(1, Math.min(MAX_SWIPE_CELLS, Math.round(Math.abs(primary) / cellSize)));
+    const carId = start.carId;
+    setState((s) => {
+      let next = s;
+      for (let i = 0; i < cells; i++) {
+        const after = slideCar(next, carId, dir);
+        if (after === next) break;
+        next = after;
+      }
+      if (next.moves > s.moves) vibrate(15);
+      return next;
+    });
+  };
+
+  const onBoardTouchCancel = () => {
     touchStartRef.current = null;
   };
 
@@ -237,29 +268,33 @@ export default function TrafficJamGame() {
         ]}
       />
 
-      <div className="relative mx-auto w-full max-w-md sm:max-w-lg">
+      <div
+        className="relative mx-auto w-full max-w-md sm:max-w-lg"
+        onTouchEnd={onBoardTouchEnd}
+        onTouchCancel={onBoardTouchCancel}
+      >
         <span className="sr-only">Ausfahrt rechts in Reihe {EXIT_ROW + 1}</span>
-        {/* Exit chevron on the right side of row 2 */}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute text-2xl leading-none text-red-500 dark:text-red-400"
-          style={{
-            top: `${((EXIT_ROW + 0.5) / BOARD_SIZE) * 100}%`,
-            right: '-1.5rem',
-            transform: 'translateY(-50%)',
-          }}
-        >
-          →
-        </span>
 
-        <div className="pr-6">
+        <div className="pr-7 sm:pr-8">
+          {/* Exit chevron on the right edge of row 2, inside the padding */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute right-0 text-2xl leading-none text-red-500 dark:text-red-400"
+            style={{
+              top: `${((EXIT_ROW + 0.5) / BOARD_SIZE) * 100}%`,
+              transform: 'translateY(-50%)',
+            }}
+          >
+            →
+          </span>
           <div
-            onTouchEnd={onBoardTouchEnd}
-            className="grid gap-1 rounded-2xl border-2 border-slate-300 bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800"
+            ref={gridRef}
+            className="grid touch-none gap-1 rounded-2xl border-2 border-slate-300 bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800"
             style={{
               gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
               gridTemplateRows: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
               aspectRatio: '1 / 1',
+              touchAction: 'none',
             }}
           >
             {/* Lane indicator for the exit row */}
@@ -297,7 +332,7 @@ export default function TrafficJamGame() {
                   onTouchStart={onCarTouchStart(car.id)}
                   aria-label={label}
                   aria-pressed={isSelected}
-                  className={`flex items-center justify-center rounded-lg border-2 font-bold transition ${color.bg} ${color.border} ${color.text} ${
+                  className={`flex touch-none items-center justify-center rounded-lg border-2 font-bold transition select-none ${color.bg} ${color.border} ${color.text} ${
                     isSelected ? 'ring-4 ring-amber-300 ring-offset-1 z-10 dark:ring-amber-400' : ''
                   } ${car.isTarget ? 'shadow-lg' : ''}`}
                   style={{
@@ -317,8 +352,8 @@ export default function TrafficJamGame() {
       </div>
 
       <p className="text-center text-xs text-slate-500 dark:text-slate-400">
-        Auto antippen, dann mit Pfeiltasten oder Wischgeste verschieben. Bringe das rote Auto nach
-        rechts hinaus.
+        Auto antippen und entlang seiner Achse wischen — oder Pfeiltasten benutzen (das rote Auto
+        ist standardmäßig ausgewählt). Bringe das rote Auto nach rechts hinaus.
       </p>
 
       <GameFooter>
