@@ -6,12 +6,10 @@ import {
   TARGET_ID,
   buildGrid,
   createInitialState,
+  driveCar,
   encodeBoard,
   isBlocked,
-  moveSelected,
   parsePuzzle,
-  selectCar,
-  slideCar,
   solveBFS,
 } from './trafficJam';
 
@@ -21,35 +19,43 @@ const ALL_PUZZLES = (['easy', 'medium', 'hard'] as const).flatMap((d) =>
 
 describe('parsePuzzle', () => {
   it('rejects strings of the wrong length', () => {
-    expect(() => parsePuzzle('A'.repeat(35))).toThrow();
-    expect(() => parsePuzzle('A'.repeat(37))).toThrow();
+    expect(() => parsePuzzle('A'.repeat(35), {})).toThrow();
+    expect(() => parsePuzzle('A'.repeat(37), {})).toThrow();
   });
 
   it('rejects missing target car', () => {
     const encoded = 'BB....' + '......' + 'CC....' + '......' + '......' + '......';
-    expect(() => parsePuzzle(encoded)).toThrow(/target/i);
+    expect(() => parsePuzzle(encoded, {})).toThrow(/target/i);
   });
 
   it('rejects target car in wrong row', () => {
     const encoded = 'AA....' + '......' + '......' + '......' + '......' + '......';
-    expect(() => parsePuzzle(encoded)).toThrow(/row 2|target/i);
+    expect(() => parsePuzzle(encoded, {})).toThrow(/row 2|target/i);
   });
 
   it('rejects orphan letters (length 1)', () => {
     const encoded = 'B.....' + '......' + 'AA....' + '......' + '......' + '......';
-    expect(() => parsePuzzle(encoded)).toThrow(/neighbor|length/i);
+    expect(() => parsePuzzle(encoded, {})).toThrow(/neighbor|length/i);
   });
 
   it('rejects disconnected duplicate cells for an id', () => {
-    // A appears as a valid 2-car in row 2 (cols 0-1) AND as an extra disconnected
-    // cell at (4,4). Must throw rather than silently dropping the stray cell.
     const encoded = '......' + '......' + 'AA....' + '......' + '....A.' + '......';
-    expect(() => parsePuzzle(encoded)).toThrow(/contiguous|cells/i);
+    expect(() => parsePuzzle(encoded, {})).toThrow(/contiguous|cells/i);
   });
 
-  it('parses a simple horizontal target + vertical blocker', () => {
+  it('rejects horizontal car with vertical facing', () => {
+    const encoded = '......' + '......' + 'AA....' + '......' + 'BB....' + '......';
+    expect(() => parsePuzzle(encoded, { A: 'right', B: 'down' })).toThrow(/face/i);
+  });
+
+  it('rejects vertical car with horizontal facing', () => {
+    const encoded = '..B...' + '..B...' + 'AA....' + '......' + '......' + '......';
+    expect(() => parsePuzzle(encoded, { A: 'right', B: 'left' })).toThrow(/face/i);
+  });
+
+  it('parses a simple horizontal target + vertical blocker with facings', () => {
     const encoded = '...C..' + '...C..' + 'AA.C..' + '......' + '......' + '......';
-    const cars = parsePuzzle(encoded);
+    const cars = parsePuzzle(encoded, { A: 'right', C: 'down' });
     expect(cars).toHaveLength(2);
     const target = cars.find((c) => c.isTarget);
     expect(target).toMatchObject({
@@ -58,6 +64,7 @@ describe('parsePuzzle', () => {
       col: 0,
       length: 2,
       orientation: 'h',
+      facing: 'right',
     });
     const blocker = cars.find((c) => !c.isTarget);
     expect(blocker).toMatchObject({
@@ -66,168 +73,112 @@ describe('parsePuzzle', () => {
       col: 3,
       length: 3,
       orientation: 'v',
+      facing: 'down',
     });
+  });
+
+  it('assigns default facing when not provided', () => {
+    const encoded = '...C..' + '...C..' + 'AA.C..' + '......' + '......' + '......';
+    const cars = parsePuzzle(encoded);
+    expect(cars.find((c) => c.id === 'A')?.facing).toBe('right');
+    expect(cars.find((c) => c.id === 'C')?.facing).toBe('down');
   });
 });
 
 describe('PUZZLES pool', () => {
-  it.each(ALL_PUZZLES)('$difficulty/$id parses with valid structure', ({ encoded }) => {
-    const cars = parsePuzzle(encoded);
+  it.each(ALL_PUZZLES)('$difficulty/$id parses with valid structure', ({ encoded, facings }) => {
+    const cars = parsePuzzle(encoded, facings);
     const target = cars.find((c) => c.isTarget);
     expect(target).toBeDefined();
     expect(target?.row).toBe(EXIT_ROW);
     expect(target?.length).toBe(2);
     expect(target?.orientation).toBe('h');
-    // No overlapping cells
+    expect(target?.facing).toBe('right');
     const grid = buildGrid(cars);
     const occupied = grid.filter((c) => c !== null);
-    const expected = cars.reduce((sum, c) => sum + c.length, 0);
-    expect(occupied).toHaveLength(expected);
+    const expectedCells = cars.reduce((sum, c) => sum + c.length, 0);
+    expect(occupied).toHaveLength(expectedCells);
   });
 
-  it.each(ALL_PUZZLES)('$difficulty/$id is solvable via BFS', ({ encoded, difficulty }) => {
-    const cars = parsePuzzle(encoded);
-    const state = {
-      cars,
-      difficulty,
-      puzzleIndex: 0,
-      moves: 0,
-      selectedCarId: null,
-      won: false,
-    };
-    const solution = solveBFS(state);
-    expect(solution).not.toBeNull();
-    expect(solution).toBeGreaterThan(0);
-  });
+  it.each(ALL_PUZZLES)(
+    '$difficulty/$id is solvable via BFS',
+    ({ difficulty, encoded, facings }) => {
+      const cars = parsePuzzle(encoded, facings);
+      const state = {
+        cars,
+        difficulty,
+        puzzleIndex: 0,
+        moves: 0,
+        won: false,
+      };
+      const solution = solveBFS(state);
+      expect(solution).not.toBeNull();
+      expect(solution).toBeGreaterThan(0);
+    },
+  );
 });
 
-describe('solveBFS', () => {
-  it('counts the required right-slides even when the path is clear from the start', () => {
-    // Target at col 0, path completely clear; minimum is 5 right moves
-    // (4 to reach col 4 + 1 to slide off the right edge).
-    const encoded = '......' + '......' + 'AA....' + '......' + '......' + '......';
-    const cars = parsePuzzle(encoded);
-    const state = {
-      cars,
-      difficulty: 'easy' as const,
-      puzzleIndex: 0,
-      moves: 0,
-      selectedCarId: null,
-      won: false,
-    };
-    expect(solveBFS(state)).toBe(5);
-  });
-});
-
-describe('slideCar', () => {
-  const baseEncoded = '...C..' + '...C..' + 'AA.C..' + '......' + '......' + '......';
-  const baseState = () => createInitialState('easy', 0);
-
-  it('moves a vertical car down by one cell, incrementing moves', () => {
-    void baseEncoded;
-    const s0 = baseState();
-    const s1 = slideCar(s0, 'C', 'down');
-    expect(s1.moves).toBe(1);
+describe('driveCar', () => {
+  it('drives a vertical car all the way down in one click', () => {
+    const s0 = createInitialState('easy', 0); // ...C.. + ...C.. + AA.C.. + ...
+    const s1 = driveCar(s0, 'C');
     const c = s1.cars.find((x) => x.id === 'C');
-    expect(c).toMatchObject({ row: 1 });
-  });
-
-  it('returns same state on wrong-axis direction', () => {
-    const s0 = baseState();
-    const s1 = slideCar(s0, 'C', 'left');
-    expect(s1).toBe(s0);
-  });
-
-  it('returns same state when out of bounds', () => {
-    const s0 = baseState();
-    const s1 = slideCar(s0, 'C', 'up');
-    expect(s1).toBe(s0);
-  });
-
-  it('returns same state on collision', () => {
-    // C is at col 3 rows 0-2 length 3 in easy-01. A at row 2 cols 0-1.
-    // Try to move A right — col 2 is empty so first right move is valid.
-    const s0 = baseState();
-    const s1 = slideCar(s0, 'A', 'right');
+    expect(c).toMatchObject({ row: 3, col: 3 });
     expect(s1.moves).toBe(1);
-    expect(s1.cars.find((c) => c.id === 'A')?.col).toBe(1);
-    // Now col 2 has A, col 3 has C. Next right move blocked.
-    const s2 = slideCar(s1, 'A', 'right');
-    expect(s2).toBe(s1);
   });
 
-  it('target car exits the board when its right edge crosses the exit', () => {
-    // Build a state where A is already at col 4 (right end at col 5) with clear right.
-    const encoded = '......' + '......' + '....AA' + '......' + '......' + '......';
-    const cars = parsePuzzle(encoded);
-    const state = {
-      cars,
-      difficulty: 'easy' as const,
-      puzzleIndex: 0,
-      moves: 0,
-      selectedCarId: null,
-      won: false,
-    };
-    const after = slideCar(state, 'A', 'right');
-    expect(after.won).toBe(true);
-    expect(after.cars.find((c) => c.id === 'A')).toBeUndefined();
-    expect(after.moves).toBe(1);
-  });
-
-  it('does not allow exit move when target not yet at the right edge', () => {
+  it('counts a multi-cell drive as exactly one move', () => {
     const s0 = createInitialState('easy', 0);
-    const after = slideCar(s0, 'A', 'right');
-    // First right move just shifts A by 1, does not win
-    expect(after.won).toBe(false);
+    const s1 = driveCar(s0, 'C');
+    expect(s1.moves).toBe(1);
+    const s2 = driveCar(s1, 'A');
+    // A drives right from col 0 all the way to exit — still 1 move.
+    expect(s2.moves).toBe(2);
+    expect(s2.won).toBe(true);
   });
 
-  it('no further moves are allowed after winning', () => {
-    const encoded = '......' + '......' + '....AA' + '......' + '......' + '......';
-    const state = {
-      cars: parsePuzzle(encoded),
-      difficulty: 'easy' as const,
-      puzzleIndex: 0,
-      moves: 0,
-      selectedCarId: null,
-      won: false,
-    };
-    const won = slideCar(state, 'A', 'right');
-    const after = slideCar(won, 'A', 'right');
+  it('is a no-op when the car cannot move', () => {
+    // easy-04: B facing 'up' is already at the top — clicking is a no-op.
+    const s0 = createInitialState('easy', 3);
+    const s1 = driveCar(s0, 'B');
+    expect(s1).toBe(s0);
+  });
+
+  it('does not move after winning', () => {
+    const s0 = createInitialState('easy', 0);
+    const won = driveCar(driveCar(s0, 'C'), 'A');
+    expect(won.won).toBe(true);
+    const after = driveCar(won, 'A');
     expect(after).toBe(won);
   });
-});
 
-describe('moveSelected', () => {
-  it('is a no-op when no car is selected', () => {
+  it('returns the same reference on a no-op (car not found)', () => {
     const s0 = createInitialState('easy', 0);
-    const s1 = moveSelected(s0, 'down');
-    expect(s1).toBe(s0);
+    expect(driveCar(s0, 'Z')).toBe(s0);
   });
 
-  it('moves the selected car when valid', () => {
-    const s0 = selectCar(createInitialState('easy', 0), 'C');
-    const s1 = moveSelected(s0, 'down');
+  it('drives until blocked by another car', () => {
+    // easy-01: A faces right, C blocks col 3. Driving A first should move A
+    // from col 0 to col 1 (blocked at col 2 → col 3 by C).
+    const s0 = createInitialState('easy', 0);
+    const s1 = driveCar(s0, 'A');
+    const a = s1.cars.find((c) => c.id === 'A');
+    expect(a).toMatchObject({ col: 1 });
     expect(s1.moves).toBe(1);
   });
-});
 
-describe('selectCar', () => {
-  it('updates selectedCarId', () => {
-    const s0 = createInitialState('easy', 0);
-    const s1 = selectCar(s0, 'C');
-    expect(s1.selectedCarId).toBe('C');
-  });
-
-  it('returns same state when selecting same car', () => {
-    const s0 = selectCar(createInitialState('easy', 0), 'C');
-    const s1 = selectCar(s0, 'C');
-    expect(s1).toBe(s0);
-  });
-
-  it('clears selection with null', () => {
-    const s0 = selectCar(createInitialState('easy', 0), 'C');
-    const s1 = selectCar(s0, null);
-    expect(s1.selectedCarId).toBeNull();
+  it('triggers win when target slides off the right edge', () => {
+    const encoded = '......' + '......' + '....AA' + '......' + '......' + '......';
+    const state = {
+      cars: parsePuzzle(encoded, { A: 'right' }),
+      difficulty: 'easy' as const,
+      puzzleIndex: 0,
+      moves: 0,
+      won: false,
+    };
+    const after = driveCar(state, 'A');
+    expect(after.won).toBe(true);
+    expect(after.cars.find((c) => c.id === 'A')).toBeUndefined();
   });
 });
 
@@ -249,7 +200,6 @@ describe('createInitialState', () => {
     const s = createInitialState('easy', 0);
     expect(s.moves).toBe(0);
     expect(s.won).toBe(false);
-    expect(s.selectedCarId).toBeNull();
   });
 
   it('wraps puzzleIndex modulo pool size', () => {
@@ -265,5 +215,20 @@ describe('encodeBoard', () => {
     const cars = parsePuzzle(encoded);
     expect(encodeBoard(cars)).toBe(encoded);
     expect(BOARD_SIZE).toBe(6);
+  });
+});
+
+describe('solveBFS', () => {
+  it('returns the minimum click count for a clear-path target', () => {
+    const encoded = '......' + '......' + 'AA....' + '......' + '......' + '......';
+    const state = {
+      cars: parsePuzzle(encoded, { A: 'right' }),
+      difficulty: 'easy' as const,
+      puzzleIndex: 0,
+      moves: 0,
+      won: false,
+    };
+    // One click on A drives it all the way off — minimum 1.
+    expect(solveBFS(state)).toBe(1);
   });
 });

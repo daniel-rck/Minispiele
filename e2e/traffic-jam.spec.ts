@@ -9,12 +9,13 @@ test.describe('Traffic Jam (Stau)', () => {
     await expect(page.getByRole('button', { name: /Rotes Zielauto/i })).toBeVisible();
   });
 
-  test('clicking the target car selects it', async ({ page }) => {
+  test('clicking a blocking car drives it and increments the Klicks counter', async ({ page }) => {
     await page.goto('/traffic-jam');
-    const target = page.getByRole('button', { name: /Rotes Zielauto/i });
-    await expect(target).toHaveAttribute('aria-pressed', 'false');
-    await target.click();
-    await expect(target).toHaveAttribute('aria-pressed', 'true');
+    // easy-01 first puzzle has Car C as the single vertical blocker.
+    const carC = page.getByRole('button', { name: /Auto C/i });
+    await carC.click();
+    await expect(page.getByText(/Klicks/i).first()).toBeVisible();
+    await expect(page.locator('body')).toContainText(/Klicks[^\d]*1/);
   });
 
   test('difficulty select is present and changes options', async ({ page }) => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import TrafficJamGame from './TrafficJamGame';
 
@@ -13,13 +13,16 @@ describe('TrafficJamGame', () => {
     expect(screen.getByRole('button', { name: /Rotes Zielauto/i })).toBeInTheDocument();
   });
 
-  it('marks a car as selected after clicking it (aria-pressed)', async () => {
+  it('clicking a blocking car drives it out of the way (increments Klicks)', async () => {
     const user = userEvent.setup();
     render(<TrafficJamGame />);
-    const target = screen.getByRole('button', { name: /Rotes Zielauto/i });
-    expect(target).toHaveAttribute('aria-pressed', 'false');
-    await user.click(target);
-    expect(target).toHaveAttribute('aria-pressed', 'true');
+    // easy-01 starts with: A target + C vertical at col 3. Clicking C drives it down.
+    const klicksRow = screen.getByText(/Klicks/i).parentElement;
+    // initial count is 0
+    expect(klicksRow?.textContent ?? '').toContain('0');
+    const carC = screen.getByRole('button', { name: /Auto C/i });
+    await user.click(carC);
+    expect(klicksRow?.textContent ?? '').toContain('1');
   });
 
   it('changes difficulty via the select and rebuilds the board', async () => {
@@ -27,7 +30,6 @@ describe('TrafficJamGame', () => {
     render(<TrafficJamGame />);
     const select = screen.getByLabelText(/Schwierigkeit/i);
     await user.selectOptions(select, 'hard');
-    // After difficulty change the red car is still on the board (different puzzle).
     expect(screen.getByRole('button', { name: /Rotes Zielauto/i })).toBeInTheDocument();
   });
 
@@ -36,12 +38,10 @@ describe('TrafficJamGame', () => {
     expect(screen.getByText(/R.tsel\s+1\s*\/\s*\d+/)).toBeInTheDocument();
   });
 
-  it('auto-selects the target car when an arrow key is pressed with no selection', () => {
+  it('exposes each car´s facing direction in its accessible label', () => {
     render(<TrafficJamGame />);
     const target = screen.getByRole('button', { name: /Rotes Zielauto/i });
-    expect(target).toHaveAttribute('aria-pressed', 'false');
-    fireEvent.keyDown(window, { key: 'ArrowRight' });
-    expect(target).toHaveAttribute('aria-pressed', 'true');
+    expect(target.getAttribute('aria-label') ?? '').toMatch(/rechts/i);
   });
 
   it('passes axe-core checks on default render', async () => {

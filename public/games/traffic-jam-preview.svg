@@ -1,77 +1,107 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Vorschau: Stau-Puzzle">
   <rect width="640" height="360" rx="20" fill="#f1f5f9"/>
-  <!-- Board: 6×6 grid centered, cell size 50px, total 300×300 -->
+  <!-- Board: 6×6 grid centered. Cell size 50px, total 300×300 -->
   <g transform="translate(170 30)">
     <rect width="300" height="300" rx="14" fill="#cbd5e1"/>
-    <!-- Grid background cells -->
+    <!-- Background cells; exit row (row index 2) highlighted -->
     <g fill="#f8fafc" stroke="#e2e8f0" stroke-width="1">
-      <!-- Row 0..5, Col 0..5 -->
-      <rect x="6" y="6" width="46" height="46" rx="6"/>
-      <rect x="56" y="6" width="46" height="46" rx="6"/>
-      <rect x="106" y="6" width="46" height="46" rx="6"/>
-      <rect x="156" y="6" width="46" height="46" rx="6"/>
-      <rect x="206" y="6" width="46" height="46" rx="6"/>
-      <rect x="256" y="6" width="46" height="46" rx="6"/>
-
-      <rect x="6" y="56" width="46" height="46" rx="6"/>
-      <rect x="56" y="56" width="46" height="46" rx="6"/>
-      <rect x="106" y="56" width="46" height="46" rx="6"/>
-      <rect x="156" y="56" width="46" height="46" rx="6"/>
-      <rect x="206" y="56" width="46" height="46" rx="6"/>
-      <rect x="256" y="56" width="46" height="46" rx="6"/>
-
-      <!-- Exit row (row 2) highlighted -->
+      <rect x="6"   y="6"   width="46" height="46" rx="6"/>
+      <rect x="56"  y="6"   width="46" height="46" rx="6"/>
+      <rect x="106" y="6"   width="46" height="46" rx="6"/>
+      <rect x="156" y="6"   width="46" height="46" rx="6"/>
+      <rect x="206" y="6"   width="46" height="46" rx="6"/>
+      <rect x="256" y="6"   width="46" height="46" rx="6"/>
+      <rect x="6"   y="56"  width="46" height="46" rx="6"/>
+      <rect x="56"  y="56"  width="46" height="46" rx="6"/>
+      <rect x="106" y="56"  width="46" height="46" rx="6"/>
+      <rect x="156" y="56"  width="46" height="46" rx="6"/>
+      <rect x="206" y="56"  width="46" height="46" rx="6"/>
+      <rect x="256" y="56"  width="46" height="46" rx="6"/>
       <rect x="6"   y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
       <rect x="56"  y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
       <rect x="106" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
       <rect x="156" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
       <rect x="206" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
       <rect x="256" y="106" width="46" height="46" rx="6" fill="#e2e8f0"/>
-
-      <rect x="6" y="156" width="46" height="46" rx="6"/>
-      <rect x="56" y="156" width="46" height="46" rx="6"/>
+      <rect x="6"   y="156" width="46" height="46" rx="6"/>
+      <rect x="56"  y="156" width="46" height="46" rx="6"/>
       <rect x="106" y="156" width="46" height="46" rx="6"/>
       <rect x="156" y="156" width="46" height="46" rx="6"/>
       <rect x="206" y="156" width="46" height="46" rx="6"/>
       <rect x="256" y="156" width="46" height="46" rx="6"/>
-
-      <rect x="6" y="206" width="46" height="46" rx="6"/>
-      <rect x="56" y="206" width="46" height="46" rx="6"/>
+      <rect x="6"   y="206" width="46" height="46" rx="6"/>
+      <rect x="56"  y="206" width="46" height="46" rx="6"/>
       <rect x="106" y="206" width="46" height="46" rx="6"/>
       <rect x="156" y="206" width="46" height="46" rx="6"/>
       <rect x="206" y="206" width="46" height="46" rx="6"/>
       <rect x="256" y="206" width="46" height="46" rx="6"/>
-
-      <rect x="6" y="256" width="46" height="46" rx="6"/>
-      <rect x="56" y="256" width="46" height="46" rx="6"/>
+      <rect x="6"   y="256" width="46" height="46" rx="6"/>
+      <rect x="56"  y="256" width="46" height="46" rx="6"/>
       <rect x="106" y="256" width="46" height="46" rx="6"/>
       <rect x="156" y="256" width="46" height="46" rx="6"/>
       <rect x="206" y="256" width="46" height="46" rx="6"/>
       <rect x="256" y="256" width="46" height="46" rx="6"/>
     </g>
 
-    <!-- Cars: each cell is 50px wide. Cars padded by 4px inside. -->
-    <!-- Truck B (amber) — vertical, col 2, rows 0-2 (length 3) -->
-    <rect x="110" y="10" width="42" height="138" rx="8" fill="#fbbf24" stroke="#d97706" stroke-width="2.5"/>
+    <!-- Truck B (amber) — vertical, col 2 (x≈108), rows 0-2 (length 3) facing down -->
+    <g>
+      <rect x="113" y="7"   width="32" height="6"  rx="2" fill="#1f2937"/>
+      <rect x="113" y="143" width="32" height="6"  rx="2" fill="#1f2937"/>
+      <rect x="110" y="13"  width="38" height="132" rx="10" fill="#fbbf24" stroke="#92400e" stroke-width="3"/>
+      <rect x="118" y="100" width="22" height="34"  rx="5" fill="rgba(255,255,255,0.55)"/>
+      <circle cx="121" cy="143" r="4" fill="#fff8c8" stroke="#92400e" stroke-width="1"/>
+      <circle cx="137" cy="143" r="4" fill="#fff8c8" stroke="#92400e" stroke-width="1"/>
+    </g>
 
-    <!-- Car D (sky blue) — vertical, col 5, rows 0-1 (length 2) -->
-    <rect x="260" y="10" width="42" height="88" rx="8" fill="#0ea5e9" stroke="#0369a1" stroke-width="2.5"/>
+    <!-- Car D (sky) — vertical, col 5, rows 0-1 (length 2) facing down -->
+    <g>
+      <rect x="263" y="7"  width="32" height="6"  rx="2" fill="#1f2937"/>
+      <rect x="263" y="93" width="32" height="6"  rx="2" fill="#1f2937"/>
+      <rect x="260" y="13" width="38" height="82" rx="10" fill="#0ea5e9" stroke="#075985" stroke-width="3"/>
+      <rect x="268" y="60" width="22" height="24" rx="5" fill="rgba(255,255,255,0.55)"/>
+      <circle cx="271" cy="93" r="4" fill="#fff8c8" stroke="#075985" stroke-width="1"/>
+      <circle cx="287" cy="93" r="4" fill="#fff8c8" stroke="#075985" stroke-width="1"/>
+    </g>
 
-    <!-- Target car A (red) — horizontal, row 2, cols 0-1 (length 2) -->
-    <rect x="10" y="110" width="88" height="42" rx="8" fill="#ef4444" stroke="#b91c1c" stroke-width="2.5"/>
-    <text x="54" y="139" font-family="system-ui, sans-serif" font-weight="800" font-size="22" fill="#fff" text-anchor="middle">★</text>
+    <!-- Target car A (red) — horizontal, row 2 cols 0-1 (length 2) facing right -->
+    <g>
+      <rect x="7"   y="113" width="6"  height="32" rx="2" fill="#1f2937"/>
+      <rect x="93"  y="113" width="6"  height="32" rx="2" fill="#1f2937"/>
+      <rect x="13"  y="110" width="82" height="38" rx="10" fill="#ef4444" stroke="#7f1d1d" stroke-width="3"/>
+      <rect x="60"  y="118" width="24" height="22" rx="5" fill="rgba(255,255,255,0.55)"/>
+      <circle cx="93" cy="121" r="4" fill="#fff8c8" stroke="#7f1d1d" stroke-width="1"/>
+      <circle cx="93" cy="137" r="4" fill="#fff8c8" stroke="#7f1d1d" stroke-width="1"/>
+    </g>
 
-    <!-- Car E (violet) — vertical, col 4, rows 2-3 (length 2) -->
-    <rect x="210" y="110" width="42" height="88" rx="8" fill="#8b5cf6" stroke="#6d28d9" stroke-width="2.5"/>
+    <!-- Car E (violet) — vertical, col 4, rows 2-3 (length 2) facing up -->
+    <g>
+      <rect x="213" y="107" width="32" height="6"  rx="2" fill="#1f2937"/>
+      <rect x="213" y="193" width="32" height="6"  rx="2" fill="#1f2937"/>
+      <rect x="210" y="113" width="38" height="82" rx="10" fill="#8b5cf6" stroke="#4c1d95" stroke-width="3"/>
+      <rect x="218" y="124" width="22" height="24" rx="5" fill="rgba(255,255,255,0.55)"/>
+      <circle cx="221" cy="116" r="4" fill="#fff8c8" stroke="#4c1d95" stroke-width="1"/>
+      <circle cx="237" cy="116" r="4" fill="#fff8c8" stroke="#4c1d95" stroke-width="1"/>
+    </g>
 
-    <!-- Car G (pink) — horizontal, row 5, cols 0-1 (length 2) -->
-    <rect x="10" y="260" width="88" height="42" rx="8" fill="#ec4899" stroke="#be185d" stroke-width="2.5"/>
+    <!-- Truck F (orange) — horizontal, row 4 cols 2-4 (length 3) facing left -->
+    <g>
+      <rect x="107" y="213" width="6"  height="32" rx="2" fill="#1f2937"/>
+      <rect x="243" y="213" width="6"  height="32" rx="2" fill="#1f2937"/>
+      <rect x="113" y="210" width="132" height="38" rx="10" fill="#f97316" stroke="#7c2d12" stroke-width="3"/>
+      <rect x="120" y="218" width="34" height="22" rx="5" fill="rgba(255,255,255,0.55)"/>
+      <circle cx="118" cy="221" r="4" fill="#fff8c8" stroke="#7c2d12" stroke-width="1"/>
+      <circle cx="118" cy="237" r="4" fill="#fff8c8" stroke="#7c2d12" stroke-width="1"/>
+    </g>
 
-    <!-- Truck F (orange) — horizontal, row 4, cols 2-4 (length 3) -->
-    <rect x="110" y="210" width="138" height="42" rx="8" fill="#f97316" stroke="#c2410c" stroke-width="2.5"/>
-
-    <!-- Car H (teal) — vertical, col 5, rows 4-5 (length 2) -->
-    <rect x="260" y="210" width="42" height="88" rx="8" fill="#14b8a6" stroke="#0f766e" stroke-width="2.5"/>
+    <!-- Car G (pink) — horizontal, row 5 cols 0-1 (length 2) facing right -->
+    <g>
+      <rect x="7"   y="263" width="6"  height="32" rx="2" fill="#1f2937"/>
+      <rect x="93"  y="263" width="6"  height="32" rx="2" fill="#1f2937"/>
+      <rect x="13"  y="260" width="82" height="38" rx="10" fill="#ec4899" stroke="#831843" stroke-width="3"/>
+      <rect x="60"  y="268" width="24" height="22" rx="5" fill="rgba(255,255,255,0.55)"/>
+      <circle cx="93" cy="271" r="4" fill="#fff8c8" stroke="#831843" stroke-width="1"/>
+      <circle cx="93" cy="287" r="4" fill="#fff8c8" stroke="#831843" stroke-width="1"/>
+    </g>
   </g>
 
   <!-- Exit arrow on the right -->
