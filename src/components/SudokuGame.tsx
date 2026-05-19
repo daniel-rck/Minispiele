@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
+import { SudokuBestSchema, SudokuDifficultySchema } from '../lib/persistedSchemas';
 import {
-  SUDOKU_SIZE,
   conflictsAt,
   generatePuzzle,
   isComplete,
+  SUDOKU_SIZE,
   type SudokuCell,
   type SudokuDifficulty,
 } from '../lib/sudoku';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SudokuBestSchema, SudokuDifficultySchema } from '../lib/persistedSchemas';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const LABELS: Record<SudokuDifficulty, string> = {
   easy: 'Leicht',

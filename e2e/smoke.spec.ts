@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 const games: { path: string; title: RegExp }[] = [
   { path: '/memory', title: /Memory/i },

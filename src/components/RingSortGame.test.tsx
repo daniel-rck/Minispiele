@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import RingSortGame from './RingSortGame';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { expectNoA11yViolations } from '../test/a11y';
+import RingSortGame from './RingSortGame';
 
 beforeEach(() => {
   window.localStorage.clear();

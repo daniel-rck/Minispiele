@@ -1,20 +1,20 @@
 import { useDeferredValue, useMemo, useState } from 'react';
 import { Link } from 'react-router';
+import Badge from '../components/ui/Badge';
 import Card from '../components/ui/Card';
 import Chip from '../components/ui/Chip';
+import { ClockIcon, SparkleIcon } from '../components/ui/icons';
+import MascotIcon from '../components/ui/MascotIcon';
 import SearchInput from '../components/ui/SearchInput';
 import StarToggle from '../components/ui/StarToggle';
-import Badge from '../components/ui/Badge';
-import MascotIcon from '../components/ui/MascotIcon';
-import { ClockIcon, SparkleIcon } from '../components/ui/icons';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { HomeCategoryFilterSchema, type HomeCategoryFilter } from '../lib/crossGameSchemas';
 import { useFavorites } from '../hooks/useFavorites';
 import { useRecentGames } from '../hooks/useRecentGames';
-import { formatRelativeShort, isToday } from '../lib/relativeTime';
 import { BRAND_TAGLINE } from '../lib/brand';
-import { CATEGORIES, GAMES, findGameBySlug, type GameCard } from '../lib/gamesCatalog';
+import { STORAGE_KEYS } from '../lib/constants';
+import { type HomeCategoryFilter, HomeCategoryFilterSchema } from '../lib/crossGameSchemas';
+import { CATEGORIES, findGameBySlug, GAMES, type GameCard } from '../lib/gamesCatalog';
+import { formatRelativeShort, isToday } from '../lib/relativeTime';
+import { useLocalStorage } from '../lib/useLocalStorage';
 
 const NEW_GAME_ISSUE_URL =
   'https://github.com/daniel-rck/minispiele/issues/new?template=new-game.yml';

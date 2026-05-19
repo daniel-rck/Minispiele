@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { LIGHTS_SIZE, createInitialState, press, type LightsState } from '../lib/lightsOut';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { LightsBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { STORAGE_KEYS } from '../lib/constants';
+import { createInitialState, LIGHTS_SIZE, type LightsState, press } from '../lib/lightsOut';
+import { LightsBestSchema } from '../lib/persistedSchemas';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const DIFFICULTY: Record<'easy' | 'medium' | 'hard', number> = {
   easy: 4,

@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef } from 'react';
 
 type IconButtonVariant = 'ghost' | 'soft' | 'solid';
 type IconButtonSize = 'sm' | 'md' | 'lg';

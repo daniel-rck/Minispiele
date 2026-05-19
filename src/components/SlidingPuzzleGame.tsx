@@ -1,28 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
+import { isBetter } from '../lib/highscores';
 import {
+  EMPTY_SLIDING_HIGHSCORES,
+  type HighscoreEntry,
+  SlidingDifficultySchema,
+  SlidingHighscoresSchema,
+} from '../lib/persistedSchemas';
+import {
+  type ArrowDirection,
   createInitialState,
   moveByArrow,
   SLIDING_SIZE,
-  tryMove,
-  type ArrowDirection,
   type SlidingDifficulty,
   type SlidingState,
+  tryMove,
 } from '../lib/slidingPuzzle';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import {
-  EMPTY_SLIDING_HIGHSCORES,
-  SlidingDifficultySchema,
-  SlidingHighscoresSchema,
-  type HighscoreEntry,
-} from '../lib/persistedSchemas';
-import { isBetter } from '../lib/highscores';
-import { useWakeLock } from '../hooks/useWakeLock';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const difficultyLabels: Record<SlidingDifficulty, string> = {
   easy: 'Leicht (3×3)',

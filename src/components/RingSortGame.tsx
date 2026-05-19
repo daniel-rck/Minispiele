@@ -1,32 +1,32 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
+import { applyHighscore } from '../lib/highscores';
+import {
+  DifficultySchema,
+  EMPTY_HIGHSCORES,
+  type HighscoreEntry,
+  HighscoresSchema,
+  MixSchema,
+} from '../lib/persistedSchemas';
 import {
   createInitialState,
+  type Difficulty,
+  type GameState,
+  type Move,
   pegCapacity,
   selectPeg,
   solve,
   tryMove,
   undoMove,
-  type Difficulty,
-  type GameState,
-  type Move,
 } from '../lib/ringSort';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import Peg from './Peg';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import {
-  DifficultySchema,
-  EMPTY_HIGHSCORES,
-  HighscoresSchema,
-  MixSchema,
-  type HighscoreEntry,
-} from '../lib/persistedSchemas';
-import { applyHighscore } from '../lib/highscores';
-import { useWakeLock } from '../hooks/useWakeLock';
+import Peg from './Peg';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const difficultyLabels: Record<Difficulty, string> = {
   easy: 'Leicht',

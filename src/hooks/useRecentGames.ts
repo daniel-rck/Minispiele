@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { STORAGE_KEYS } from '../lib/constants';
-import { RecentGamesSchema, type RecentGames, type RecentGameEntry } from '../lib/crossGameSchemas';
+import { type RecentGameEntry, type RecentGames, RecentGamesSchema } from '../lib/crossGameSchemas';
 import { useLocalStorage } from '../lib/useLocalStorage';
 
 const MAX_RECENT = 6;

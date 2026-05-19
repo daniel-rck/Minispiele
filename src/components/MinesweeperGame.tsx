@@ -1,27 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import {
-  DIFFICULTY,
   createInitialState,
+  DIFFICULTY,
+  type MinesweeperState,
   reveal,
   toggleFlag,
-  type MinesweeperState,
 } from '../lib/minesweeper';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { useLocalStorage } from '../lib/useLocalStorage';
 import {
   EMPTY_MINES_HIGHSCORES,
-  MinesDifficultySchema,
-  MinesHighscoresSchema,
   type MinesDifficulty,
+  MinesDifficultySchema,
   type MinesEntry,
+  MinesHighscoresSchema,
 } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
+import { formatDuration, useGameTimer } from '../lib/useGameTimer';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const NUMBER_COLOR: Readonly<Record<number, string>> = {
   1: 'text-blue-600 dark:text-blue-400',

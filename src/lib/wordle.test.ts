@@ -1,14 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   appendLetter,
   backspace,
   createInitialState,
   isValidWord,
   keyboardStatus,
+  MAX_GUESSES,
   pickRandomWord,
   scoreGuess,
   submitGuess,
-  MAX_GUESSES,
   WORD_LENGTH,
 } from './wordle';
 

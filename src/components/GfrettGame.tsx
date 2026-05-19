@@ -1,32 +1,32 @@
 import {
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
 } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
-  LEVELS,
-  loadLevel,
-  slide,
-  undo,
-  shuffle,
-  expandSidebar,
-  maxSlide,
   type Block,
   type Cell,
   type Color,
+  expandSidebar,
   type GameState,
+  LEVELS,
+  loadLevel,
+  maxSlide,
+  shuffle,
+  slide,
+  undo,
 } from '../lib/gfrett';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
 import { GfrettBestSchema, GfrettLevelSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const COLOR_LABEL: Record<Color | 'joker', string> = {
   red: 'roter',

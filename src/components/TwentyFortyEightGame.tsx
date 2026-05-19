@@ -1,25 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
-  GRID_SIZE,
+  TwentyFortyEightBestSchema,
+  type TwentyFortyEightState,
+  TwentyFortyEightStateSchema,
+} from '../lib/persistedSchemas';
+import {
   createInitialGrid,
+  type Direction,
+  GRID_SIZE,
   hasWinningTile,
   isGameOver,
   slide,
   spawnRandom,
-  type Direction,
 } from '../lib/twentyFortyEight';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import {
-  TwentyFortyEightBestSchema,
-  TwentyFortyEightStateSchema,
-  type TwentyFortyEightState,
-} from '../lib/persistedSchemas';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const TILE_COLORS: Record<number, string> = {
   0: 'bg-slate-200 dark:bg-slate-800',

@@ -1,22 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  createInitialState,
-  queueDirection,
-  tick,
-  tickIntervalMs,
-  type Direction,
-  type SnakeState,
-} from '../lib/snake';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SnakeBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
+import { STORAGE_KEYS } from '../lib/constants';
+import { SnakeBestSchema } from '../lib/persistedSchemas';
+import {
+  createInitialState,
+  type Direction,
+  queueDirection,
+  type SnakeState,
+  tick,
+  tickIntervalMs,
+} from '../lib/snake';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const COLS = 20;
 const ROWS = 20;

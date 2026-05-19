@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Hyperfokus', () => {
   test('tap increments score and opens upgrade sheet', async ({ page }) => {

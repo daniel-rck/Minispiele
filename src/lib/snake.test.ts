@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { createInitialState, queueDirection, spawnFood, tick, tickIntervalMs } from './snake';
 
 function seq(values: number[]): () => number {

@@ -1,27 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
+import { isBetter } from '../lib/highscores';
 import {
   createInitialState,
   flipCard,
-  resolvePicks,
   MEMORY_COLS,
   type MemoryDifficulty,
   type MemoryState,
+  resolvePicks,
 } from '../lib/memory';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { useLocalStorage } from '../lib/useLocalStorage';
 import {
   EMPTY_MEMORY_HIGHSCORES,
+  type HighscoreEntry,
   MemoryDifficultySchema,
   MemoryHighscoresSchema,
-  type HighscoreEntry,
 } from '../lib/persistedSchemas';
-import { isBetter } from '../lib/highscores';
-import { useWakeLock } from '../hooks/useWakeLock';
+import { formatDuration, useGameTimer } from '../lib/useGameTimer';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const difficultyLabels: Record<MemoryDifficulty, string> = {
   easy: 'Leicht (6 Paare)',

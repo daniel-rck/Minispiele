@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { SchulteBestSchema, SchulteSizeSchema } from '../lib/persistedSchemas';
 import { formatDuration } from '../lib/useGameTimer';
-import { useVibration } from '../hooks/useVibration';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
 

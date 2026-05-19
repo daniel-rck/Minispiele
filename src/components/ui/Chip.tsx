@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef } from 'react';
 import type { CategoryAccent } from './Card';
 
 interface ChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {

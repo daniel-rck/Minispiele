@@ -3,8 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import AppShell from './components/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAUpdatePrompt from './components/PWAUpdatePrompt';
-import { SettingsProvider, useSettings } from './lib/useSettings';
 import { setAudioSetting } from './lib/audioSettings';
+import { SettingsProvider, useSettings } from './lib/useSettings';
 
 const Home = lazy(() => import('./pages/Home'));
 const RingSort = lazy(() => import('./pages/RingSort'));

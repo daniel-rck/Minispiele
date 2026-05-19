@@ -1,23 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
+import { EMPTY_WORDLE_STATS, type WordleStats, WordleStatsSchema } from '../lib/persistedSchemas';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import {
   appendLetter,
   backspace,
   createInitialState,
   keyboardStatus,
+  type LetterState,
+  MAX_GUESSES,
   pickRandomWord,
   submitGuess,
-  type LetterState,
-  type WordleState,
-  MAX_GUESSES,
   WORD_LENGTH,
+  type WordleState,
 } from '../lib/wordle';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { EMPTY_WORDLE_STATS, WordleStatsSchema, type WordleStats } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 import WordleKeyboard from './WordleKeyboard';
 
 function cellClass(state: LetterState | undefined, filled: boolean): string {

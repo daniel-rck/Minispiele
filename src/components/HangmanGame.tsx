@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { pickRandomHangmanWord } from '../lib/hangmanWords';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
+import { pickRandomHangmanWord } from '../lib/hangmanWords';
 import {
   EMPTY_HANGMAN_STATS,
-  HangmanStatsSchema,
   type HangmanStats,
+  HangmanStatsSchema,
 } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const MAX_MISTAKES = 10;

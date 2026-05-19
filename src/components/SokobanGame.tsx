@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  LEVELS,
-  isSolved,
-  loadLevel,
-  move,
-  undo,
-  type SokobanDirection,
-  type SokobanState,
-} from '../lib/sokoban';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { SokobanBestSchema, SokobanLevelSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import {
+  isSolved,
+  LEVELS,
+  loadLevel,
+  move,
+  type SokobanDirection,
+  type SokobanState,
+  undo,
+} from '../lib/sokoban';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 export default function SokobanGame() {
   const [levelIdx, setLevelIdx] = useLocalStorage<number>(

@@ -1,33 +1,33 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
+import { isBetter } from '../lib/highscores';
+import {
+  EMPTY_TRAFFIC_JAM_HIGHSCORES,
+  type HighscoreEntry,
+  TrafficJamDifficultySchema,
+  TrafficJamHighscoresSchema,
+} from '../lib/persistedSchemas';
 import {
   BOARD_SIZE,
+  type Car,
   createInitialState,
+  type Direction,
   driveCar,
   EXIT_ROW,
   PUZZLES,
   pickRandomPuzzleIndex,
-  type Car,
-  type Direction,
   type TrafficJamDifficulty,
   type TrafficJamState,
 } from '../lib/trafficJam';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import AriaLive from './AriaLive';
-import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import {
-  EMPTY_TRAFFIC_JAM_HIGHSCORES,
-  TrafficJamDifficultySchema,
-  TrafficJamHighscoresSchema,
-  type HighscoreEntry,
-} from '../lib/persistedSchemas';
-import { isBetter } from '../lib/highscores';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { useVibration } from '../hooks/useVibration';
+import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const difficultyLabels: Record<TrafficJamDifficulty, string> = {
   easy: 'Leicht',

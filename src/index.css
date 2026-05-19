@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Tailwind v4 dark variant tied to `.dark` class (set synchronously by SettingsProvider in src/lib/useSettings.ts) */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -6,11 +6,11 @@
 @theme {
   /* Typography — rounded system stack with Nunito as enhancement when loaded */
   --font-sans:
-    'Nunito', 'ui-rounded', 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', system-ui, -apple-system,
-    'Segoe UI', Roboto, sans-serif;
+    "Nunito", "ui-rounded", "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
   --font-display:
-    'Nunito', 'ui-rounded', 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', system-ui, -apple-system,
-    'Segoe UI', Roboto, sans-serif;
+    "Nunito", "ui-rounded", "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
 
   /* Primary — turquoise/cyan (differentiates from Duolingo green, avoids Snake/Simon overlap) */
   --color-primary-50: oklch(0.97 0.02 195);
@@ -155,7 +155,7 @@ body {
 
 /* Self-host Nunito would be ideal for PWA offline; use Google Fonts as enhancement.
    System fallback (ui-rounded / SF Pro Rounded) keeps the playful feel even offline. */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap");
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -168,14 +168,14 @@ body {
 }
 
 button,
-[role='button'],
+[role="button"],
 a {
   touch-action: manipulation;
 }
 
 @media (pointer: coarse) {
   button,
-  [role='button'] {
+  [role="button"] {
     min-height: 44px;
   }
 }
@@ -185,16 +185,16 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
-[role='button']:focus-visible,
-[role='switch']:focus-visible {
+[role="button"]:focus-visible,
+[role="switch"]:focus-visible {
   outline: 3px solid var(--color-primary-400);
   outline-offset: 2px;
   border-radius: var(--radius-md);
 }
 
 /* Hide native clear cross in WebKit/Blink for type="search" — we render our own */
-input[type='search']::-webkit-search-cancel-button,
-input[type='search']::-webkit-search-decoration {
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
   appearance: none;
   -webkit-appearance: none;
 }
