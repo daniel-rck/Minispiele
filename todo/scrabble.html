@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solo-Scrabble</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px;align-items:center}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4;cursor:default}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center}
+.board{display:inline-grid;grid-template-columns:repeat(15,28px);gap:1px;background:#0a0a1a}
+.bcell{width:28px;height:28px;display:flex;justify-content:center;align-items:center;font-size:.7rem;font-weight:bold;cursor:pointer;position:relative;border-radius:2px}
+.bcell.empty{background:#16213e}
+.bcell.tw{background:#e74c3c;color:#fff;font-size:.5rem}
+.bcell.dw{background:#e91e63;color:#fff;font-size:.5rem}
+.bcell.tl{background:#3498db;color:#fff;font-size:.5rem}
+.bcell.dl{background:#00bcd4;color:#fff;font-size:.5rem}
+.bcell.center{background:#c9b458;color:#1a1a2e;font-size:.5rem}
+.bcell.placed{background:#c9a84c;color:#1a1a2e;font-weight:bold;font-size:.85rem}
+.bcell.temp{background:#e8d78a;color:#1a1a2e;font-weight:bold;font-size:.85rem;border:2px solid #c9b458}
+.bcell.selected{box-shadow:inset 0 0 0 2px #c9b458}
+.hand{display:flex;gap:6px;justify-content:center;margin:8px 0}
+.tile{width:36px;height:36px;background:#c9a84c;color:#1a1a2e;border-radius:4px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:bold;cursor:pointer;transition:all .15s;font-size:1rem;position:relative}
+.tile:hover{transform:translateY(-4px)}
+.tile.selected{border:2px solid #fff;transform:translateY(-6px)}
+.tile .pts{font-size:.5rem;position:absolute;bottom:1px;right:3px}
+.controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.stats{font-size:.85rem;color:#888}
+.stats .val{color:#c9b458}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>SOLO-SCRABBLE</h1>
+<p id="msg">Lege Buchstaben aufs Brett. Klicke Buchstabe, dann Feld.</p>
+<div class="board" id="board"></div>
+<div class="hand" id="hand"></div>
+<div class="controls">
+<button class="btn" onclick="submitWord()">Wort legen</button>
+<button class="btn" onclick="clearTemp()">Zurücknehmen</button>
+<button class="btn" onclick="skipTurn()">Passen</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+<p class="stats">Punkte: <span class="val" id="score">0</span> | Restliche Steine: <span class="val" id="remaining">100</span> | Highscore: <span class="val" id="best">0</span></p>
+
+<script>
+const LETTER_DIST={A:[5,1],B:[2,3],C:[2,4],D:[4,1],E:[15,1],F:[2,4],G:[3,2],H:[4,2],I:[6,1],J:[1,6],K:[2,4],L:[3,2],M:[4,3],N:[9,1],O:[3,2],P:[1,4],Q:[1,10],R:[6,1],S:[7,1],T:[6,1],U:[6,1],V:[1,6],W:[1,3],X:[1,8],Y:[1,10],Z:[1,3]};
+
+const BONUS_MAP=new Array(225).fill('');
+// TW
+[0,7,14,105,119,210,217,224].forEach(i=>BONUS_MAP[i]='tw');
+// DW
+[16,28,32,42,48,64,160,176,182,192,196,208].forEach(i=>BONUS_MAP[i]='dw');
+// TL
+[20,24,76,80,84,88,136,140,144,148,200,204].forEach(i=>BONUS_MAP[i]='tl');
+// DL
+[3,11,36,38,45,52,59,92,96,98,102,108,116,122,126,128,132,165,172,179,186,188,213,221].forEach(i=>BONUS_MAP[i]='dl');
+BONUS_MAP[112]='center';
+
+const WORDS=new Set(['HAUS','HUND','KATZE','BAUM','AUTO','BROT','MILCH','WASSER','GARTEN','FISCH','TISCH','STUHL','LAMPE','BODEN','DACH','WAND','TUER','BETT','SOFA','REGAL','KUECHE','BAD','SCHRANK','SPIEGEL','FENSTER','TREPPE','KELLER','BLUME','ROSE','TOPF','TASSE','GLAS','MESSER','GABEL','LOEFFEL','TELLER','KANNE','KORB','DOSE','SACK','KISTE','EIMER','BESEN','TUCH','SEIFE','KAMM','NADEL','FADEN','WOLLE','STOFF','LEDER','HOLZ','STEIN','SAND','ERDE','FEUER','LUFT','WIND','SONNE','MOND','STERN','WOLKE','REGEN','SCHNEE','NEBEL','FROST','HITZE','KALT','WARM','HEISS','NASS','GRUEN','BLAU','GELB','WEISS','SCHWARZ','BRAUN','GRAU','HELL','DUNKEL','LANG','KURZ','DICK','DUENN','GROSS','KLEIN','BREIT','SCHMAL','RUND','ECKIG','FEST','WEICH','HART','GLATT','RAUH','VOLL','LEER','OFFEN','OBEN','UNTEN','LINKS','RECHTS','VORN','HINTEN','INNEN','AUSSEN','HIER','DORT','NAHE','FERN','FRUEH','SPAET','JETZT','BALD','IMMER','STROM','KRAFT','MACHT','KRIEG','FRIEDE','LIEBE','HASS','FREUDE','ANGST','SORGE','GLUECK','PECH','RUHE','LAUT','LEISE','SCHNELL','LAHM','STARK','WILD','ZAHM','REICH','ARM','KLUG','DUMM','JUNG','NETT','BOESE','FLEISS','STOLZ','TREUE','EHRE','RECHT','PFLICHT','REGEL','GESETZ','URTEIL','STRAFE','WAHL','STIMME','PARTEI','STAAT','VOLK','LAND','STADT','KREIS','PLATZ','MARKT','LADEN','PREIS','GELD','MUENZE','BANK','KONTO','ZAHL','SUMME','PLUS','MINUS','GLEICH','WERT','MASS','TEIL','STUECK','MENGE','ANTEIL','GRUPPE','REIHE','FOLGE','LINIE','PUNKT','STRICH','BOGEN','KREUZ','ZEICHEN','BILD','FARBE','FORM','PLAN','KARTE','BRIEF','BLATT','SEITE','TEXT','WORT','SATZ','SPRACHE','SCHRIFT','LESEN','NOTE','KLANG','LIED','TANZ','SPIEL','SPORT','BALL','LAUF','SPRUNG','WURF','STOSS','SCHLAG','KAMPF','SIEG','ZIEL','START','BAHN','STRECKE']);
+
+let board,hand,bag,selectedTile,tempPlacements,score,gameOver;
+
+function createBag(){
+  const b=[];
+  for(const[letter,[count,pts]]of Object.entries(LETTER_DIST)){
+    for(let i=0;i<count;i++)b.push({letter,pts});
+  }
+  return b.sort(()=>Math.random()-.5);
+}
+
+function newGame(){
+  board=new Array(225).fill(null);
+  bag=createBag();
+  hand=[];
+  for(let i=0;i<7&&bag.length;i++)hand.push(bag.pop());
+  selectedTile=null;tempPlacements=[];score=0;gameOver=false;
+  document.getElementById('score').textContent=0;
+  document.getElementById('msg').textContent='Lege dein erstes Wort durch die Mitte.';
+  render();
+}
+
+function render(){
+  document.getElementById('remaining').textContent=bag.length;
+  const brd=document.getElementById('board');
+  brd.innerHTML='';
+  for(let i=0;i<225;i++){
+    const cell=document.createElement('div');
+    const r=Math.floor(i/15),c=i%15;
+    const temp=tempPlacements.find(t=>t.pos===i);
+    if(board[i]){
+      cell.className='bcell placed';
+      cell.textContent=board[i].letter;
+    } else if(temp){
+      cell.className='bcell temp';
+      cell.textContent=temp.tile.letter;
+      cell.onclick=()=>{hand.push(temp.tile);tempPlacements=tempPlacements.filter(t=>t!==temp);render();};
+    } else {
+      const bonus=BONUS_MAP[i];
+      cell.className='bcell '+(bonus||'empty');
+      const labels={tw:'3W',dw:'2W',tl:'3B',dl:'2B',center:'★'};
+      if(labels[bonus])cell.textContent=labels[bonus];
+      cell.onclick=()=>placeOnBoard(i);
+    }
+    brd.appendChild(cell);
+  }
+  const handDiv=document.getElementById('hand');
+  handDiv.innerHTML='';
+  hand.forEach((tile,i)=>{
+    const el=document.createElement('div');
+    el.className='tile'+(selectedTile===i?' selected':'');
+    el.innerHTML=`${tile.letter}<span class="pts">${tile.pts}</span>`;
+    el.onclick=()=>{selectedTile=selectedTile===i?null:i;render();};
+    handDiv.appendChild(el);
+  });
+  const best=localStorage.getItem('scrabble-best');
+  document.getElementById('best').textContent=best||0;
+}
+
+function placeOnBoard(pos){
+  if(selectedTile===null||board[pos])return;
+  const tile=hand.splice(selectedTile,1)[0];
+  tempPlacements.push({pos,tile});
+  selectedTile=null;
+  render();
+}
+
+function clearTemp(){
+  for(const t of tempPlacements)hand.push(t.tile);
+  tempPlacements=[];selectedTile=null;
+  render();
+}
+
+function submitWord(){
+  if(tempPlacements.length===0)return;
+  // Validate: all in one row or column
+  const positions=tempPlacements.map(t=>t.pos).sort((a,b)=>a-b);
+  const rows=positions.map(p=>Math.floor(p/15));
+  const cols=positions.map(p=>p%15);
+  const isRow=new Set(rows).size===1;
+  const isCol=new Set(cols).size===1;
+  if(!isRow&&!isCol){document.getElementById('msg').textContent='Buchstaben müssen in einer Reihe/Spalte liegen!';return;}
+
+  // Check first word goes through center
+  const hasPlaced=board.some(c=>c!==null);
+  if(!hasPlaced&&!positions.includes(112)){document.getElementById('msg').textContent='Erstes Wort muss durch die Mitte!';return;}
+
+  // Place temporarily
+  for(const t of tempPlacements)board[t.pos]=t.tile;
+
+  // Get formed word
+  let word='',wordPositions=[];
+  if(isRow){
+    const r=rows[0];
+    let c=Math.min(...cols);
+    while(c>0&&board[r*15+c-1])c--;
+    while(c<15&&board[r*15+c]){wordPositions.push(r*15+c);word+=board[r*15+c].letter;c++;}
+  } else {
+    const c=cols[0];
+    let r=Math.min(...rows);
+    while(r>0&&board[(r-1)*15+c])r--;
+    while(r<15&&board[r*15+c]){wordPositions.push(r*15+c);word+=board[r*15+c].letter;r++;}
+  }
+
+  if(word.length<2){
+    for(const t of tempPlacements)board[t.pos]=null;
+    document.getElementById('msg').textContent='Wort muss mindestens 2 Buchstaben haben!';return;
+  }
+
+  // Check adjacency (after first word)
+  if(hasPlaced){
+    const touchesExisting=positions.some(p=>{
+      const r=Math.floor(p/15),c=p%15;
+      return[[r-1,c],[r+1,c],[r,c-1],[r,c+1]].some(([nr,nc])=>{
+        if(nr<0||nr>=15||nc<0||nc>=15)return false;
+        const ni=nr*15+nc;
+        return board[ni]&&!positions.includes(ni);
+      });
+    });
+    if(!touchesExisting){
+      for(const t of tempPlacements)board[t.pos]=null;
+      document.getElementById('msg').textContent='Wort muss an bestehendes Wort anschließen!';return;
+    }
+  }
+
+  // Calculate score
+  let wordScore=0,wordMult=1;
+  for(const pos of wordPositions){
+    let letterScore=board[pos].pts;
+    const isNew=positions.includes(pos);
+    if(isNew){
+      const bonus=BONUS_MAP[pos];
+      if(bonus==='dl')letterScore*=2;
+      if(bonus==='tl')letterScore*=3;
+      if(bonus==='dw')wordMult*=2;
+      if(bonus==='tw')wordMult*=3;
+    }
+    wordScore+=letterScore;
+  }
+  wordScore*=wordMult;
+  if(tempPlacements.length===7)wordScore+=50;// bonus
+
+  score+=wordScore;
+  document.getElementById('score').textContent=score;
+  document.getElementById('msg').textContent=`"${word}" = ${wordScore} Punkte!`;
+
+  tempPlacements=[];
+  // draw new tiles
+  while(hand.length<7&&bag.length)hand.push(bag.pop());
+  if(hand.length===0){
+    gameOver=true;
+    const best=parseInt(localStorage.getItem('scrabble-best')||'0');
+    if(score>best)localStorage.setItem('scrabble-best',score);
+    document.getElementById('msg').textContent=`Spiel vorbei! ${score} Punkte!`;
+  }
+  selectedTile=null;
+  render();
+}
+
+function skipTurn(){
+  clearTemp();
+  while(hand.length<7&&bag.length)hand.push(bag.pop());
+  if(bag.length===0&&hand.length===0){
+    gameOver=true;
+    const best=parseInt(localStorage.getItem('scrabble-best')||'0');
+    if(score>best)localStorage.setItem('scrabble-best',score);
+  }
+  render();
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Scrabble</h2><p>Lege Buchstabensteine auf das Brett, um Wörter zu bilden. Jeder Buchstabe hat einen Punktwert.<br><br><b>Regeln:</b> Wörter müssen an bestehende Buchstaben angelegt werden (außer dem ersten Zug). Premium-Felder multiplizieren Buchstaben- oder Wortwerte.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

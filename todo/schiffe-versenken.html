@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schiffe versenken</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 12px; user-select: none; padding: 20px; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  .boards { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+  .board-wrap { text-align: center; }
+  .board-wrap h3 { color: #c9b458; margin-bottom: 6px; font-size: 0.9rem; letter-spacing: 1px; }
+  table { border-collapse: collapse; }
+  td { width: 32px; height: 32px; text-align: center; vertical-align: middle; border: 1px solid #0f3460; font-size: 0.7rem; }
+  td.header { border: none; color: #888; font-weight: bold; font-size: 0.7rem; }
+  td.water { background: #16213e; cursor: pointer; }
+  td.water:hover { background: #1a2a5e; }
+  td.hit { background: #e74c3c; color: #fff; font-weight: bold; }
+  td.miss { background: #2a2a4e; color: #555; }
+  td.ship { background: #0f3460; }
+  td.sunk { background: #8b0000; }
+  td.own-water { background: #16213e; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1.1rem; min-height: 1.5em; text-align: center; }
+  .legend { display: flex; gap: 14px; font-size: 0.75rem; color: #888; }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .legend .box { width: 14px; height: 14px; border-radius: 2px; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+  .ship-list { font-size: 0.75rem; color: #888; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .ship-list .sunk-ship { text-decoration: line-through; color: #e74c3c; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>SCHIFFE VERSENKEN</h1>
+<div class="controls"><button onclick="newGame()">Neues Spiel</button></div>
+<p id="msg">Klicke auf das gegnerische Feld zum Schießen</p>
+<div class="boards">
+  <div class="board-wrap">
+    <h3>GEGNER</h3>
+    <div id="enemy-board"></div>
+    <div id="enemy-ships" class="ship-list"></div>
+  </div>
+  <div class="board-wrap">
+    <h3>DEIN FELD</h3>
+    <div id="player-board"></div>
+    <div id="player-ships" class="ship-list"></div>
+  </div>
+</div>
+<div class="legend">
+  <span><div class="box" style="background:#16213e;border:1px solid #0f3460;"></div> Wasser</span>
+  <span><div class="box" style="background:#e74c3c;"></div> Treffer</span>
+  <span><div class="box" style="background:#2a2a4e;"></div> Daneben</span>
+  <span><div class="box" style="background:#8b0000;"></div> Versenkt</span>
+</div>
+
+<script>
+const SIZE = 10;
+const SHIPS = [
+  { name: 'Flugzeugträger', size: 5 },
+  { name: 'Schlachtschiff', size: 4 },
+  { name: 'Kreuzer', size: 3 },
+  { name: 'U-Boot', size: 3 },
+  { name: 'Zerstörer', size: 2 },
+];
+const LETTERS = 'ABCDEFGHIJ';
+
+let playerGrid, enemyGrid, playerShips, enemyShips;
+let playerTurn, gameOver;
+let aiHits = [], aiMode = 'hunt', aiTarget = null, aiDir = null;
+
+function createGrid() { return Array.from({ length: SIZE }, () => Array(SIZE).fill('water')); }
+
+function canPlace(grid, x, y, size, horiz) {
+  for (let i = 0; i < size; i++) {
+    const cx = horiz ? x + i : x;
+    const cy = horiz ? y : y + i;
+    if (cx >= SIZE || cy >= SIZE) return false;
+    if (grid[cy][cx] !== 'water') return false;
+  }
+  return true;
+}
+
+function placeShip(grid, ships, shipDef) {
+  let placed = false;
+  while (!placed) {
+    const horiz = Math.random() > 0.5;
+    const x = Math.floor(Math.random() * SIZE);
+    const y = Math.floor(Math.random() * SIZE);
+    if (canPlace(grid, x, y, shipDef.size, horiz)) {
+      const cells = [];
+      for (let i = 0; i < shipDef.size; i++) {
+        const cx = horiz ? x + i : x;
+        const cy = horiz ? y : y + i;
+        grid[cy][cx] = 'ship';
+        cells.push({ x: cx, y: cy });
+      }
+      ships.push({ ...shipDef, cells, sunk: false });
+      placed = true;
+    }
+  }
+}
+
+function newGame() {
+  playerGrid = createGrid();
+  enemyGrid = createGrid();
+  playerShips = [];
+  enemyShips = [];
+  playerTurn = true;
+  gameOver = false;
+  aiHits = [];
+  aiMode = 'hunt';
+  aiTarget = null;
+  aiDir = null;
+
+  for (const s of SHIPS) {
+    placeShip(playerGrid, playerShips, s);
+    placeShip(enemyGrid, enemyShips, s);
+  }
+
+  document.getElementById('msg').textContent = 'Klicke auf das gegnerische Feld zum Schießen';
+  render();
+}
+
+function checkSunk(ships, grid) {
+  for (const s of ships) {
+    if (s.sunk) continue;
+    if (s.cells.every(c => grid[c.y][c.x] === 'hit')) {
+      s.sunk = true;
+      s.cells.forEach(c => grid[c.y][c.x] = 'sunk');
+      return s;
+    }
+  }
+  return null;
+}
+
+function allSunk(ships) { return ships.every(s => s.sunk); }
+
+function playerShoot(x, y) {
+  if (!playerTurn || gameOver) return;
+  if (enemyGrid[y][x] === 'hit' || enemyGrid[y][x] === 'miss' || enemyGrid[y][x] === 'sunk') return;
+
+  if (enemyGrid[y][x] === 'ship') {
+    enemyGrid[y][x] = 'hit';
+    const sunk = checkSunk(enemyShips, enemyGrid);
+    if (sunk) document.getElementById('msg').textContent = `${sunk.name} versenkt!`;
+    else document.getElementById('msg').textContent = 'Treffer!';
+  } else {
+    enemyGrid[y][x] = 'miss';
+    document.getElementById('msg').textContent = 'Daneben!';
+  }
+
+  if (allSunk(enemyShips)) {
+    gameOver = true;
+    document.getElementById('msg').textContent = 'Du hast gewonnen!';
+    render();
+    return;
+  }
+
+  playerTurn = false;
+  render();
+  setTimeout(aiShoot, 600);
+}
+
+function aiShoot() {
+  if (gameOver) return;
+  let x, y;
+
+  if (aiMode === 'target' && aiHits.length > 0) {
+    // Try adjacent to hits
+    const dirs = [[0,-1],[0,1],[-1,0],[1,0]];
+    let found = false;
+    for (const hit of aiHits) {
+      for (const [dx, dy] of dirs) {
+        const nx = hit.x + dx, ny = hit.y + dy;
+        if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE) {
+          if (playerGrid[ny][nx] === 'water' || playerGrid[ny][nx] === 'ship') {
+            x = nx; y = ny; found = true; break;
+          }
+        }
+      }
+      if (found) break;
+    }
+    if (!found) { aiMode = 'hunt'; aiHits = []; }
+  }
+
+  if (aiMode === 'hunt' || x === undefined) {
+    do {
+      x = Math.floor(Math.random() * SIZE);
+      y = Math.floor(Math.random() * SIZE);
+    } while (playerGrid[y][x] !== 'water' && playerGrid[y][x] !== 'ship');
+  }
+
+  if (playerGrid[y][x] === 'ship') {
+    playerGrid[y][x] = 'hit';
+    aiHits.push({ x, y });
+    aiMode = 'target';
+    const sunk = checkSunk(playerShips, playerGrid);
+    if (sunk) {
+      aiHits = aiHits.filter(h => !sunk.cells.some(c => c.x === h.x && c.y === h.y));
+      if (aiHits.length === 0) aiMode = 'hunt';
+    }
+  } else {
+    playerGrid[y][x] = 'miss';
+  }
+
+  if (allSunk(playerShips)) {
+    gameOver = true;
+    document.getElementById('msg').textContent = 'Der Computer hat gewonnen!';
+    render();
+    return;
+  }
+
+  playerTurn = true;
+  render();
+}
+
+function renderBoard(grid, containerId, isEnemy, ships) {
+  let html = '<table>';
+  html += '<tr><td class="header"></td>';
+  for (let c = 0; c < SIZE; c++) html += `<td class="header">${c + 1}</td>`;
+  html += '</tr>';
+
+  for (let r = 0; r < SIZE; r++) {
+    html += `<tr><td class="header">${LETTERS[r]}</td>`;
+    for (let c = 0; c < SIZE; c++) {
+      const cell = grid[r][c];
+      let cls = 'own-water';
+      let content = '';
+
+      if (cell === 'hit') { cls = 'hit'; content = 'X'; }
+      else if (cell === 'miss') { cls = 'miss'; content = '.'; }
+      else if (cell === 'sunk') { cls = 'sunk'; content = 'X'; }
+      else if (isEnemy) { cls = 'water'; }
+      else if (cell === 'ship') { cls = 'ship'; }
+
+      const onclick = isEnemy && cls === 'water' ? ` onclick="playerShoot(${c},${r})"` : '';
+      html += `<td class="${cls}"${onclick}>${content}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function renderShipList(ships, containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = ships.map(s =>
+    `<span class="${s.sunk ? 'sunk-ship' : ''}">${s.name}(${s.size})</span>`
+  ).join('');
+}
+
+function render() {
+  renderBoard(enemyGrid, 'enemy-board', true, enemyShips);
+  renderBoard(playerGrid, 'player-board', false, playerShips);
+  renderShipList(enemyShips, 'enemy-ships');
+  renderShipList(playerShips, 'player-ships');
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Schiffe versenken</h2><p>Platziere deine Schiffe und finde dann die gegnerischen Schiffe durch gezieltes Schießen auf das Raster.<br><br><b>Steuerung:</b> Klicke auf das gegnerische Feld zum Schießen. Treffer = rot, Wasser = blau.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

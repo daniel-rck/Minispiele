@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rohre drehen</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+canvas{border-radius:8px;cursor:pointer}
+#msg{color:#c9b458;font-weight:bold;font-size:1.05rem;min-height:1.5em;text-align:center}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+.controls label{color:#888;font-size:.85rem}
+.controls select{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 6px}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>ROHRE DREHEN</h1>
+<div class="controls">
+<label>Größe: <select id="sel-size" onchange="newGame()"><option value="5">5x5</option><option value="7" selected>7x7</option><option value="9">9x9</option></select></label>
+<button class="btn" onclick="newGame()">Neues Rätsel</button>
+</div>
+<p id="msg">Klicke auf Rohre zum Drehen. Verbinde Start und Ziel!</p>
+<canvas id="c"></canvas>
+<p id="info">Züge: <span class="val" id="moves">0</span></p>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+// Pipe types: connections as [top,right,bottom,left]
+// straight: [1,0,1,0], curve: [1,1,0,0], T: [1,1,1,0], cross: [1,1,1,1]
+let N=7,CS,grid,solution,moveCount,gameOver;
+
+function newGame(){
+  N=parseInt(document.getElementById('sel-size').value);
+  CS=Math.min(70,Math.floor(Math.min(window.innerWidth-40,560)/N));
+  canvas.width=N*CS;canvas.height=N*CS;
+  moveCount=0;gameOver=false;
+  document.getElementById('moves').textContent=0;
+  document.getElementById('msg').textContent='Klicke auf Rohre zum Drehen. Verbinde alles!';
+  generatePuzzle();
+  draw();
+}
+
+function generatePuzzle(){
+  // Generate a spanning tree using DFS, then assign pipe types
+  const visited=Array.from({length:N},()=>new Uint8Array(N));
+  const connections=Array.from({length:N},()=>Array.from({length:N},()=>({top:false,right:false,bottom:false,left:false})));
+  const dirs=[[-1,0,'top','bottom'],[0,1,'right','left'],[1,0,'bottom','top'],[0,-1,'left','right']];
+
+  function dfs(r,c){
+    visited[r][c]=1;
+    const shuffled=[...dirs].sort(()=>Math.random()-.5);
+    for(const[dr,dc,dir,opp]of shuffled){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<N&&nc>=0&&nc<N&&!visited[nr][nc]){
+        connections[r][c][dir]=true;
+        connections[nr][nc][opp]=true;
+        dfs(nr,nc);
+      }
+    }
+  }
+  dfs(0,0);
+
+  // Build grid from connections
+  grid=Array.from({length:N},()=>[]);
+  solution=Array.from({length:N},()=>[]);
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const conn=connections[r][c];
+      const pipes=[conn.top?1:0,conn.right?1:0,conn.bottom?1:0,conn.left?1:0];
+      solution[r][c]=[...pipes];
+      // Randomly rotate
+      const rotations=Math.floor(Math.random()*4);
+      const rotated=[...pipes];
+      for(let i=0;i<rotations;i++){const last=rotated.pop();rotated.unshift(last);}
+      grid[r][c]=rotated;
+    }
+  }
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  const connected=checkConnections();
+
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const x=c*CS,y=r*CS;
+      const pipe=grid[r][c];
+      const isConnected=connected[r][c];
+
+      ctx.fillStyle='#16213e';
+      ctx.fillRect(x+2,y+2,CS-4,CS-4);
+      ctx.strokeStyle='#0f3460';ctx.lineWidth=1;
+      ctx.strokeRect(x+2,y+2,CS-4,CS-4);
+
+      const cx=x+CS/2,cy=y+CS/2;
+      const pw=CS*0.22;
+      ctx.fillStyle=isConnected?'#2ecc71':'#0f3460';
+      ctx.strokeStyle=isConnected?'#27ae60':'#1a3a5c';
+      ctx.lineWidth=2;
+
+      // center
+      ctx.fillRect(cx-pw/2,cy-pw/2,pw,pw);
+
+      // connections
+      if(pipe[0]){ctx.fillRect(cx-pw/2,y+2,pw,CS/2-pw/2);} // top
+      if(pipe[1]){ctx.fillRect(cx+pw/2,cy-pw/2,CS/2-pw/2-2,pw);} // right
+      if(pipe[2]){ctx.fillRect(cx-pw/2,cy+pw/2,pw,CS/2-pw/2-2);} // bottom
+      if(pipe[3]){ctx.fillRect(x+2,cy-pw/2,CS/2-pw/2,pw);} // left
+    }
+  }
+
+  if(gameOver){
+    ctx.fillStyle='rgba(26,26,46,0.7)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#c9b458';ctx.font='bold 24px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('Gelöst!',canvas.width/2,canvas.height/2);
+  }
+}
+
+function checkConnections(){
+  const connected=Array.from({length:N},()=>new Uint8Array(N));
+  const queue=[[0,0]];
+  connected[0][0]=1;
+  const dirMap=[[0,-1,0,2],[1,0,1,3],[2,1,0,0],[3,0,-1,1]];// [pipeIdx, dr, dc, oppIdx]
+  // top=0, right=1, bottom=2, left=3
+  const dirs=[[/*top*/-1,0,2],[/*right*/0,1,3],[/*bottom*/1,0,0],[/*left*/0,-1,1]];
+  while(queue.length){
+    const[r,c]=queue.shift();
+    for(let d=0;d<4;d++){
+      if(!grid[r][c][d])continue;
+      const[dr,dc,opp]=dirs[d];
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<N&&nc>=0&&nc<N&&!connected[nr][nc]&&grid[nr][nc][opp]){
+        connected[nr][nc]=1;
+        queue.push([nr,nc]);
+      }
+    }
+  }
+  return connected;
+}
+
+canvas.onclick=function(e){
+  if(gameOver)return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  const c=Math.floor(mx/CS),r=Math.floor(my/CS);
+  if(r<0||r>=N||c<0||c>=N)return;
+
+  // rotate 90 degrees clockwise
+  const pipe=grid[r][c];
+  const last=pipe.pop();pipe.unshift(last);
+  moveCount++;
+  document.getElementById('moves').textContent=moveCount;
+
+  // check win
+  const connected=checkConnections();
+  let allConnected=true;
+  for(let rr=0;rr<N;rr++)for(let cc=0;cc<N;cc++)if(!connected[rr][cc])allConnected=false;
+  if(allConnected){
+    gameOver=true;
+    document.getElementById('msg').textContent=`Gelöst in ${moveCount} Zügen!`;
+  }
+  draw();
+};
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Pipe Puzzle</h2><p>Drehe die Rohr-Teile durch Klicken, bis alle Rohre verbunden sind und das Wasser vom Start zum Ziel fließen kann.<br><br><b>Ziel:</b> Alle Teile müssen korrekt ausgerichtet sein -- keine offenen Enden!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

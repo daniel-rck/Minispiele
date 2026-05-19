@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Columns</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+canvas{border-radius:8px}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>COLUMNS</h1>
+<canvas id="c" width="240" height="520"></canvas>
+<p id="info">Punkte: <span class="val" id="score">0</span> | Level: <span class="val" id="level">1</span> | Highscore: <span class="val" id="best">0</span></p>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const COLS=6,ROWS=13,CS=canvas.width/COLS;
+const COLORS=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22'];
+let grid,piece,score,level,gameOver,dropTimer,dropInterval;
+
+function newGame(){
+  grid=Array.from({length:ROWS},()=>Array(COLS).fill(-1));
+  score=0;level=1;gameOver=false;dropInterval=800;
+  spawnPiece();
+  clearInterval(dropTimer);
+  dropTimer=setInterval(drop,dropInterval);
+  draw();
+}
+
+function spawnPiece(){
+  piece={col:Math.floor(COLS/2),row:0,colors:[
+    Math.floor(Math.random()*6),
+    Math.floor(Math.random()*6),
+    Math.floor(Math.random()*6)
+  ]};
+  if(grid[0][piece.col]>=0||grid[1][piece.col]>=0||grid[2][piece.col]>=0){
+    gameOver=true;
+    clearInterval(dropTimer);
+    const best=parseInt(localStorage.getItem('columns-best')||'0');
+    if(score>best)localStorage.setItem('columns-best',score);
+    document.getElementById('best').textContent=localStorage.getItem('columns-best');
+  }
+}
+
+function drop(){
+  if(gameOver)return;
+  if(canMove(piece.row+1,piece.col)){
+    piece.row++;
+  } else {
+    lockPiece();
+    removeMatches();
+    spawnPiece();
+  }
+  draw();
+}
+
+function canMove(r,c){
+  for(let i=0;i<3;i++){
+    if(r+i>=ROWS||c<0||c>=COLS)return false;
+    if(r+i>=0&&grid[r+i][c]>=0)return false;
+  }
+  return true;
+}
+
+function lockPiece(){
+  for(let i=0;i<3;i++){
+    const r=piece.row+i;
+    if(r>=0&&r<ROWS)grid[r][piece.col]=piece.colors[i];
+  }
+}
+
+function removeMatches(){
+  let removed=true;
+  while(removed){
+    removed=false;
+    const toRemove=new Set();
+    // Horizontal
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<COLS-2;c++){
+        if(grid[r][c]>=0&&grid[r][c]===grid[r][c+1]&&grid[r][c]===grid[r][c+2]){
+          let end=c+2;while(end+1<COLS&&grid[r][end+1]===grid[r][c])end++;
+          for(let i=c;i<=end;i++)toRemove.add(r+','+i);
+        }
+      }
+    }
+    // Vertical
+    for(let c=0;c<COLS;c++){
+      for(let r=0;r<ROWS-2;r++){
+        if(grid[r][c]>=0&&grid[r][c]===grid[r+1][c]&&grid[r][c]===grid[r+2][c]){
+          let end=r+2;while(end+1<ROWS&&grid[end+1][c]===grid[r][c])end++;
+          for(let i=r;i<=end;i++)toRemove.add(i+','+c);
+        }
+      }
+    }
+    // Diagonal ↘
+    for(let r=0;r<ROWS-2;r++){
+      for(let c=0;c<COLS-2;c++){
+        if(grid[r][c]>=0&&grid[r][c]===grid[r+1][c+1]&&grid[r][c]===grid[r+2][c+2]){
+          toRemove.add(r+','+c);toRemove.add((r+1)+','+(c+1));toRemove.add((r+2)+','+(c+2));
+        }
+      }
+    }
+    // Diagonal ↙
+    for(let r=0;r<ROWS-2;r++){
+      for(let c=2;c<COLS;c++){
+        if(grid[r][c]>=0&&grid[r][c]===grid[r+1][c-1]&&grid[r][c]===grid[r+2][c-2]){
+          toRemove.add(r+','+c);toRemove.add((r+1)+','+(c-1));toRemove.add((r+2)+','+(c-2));
+        }
+      }
+    }
+    if(toRemove.size>0){
+      removed=true;
+      score+=toRemove.size*10;
+      for(const key of toRemove){const[r,c]=key.split(',').map(Number);grid[r][c]=-1;}
+      // Gravity
+      for(let c=0;c<COLS;c++){
+        let w=ROWS-1;
+        for(let r=ROWS-1;r>=0;r--){
+          if(grid[r][c]>=0){grid[w][c]=grid[r][c];if(w!==r)grid[r][c]=-1;w--;}
+        }
+      }
+    }
+  }
+  level=Math.floor(score/500)+1;
+  dropInterval=Math.max(100,800-level*50);
+  clearInterval(dropTimer);
+  dropTimer=setInterval(drop,dropInterval);
+  document.getElementById('score').textContent=score;
+  document.getElementById('level').textContent=level;
+}
+
+function draw(){
+  ctx.fillStyle='#0a0a1a';ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Grid
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if(grid[r][c]>=0){
+        ctx.fillStyle=COLORS[grid[r][c]];
+        ctx.beginPath();ctx.arc(c*CS+CS/2,r*CS+CS/2,CS/2.3,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,0.15)';
+        ctx.beginPath();ctx.arc(c*CS+CS/2-3,r*CS+CS/2-3,CS/5,0,Math.PI*2);ctx.fill();
+      }
+      ctx.strokeStyle='#16213e';ctx.lineWidth=.5;ctx.strokeRect(c*CS,r*CS,CS,CS);
+    }
+  }
+  // Active piece
+  if(!gameOver){
+    for(let i=0;i<3;i++){
+      const r=piece.row+i;
+      if(r>=0){
+        ctx.fillStyle=COLORS[piece.colors[i]];
+        ctx.beginPath();ctx.arc(piece.col*CS+CS/2,r*CS+CS/2,CS/2.3,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#c9b458';ctx.lineWidth=1.5;ctx.stroke();
+      }
+    }
+  }
+  if(gameOver){
+    ctx.fillStyle='rgba(10,10,26,0.7)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#c9b458';ctx.font='bold 22px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('Game Over!',canvas.width/2,canvas.height/2-10);
+    ctx.font='14px Segoe UI';ctx.fillText(`${score} Punkte`,canvas.width/2,canvas.height/2+15);
+    ctx.fillStyle='#888';ctx.font='12px Segoe UI';ctx.fillText('Leertaste zum Neustart',canvas.width/2,canvas.height/2+35);
+  }
+}
+
+document.onkeydown=e=>{
+  if(gameOver){if(e.code==='Space')newGame();return;}
+  if(e.key==='ArrowLeft'&&canMove(piece.row,piece.col-1))piece.col--;
+  if(e.key==='ArrowRight'&&canMove(piece.row,piece.col+1))piece.col++;
+  if(e.key==='ArrowDown')drop();
+  if(e.key==='ArrowUp'){// rotate colors
+    const last=piece.colors.pop();piece.colors.unshift(last);
+  }
+  draw();
+};
+
+const best=localStorage.getItem('columns-best');
+if(best)document.getElementById('best').textContent=best;
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Columns</h2><p>Dreierstäbe aus Farbsteinen fallen herunter. Bilde horizontale, vertikale oder diagonale Reihen von <b>3 oder mehr</b> gleichen Farben.<br><br><b>Steuerung:</b> Pfeiltasten zum Bewegen, Pfeil-hoch zum Rotieren der Farben im Stab.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

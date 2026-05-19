@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pentomino</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center}
+.game{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+canvas{border-radius:8px;cursor:pointer}
+.pieces{display:flex;flex-direction:column;gap:6px;max-width:200px}
+.piece{display:inline-grid;gap:1px;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:6px;transition:all .15s}
+.piece:hover,.piece.selected{border-color:#c9b458}
+.pcell{width:16px;height:16px;border-radius:2px}
+.pcell.filled{opacity:1}
+.pcell.empty{opacity:0}
+.controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>PENTOMINO</h1>
+<p id="msg">Wähle ein Teil, klicke aufs Brett. Rechtsklick = drehen.</p>
+<div class="game">
+<canvas id="c" width="300" height="180"></canvas>
+<div class="pieces" id="pieces"></div>
+</div>
+<div class="controls">
+<button class="btn" onclick="rotatePiece()">Drehen</button>
+<button class="btn" onclick="flipPiece()">Spiegeln</button>
+<button class="btn" onclick="newGame()">Neustart</button>
+</div>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const COLS=10,ROWS=6,CS=30;
+canvas.width=COLS*CS;canvas.height=ROWS*CS;
+const COLORS=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#e91e63','#00bcd4','#ff9800','#8bc34a','#795548'];
+const PENTOMINOES=[
+  {name:'F',cells:[[0,1],[0,2],[1,0],[1,1],[2,1]]},
+  {name:'I',cells:[[0,0],[0,1],[0,2],[0,3],[0,4]]},
+  {name:'L',cells:[[0,0],[1,0],[2,0],[3,0],[3,1]]},
+  {name:'N',cells:[[0,0],[1,0],[1,1],[2,1],[3,1]]},
+  {name:'P',cells:[[0,0],[0,1],[1,0],[1,1],[2,0]]},
+  {name:'T',cells:[[0,0],[0,1],[0,2],[1,1],[2,1]]},
+  {name:'U',cells:[[0,0],[0,2],[1,0],[1,1],[1,2]]},
+  {name:'V',cells:[[0,0],[1,0],[2,0],[2,1],[2,2]]},
+  {name:'W',cells:[[0,0],[1,0],[1,1],[2,1],[2,2]]},
+  {name:'X',cells:[[0,1],[1,0],[1,1],[1,2],[2,1]]},
+  {name:'Y',cells:[[0,0],[1,0],[1,1],[2,0],[3,0]]},
+  {name:'Z',cells:[[0,0],[0,1],[1,1],[2,1],[2,2]]},
+];
+
+let grid,pieces,selectedPiece,placedCount;
+
+function newGame(){
+  grid=Array.from({length:ROWS},()=>Array(COLS).fill(-1));
+  pieces=PENTOMINOES.map((p,i)=>({...p,cells:[...p.cells.map(c=>[...c])],color:COLORS[i],placed:false,rotation:0}));
+  selectedPiece=null;placedCount=0;
+  document.getElementById('msg').textContent='Wähle ein Teil, klicke aufs Brett.';
+  render();
+}
+
+function render(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      ctx.fillStyle=grid[r][c]>=0?COLORS[grid[r][c]]:'#16213e';
+      ctx.fillRect(c*CS+1,r*CS+1,CS-2,CS-2);
+      if(grid[r][c]<0){ctx.strokeStyle='#0f3460';ctx.lineWidth=1;ctx.strokeRect(c*CS+1,r*CS+1,CS-2,CS-2);}
+    }
+  }
+  // Ghost preview
+  if(selectedPiece!==null&&hoverPos){
+    const p=pieces[selectedPiece];
+    ctx.fillStyle='rgba(201,180,88,0.3)';
+    for(const[dr,dc]of p.cells){
+      const r=hoverPos.r+dr,c=hoverPos.c+dc;
+      if(r>=0&&r<ROWS&&c>=0&&c<COLS)ctx.fillRect(c*CS+1,r*CS+1,CS-2,CS-2);
+    }
+  }
+  // Pieces panel
+  const pDiv=document.getElementById('pieces');
+  pDiv.innerHTML='';
+  pieces.forEach((p,i)=>{
+    if(p.placed)return;
+    const maxR=Math.max(...p.cells.map(c=>c[0]))+1;
+    const maxC=Math.max(...p.cells.map(c=>c[1]))+1;
+    const div=document.createElement('div');
+    div.className='piece'+(selectedPiece===i?' selected':'');
+    div.style.gridTemplateColumns=`repeat(${maxC},16px)`;
+    div.onclick=()=>{selectedPiece=selectedPiece===i?null:i;render();};
+    const cellSet=new Set(p.cells.map(c=>c[0]+','+c[1]));
+    for(let r=0;r<maxR;r++){
+      for(let c=0;c<maxC;c++){
+        const cell=document.createElement('div');
+        cell.className='pcell '+(cellSet.has(r+','+c)?'filled':'empty');
+        if(cellSet.has(r+','+c))cell.style.background=p.color;
+        div.appendChild(cell);
+      }
+    }
+    pDiv.appendChild(div);
+  });
+  if(placedCount===12){
+    ctx.fillStyle='rgba(26,26,46,0.6)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#c9b458';ctx.font='bold 24px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('Gelöst!',canvas.width/2,canvas.height/2);
+  }
+}
+
+let hoverPos=null;
+canvas.onmousemove=function(e){
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  hoverPos={r:Math.floor(my/CS),c:Math.floor(mx/CS)};
+  if(selectedPiece!==null)render();
+};
+
+canvas.onclick=function(e){
+  if(selectedPiece===null||!hoverPos)return;
+  const p=pieces[selectedPiece];
+  // Check placement
+  let valid=true;
+  for(const[dr,dc]of p.cells){
+    const r=hoverPos.r+dr,c=hoverPos.c+dc;
+    if(r<0||r>=ROWS||c<0||c>=COLS||grid[r][c]>=0){valid=false;break;}
+  }
+  if(!valid)return;
+  for(const[dr,dc]of p.cells)grid[hoverPos.r+dr][hoverPos.c+dc]=selectedPiece;
+  p.placed=true;placedCount++;selectedPiece=null;
+  if(placedCount===12)document.getElementById('msg').textContent='Alle Teile platziert!';
+  render();
+};
+
+canvas.oncontextmenu=function(e){e.preventDefault();rotatePiece();};
+
+function rotatePiece(){
+  if(selectedPiece===null)return;
+  const p=pieces[selectedPiece];
+  p.cells=p.cells.map(([r,c])=>[c,-r]);
+  // normalize
+  const minR=Math.min(...p.cells.map(c=>c[0]));
+  const minC=Math.min(...p.cells.map(c=>c[1]));
+  p.cells=p.cells.map(([r,c])=>[r-minR,c-minC]);
+  render();
+}
+
+function flipPiece(){
+  if(selectedPiece===null)return;
+  const p=pieces[selectedPiece];
+  const maxC=Math.max(...p.cells.map(c=>c[1]));
+  p.cells=p.cells.map(([r,c])=>[r,maxC-c]);
+  const minC=Math.min(...p.cells.map(c=>c[1]));
+  p.cells=p.cells.map(([r,c])=>[r,c-minC]);
+  render();
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Pentomino</h2><p>Platziere die Pentomino-Teile (Formen aus je 5 Quadraten) so auf dem Brett, dass sie lückenlos passen.<br><br><b>Steuerung:</b> Wähle ein Teil, klicke zum Platzieren. Teile können gedreht werden.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

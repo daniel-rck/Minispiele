@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match-3</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+canvas{border-radius:8px;cursor:pointer}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>MATCH-3</h1>
+<canvas id="c" width="400" height="400"></canvas>
+<p id="info">Punkte: <span class="val" id="score">0</span> | Züge: <span class="val" id="moves">30</span> | Highscore: <span class="val" id="best">0</span></p>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const N=8,CS=canvas.width/N;
+const GEMS=['💎','🔴','🟢','🟡','🔵','🟣','🟠'];
+const COLORS=['#3498db','#e74c3c','#2ecc71','#f1c40f','#1a6baa','#9b59b6','#e67e22'];
+let grid,score,movesLeft,selected,animating,gameOver;
+
+function newGame(){
+  do{grid=Array.from({length:N},()=>Array.from({length:N},()=>Math.floor(Math.random()*7)));}
+  while(findMatches().length>0);
+  score=0;movesLeft=30;selected=null;animating=false;gameOver=false;
+  updateInfo();draw();
+}
+
+function findMatches(){
+  const matches=new Set();
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N-2;c++){
+      if(grid[r][c]>=0&&grid[r][c]===grid[r][c+1]&&grid[r][c]===grid[r][c+2]){
+        let end=c+2;while(end+1<N&&grid[r][end+1]===grid[r][c])end++;
+        for(let i=c;i<=end;i++)matches.add(r+','+i);
+      }
+    }
+  }
+  for(let c=0;c<N;c++){
+    for(let r=0;r<N-2;r++){
+      if(grid[r][c]>=0&&grid[r][c]===grid[r+1][c]&&grid[r][c]===grid[r+2][c]){
+        let end=r+2;while(end+1<N&&grid[end+1][c]===grid[r][c])end++;
+        for(let i=r;i<=end;i++)matches.add(i+','+c);
+      }
+    }
+  }
+  return[...matches].map(s=>s.split(',').map(Number));
+}
+
+function removeAndFill(){
+  const matches=findMatches();
+  if(matches.length===0)return false;
+  score+=matches.length*10;
+  for(const[r,c]of matches)grid[r][c]=-1;
+  // gravity
+  for(let c=0;c<N;c++){
+    let write=N-1;
+    for(let r=N-1;r>=0;r--){
+      if(grid[r][c]>=0){grid[write][c]=grid[r][c];if(write!==r)grid[r][c]=-1;write--;}
+    }
+    for(let r=write;r>=0;r--)grid[r][c]=Math.floor(Math.random()*7);
+  }
+  return true;
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const x=c*CS,y=r*CS;
+      ctx.fillStyle=(r+c)%2===0?'#16213e':'#1a2040';
+      ctx.fillRect(x,y,CS,CS);
+      if(grid[r][c]>=0){
+        ctx.fillStyle=COLORS[grid[r][c]];
+        ctx.beginPath();ctx.arc(x+CS/2,y+CS/2,CS/2.5,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,0.2)';
+        ctx.beginPath();ctx.arc(x+CS/2-4,y+CS/2-4,CS/5,0,Math.PI*2);ctx.fill();
+      }
+      if(selected&&selected[0]===r&&selected[1]===c){
+        ctx.strokeStyle='#c9b458';ctx.lineWidth=3;
+        ctx.strokeRect(x+3,y+3,CS-6,CS-6);
+      }
+    }
+  }
+  if(gameOver){
+    ctx.fillStyle='rgba(26,26,46,0.7)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#c9b458';ctx.font='bold 24px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('Spiel vorbei!',canvas.width/2,canvas.height/2-10);
+    ctx.font='16px Segoe UI';ctx.fillText(`${score} Punkte`,canvas.width/2,canvas.height/2+20);
+  }
+}
+
+function updateInfo(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('moves').textContent=movesLeft;
+  const best=localStorage.getItem('match3-best');
+  document.getElementById('best').textContent=best||0;
+}
+
+canvas.onclick=function(e){
+  if(animating||gameOver)return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  const c=Math.floor(mx/CS),r=Math.floor(my/CS);
+  if(r<0||r>=N||c<0||c>=N)return;
+
+  if(!selected){selected=[r,c];draw();return;}
+
+  const[sr,sc]=selected;
+  const dr=Math.abs(sr-r),dc=Math.abs(sc-c);
+  if((dr===1&&dc===0)||(dr===0&&dc===1)){
+    // swap
+    [grid[sr][sc],grid[r][c]]=[grid[r][c],grid[sr][sc]];
+    if(findMatches().length>0){
+      movesLeft--;
+      animating=true;
+      cascadeMatches();
+    } else {
+      [grid[sr][sc],grid[r][c]]=[grid[r][c],grid[sr][sc]];// swap back
+    }
+    selected=null;
+  } else {
+    selected=[r,c];
+  }
+  draw();
+};
+
+function cascadeMatches(){
+  setTimeout(()=>{
+    if(removeAndFill()){
+      updateInfo();draw();
+      cascadeMatches();
+    } else {
+      animating=false;
+      if(movesLeft<=0){
+        gameOver=true;
+        const best=parseInt(localStorage.getItem('match3-best')||'0');
+        if(score>best)localStorage.setItem('match3-best',score);
+      }
+      updateInfo();draw();
+    }
+  },200);
+}
+
+const best=localStorage.getItem('match3-best');
+if(best)document.getElementById('best').textContent=best;
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Match 3</h2><p>Tausche benachbarte Steine, um Reihen von <b>3 oder mehr</b> gleichen Farben zu bilden.<br><br><b>Steuerung:</b> Klicke auf einen Stein und dann auf einen benachbarten, um sie zu tauschen. Nur gültige Züge werden akzeptiert.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

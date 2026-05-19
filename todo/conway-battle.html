@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conway Battle</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4}
+canvas{border-radius:8px;cursor:crosshair}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center}
+.stats{font-size:.85rem;color:#888;display:flex;gap:16px;justify-content:center}
+.stats .blue{color:#3498db;font-weight:bold}
+.stats .red{color:#e74c3c;font-weight:bold}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>CONWAY BATTLE</h1>
+<p id="msg">Phase 1: Platziere deine Zellen (Blau) in der linken Hälfte!</p>
+<canvas id="c" width="600" height="400"></canvas>
+<div class="stats">
+<span>Blau: <span class="blue" id="blue-count">0</span></span>
+<span>Rot: <span class="red" id="red-count">0</span></span>
+<span>Generation: <span style="color:#c9b458;font-weight:bold" id="gen">0</span></span>
+<span>Budget: <span style="color:#c9b458;font-weight:bold" id="budget">30</span></span>
+</div>
+<div class="controls">
+<button class="btn" id="btn-start" onclick="startBattle()">Schlacht starten!</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const COLS=60,ROWS=40,CELL=canvas.width/COLS;
+let grid,phase,generation,budget,maxGen,running;
+
+function newGame(){
+  grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));// 0=empty, 1=blue, 2=red
+  phase='place';generation=0;budget=30;running=false;
+  // AI places red cells on right half
+  let aiCount=30;
+  while(aiCount>0){
+    const r=Math.floor(Math.random()*ROWS);
+    const c=Math.floor(COLS/2)+Math.floor(Math.random()*COLS/2);
+    if(!grid[r][c]){grid[r][c]=2;aiCount--;}
+  }
+  document.getElementById('msg').textContent='Platziere deine Zellen (Blau) in der linken Hälfte!';
+  document.getElementById('btn-start').disabled=false;
+  draw();updateStats();
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  // Divider
+  if(phase==='place'){
+    ctx.fillStyle='rgba(201,180,88,0.1)';
+    ctx.fillRect(0,0,canvas.width/2,canvas.height);
+  }
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if(grid[r][c]===1){ctx.fillStyle='#3498db';ctx.fillRect(c*CELL,r*CELL,CELL-1,CELL-1);}
+      else if(grid[r][c]===2){ctx.fillStyle='#e74c3c';ctx.fillRect(c*CELL,r*CELL,CELL-1,CELL-1);}
+    }
+  }
+  // Grid lines
+  ctx.strokeStyle='rgba(15,52,96,0.2)';ctx.lineWidth=0.5;
+  for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(c*CELL,0);ctx.lineTo(c*CELL,canvas.height);ctx.stroke();}
+  for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,r*CELL);ctx.lineTo(canvas.width,r*CELL);ctx.stroke();}
+}
+
+function updateStats(){
+  let blue=0,red=0;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(grid[r][c]===1)blue++;
+    if(grid[r][c]===2)red++;
+  }
+  document.getElementById('blue-count').textContent=blue;
+  document.getElementById('red-count').textContent=red;
+  document.getElementById('gen').textContent=generation;
+  document.getElementById('budget').textContent=budget;
+}
+
+canvas.onclick=function(e){
+  if(phase!=='place')return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  const c=Math.floor(mx/CELL),r=Math.floor(my/CELL);
+  if(c>=COLS/2||r<0||r>=ROWS)return;
+  if(grid[r][c]===1){grid[r][c]=0;budget++;}
+  else if(budget>0&&!grid[r][c]){grid[r][c]=1;budget--;}
+  draw();updateStats();
+};
+
+function startBattle(){
+  if(phase!=='place')return;
+  phase='battle';running=true;maxGen=200;
+  document.getElementById('btn-start').disabled=true;
+  document.getElementById('msg').textContent='Schlacht läuft... Wer hat nach 200 Generationen mehr Zellen?';
+  runGeneration();
+}
+
+function runGeneration(){
+  if(!running||generation>=maxGen)return endBattle();
+  const next=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const neighbors=[];
+      for(let dr=-1;dr<=1;dr++){
+        for(let dc=-1;dc<=1;dc++){
+          if(dr===0&&dc===0)continue;
+          const nr=(r+dr+ROWS)%ROWS,nc=(c+dc+COLS)%COLS;
+          if(grid[nr][nc])neighbors.push(grid[nr][nc]);
+        }
+      }
+      const alive=neighbors.length;
+      const blueN=neighbors.filter(n=>n===1).length;
+      const redN=neighbors.filter(n=>n===2).length;
+      if(grid[r][c]){
+        next[r][c]=(alive===2||alive===3)?grid[r][c]:0;
+      } else {
+        if(alive===3)next[r][c]=blueN>redN?1:2;
+      }
+    }
+  }
+  grid=next;generation++;
+  draw();updateStats();
+  let blue=0,red=0;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(grid[r][c]===1)blue++;if(grid[r][c]===2)red++;}
+  if(blue===0||red===0)return endBattle();
+  setTimeout(runGeneration,50);
+}
+
+function endBattle(){
+  running=false;
+  let blue=0,red=0;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){if(grid[r][c]===1)blue++;if(grid[r][c]===2)red++;}
+  if(blue>red)document.getElementById('msg').textContent=`Blau gewinnt! ${blue} vs ${red} nach ${generation} Generationen!`;
+  else if(red>blue)document.getElementById('msg').textContent=`Rot gewinnt! ${red} vs ${blue} nach ${generation} Generationen!`;
+  else document.getElementById('msg').textContent=`Unentschieden! ${blue}:${red} nach ${generation} Generationen!`;
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Conway Battle</h2><p>Basiert auf Conways <b>Game of Life</b>. Platziere deine Zellen auf dem Spielfeld und starte die Simulation. Zwei Spieler kämpfen um die Vorherrschaft.<br><br><b>Regeln:</b> Zellen mit 2-3 Nachbarn überleben, tote Zellen mit genau 3 Nachbarn werden geboren.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mau-Mau</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4;cursor:default}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center;max-width:500px}
+.area{background:#16213e;border:1px solid #0f3460;border-radius:12px;padding:12px;text-align:center;width:100%;max-width:600px}
+.area h3{color:#c9b458;font-size:.85rem;margin-bottom:6px}
+.cards{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:70px}
+.card{width:50px;height:72px;border-radius:6px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:bold;cursor:pointer;transition:all .15s;border:2px solid transparent;font-size:.85rem}
+.card:hover:not(.back){transform:translateY(-6px)}
+.card-front{background:#f5f5f0}
+.card.red{color:#e74c3c}
+.card.black{color:#333}
+.card.back{background:#0f3460;color:#c9b458;font-size:1.5rem;cursor:pointer}
+.card.playable{border-color:#c9b458;box-shadow:0 0 8px rgba(201,180,88,.3)}
+.middle{display:flex;gap:16px;justify-content:center;align-items:center;margin:8px 0}
+.suit-picker{display:flex;gap:8px;justify-content:center}
+.suit-btn{width:40px;height:40px;border-radius:8px;border:2px solid #0f3460;background:#16213e;font-size:1.3rem;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:all .2s}
+.suit-btn:hover{border-color:#c9b458}
+.opp-cards{display:flex;gap:3px;justify-content:center}
+.opp-card{width:30px;height:44px;background:#0f3460;border-radius:4px;border:1px solid #16213e}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>MAU-MAU</h1>
+<p id="msg">Dein Zug. Lege eine passende Karte ab.</p>
+<div class="area"><h3 id="opp1-label">KI 1 (<span id="opp1-count">5</span>)</h3><div class="opp-cards" id="opp1-cards"></div></div>
+<div class="area"><h3 id="opp2-label">KI 2 (<span id="opp2-count">5</span>)</h3><div class="opp-cards" id="opp2-cards"></div></div>
+<div class="middle" id="middle"></div>
+<div id="suit-picker" style="display:none"><p style="color:#888;font-size:.85rem">Wähle eine Farbe:</p><div class="suit-picker" id="suit-buttons"></div></div>
+<div class="area"><h3>Deine Karten</h3><div class="cards" id="player-cards"></div></div>
+<div style="display:flex;gap:8px">
+<button class="btn" id="btn-draw" onclick="drawCard()">Karte ziehen</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+
+<script>
+const SUITS=['♥','♦','♣','♠'];
+const RANKS=['7','8','9','10','J','Q','K','A'];
+const isRed=s=>s==='♥'||s==='♦';
+let deck,discard,players,currentPlayer,direction,drawPending,wishSuit,gameOver,skipNext;
+
+function createDeck(){
+  const d=[];
+  for(const s of SUITS)for(const r of RANKS)d.push({suit:s,rank:r});
+  return d.sort(()=>Math.random()-.5);
+}
+
+function newGame(){
+  deck=createDeck();
+  players=[[],[],[]];
+  for(let p=0;p<3;p++)for(let i=0;i<5;i++)players[p].push(deck.pop());
+  discard=[deck.pop()];
+  // make sure first card isn't special
+  while(discard[0].rank==='7'||discard[0].rank==='8'||discard[0].rank==='J'){
+    deck.unshift(discard[0]);discard[0]=deck.pop();
+  }
+  currentPlayer=0;direction=1;drawPending=0;wishSuit=null;gameOver=false;skipNext=false;
+  document.getElementById('msg').textContent='Dein Zug. Lege eine passende Karte ab.';
+  document.getElementById('suit-picker').style.display='none';
+  render();
+}
+
+function topCard(){return discard[discard.length-1];}
+
+function canPlay(card){
+  const top=topCard();
+  if(drawPending>0)return card.rank==='7';
+  if(card.rank==='J')return true;
+  if(wishSuit)return card.suit===wishSuit||card.rank==='J';
+  return card.suit===top.suit||card.rank===top.rank;
+}
+
+function render(){
+  // opponents
+  for(let o=1;o<=2;o++){
+    document.getElementById(`opp${o}-count`).textContent=players[o].length;
+    const div=document.getElementById(`opp${o}-cards`);
+    div.innerHTML='';
+    for(let i=0;i<players[o].length;i++){
+      const c=document.createElement('div');c.className='opp-card';div.appendChild(c);
+    }
+  }
+  // middle
+  const mid=document.getElementById('middle');
+  mid.innerHTML='';
+  const back=document.createElement('div');
+  back.className='card back';back.textContent='?';back.title='Karte ziehen';
+  back.onclick=()=>drawCard();
+  mid.appendChild(back);
+  const top=topCard();
+  const tc=document.createElement('div');
+  tc.className='card card-front '+(isRed(top.suit)?'red':'black');
+  tc.innerHTML=`<span>${top.rank}</span><span>${top.suit}</span>`;
+  mid.appendChild(tc);
+  if(wishSuit){
+    const ws=document.createElement('span');
+    ws.style.cssText='font-size:1.5rem;margin-left:8px';
+    ws.textContent=wishSuit;
+    mid.appendChild(ws);
+  }
+
+  // player hand
+  const hand=document.getElementById('player-cards');
+  hand.innerHTML='';
+  players[0].forEach((card,i)=>{
+    const el=document.createElement('div');
+    const playable=currentPlayer===0&&!gameOver&&canPlay(card);
+    el.className='card card-front '+(isRed(card.suit)?'red':'black')+(playable?' playable':'');
+    el.innerHTML=`<span>${card.rank}</span><span>${card.suit}</span>`;
+    if(playable)el.onclick=()=>playCard(0,i);
+    hand.appendChild(el);
+  });
+  document.getElementById('btn-draw').disabled=currentPlayer!==0||gameOver;
+}
+
+function playCard(pIdx,cardIdx){
+  const card=players[pIdx].splice(cardIdx,1)[0];
+  discard.push(card);
+  wishSuit=null;
+
+  // check win
+  if(players[pIdx].length===0){
+    gameOver=true;
+    const names=['Du','KI 1','KI 2'];
+    document.getElementById('msg').textContent=`${names[pIdx]} hat gewonnen!`;
+    render();return;
+  }
+
+  // Mau
+  if(players[pIdx].length===1&&pIdx===0){
+    document.getElementById('msg').textContent='Mau!';
+  }
+
+  // Special cards
+  if(card.rank==='7'){drawPending+=2;}
+  if(card.rank==='8'){skipNext=true;}
+  if(card.rank==='J'&&pIdx===0){
+    // show suit picker
+    document.getElementById('suit-picker').style.display='block';
+    const btns=document.getElementById('suit-buttons');
+    btns.innerHTML='';
+    SUITS.forEach(s=>{
+      const b=document.createElement('div');
+      b.className='suit-btn';
+      b.style.color=isRed(s)?'#e74c3c':'#e0e0e0';
+      b.textContent=s;
+      b.onclick=()=>{wishSuit=s;document.getElementById('suit-picker').style.display='none';nextTurn();};
+      btns.appendChild(b);
+    });
+    render();return;
+  }
+  if(card.rank==='J'&&pIdx!==0){
+    // AI picks most common suit
+    const counts={};
+    players[pIdx].forEach(c=>{counts[c.suit]=(counts[c.suit]||0)+1;});
+    wishSuit=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]||SUITS[0];
+  }
+
+  nextTurn();
+}
+
+function nextTurn(){
+  currentPlayer=(currentPlayer+direction+3)%3;
+  if(skipNext){skipNext=false;currentPlayer=(currentPlayer+direction+3)%3;}
+  render();
+  if(currentPlayer!==0){
+    document.getElementById('msg').textContent=`${['','KI 1','KI 2'][currentPlayer]} ist dran...`;
+    setTimeout(aiTurn,600);
+  } else {
+    if(drawPending>0)document.getElementById('msg').textContent=`Du musst ${drawPending} Karten ziehen (oder 7 legen)!`;
+    else if(wishSuit)document.getElementById('msg').textContent=`Dein Zug. Farbwunsch: ${wishSuit} (oder Bube)`;
+    else document.getElementById('msg').textContent='Dein Zug. Gleiche Farbe oder gleicher Wert.';
+  }
+}
+
+function drawCard(){
+  if(currentPlayer!==0||gameOver)return;
+  const count=Math.max(1,drawPending);
+  for(let i=0;i<count;i++){
+    if(deck.length===0)reshuffleDeck();
+    if(deck.length>0)players[0].push(deck.pop());
+  }
+  drawPending=0;
+  wishSuit=null;
+  // if drew 1 card and it's playable, allow playing it immediately
+  if(count===1){
+    const drawn=players[0][players[0].length-1];
+    if(canPlay(drawn)){
+      render();
+      document.getElementById('msg').textContent='Gezogene Karte passt! Du kannst sie ablegen.';
+      return;
+    }
+  }
+  nextTurn();
+}
+
+function reshuffleDeck(){
+  const top=discard.pop();
+  deck=discard.sort(()=>Math.random()-.5);
+  discard=[top];
+}
+
+function aiTurn(){
+  if(gameOver)return;
+  const p=currentPlayer;
+  const hand=players[p];
+
+  if(drawPending>0){
+    const sevens=hand.map((c,i)=>({c,i})).filter(({c})=>c.rank==='7');
+    if(sevens.length){playCard(p,sevens[0].i);return;}
+    const count=drawPending;
+    for(let i=0;i<count;i++){
+      if(deck.length===0)reshuffleDeck();
+      if(deck.length>0)hand.push(deck.pop());
+    }
+    drawPending=0;wishSuit=null;nextTurn();return;
+  }
+
+  // Find playable cards (prefer non-J)
+  const playable=hand.map((c,i)=>({c,i})).filter(({c})=>canPlay(c));
+  const nonJ=playable.filter(({c})=>c.rank!=='J');
+  const choice=nonJ.length?nonJ[0]:playable[0];
+
+  if(choice){playCard(p,choice.i);return;}
+
+  // Draw
+  if(deck.length===0)reshuffleDeck();
+  if(deck.length>0){
+    const drawn=deck.pop();hand.push(drawn);
+    if(canPlay(drawn)){playCard(p,hand.length-1);return;}
+  }
+  wishSuit=null;
+  nextTurn();
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Mau-Mau</h2><p>Lege Karten ab, die in <b>Farbe oder Wert</b> zur obersten Karte auf dem Ablagestapel passen.<br><br><b>Sonderkarten:</b> 7 = nächster Spieler zieht 2, Bube = Farbwunsch, 8 = Aussetzen. Wer als Erster keine Karten mehr hat, gewinnt!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

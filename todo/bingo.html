@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bingo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4;cursor:default}
+#msg{color:#c9b458;font-weight:bold;font-size:1.1rem;min-height:1.5em;text-align:center}
+.drawn{font-size:2rem;font-weight:bold;color:#c9b458;min-height:2.5rem}
+.drawn-list{font-size:.7rem;color:#888;max-width:400px;text-align:center;word-break:break-all}
+.cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.card{background:#16213e;border:2px solid #0f3460;border-radius:10px;padding:8px}
+.card h4{text-align:center;color:#c9b458;font-size:.75rem;margin-bottom:4px}
+.card-grid{display:grid;grid-template-columns:repeat(5,40px);gap:3px}
+.card-header{width:40px;height:24px;display:flex;justify-content:center;align-items:center;font-weight:bold;font-size:.8rem;color:#c9b458}
+.cell{width:40px;height:36px;background:#0f3460;border-radius:4px;display:flex;justify-content:center;align-items:center;font-size:.85rem;font-weight:bold;cursor:pointer;transition:all .15s}
+.cell.marked{background:#c9b458;color:#1a1a2e}
+.cell.free{background:#c9b458;color:#1a1a2e;font-size:.6rem}
+.cell.bingo{background:#2ecc71;color:#fff;animation:blink .5s infinite}
+@keyframes blink{50%{opacity:.7}}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>BINGO</h1>
+<p id="msg">Klicke "Ziehen" für die nächste Zahl!</p>
+<p class="drawn" id="drawn">-</p>
+<div class="cards" id="cards"></div>
+<div style="display:flex;gap:8px">
+<button class="btn" id="btn-draw" onclick="drawNumber()">Ziehen</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+<p class="drawn-list" id="drawn-list">Gezogen: -</p>
+
+<script>
+const BINGO=['B','I','N','G','O'];
+let pool,drawn,cards,gameOver;
+
+function generateCard(){
+  const card=[];
+  for(let col=0;col<5;col++){
+    const min=col*15+1,max=col*15+15;
+    const nums=[];
+    while(nums.length<5){
+      const n=min+Math.floor(Math.random()*(max-min+1));
+      if(!nums.includes(n))nums.push(n);
+    }
+    card.push(nums);
+  }
+  return{cols:card,marked:Array.from({length:5},()=>Array(5).fill(false))};
+}
+
+function newGame(){
+  pool=Array.from({length:75},(_,i)=>i+1).sort(()=>Math.random()-.5);
+  drawn=[];
+  cards=[generateCard(),generateCard()];
+  // Free space
+  for(const c of cards)c.marked[2][2]=true;
+  gameOver=false;
+  document.getElementById('msg').textContent='Klicke "Ziehen" für die nächste Zahl!';
+  document.getElementById('drawn').textContent='-';
+  document.getElementById('btn-draw').disabled=false;
+  render();
+}
+
+function render(){
+  const div=document.getElementById('cards');
+  div.innerHTML='';
+  cards.forEach((card,ci)=>{
+    const cdiv=document.createElement('div');
+    cdiv.className='card';
+    cdiv.innerHTML=`<h4>Karte ${ci+1}</h4>`;
+    const grid=document.createElement('div');
+    grid.className='card-grid';
+    // headers
+    for(const h of BINGO){
+      const hd=document.createElement('div');hd.className='card-header';hd.textContent=h;grid.appendChild(hd);
+    }
+    // cells (column-major to row-major)
+    for(let row=0;row<5;row++){
+      for(let col=0;col<5;col++){
+        const cell=document.createElement('div');
+        if(row===2&&col===2){
+          cell.className='cell free marked';cell.textContent='FREI';
+        } else {
+          const isMarked=card.marked[col][row];
+          cell.className='cell'+(isMarked?' marked':'');
+          cell.textContent=card.cols[col][row];
+          cell.onclick=()=>{
+            const num=card.cols[col][row];
+            if(drawn.includes(num)){card.marked[col][row]=true;checkBingo();render();}
+          };
+        }
+        grid.appendChild(cell);
+      }
+    }
+    cdiv.appendChild(grid);
+    div.appendChild(cdiv);
+  });
+  document.getElementById('drawn-list').textContent='Gezogen: '+drawn.join(', ');
+}
+
+function drawNumber(){
+  if(gameOver||pool.length===0)return;
+  const num=pool.pop();
+  drawn.push(num);
+  const col=Math.floor((num-1)/15);
+  document.getElementById('drawn').textContent=BINGO[col]+' '+num;
+  // Auto-mark
+  for(const card of cards){
+    for(let c=0;c<5;c++){
+      for(let r=0;r<5;r++){
+        if(card.cols[c][r]===num)card.marked[c][r]=true;
+      }
+    }
+  }
+  checkBingo();
+  render();
+}
+
+function checkBingo(){
+  for(const card of cards){
+    // Rows
+    for(let r=0;r<5;r++){
+      if([0,1,2,3,4].every(c=>card.marked[c][r])){win();return;}
+    }
+    // Cols
+    for(let c=0;c<5;c++){
+      if([0,1,2,3,4].every(r=>card.marked[c][r])){win();return;}
+    }
+    // Diagonals
+    if([0,1,2,3,4].every(i=>card.marked[i][i])){win();return;}
+    if([0,1,2,3,4].every(i=>card.marked[i][4-i])){win();return;}
+  }
+}
+
+function win(){
+  gameOver=true;
+  document.getElementById('msg').textContent='BINGO! Gewonnen!';
+  document.getElementById('btn-draw').disabled=true;
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Bingo</h2><p>Klicke auf die gezogene Zahl auf deiner Karte, um sie zu markieren. Wer zuerst eine komplette Reihe (horizontal, vertikal oder diagonal) hat, gewinnt.<br><br><b>Tipp:</b> Die Mitte ist ein Freifeld!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

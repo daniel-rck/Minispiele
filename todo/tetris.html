@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tetris</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 14px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #game-wrap { display: flex; gap: 16px; align-items: flex-start; }
+  canvas { border: 3px solid #c9b458; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+  #side { display: flex; flex-direction: column; gap: 12px; }
+  .panel { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 12px 16px; text-align: center; }
+  .panel-label { font-size: 0.8rem; color: #888; letter-spacing: 1px; margin-bottom: 6px; }
+  .panel-val { font-size: 1.4rem; color: #c9b458; font-weight: bold; }
+  #next-canvas { border: 1px solid #0f3460; border-radius: 4px; }
+  #overlay { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.7); border-radius: 4px; }
+  #overlay.hidden { display: none; }
+  #overlay span { color: #c9b458; font-size: 1.3rem; letter-spacing: 2px; }
+  #overlay .sub { font-size: 0.9rem; color: #888; }
+  .board-wrap { position: relative; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>TETRIS</h1>
+<div id="game-wrap">
+  <div class="board-wrap">
+    <canvas id="canvas" width="250" height="500"></canvas>
+    <div id="overlay">
+      <span>TETRIS</span>
+      <span class="sub">Leertaste zum Starten</span>
+    </div>
+  </div>
+  <div id="side">
+    <div class="panel">
+      <div class="panel-label">NÄCHSTES</div>
+      <canvas id="next-canvas" width="100" height="80"></canvas>
+    </div>
+    <div class="panel"><div class="panel-label">PUNKTE</div><div class="panel-val" id="score">0</div></div>
+    <div class="panel"><div class="panel-label">LEVEL</div><div class="panel-val" id="level">1</div></div>
+    <div class="panel"><div class="panel-label">REIHEN</div><div class="panel-val" id="lines">0</div></div>
+    <div class="panel"><div class="panel-label">REKORD</div><div class="panel-val" id="high">0</div></div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const nCanvas = document.getElementById('next-canvas');
+const nCtx = nCanvas.getContext('2d');
+const COLS = 10, ROWS = 20, CELL = 25;
+
+const SHAPES = {
+  I: { blocks: [[0,0],[1,0],[2,0],[3,0]], color: '#00e5e5' },
+  O: { blocks: [[0,0],[1,0],[0,1],[1,1]], color: '#e5e500' },
+  T: { blocks: [[0,0],[1,0],[2,0],[1,1]], color: '#b000e0' },
+  S: { blocks: [[1,0],[2,0],[0,1],[1,1]], color: '#00e500' },
+  Z: { blocks: [[0,0],[1,0],[1,1],[2,1]], color: '#e50000' },
+  J: { blocks: [[0,0],[0,1],[1,1],[2,1]], color: '#0000e5' },
+  L: { blocks: [[2,0],[0,1],[1,1],[2,1]], color: '#e5a000' }
+};
+const SHAPE_NAMES = Object.keys(SHAPES);
+
+let board, current, next, posX, posY, rotation, gameLoop;
+let score, level, lines, highScore, alive, started, paused;
+let dropInterval, lastDrop;
+
+highScore = parseInt(localStorage.getItem('tetris-high') || '0');
+document.getElementById('high').textContent = highScore;
+
+function init() {
+  board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+  score = 0; level = 1; lines = 0; alive = true; started = false; paused = false;
+  current = null; next = randomPiece();
+  spawnPiece();
+  updateDisplay();
+  draw();
+  showOverlay(true);
+}
+
+function randomPiece() {
+  return SHAPE_NAMES[Math.floor(Math.random() * SHAPE_NAMES.length)];
+}
+
+function getBlocks(name, rot) {
+  let blocks = SHAPES[name].blocks.map(([x, y]) => [x, y]);
+  for (let i = 0; i < rot; i++) {
+    blocks = blocks.map(([x, y]) => [-y, x]);
+  }
+  // Normalize to positive
+  const minX = Math.min(...blocks.map(b => b[0]));
+  const minY = Math.min(...blocks.map(b => b[1]));
+  return blocks.map(([x, y]) => [x - minX, y - minY]);
+}
+
+function spawnPiece() {
+  current = next; next = randomPiece();
+  rotation = 0;
+  const blocks = getBlocks(current, 0);
+  posX = Math.floor((COLS - Math.max(...blocks.map(b => b[0])) - 1) / 2);
+  posY = 0;
+  if (collides(posX, posY, current, rotation)) {
+    alive = false;
+    if (score > highScore) { highScore = score; localStorage.setItem('tetris-high', highScore); }
+    showOverlay(true, true);
+  }
+  drawNext();
+}
+
+function collides(px, py, name, rot) {
+  const blocks = getBlocks(name, rot);
+  for (const [bx, by] of blocks) {
+    const x = px + bx, y = py + by;
+    if (x < 0 || x >= COLS || y >= ROWS) return true;
+    if (y >= 0 && board[y][x]) return true;
+  }
+  return false;
+}
+
+function lock() {
+  const blocks = getBlocks(current, rotation);
+  const color = SHAPES[current].color;
+  for (const [bx, by] of blocks) {
+    const x = posX + bx, y = posY + by;
+    if (y >= 0) board[y][x] = color;
+  }
+  clearLines();
+  spawnPiece();
+}
+
+function clearLines() {
+  let cleared = 0;
+  for (let r = ROWS - 1; r >= 0; r--) {
+    if (board[r].every(c => c !== null)) {
+      board.splice(r, 1);
+      board.unshift(Array(COLS).fill(null));
+      cleared++; r++; // Check same row again
+    }
+  }
+  if (cleared > 0) {
+    const pts = [0, 100, 300, 500, 800][cleared] * level;
+    score += pts; lines += cleared;
+    level = Math.floor(lines / 10) + 1;
+    updateDisplay();
+  }
+}
+
+function drop() {
+  if (!collides(posX, posY + 1, current, rotation)) { posY++; }
+  else { lock(); }
+}
+
+function hardDrop() {
+  while (!collides(posX, posY + 1, current, rotation)) { posY++; score += 2; }
+  lock(); updateDisplay();
+}
+
+function moveLeft() { if (!collides(posX - 1, posY, current, rotation)) posX--; }
+function moveRight() { if (!collides(posX + 1, posY, current, rotation)) posX++; }
+
+function rotate() {
+  const newRot = (rotation + 1) % 4;
+  // Try normal, then wall kicks
+  const kicks = [0, -1, 1, -2, 2];
+  for (const kick of kicks) {
+    if (!collides(posX + kick, posY, current, newRot)) {
+      posX += kick; rotation = newRot; return;
+    }
+  }
+}
+
+function draw() {
+  ctx.fillStyle = '#0d1528';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(201,180,88,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let c = 0; c <= COLS; c++) { ctx.beginPath(); ctx.moveTo(c*CELL,0); ctx.lineTo(c*CELL,canvas.height); ctx.stroke(); }
+  for (let r = 0; r <= ROWS; r++) { ctx.beginPath(); ctx.moveTo(0,r*CELL); ctx.lineTo(canvas.width,r*CELL); ctx.stroke(); }
+
+  // Board
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (board[r][c]) drawCell(ctx, c, r, board[r][c]);
+
+  // Ghost piece
+  if (alive && current) {
+    let gy = posY;
+    while (!collides(posX, gy + 1, current, rotation)) gy++;
+    const blocks = getBlocks(current, rotation);
+    ctx.globalAlpha = 0.2;
+    for (const [bx, by] of blocks) drawCell(ctx, posX + bx, gy + by, SHAPES[current].color);
+    ctx.globalAlpha = 1;
+
+    // Current piece
+    for (const [bx, by] of blocks) {
+      const y = posY + by;
+      if (y >= 0) drawCell(ctx, posX + bx, y, SHAPES[current].color);
+    }
+  }
+}
+
+function drawCell(context, x, y, color) {
+  context.fillStyle = color;
+  context.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+  context.fillStyle = 'rgba(255,255,255,0.15)';
+  context.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, 3);
+  context.fillStyle = 'rgba(0,0,0,0.15)';
+  context.fillRect(x * CELL + 1, y * CELL + CELL - 3, CELL - 2, 2);
+}
+
+function drawNext() {
+  nCtx.fillStyle = '#16213e';
+  nCtx.fillRect(0, 0, nCanvas.width, nCanvas.height);
+  if (!next) return;
+  const blocks = getBlocks(next, 0);
+  const maxX = Math.max(...blocks.map(b => b[0]));
+  const maxY = Math.max(...blocks.map(b => b[1]));
+  const offsetX = (nCanvas.width - (maxX + 1) * CELL) / 2;
+  const offsetY = (nCanvas.height - (maxY + 1) * CELL) / 2;
+  for (const [bx, by] of blocks) {
+    nCtx.fillStyle = SHAPES[next].color;
+    nCtx.fillRect(offsetX + bx * CELL + 1, offsetY + by * CELL + 1, CELL - 2, CELL - 2);
+  }
+}
+
+function updateDisplay() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('level').textContent = level;
+  document.getElementById('lines').textContent = lines;
+  document.getElementById('high').textContent = highScore;
+}
+
+function showOverlay(show, dead) {
+  const o = document.getElementById('overlay');
+  if (show) {
+    o.classList.remove('hidden');
+    o.innerHTML = dead
+      ? `<span>GAME OVER</span><span class="sub">Punkte: ${score}</span><span class="sub">Leertaste zum Neustarten</span>`
+      : `<span>TETRIS</span><span class="sub">Leertaste zum Starten</span>`;
+  } else { o.classList.add('hidden'); }
+}
+
+function gameStep(ts) {
+  if (!alive || !started || paused) { if (alive) requestAnimationFrame(gameStep); return; }
+  if (!lastDrop) lastDrop = ts;
+  dropInterval = Math.max(50, 800 - (level - 1) * 70);
+  if (ts - lastDrop > dropInterval) { drop(); lastDrop = ts; }
+  draw();
+  requestAnimationFrame(gameStep);
+}
+
+function startGame() {
+  if (started && alive && !paused) return;
+  if (!alive) { init(); }
+  started = true; paused = false;
+  showOverlay(false);
+  lastDrop = null;
+  requestAnimationFrame(gameStep);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ') { e.preventDefault(); if (!started || !alive) startGame(); else if (alive) hardDrop(); return; }
+  if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+    if (alive && started) { paused = !paused; if (!paused) { showOverlay(false); requestAnimationFrame(gameStep); } else showOverlay(true); }
+    return;
+  }
+  if (!alive || !started || paused) return;
+  if (e.key === 'ArrowLeft' || e.key === 'a') { moveLeft(); draw(); }
+  else if (e.key === 'ArrowRight' || e.key === 'd') { moveRight(); draw(); }
+  else if (e.key === 'ArrowDown' || e.key === 's') { drop(); score += 1; updateDisplay(); draw(); lastDrop = performance.now(); }
+  else if (e.key === 'ArrowUp' || e.key === 'w') { rotate(); draw(); }
+  e.preventDefault();
+});
+
+init();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Tetris</h2><p>Drehe und positioniere die fallenden Blöcke, um vollständige horizontale Reihen zu bilden. Volle Reihen verschwinden und geben Punkte.<br><br><b>Steuerung:</b> Links/Rechts = bewegen, Hoch = drehen, Runter = schneller fallen, Leertaste = sofort fallen.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

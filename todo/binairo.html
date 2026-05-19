@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binairo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center}
+.grid{display:inline-grid;gap:3px}
+.cell{width:44px;height:44px;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:1.2rem;font-weight:bold;cursor:pointer;transition:all .15s;border:2px solid transparent}
+.cell.v0{background:#3498db;color:#fff}
+.cell.v1{background:#e74c3c;color:#fff}
+.cell.empty{background:#16213e;border:2px solid #0f3460}
+.cell.given{opacity:.9;cursor:default;border:2px solid rgba(255,255,255,.2)}
+.cell:hover:not(.given){transform:scale(1.1)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.controls label{color:#888;font-size:.85rem}
+.controls select{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 6px}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>BINAIRO</h1>
+<div class="controls">
+<label>Größe: <select id="sel-size" onchange="newGame()"><option value="6">6x6</option><option value="8" selected>8x8</option><option value="10">10x10</option></select></label>
+<button class="btn" onclick="newGame()">Neues Rätsel</button>
+<button class="btn" onclick="checkSolution()">Prüfen</button>
+</div>
+<p id="msg">Klicke: leer → 0 → 1 → leer. Max 2 gleiche nebeneinander!</p>
+<div class="grid" id="grid"></div>
+
+<script>
+let N=8,solution,grid,given,gameOver;
+
+function newGame(){
+  N=parseInt(document.getElementById('sel-size').value);
+  generatePuzzle();
+  gameOver=false;
+  document.getElementById('msg').textContent='Klicke: leer → 0 → 1 → leer. Max 2 gleiche nebeneinander!';
+  render();
+}
+
+function generatePuzzle(){
+  // Generate valid solution
+  solution=Array.from({length:N},()=>Array(N).fill(-1));
+  fillGrid(0,0);
+
+  // Create puzzle by removing cells
+  grid=solution.map(r=>[...r]);
+  given=Array.from({length:N},()=>Array(N).fill(true));
+  const cells=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)cells.push([r,c]);
+  cells.sort(()=>Math.random()-.5);
+  const toRemove=Math.floor(N*N*0.55);
+  for(let i=0;i<toRemove;i++){
+    const[r,c]=cells[i];
+    grid[r][c]=-1;
+    given[r][c]=false;
+  }
+}
+
+function fillGrid(r,c){
+  if(r>=N)return true;
+  const nr=c+1>=N?r+1:r;
+  const nc=c+1>=N?0:c+1;
+  const vals=[0,1].sort(()=>Math.random()-.5);
+  for(const v of vals){
+    solution[r][c]=v;
+    if(isValidPartial(r,c)&&fillGrid(nr,nc))return true;
+    solution[r][c]=-1;
+  }
+  return false;
+}
+
+function isValidPartial(r,c){
+  const v=solution[r][c];
+  // No 3 in a row horizontally
+  if(c>=2&&solution[r][c-1]===v&&solution[r][c-2]===v)return false;
+  // No 3 in a row vertically
+  if(r>=2&&solution[r-1][c]===v&&solution[r-2][c]===v)return false;
+  // Count per row
+  const rowCount=solution[r].filter(x=>x===v).length;
+  if(rowCount>N/2)return false;
+  // Count per col
+  let colCount=0;for(let i=0;i<N;i++)if(solution[i][c]===v)colCount++;
+  if(colCount>N/2)return false;
+  return true;
+}
+
+function render(){
+  const div=document.getElementById('grid');
+  div.style.gridTemplateColumns=`repeat(${N},44px)`;
+  div.innerHTML='';
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const cell=document.createElement('div');
+      const v=grid[r][c];
+      cell.className='cell '+(v===0?'v0':v===1?'v1':'empty')+(given[r][c]?' given':'');
+      cell.textContent=v>=0?v:'';
+      if(!given[r][c]){
+        cell.onclick=()=>{
+          if(gameOver)return;
+          grid[r][c]=grid[r][c]<0?0:grid[r][c]===0?1:-1;
+          render();
+          // Auto-check
+          if(!grid.some(row=>row.includes(-1)))checkSolution();
+        };
+      }
+      div.appendChild(cell);
+    }
+  }
+}
+
+function checkSolution(){
+  let correct=true;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    if(grid[r][c]!==solution[r][c])correct=false;
+  }
+  if(correct){gameOver=true;document.getElementById('msg').textContent='Gelöst! Perfekt!';}
+  else document.getElementById('msg').textContent='Noch nicht korrekt.';
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Binairo</h2><p>Fülle das Gitter nur mit <b>0</b> und <b>1</b>. Klicke eine Zelle, um zwischen 0, 1 und leer zu wechseln.<br><br><b>Regeln:</b> Keine drei gleichen Ziffern nebeneinander (horizontal/vertikal). Jede Zeile und Spalte enthält gleich viele 0en und 1en. Keine zwei Zeilen oder Spalten sind identisch.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

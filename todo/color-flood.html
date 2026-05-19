@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Flood</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+canvas{border-radius:8px}
+#msg{color:#c9b458;font-weight:bold;font-size:1.05rem;min-height:1.5em;text-align:center}
+.palette{display:flex;gap:10px;justify-content:center}
+.pal-btn{width:44px;height:44px;border-radius:8px;cursor:pointer;border:3px solid transparent;transition:all .2s}
+.pal-btn:hover{transform:scale(1.15);border-color:#c9b458}
+.pal-btn.current{border-color:#fff;opacity:.5;cursor:default}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>COLOR FLOOD</h1>
+<p id="msg">Färbe das Brett von oben links ein. Wähle eine Farbe!</p>
+<canvas id="c" width="420" height="420"></canvas>
+<div class="palette" id="palette"></div>
+<p id="info">Züge: <span class="val" id="moves">0</span> / <span class="val" id="max-moves">25</span> | Geflutet: <span class="val" id="pct">0</span>%</p>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const COLORS=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22'];
+const N=14,CS=canvas.width/N;
+let grid,moves,maxMoves,gameOver;
+
+function newGame(){
+  grid=Array.from({length:N},()=>Array.from({length:N},()=>Math.floor(Math.random()*6)));
+  moves=0;maxMoves=25;gameOver=false;
+  document.getElementById('msg').textContent='Färbe das Brett von oben links ein!';
+  renderPalette();draw();updateInfo();
+}
+
+function renderPalette(){
+  const pal=document.getElementById('palette');
+  pal.innerHTML='';
+  COLORS.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='pal-btn'+(i===grid[0][0]?' current':'');
+    d.style.background=c;
+    d.onclick=()=>flood(i);
+    pal.appendChild(d);
+  });
+}
+
+function draw(){
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      ctx.fillStyle=COLORS[grid[r][c]];
+      ctx.fillRect(c*CS,r*CS,CS,CS);
+    }
+  }
+  if(gameOver){
+    ctx.fillStyle='rgba(26,26,46,0.6)';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#c9b458';ctx.font='bold 24px Segoe UI';ctx.textAlign='center';
+    const won=isWon();
+    ctx.fillText(won?'Gewonnen!':'Verloren!',canvas.width/2,canvas.height/2);
+  }
+}
+
+function flood(colorIdx){
+  if(gameOver)return;
+  const oldColor=grid[0][0];
+  if(colorIdx===oldColor)return;
+  moves++;
+  // BFS flood fill from (0,0)
+  const visited=Array.from({length:N},()=>new Uint8Array(N));
+  const queue=[[0,0]];
+  visited[0][0]=1;
+  while(queue.length){
+    const[r,c]=queue.shift();
+    grid[r][c]=colorIdx;
+    const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+    for(const[dr,dc]of dirs){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<N&&nc>=0&&nc<N&&!visited[nr][nc]&&(grid[nr][nc]===oldColor||grid[nr][nc]===colorIdx)){
+        visited[nr][nc]=1;
+        queue.push([nr,nc]);
+      }
+    }
+  }
+  if(isWon()){gameOver=true;document.getElementById('msg').textContent=`Gewonnen in ${moves} Zügen!`;}
+  else if(moves>=maxMoves){gameOver=true;document.getElementById('msg').textContent='Verloren — zu viele Züge!';}
+  renderPalette();draw();updateInfo();
+}
+
+function isWon(){
+  const c=grid[0][0];
+  for(let r=0;r<N;r++)for(let cc=0;cc<N;cc++)if(grid[r][cc]!==c)return false;
+  return true;
+}
+
+function updateInfo(){
+  document.getElementById('moves').textContent=moves;
+  document.getElementById('max-moves').textContent=maxMoves;
+  // count flooded
+  const c=grid[0][0];
+  const visited=Array.from({length:N},()=>new Uint8Array(N));
+  const queue=[[0,0]];visited[0][0]=1;let count=1;
+  while(queue.length){
+    const[r,cc]=queue.shift();
+    for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+      const nr=r+dr,nc=cc+dc;
+      if(nr>=0&&nr<N&&nc>=0&&nc<N&&!visited[nr][nc]&&grid[nr][nc]===c){
+        visited[nr][nc]=1;count++;queue.push([nr,nc]);
+      }
+    }
+  }
+  document.getElementById('pct').textContent=Math.round(count/(N*N)*100);
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Color Flood</h2><p>Ändere die Farbe des Bereichs oben links, um nach und nach das gesamte Spielfeld mit einer Farbe zu füllen.<br><br><b>Ziel:</b> Schaffe es in möglichst wenigen Zügen!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

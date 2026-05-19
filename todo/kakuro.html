@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kakuro</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 16px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 10px; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 16px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  #board { display: inline-grid; gap: 2px; background: #0f3460; border: 3px solid #c9b458; border-radius: 4px; padding: 2px; }
+  .cell { width: 48px; height: 48px; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; font-weight: bold; position: relative; }
+  .cell.black { background: #0a0a1e; }
+  .cell.white { background: #16213e; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+  .cell.white:hover { border-color: #c9b458; }
+  .cell.white.selected { border-color: #c9b458; background: #1a2a5e; box-shadow: 0 0 8px rgba(201,180,88,0.3); }
+  .cell.white .val { color: #c9b458; font-size: 1.3rem; }
+  .cell.white.correct .val { color: #2ecc71; }
+  .cell.white.error .val { color: #e74c3c; }
+  .hint { position: absolute; font-size: 0.55rem; color: #888; font-weight: normal; }
+  .hint-down { bottom: 2px; right: 4px; }
+  .hint-right { top: 2px; left: 4px; }
+  .diag { position: absolute; width: 100%; height: 100%; }
+  .diag::after { content:''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom right, transparent calc(50% - 0.5px), #0f3460 calc(50% - 0.5px), #0f3460 calc(50% + 0.5px), transparent calc(50% + 0.5px)); }
+  #numpad { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 340px; }
+  #numpad button { width: 36px; height: 36px; background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+  #numpad button:hover { background: #0f3460; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1.1rem; min-height: 1.5em; }
+  .sub { color: #555; font-size: 0.8rem; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>KAKURO</h1>
+<div class="controls">
+  <button onclick="loadPuzzle(0)">Leicht</button>
+  <button onclick="loadPuzzle(1)">Mittel</button>
+  <button onclick="loadPuzzle(2)">Schwer</button>
+  <button onclick="checkAnswers()">Prüfen</button>
+</div>
+<div id="board"></div>
+<div id="numpad"></div>
+<p id="msg"></p>
+<p class="sub">Klicke ein Feld und gib eine Zahl ein (1-9). Jede Zahl darf pro Summengruppe nur einmal vorkommen.</p>
+
+<script>
+// Puzzles: B=black, H=hint cell {d:down, r:right}, W=white cell (solution)
+// Pre-defined puzzles for reliability
+const PUZZLES = [
+  { // Easy 6x6
+    size: 6,
+    grid: [
+      ['B','B',{d:4},{d:16},'B','B'],
+      ['B',{d:17,r:3},'W','W',{d:6},'B'],
+      [{r:12},'W','W','W','W',{d:3}],
+      [{r:21},'W','W','W','W','W'],
+      ['B',{r:5},'W','W','W','W'],
+      ['B','B',{r:3},'W','W','B'],
+    ],
+    solution: [
+      [0,0,0,0,0,0],
+      [0,0,1,2,0,0],
+      [0,3,1,4,4,2],
+      [0,5,2,9,3,2],
+      [0,0,3,1,5,1],
+      [0,0,0,2,1,0],
+    ]
+  },
+  { // Medium 7x7
+    size: 7,
+    grid: [
+      ['B',{d:23},{d:11},'B',{d:16},{d:7},'B'],
+      [{r:16},'W','W',{d:24,r:17},'W','W',{d:4}],
+      [{r:6},'W','W','W','W','W','W'],
+      ['B',{r:23},'W','W','W','W','W'],
+      [{d:4},{r:10},'W','W','W',{d:11},'B'],
+      [{r:3},'W','W',{d:7,r:16},'W','W',{d:3}],
+      ['B',{r:3},'W','W','W','W','W'],
+    ],
+    solution: [
+      [0,0,0,0,0,0,0],
+      [0,9,7,0,9,8,0],
+      [0,5,1,8,2,6,3],
+      [0,0,3,9,5,4,2],
+      [0,0,8,2,4,0,0],
+      [0,1,3,0,7,9,0],
+      [0,0,2,1,3,6,5],
+    ]
+  },
+  { // Hard 8x8
+    size: 8,
+    grid: [
+      ['B','B',{d:16},{d:3},'B',{d:17},{d:24},'B'],
+      ['B',{d:6,r:4},'W','W',{d:10,r:10},'W','W',{d:3}],
+      [{r:6},'W','W','W','W','W','W','W'],
+      [{r:4},'W','W',{d:17,r:11},'W','W','W','W'],
+      ['B',{r:3},'W','W','W',{d:12},{d:9},'B'],
+      [{d:8},{r:16},'W','W','W','W','W',{d:7}],
+      [{r:9},'W','W','W',{r:4},'W','W','W'],
+      ['B',{r:3},'W','W','B',{r:6},'W','W'],
+    ],
+    solution: [
+      [0,0,0,0,0,0,0,0],
+      [0,0,1,3,0,9,1,0],
+      [0,2,4,1,7,8,9,3],
+      [0,1,3,0,2,3,8,6],
+      [0,0,1,9,8,0,0,0],
+      [0,0,7,3,1,3,2,0],
+      [0,5,2,1,0,1,7,3],
+      [0,0,2,1,0,0,4,2],
+    ]
+  }
+];
+
+let currentPuzzle = 0;
+let playerGrid = [];
+let selectedCell = null;
+let solved = false;
+
+function loadPuzzle(idx) {
+  currentPuzzle = idx;
+  solved = false;
+  selectedCell = null;
+  document.getElementById('msg').textContent = '';
+  const puzzle = PUZZLES[idx];
+  playerGrid = Array.from({ length: puzzle.size }, () => Array(puzzle.size).fill(0));
+  render();
+  renderNumpad();
+}
+
+function render() {
+  const puzzle = PUZZLES[currentPuzzle];
+  const board = document.getElementById('board');
+  board.style.gridTemplateColumns = `repeat(${puzzle.size}, 48px)`;
+  board.innerHTML = '';
+
+  for (let r = 0; r < puzzle.size; r++) {
+    for (let c = 0; c < puzzle.size; c++) {
+      const cell = puzzle.grid[r][c];
+      const div = document.createElement('div');
+      div.className = 'cell';
+
+      if (cell === 'B') {
+        div.classList.add('black');
+      } else if (cell === 'W') {
+        div.classList.add('white');
+        if (selectedCell && selectedCell.r === r && selectedCell.c === c) div.classList.add('selected');
+        if (playerGrid[r][c] > 0) {
+          const span = document.createElement('span');
+          span.className = 'val';
+          span.textContent = playerGrid[r][c];
+          div.appendChild(span);
+        }
+        div.onclick = () => selectCell(r, c);
+      } else {
+        // Hint cell
+        div.classList.add('black');
+        if (cell.d) {
+          const hint = document.createElement('span');
+          hint.className = 'hint hint-down';
+          hint.textContent = cell.d;
+          div.appendChild(hint);
+        }
+        if (cell.r) {
+          const hint = document.createElement('span');
+          hint.className = 'hint hint-right';
+          hint.textContent = cell.r;
+          div.appendChild(hint);
+        }
+        if (cell.d && cell.r) {
+          const diag = document.createElement('div');
+          diag.className = 'diag';
+          div.appendChild(diag);
+        }
+      }
+
+      board.appendChild(div);
+    }
+  }
+}
+
+function renderNumpad() {
+  const pad = document.getElementById('numpad');
+  pad.innerHTML = '';
+  for (let i = 1; i <= 9; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.onclick = () => enterNumber(i);
+    pad.appendChild(btn);
+  }
+  const del = document.createElement('button');
+  del.textContent = 'X';
+  del.style.color = '#e74c3c';
+  del.onclick = () => enterNumber(0);
+  pad.appendChild(del);
+}
+
+function selectCell(r, c) {
+  if (solved) return;
+  selectedCell = { r, c };
+  render();
+}
+
+function enterNumber(n) {
+  if (!selectedCell || solved) return;
+  playerGrid[selectedCell.r][selectedCell.c] = n;
+  render();
+}
+
+function checkAnswers() {
+  if (solved) return;
+  const puzzle = PUZZLES[currentPuzzle];
+  let allCorrect = true;
+  let allFilled = true;
+
+  for (let r = 0; r < puzzle.size; r++) {
+    for (let c = 0; c < puzzle.size; c++) {
+      if (puzzle.grid[r][c] !== 'W') continue;
+      if (playerGrid[r][c] === 0) { allFilled = false; allCorrect = false; continue; }
+      if (playerGrid[r][c] !== puzzle.solution[r][c]) allCorrect = false;
+    }
+  }
+
+  // Show errors
+  const cells = document.querySelectorAll('.cell.white');
+  let idx = 0;
+  for (let r = 0; r < puzzle.size; r++) {
+    for (let c = 0; c < puzzle.size; c++) {
+      if (puzzle.grid[r][c] !== 'W') continue;
+      const el = cells[idx];
+      if (playerGrid[r][c] > 0) {
+        if (playerGrid[r][c] === puzzle.solution[r][c]) el.classList.add('correct');
+        else el.classList.add('error');
+      }
+      idx++;
+    }
+  }
+
+  if (allCorrect && allFilled) {
+    solved = true;
+    document.getElementById('msg').textContent = 'Gelöst!';
+  } else if (!allFilled) {
+    document.getElementById('msg').textContent = 'Noch nicht alle Felder ausgefüllt.';
+  } else {
+    document.getElementById('msg').textContent = 'Fehler vorhanden — rote Zahlen sind falsch.';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (!selectedCell || solved) return;
+  const n = parseInt(e.key);
+  if (n >= 1 && n <= 9) enterNumber(n);
+  if (e.key === 'Backspace' || e.key === 'Delete') enterNumber(0);
+  if (e.key === 'ArrowRight') moveSelection(0, 1);
+  if (e.key === 'ArrowLeft') moveSelection(0, -1);
+  if (e.key === 'ArrowDown') moveSelection(1, 0);
+  if (e.key === 'ArrowUp') moveSelection(-1, 0);
+});
+
+function moveSelection(dr, dc) {
+  if (!selectedCell) return;
+  const puzzle = PUZZLES[currentPuzzle];
+  let r = selectedCell.r + dr;
+  let c = selectedCell.c + dc;
+  while (r >= 0 && r < puzzle.size && c >= 0 && c < puzzle.size) {
+    if (puzzle.grid[r][c] === 'W') { selectCell(r, c); return; }
+    r += dr; c += dc;
+  }
+}
+
+loadPuzzle(0);
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Kakuro</h2><p>Fülle die weißen Zellen mit Zahlen <b>1-9</b>. Die Summe jeder Gruppe muss der angezeigten Zahl entsprechen.<br><br><b>Regeln:</b> Innerhalb einer Summengruppe darf keine Zahl doppelt vorkommen.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

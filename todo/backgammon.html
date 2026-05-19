@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backgammon</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 14px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #status { font-size: 1.1rem; padding: 8px 24px; border-radius: 8px; background: #16213e; border: 1px solid #0f3460; display: flex; align-items: center; gap: 16px; min-height: 40px; }
+  #status.won { background: #1a5c1a; border-color: #3a3; font-weight: bold; }
+  canvas { border: 3px solid #c9b458; border-radius: 6px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); cursor: pointer; }
+  .dice-area { display: flex; gap: 12px; align-items: center; }
+  .die { width: 44px; height: 44px; background: #f5f0e1; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; color: #1a1a2e; border: 2px solid #c9b458; }
+  .die.used { opacity: 0.3; }
+  #controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  button { padding: 8px 20px; border: 1px solid #c9b458; background: #16213e; color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+  button:hover { background: #0f3460; }
+  button.active { background: #c9b458; color: #1a1a2e; font-weight: bold; }
+  select { padding: 8px 12px; border: 1px solid #c9b458; background: #16213e; color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem; outline: none; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>BACKGAMMON</h1>
+<div id="status">Würfeln zum Starten</div>
+<div class="dice-area">
+  <div class="die" id="die1">-</div>
+  <div class="die" id="die2">-</div>
+  <button onclick="rollDice()" id="btn-roll">Würfeln</button>
+</div>
+<canvas id="canvas" width="680" height="420"></canvas>
+<div id="controls">
+  <button onclick="resetGame()">Neues Spiel</button>
+  <button onclick="passTurn()">Zug beenden</button>
+  <button id="btn-mode" onclick="toggleMode()">Gegen Computer</button>
+  <select id="difficulty" onchange="aiDifficulty=this.value" style="display:none">
+    <option value="leicht" selected>Leicht</option>
+    <option value="mittel">Mittel</option>
+  </select>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const W = 680, H = 420;
+const POINT_W = 48, CHECKER_R = 16, BAR_W = 40;
+// Board: points 1-24. White moves 1->24 (home=19-24), Black moves 24->1 (home=1-6)
+// board[i] > 0 = white checkers, < 0 = black checkers
+// bar[0] = white bar count, bar[1] = black bar count
+// off[0] = white borne off, off[1] = black borne off
+
+let board, bar, off, turn, dice, usedDice, selectedPoint, gameOver;
+let vsComputer = false, aiThinking = false, aiDifficulty = 'leicht';
+let needsRoll = true;
+
+function resetGame() {
+  board = Array(25).fill(0); // index 0 unused, 1-24
+  board[1] = 2; board[12] = 5; board[17] = 3; board[19] = 5; // White
+  board[24] = -2; board[13] = -5; board[8] = -3; board[6] = -5; // Black
+  bar = [0, 0]; off = [0, 0];
+  turn = 1; // 1=white, -1=black
+  dice = []; usedDice = []; selectedPoint = -1;
+  gameOver = false; needsRoll = true; aiThinking = false;
+  document.getElementById('status').className = '';
+  updateStatus();
+  draw();
+}
+
+function rollDice() {
+  if (!needsRoll || gameOver || aiThinking) return;
+  dice = [Math.ceil(Math.random() * 6), Math.ceil(Math.random() * 6)];
+  if (dice[0] === dice[1]) dice = [dice[0], dice[0], dice[0], dice[0]];
+  usedDice = [];
+  needsRoll = false;
+  selectedPoint = -1;
+  renderDice();
+
+  if (!hasAnyMove()) {
+    document.getElementById('status').textContent =
+      (turn === 1 ? 'Weiss' : 'Schwarz') + ' — keine gültigen Züge!';
+    setTimeout(() => { endTurn(); }, 1200);
+    return;
+  } else if (vsComputer && turn === -1) {
+    aiMove();
+  }
+  updateStatus(); draw();
+}
+
+function remainingDice() {
+  const rem = [...dice];
+  for (const u of usedDice) { const idx = rem.indexOf(u); if (idx >= 0) rem.splice(idx, 1); }
+  return rem;
+}
+
+function hasAnyMove() {
+  const rem = remainingDice();
+  if (rem.length === 0) return false;
+  for (const d of new Set(rem)) {
+    if (getValidMoves(d).length > 0) return true;
+  }
+  return false;
+}
+
+function getValidMoves(dieVal) {
+  const moves = [];
+  const player = turn;
+  const barCount = player === 1 ? bar[0] : bar[1];
+
+  if (barCount > 0) {
+    // Must enter from bar
+    const target = player === 1 ? dieVal : 25 - dieVal;
+    if (canLand(target, player)) moves.push({ from: 'bar', to: target, die: dieVal });
+    return moves;
+  }
+
+  for (let p = 1; p <= 24; p++) {
+    if ((player === 1 && board[p] > 0) || (player === -1 && board[p] < 0)) {
+      const target = player === 1 ? p + dieVal : p - dieVal;
+      if (target >= 1 && target <= 24) {
+        if (canLand(target, player)) moves.push({ from: p, to: target, die: dieVal });
+      } else {
+        // Bearing off
+        if (allInHome(player)) {
+          if (player === 1 && p + dieVal === 25) {
+            moves.push({ from: p, to: 'off', die: dieVal });
+          } else if (player === -1 && p - dieVal === 0) {
+            moves.push({ from: p, to: 'off', die: dieVal });
+          } else if (player === 1 && p + dieVal > 25) {
+            // Can bear off if no checker on higher point
+            let highest = 0;
+            for (let pp = 19; pp <= 24; pp++) if (board[pp] > 0) highest = pp;
+            if (p === highest) moves.push({ from: p, to: 'off', die: dieVal });
+          } else if (player === -1 && p - dieVal < 0) {
+            let lowest = 25;
+            for (let pp = 1; pp <= 6; pp++) if (board[pp] < 0) lowest = pp;
+            if (p === lowest) moves.push({ from: p, to: 'off', die: dieVal });
+          }
+        }
+      }
+    }
+  }
+  return moves;
+}
+
+function canLand(point, player) {
+  if (point < 1 || point > 24) return false;
+  const opp = -player;
+  if (player === 1) return board[point] >= -1;
+  else return board[point] <= 1;
+}
+
+function allInHome(player) {
+  const barCount = player === 1 ? bar[0] : bar[1];
+  if (barCount > 0) return false;
+  if (player === 1) {
+    for (let p = 1; p <= 18; p++) if (board[p] > 0) return false;
+  } else {
+    for (let p = 7; p <= 24; p++) if (board[p] < 0) return false;
+  }
+  return true;
+}
+
+function executeMove(move) {
+  const player = turn;
+  // Remove from source
+  if (move.from === 'bar') {
+    if (player === 1) bar[0]--; else bar[1]--;
+  } else {
+    board[move.from] += (player === 1 ? -1 : 1);
+  }
+  // Place at target
+  if (move.to === 'off') {
+    if (player === 1) off[0]++; else off[1]++;
+  } else {
+    // Check for hit
+    if (player === 1 && board[move.to] === -1) { board[move.to] = 0; bar[1]++; }
+    else if (player === -1 && board[move.to] === 1) { board[move.to] = 0; bar[0]++; }
+    board[move.to] += player;
+  }
+  usedDice.push(move.die);
+
+  // Check win
+  if (off[0] === 15 || off[1] === 15) {
+    gameOver = true;
+    document.getElementById('status').className = 'won';
+  }
+
+  if (!gameOver && !hasAnyMove()) {
+    endTurn();
+  }
+  draw(); updateStatus(); renderDice();
+}
+
+function endTurn() {
+  turn = -turn;
+  dice = []; usedDice = [];
+  needsRoll = true;
+  selectedPoint = -1;
+  updateStatus(); renderDice();
+  if (vsComputer && turn === -1 && !gameOver) {
+    setTimeout(() => rollDice(), 500);
+  }
+}
+
+function updateStatus() {
+  const s = document.getElementById('status');
+  if (gameOver) {
+    s.textContent = (turn === 1 ? 'Weiss' : 'Schwarz') + ' gewinnt!';
+  } else if (needsRoll) {
+    s.textContent = (turn === 1 ? 'Weiss' : 'Schwarz') + ' — Würfeln';
+  } else {
+    s.textContent = (turn === 1 ? 'Weiss' : 'Schwarz') + ' am Zug';
+  }
+}
+
+function renderDice() {
+  const rem = remainingDice();
+  document.getElementById('die1').textContent = dice[0] || '-';
+  document.getElementById('die2').textContent = dice[1] || '-';
+  document.getElementById('die1').className = 'die' + (dice.length > 0 && !rem.includes(dice[0]) ? ' used' : '');
+  document.getElementById('die2').className = 'die' + (dice.length > 1 && (usedDice.length > (dice[0]===dice[1]?rem.length<3?1:0:rem.includes(dice[1])?0:1)) ? ' used' : '');
+}
+
+// --- AI ---
+function aiMove() {
+  aiThinking = true;
+  setTimeout(() => {
+    // Use remaining dice one by one, recalculating each time
+    while (true) {
+      if (gameOver || needsRoll) break; // endTurn was already called by executeMove
+      const rem = remainingDice();
+      if (rem.length === 0) break;
+
+      let moved = false;
+      for (const d of new Set(rem)) {
+        const moves = getValidMoves(d);
+        if (moves.length === 0) continue;
+        let best;
+        if (aiDifficulty === 'leicht') {
+          best = moves[Math.floor(Math.random() * moves.length)];
+        } else {
+          best = moves[0];
+          let bestScore = -Infinity;
+          for (const m of moves) {
+            let s = 0;
+            if (m.from === 'bar') s += 10;
+            if (m.to === 'off') s += 15;
+            else if (board[m.to] === 1) s += 8;
+            else if (m.to >= 1 && m.to <= 6 && board[m.to] < -1) s += 3;
+            if (s > bestScore) { bestScore = s; best = m; }
+          }
+        }
+        executeMove(best);
+        moved = true;
+        break; // Recalculate remaining dice from scratch
+      }
+      if (!moved) break; // No valid moves for any remaining die
+    }
+    aiThinking = false;
+    // End turn if executeMove didn't already do it and no more moves possible
+    if (!gameOver && !needsRoll && !hasAnyMove()) endTurn();
+  }, 400);
+}
+
+function passTurn() {
+  if (gameOver || needsRoll || aiThinking) return;
+  if (!hasAnyMove()) {
+    endTurn();
+  }
+}
+
+function toggleMode() {
+  vsComputer = !vsComputer;
+  document.getElementById('btn-mode').textContent = vsComputer ? '2 Spieler' : 'Gegen Computer';
+  document.getElementById('btn-mode').classList.toggle('active', vsComputer);
+  document.getElementById('difficulty').style.display = vsComputer ? '' : 'none';
+  resetGame();
+}
+
+// --- Drawing ---
+function pointX(p) {
+  // Points 1-12 bottom (right to left for display), 13-24 top (left to right)
+  if (p >= 13) {
+    const idx = p - 13;
+    return 20 + (idx < 6 ? idx : idx + 1) * POINT_W + (idx >= 6 ? BAR_W - POINT_W : 0);
+  } else {
+    const idx = 12 - p;
+    return 20 + (idx < 6 ? idx : idx + 1) * POINT_W + (idx >= 6 ? BAR_W - POINT_W : 0);
+  }
+}
+
+function draw() {
+  ctx.fillStyle = '#2d1a0e';
+  ctx.fillRect(0, 0, W, H);
+
+  // Bar
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(W/2 - BAR_W/2, 0, BAR_W, H);
+
+  // Draw points (triangles)
+  for (let p = 1; p <= 24; p++) {
+    const x = pointX(p);
+    const isTop = p >= 13;
+    const dark = (p % 2 === 0);
+    ctx.fillStyle = dark ? '#b58863' : '#16213e';
+    ctx.beginPath();
+    if (isTop) {
+      ctx.moveTo(x, 0); ctx.lineTo(x + POINT_W, 0); ctx.lineTo(x + POINT_W/2, H/2 - 20);
+    } else {
+      ctx.moveTo(x, H); ctx.lineTo(x + POINT_W, H); ctx.lineTo(x + POINT_W/2, H/2 + 20);
+    }
+    ctx.fill();
+
+    // Checkers
+    const count = Math.abs(board[p]);
+    const isWhite = board[p] > 0;
+    for (let i = 0; i < Math.min(count, 5); i++) {
+      const cx = x + POINT_W / 2;
+      const cy = isTop ? 20 + i * (CHECKER_R * 2 + 2) : H - 20 - i * (CHECKER_R * 2 + 2);
+      drawChecker(cx, cy, isWhite);
+      if (i === 4 && count > 5) {
+        ctx.fillStyle = isWhite ? '#1a1a2e' : '#fff';
+        ctx.font = 'bold 12px Segoe UI';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(count, cx, cy);
+      }
+    }
+
+    // Highlight selected and valid destinations
+    if (selectedPoint === p) {
+      ctx.strokeStyle = '#7b61ff'; ctx.lineWidth = 3;
+      ctx.strokeRect(x - 1, isTop ? 0 : H/2 + 20, POINT_W + 2, H/2 - 20);
+      ctx.lineWidth = 1;
+    }
+  }
+
+  // Bar checkers
+  for (let i = 0; i < bar[0]; i++) drawChecker(W/2, H - 40 - i * 20, true);
+  for (let i = 0; i < bar[1]; i++) drawChecker(W/2, 40 + i * 20, false);
+
+  // Borne off
+  ctx.fillStyle = '#c9b458'; ctx.font = '12px Segoe UI'; ctx.textAlign = 'center';
+  if (off[0] > 0) { ctx.fillText(`W: ${off[0]}`, W - 25, H/2 + 30); }
+  if (off[1] > 0) { ctx.fillText(`S: ${off[1]}`, W - 25, H/2 - 20); }
+
+  // Valid move indicators
+  if (selectedPoint >= 0 && !needsRoll) {
+    const rem = remainingDice();
+    for (const d of new Set(rem)) {
+      const moves = getValidMoves(d).filter(m => m.from === selectedPoint);
+      for (const m of moves) {
+        if (m.to === 'off') continue;
+        const x = pointX(m.to) + POINT_W/2;
+        const isTop = m.to >= 13;
+        const cy = isTop ? H/2 - 30 : H/2 + 30;
+        ctx.fillStyle = 'rgba(123, 97, 255, 0.4)';
+        ctx.beginPath(); ctx.arc(x, cy, 12, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+}
+
+function drawChecker(cx, cy, isWhite) {
+  const grad = ctx.createRadialGradient(cx - 3, cy - 3, 2, cx, cy, CHECKER_R);
+  if (isWhite) { grad.addColorStop(0, '#fff'); grad.addColorStop(1, '#bbb'); }
+  else { grad.addColorStop(0, '#666'); grad.addColorStop(1, '#222'); }
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(cx, cy, CHECKER_R, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+// --- Click Handler ---
+canvas.addEventListener('click', (e) => {
+  if (gameOver || needsRoll || aiThinking) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const player = turn;
+
+  // Check bar click
+  if (mx > W/2 - BAR_W/2 && mx < W/2 + BAR_W/2) {
+    const barCount = player === 1 ? bar[0] : bar[1];
+    if (barCount > 0) {
+      selectedPoint = 'bar';
+      draw(); return;
+    }
+  }
+
+  // Find clicked point
+  let clicked = -1;
+  for (let p = 1; p <= 24; p++) {
+    const x = pointX(p);
+    if (mx >= x && mx < x + POINT_W) {
+      const isTop = p >= 13;
+      if ((isTop && my < H/2) || (!isTop && my > H/2)) { clicked = p; break; }
+    }
+  }
+
+  if (clicked === -1) return;
+
+  // If we have a selection, try to move there
+  if (selectedPoint >= 0 || selectedPoint === 'bar') {
+    const rem = remainingDice();
+    for (const d of new Set(rem)) {
+      const moves = getValidMoves(d).filter(m => m.from === selectedPoint);
+      const move = moves.find(m => m.to === clicked);
+      if (move) {
+        executeMove(move);
+        selectedPoint = -1;
+        return;
+      }
+    }
+    // Also try bearing off if clicked off-board area
+  }
+
+  // Select a point with own checkers
+  if ((player === 1 && board[clicked] > 0) || (player === -1 && board[clicked] < 0)) {
+    selectedPoint = clicked;
+  } else {
+    selectedPoint = -1;
+  }
+  draw();
+});
+
+// Double-click for bearing off
+canvas.addEventListener('dblclick', (e) => {
+  if (gameOver || needsRoll || aiThinking || selectedPoint < 0) return;
+  const rem = remainingDice();
+  for (const d of new Set(rem)) {
+    const moves = getValidMoves(d).filter(m => m.from === selectedPoint && m.to === 'off');
+    if (moves.length > 0) { executeMove(moves[0]); selectedPoint = -1; return; }
+  }
+});
+
+resetGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Backgammon</h2><p>Würfle und bewege deine Steine (unten, dunkel) ins eigene Heimfeld und dann heraus. Du darfst nur Felder besetzen, die nicht vom Gegner mit 2+ Steinen blockiert sind.<br><br><b>Regeln:</b> Einzelne gegnerische Steine werden geschlagen und auf die Bar gesetzt. Alle eigenen Steine müssen im Heimfeld sein, bevor du auswürfeln darfst.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

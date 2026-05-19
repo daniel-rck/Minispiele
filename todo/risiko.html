@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risiko</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px;align-items:center}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4;cursor:default}
+canvas{border-radius:8px;cursor:pointer}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.5em;text-align:center;max-width:600px}
+.controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.phase{color:#888;font-size:.85rem}
+.dice-result{font-size:.9rem;color:#e0e0e0;min-height:1.2em;text-align:center}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>RISIKO</h1>
+<p class="phase" id="phase">Phase: Verstärkung</p>
+<p id="msg">Klicke auf dein Gebiet zum Verstärken.</p>
+<canvas id="c" width="700" height="420"></canvas>
+<p class="dice-result" id="dice-result"></p>
+<div class="controls">
+<button class="btn" id="btn-next" onclick="nextPhase()">Nächste Phase</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+// Simplified world: 20 territories as circles on a map
+const TERRITORIES=[
+  {name:'Alaska',x:60,y:60,adj:[1,6]},
+  {name:'Kanada',x:160,y:70,adj:[0,2,3,6]},
+  {name:'Ostküste',x:230,y:120,adj:[1,3]},
+  {name:'Mexiko',x:140,y:180,adj:[1,2,4]},
+  {name:'Brasilien',x:220,y:280,adj:[3,5]},
+  {name:'Argentinien',x:190,y:360,adj:[4]},
+  {name:'Grönland',x:300,y:40,adj:[0,1,7]},
+  {name:'Europa West',x:370,y:110,adj:[6,8,9,10]},
+  {name:'Europa Ost',x:430,y:90,adj:[7,9,11]},
+  {name:'Nordafrika',x:370,y:200,adj:[7,10,12]},
+  {name:'Südafrika',x:400,y:320,adj:[7,9,12]},
+  {name:'Russland',x:500,y:70,adj:[8,13,14]},
+  {name:'Ägypten',x:440,y:220,adj:[9,10,13]},
+  {name:'Mittlerer Osten',x:500,y:170,adj:[11,12,14,15]},
+  {name:'Indien',x:560,y:200,adj:[11,13,15,16]},
+  {name:'China',x:590,y:130,adj:[13,14,16,17]},
+  {name:'Südostasien',x:610,y:250,adj:[14,15,19]},
+  {name:'Japan',x:660,y:100,adj:[15,18]},
+  {name:'Sibirien',x:600,y:50,adj:[17,11]},
+  {name:'Australien',x:630,y:350,adj:[16]},
+];
+const N_TERR=TERRITORIES.length;
+let territories,phase,reinforcements,selectedFrom,selectedTo,gameOver;
+// phase: 'reinforce', 'attack', 'move'
+
+function newGame(){
+  territories=TERRITORIES.map((t,i)=>({
+    ...t,owner:i<10?1:2,troops:3,idx:i
+  }));
+  // Shuffle ownership
+  const indices=[...Array(N_TERR).keys()].sort(()=>Math.random()-.5);
+  indices.forEach((idx,i)=>territories[idx].owner=i<10?1:2);
+  phase='reinforce';
+  reinforcements=Math.max(3,Math.floor(territories.filter(t=>t.owner===1).length/3));
+  selectedFrom=null;selectedTo=null;gameOver=false;
+  updateUI();draw();
+}
+
+function updateUI(){
+  const phaseNames={reinforce:'Verstärkung',attack:'Angriff',move:'Verschieben'};
+  document.getElementById('phase').textContent=`Phase: ${phaseNames[phase]} | Deine Gebiete: ${territories.filter(t=>t.owner===1).length} | KI: ${territories.filter(t=>t.owner===2).length}`;
+  if(phase==='reinforce')document.getElementById('msg').textContent=`Verstärkung: ${reinforcements} Truppen übrig. Klicke dein Gebiet.`;
+  else if(phase==='attack')document.getElementById('msg').textContent='Angriff: Klicke dein Gebiet, dann ein feindliches Nachbargebiet.';
+  else document.getElementById('msg').textContent='Verschieben: Klicke dein Gebiet, dann ein eigenes Nachbargebiet.';
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  // connections
+  for(const t of territories){
+    for(const ai of t.adj){
+      const a=territories[ai];
+      ctx.strokeStyle='#0f3460';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(t.x,t.y);ctx.lineTo(a.x,a.y);ctx.stroke();
+    }
+  }
+  // territories
+  for(const t of territories){
+    const r=22;
+    const isFrom=selectedFrom===t.idx;
+    const isTo=selectedTo===t.idx;
+    ctx.fillStyle=t.owner===1?'#3498db':'#e74c3c';
+    ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);ctx.fill();
+    if(isFrom||isTo){
+      ctx.strokeStyle='#c9b458';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(t.x,t.y,r+2,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.fillStyle='#fff';ctx.font='bold 14px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(t.troops,t.x,t.y);
+    ctx.fillStyle='#ccc';ctx.font='9px Segoe UI';
+    ctx.fillText(t.name,t.x,t.y+r+12);
+  }
+}
+
+canvas.onclick=function(e){
+  if(gameOver)return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  let clicked=null;
+  for(const t of territories){
+    if(Math.hypot(mx-t.x,my-t.y)<24){clicked=t.idx;break;}
+  }
+  if(clicked===null)return;
+
+  if(phase==='reinforce'){
+    if(territories[clicked].owner!==1||reinforcements<=0)return;
+    territories[clicked].troops++;
+    reinforcements--;
+    if(reinforcements<=0){
+      document.getElementById('msg').textContent='Verstärkung fertig. Klicke "Nächste Phase" für Angriff.';
+    }
+    updateUI();draw();
+  } else if(phase==='attack'){
+    const t=territories[clicked];
+    if(!selectedFrom){
+      if(t.owner===1&&t.troops>1){selectedFrom=clicked;document.getElementById('msg').textContent=`${t.name} ausgewählt. Klicke feindliches Nachbargebiet.`;}
+    } else {
+      if(t.owner===2&&territories[selectedFrom].adj.includes(clicked)){
+        doAttack(selectedFrom,clicked);
+        selectedFrom=null;
+      } else if(t.owner===1){
+        selectedFrom=t.troops>1?clicked:null;
+      } else {
+        selectedFrom=null;
+      }
+    }
+    draw();
+  } else if(phase==='move'){
+    const t=territories[clicked];
+    if(!selectedFrom){
+      if(t.owner===1&&t.troops>1)selectedFrom=clicked;
+    } else {
+      if(t.owner===1&&territories[selectedFrom].adj.includes(clicked)&&clicked!==selectedFrom){
+        const move=Math.floor(territories[selectedFrom].troops/2);
+        if(move>0){territories[selectedFrom].troops-=move;territories[clicked].troops+=move;}
+        selectedFrom=null;
+        document.getElementById('msg').textContent='Verschieben fertig. Klicke "Nächste Phase".';
+      } else {
+        selectedFrom=t.owner===1&&t.troops>1?clicked:null;
+      }
+    }
+    draw();
+  }
+};
+
+function doAttack(fromIdx,toIdx){
+  const attacker=territories[fromIdx];
+  const defender=territories[toIdx];
+  const aDice=Math.min(3,attacker.troops-1);
+  const dDice=Math.min(2,defender.troops);
+  const aRolls=[...Array(aDice)].map(()=>1+Math.floor(Math.random()*6)).sort((a,b)=>b-a);
+  const dRolls=[...Array(dDice)].map(()=>1+Math.floor(Math.random()*6)).sort((a,b)=>b-a);
+  let aLoss=0,dLoss=0;
+  for(let i=0;i<Math.min(aRolls.length,dRolls.length);i++){
+    if(aRolls[i]>dRolls[i])dLoss++;else aLoss++;
+  }
+  attacker.troops-=aLoss;
+  defender.troops-=dLoss;
+  document.getElementById('dice-result').textContent=`Angriff: [${aRolls}] vs [${dRolls}] → -${aLoss} / -${dLoss}`;
+  if(defender.troops<=0){
+    defender.owner=1;
+    const moveTroops=Math.min(attacker.troops-1,3);
+    defender.troops=moveTroops;
+    attacker.troops-=moveTroops;
+    document.getElementById('msg').textContent=`${defender.name} erobert!`;
+    if(territories.every(t=>t.owner===1)){
+      gameOver=true;document.getElementById('msg').textContent='Gewonnen! Alle Gebiete erobert!';
+    }
+  }
+}
+
+function nextPhase(){
+  if(gameOver)return;
+  if(phase==='reinforce'){phase='attack';selectedFrom=null;}
+  else if(phase==='attack'){phase='move';selectedFrom=null;}
+  else{
+    // AI turn
+    phase='reinforce';
+    document.getElementById('msg').textContent='KI ist am Zug...';
+    draw();
+    setTimeout(aiTurn,500);
+    return;
+  }
+  updateUI();draw();
+}
+
+function aiTurn(){
+  const aiTerr=territories.filter(t=>t.owner===2);
+  if(aiTerr.length===0){gameOver=true;document.getElementById('msg').textContent='Gewonnen!';draw();return;}
+  // AI reinforce
+  let aiReinforce=Math.max(3,Math.floor(aiTerr.length/3));
+  const border=aiTerr.filter(t=>t.adj.some(a=>territories[a].owner===1));
+  while(aiReinforce>0&&border.length>0){
+    const t=border[Math.floor(Math.random()*border.length)];
+    t.troops++;aiReinforce--;
+  }
+  // AI attack
+  for(let tries=0;tries<5;tries++){
+    const attackers=territories.filter(t=>t.owner===2&&t.troops>1&&t.adj.some(a=>territories[a].owner===1));
+    if(attackers.length===0)break;
+    const att=attackers[Math.floor(Math.random()*attackers.length)];
+    const targets=att.adj.filter(a=>territories[a].owner===1);
+    if(targets.length===0)continue;
+    const def=territories[targets[Math.floor(Math.random()*targets.length)]];
+    if(att.troops<=def.troops&&Math.random()<0.5)continue;
+    const aDice=Math.min(3,att.troops-1);
+    const dDice=Math.min(2,def.troops);
+    const aRolls=[...Array(aDice)].map(()=>1+Math.floor(Math.random()*6)).sort((a,b)=>b-a);
+    const dRolls=[...Array(dDice)].map(()=>1+Math.floor(Math.random()*6)).sort((a,b)=>b-a);
+    let aLoss=0,dLoss=0;
+    for(let i=0;i<Math.min(aRolls.length,dRolls.length);i++){
+      if(aRolls[i]>dRolls[i])dLoss++;else aLoss++;
+    }
+    att.troops-=aLoss;def.troops-=dLoss;
+    if(def.troops<=0){
+      def.owner=2;const mv=Math.min(att.troops-1,3);def.troops=mv;att.troops-=mv;
+    }
+  }
+  if(territories.every(t=>t.owner===2)){
+    gameOver=true;document.getElementById('msg').textContent='Verloren! KI hat alle Gebiete.';draw();return;
+  }
+  // New player turn
+  reinforcements=Math.max(3,Math.floor(territories.filter(t=>t.owner===1).length/3));
+  phase='reinforce';selectedFrom=null;
+  updateUI();draw();
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Risiko</h2><p>Erobere Gebiete, indem du mit deinen Armeen angreifst. Verteile neue Truppen strategisch und sichere Kontinente für Bonus-Truppen.<br><br><b>Spielablauf:</b> Truppen verteilen → Angreifen → Verschieben. Würfel entscheiden Kämpfe.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

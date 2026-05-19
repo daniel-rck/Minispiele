@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idle Clicker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.main-btn{width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#c9b458,#8a7a30);border:4px solid #c9b458;cursor:pointer;font-size:1rem;font-weight:bold;color:#1a1a2e;transition:all .1s;box-shadow:0 6px 20px rgba(201,180,88,.3)}
+.main-btn:active{transform:scale(.95);box-shadow:0 2px 10px rgba(201,180,88,.2)}
+.counter{font-size:2rem;font-weight:bold;color:#c9b458}
+.per-sec{font-size:.9rem;color:#888}
+.upgrades{display:flex;flex-direction:column;gap:6px;max-width:400px;width:100%}
+.upgrade{display:flex;justify-content:space-between;align-items:center;background:#16213e;border:1px solid #0f3460;border-radius:8px;padding:10px 14px;cursor:pointer;transition:all .15s}
+.upgrade:hover{border-color:#c9b458}
+.upgrade.locked{opacity:.4;cursor:default}
+.upgrade-info{text-align:left}
+.upgrade-name{font-weight:bold;font-size:.9rem;color:#c9b458}
+.upgrade-desc{font-size:.7rem;color:#888}
+.upgrade-cost{font-size:.85rem;color:#c9b458;font-weight:bold;white-space:nowrap}
+.upgrade-count{font-size:.75rem;color:#888}
+.prestige-area{text-align:center;margin-top:6px}
+.prestige-btn{background:#9b59b6;color:#fff;border:none;border-radius:8px;padding:8px 20px;cursor:pointer;font-size:.9rem;font-weight:bold;transition:all .15s}
+.prestige-btn:hover{background:#8e44ad}
+.prestige-btn:disabled{opacity:.3;cursor:default}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>IDLE CLICKER</h1>
+<p class="counter" id="counter">0</p>
+<p class="per-sec" id="per-sec">0 pro Sekunde</p>
+<button class="main-btn" id="main-btn" onclick="doClick()">Klick!</button>
+<div class="upgrades" id="upgrades"></div>
+<div class="prestige-area">
+<button class="prestige-btn" id="prestige-btn" onclick="doPrestige()" disabled>Prestige (2x Multiplikator)</button>
+<p style="font-size:.7rem;color:#888;margin-top:4px">Prestige ab 10.000 Punkten. Multiplikator: <span id="mult">1</span>x</p>
+</div>
+
+<script>
+const UPGRADES=[
+  {name:'Besserer Klick',desc:'+1 pro Klick',baseCost:10,baseRate:0,clickRate:1},
+  {name:'Auto-Klicker',desc:'+1/s',baseCost:15,baseRate:1,clickRate:0},
+  {name:'Doppelklick',desc:'+5/s',baseCost:100,baseRate:5,clickRate:0},
+  {name:'Turbo-Finger',desc:'+20/s',baseCost:500,baseRate:20,clickRate:0},
+  {name:'Klick-Roboter',desc:'+100/s',baseCost:2500,baseRate:100,clickRate:0},
+  {name:'Klick-Fabrik',desc:'+500/s',baseCost:10000,baseRate:500,clickRate:0},
+  {name:'Klick-Imperium',desc:'+2000/s',baseCost:50000,baseRate:2000,clickRate:0},
+];
+
+let points=0,totalEarned=0,perSecond=0,clickPower=1,multiplier=1;
+let upgradeCounts=UPGRADES.map(()=>0);
+
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('idle-save'));
+    if(d){points=d.p||0;totalEarned=d.te||0;multiplier=d.m||1;if(d.uc){while(d.uc.length<UPGRADES.length)d.uc.unshift(0);upgradeCounts=d.uc;}clickPower=d.cp||1;}
+  }catch{}
+}
+
+function save(){
+  localStorage.setItem('idle-save',JSON.stringify({p:points,te:totalEarned,m:multiplier,uc:upgradeCounts,cp:clickPower}));
+}
+
+function format(n){
+  if(n>=1e9)return(n/1e9).toFixed(1)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(1)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
+  return Math.floor(n);
+}
+
+function doClick(){
+  const gain=clickPower*multiplier;
+  points+=gain;totalEarned+=gain;
+  // visual feedback
+  const btn=document.getElementById('main-btn');
+  btn.style.boxShadow='0 0 30px rgba(201,180,88,.6)';
+  setTimeout(()=>btn.style.boxShadow='0 6px 20px rgba(201,180,88,.3)',100);
+  update();
+}
+
+function buyUpgrade(idx){
+  const cost=upgradeCost(idx);
+  if(points<cost)return;
+  points-=cost;
+  upgradeCounts[idx]++;
+  calcPerSecond();
+  update();
+}
+
+function calcPerSecond(){
+  perSecond=0;clickPower=1;
+  UPGRADES.forEach((u,i)=>{
+    perSecond+=u.baseRate*upgradeCounts[i];
+    clickPower+=(u.clickRate||0)*upgradeCounts[i];
+  });
+  perSecond*=multiplier;
+}
+
+function upgradeCost(idx){
+  return Math.floor(UPGRADES[idx].baseCost*Math.pow(1.15,upgradeCounts[idx]));
+}
+
+function updateHud(){
+  document.getElementById('counter').textContent=format(points);
+  document.getElementById('per-sec').textContent=format(perSecond)+' pro Sekunde | Klick: '+format(clickPower*multiplier);
+  document.getElementById('mult').textContent=multiplier;
+  document.getElementById('prestige-btn').disabled=totalEarned<10000;
+}
+
+function renderUpgrades(){
+  const div=document.getElementById('upgrades');
+  div.innerHTML='';
+  UPGRADES.forEach((u,i)=>{
+    const cost=upgradeCost(i);
+    const canBuy=points>=cost;
+    const el=document.createElement('div');
+    el.className='upgrade'+(canBuy?'':' locked');
+    el.innerHTML=`<div class="upgrade-info"><div class="upgrade-name">${u.name}</div><div class="upgrade-desc">${u.desc} <span class="upgrade-count">(${upgradeCounts[i]})</span></div></div><div class="upgrade-cost">${format(cost)}</div>`;
+    el.onclick=()=>buyUpgrade(i);
+    div.appendChild(el);
+  });
+}
+
+function update(){
+  updateHud();
+  renderUpgrades();
+}
+
+function doPrestige(){
+  if(totalEarned<10000)return;
+  multiplier=Math.floor(multiplier+Math.log10(totalEarned));
+  points=0;totalEarned=0;
+  upgradeCounts=UPGRADES.map(()=>0);
+  clickPower=1;perSecond=0;
+  save();update();
+}
+
+function tick(){
+  if(perSecond>0){
+    const gain=perSecond/10;
+    points+=gain;totalEarned+=gain;
+  }
+  updateHud();
+}
+
+load();
+calcPerSecond();
+update();
+setInterval(tick,100);
+setInterval(save,5000);
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Idle Clicker</h2><p>Klicke den großen Button für Punkte und kaufe Upgrades, die automatisch Punkte generieren.<br><br><b>Upgrades:</b> Besserer Klick erhöht deine Klick-Power, die anderen generieren passive Punkte pro Sekunde.<br><b>Prestige:</b> Ab 10.000 Punkten kannst du alles zurücksetzen für einen permanenten Multiplikator.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

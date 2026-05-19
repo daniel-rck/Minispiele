@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hex-Minesweeper</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+canvas{border-radius:8px;cursor:pointer}
+#msg{color:#c9b458;font-weight:bold;font-size:1.05rem;min-height:1.5em;text-align:center}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+.controls label{color:#888;font-size:.85rem}
+.controls select{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 6px}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>HEX-MINESWEEPER</h1>
+<div class="controls">
+<label>Schwierigkeit: <select id="sel-diff" onchange="newGame()">
+<option value="easy">Leicht (8x8, 10 Minen)</option>
+<option value="medium" selected>Mittel (10x10, 18 Minen)</option>
+<option value="hard">Schwer (12x12, 30 Minen)</option>
+</select></label>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+<p id="msg">Linksklick = aufdecken, Rechtsklick = Flagge</p>
+<canvas id="c"></canvas>
+<p id="info">Minen: <span class="val" id="mines-left">0</span> | Zeit: <span class="val" id="timer">0:00</span></p>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const HEX_R=20;
+const DIFFS={easy:{rows:8,cols:8,mines:10},medium:{rows:10,cols:10,mines:18},hard:{rows:12,cols:12,mines:30}};
+const NUM_COLORS=['','#3498db','#2ecc71','#e74c3c','#9b59b6','#c9b458','#e67e22','#1abc9c','#888'];
+let ROWS,COLS,MINES,grid,revealed,flagged,mines,gameOver,firstClick,startTime,timerInterval;
+
+function hexPos(r,c){
+  const w=HEX_R*Math.sqrt(3);
+  const x=30+c*w+(r%2)*w/2;
+  const y=30+r*HEX_R*1.5;
+  return{x,y};
+}
+
+function hexNeighbors(r,c){
+  const even=r%2===0;
+  const dirs=even?[[-1,-1],[-1,0],[0,-1],[0,1],[1,-1],[1,0]]:
+                  [[-1,0],[-1,1],[0,-1],[0,1],[1,0],[1,1]];
+  return dirs.map(([dr,dc])=>[r+dr,c+dc]).filter(([nr,nc])=>nr>=0&&nr<ROWS&&nc>=0&&nc<COLS);
+}
+
+function newGame(){
+  const diff=DIFFS[document.getElementById('sel-diff').value];
+  ROWS=diff.rows;COLS=diff.cols;MINES=diff.mines;
+  canvas.width=60+COLS*HEX_R*Math.sqrt(3)+HEX_R;
+  canvas.height=60+ROWS*HEX_R*1.5+HEX_R;
+  grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+  revealed=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  flagged=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  mines=[];gameOver=false;firstClick=true;
+  clearInterval(timerInterval);startTime=Date.now();
+  timerInterval=setInterval(()=>{
+    if(gameOver)return;
+    const s=Math.floor((Date.now()-startTime)/1000);
+    document.getElementById('timer').textContent=Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60);
+  },1000);
+  document.getElementById('mines-left').textContent=MINES;
+  document.getElementById('msg').textContent='Linksklick = aufdecken, Rechtsklick = Flagge';
+  draw();
+}
+
+function placeMines(safeR,safeC){
+  const safe=new Set();
+  safe.add(safeR+','+safeC);
+  hexNeighbors(safeR,safeC).forEach(([r,c])=>safe.add(r+','+c));
+  let placed=0;
+  while(placed<MINES){
+    const r=Math.floor(Math.random()*ROWS),c=Math.floor(Math.random()*COLS);
+    if(grid[r][c]===-1||safe.has(r+','+c))continue;
+    grid[r][c]=-1;mines.push([r,c]);placed++;
+  }
+  // Calculate numbers
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(grid[r][c]===-1)continue;
+    grid[r][c]=hexNeighbors(r,c).filter(([nr,nc])=>grid[nr][nc]===-1).length;
+  }
+}
+
+function reveal(r,c){
+  if(revealed[r][c]||flagged[r][c])return;
+  revealed[r][c]=true;
+  if(grid[r][c]===0){
+    hexNeighbors(r,c).forEach(([nr,nc])=>reveal(nr,nc));
+  }
+}
+
+function drawHex(cx,cy,r,fill,stroke){
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+    const angle=Math.PI/6+i*Math.PI/3;
+    const x=cx+r*Math.cos(angle),y=cy+r*Math.sin(angle);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const{x,y}=hexPos(r,c);
+      if(revealed[r][c]){
+        drawHex(x,y,HEX_R-1,'#0f3460','#16213e');
+        if(grid[r][c]===-1){
+          drawHex(x,y,HEX_R-1,'#4a1a1a','#e74c3c');
+          ctx.fillStyle='#e74c3c';ctx.font='bold 14px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillText('*',x,y);
+        } else if(grid[r][c]>0){
+          ctx.fillStyle=NUM_COLORS[grid[r][c]];ctx.font='bold 13px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillText(grid[r][c],x,y);
+        }
+      } else {
+        drawHex(x,y,HEX_R-1,'#16213e','#0f3460');
+        if(flagged[r][c]){
+          ctx.fillStyle='#e74c3c';ctx.font='12px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillText('🚩',x,y);
+        }
+      }
+    }
+  }
+}
+
+canvas.onclick=function(e){
+  if(gameOver)return;
+  const[r,c]=findHex(e);
+  if(r<0)return;
+  if(flagged[r][c])return;
+  if(firstClick){placeMines(r,c);firstClick=false;}
+  if(grid[r][c]===-1){
+    revealed[r][c]=true;
+    gameOver=true;
+    clearInterval(timerInterval);
+    mines.forEach(([mr,mc])=>revealed[mr][mc]=true);
+    document.getElementById('msg').textContent='Boom! Verloren!';
+  } else {
+    reveal(r,c);
+    checkWin();
+  }
+  draw();
+};
+
+canvas.oncontextmenu=function(e){
+  e.preventDefault();
+  if(gameOver)return;
+  const[r,c]=findHex(e);
+  if(r<0||revealed[r][c])return;
+  flagged[r][c]=!flagged[r][c];
+  const flagCount=flagged.flat().filter(Boolean).length;
+  document.getElementById('mines-left').textContent=MINES-flagCount;
+  draw();
+};
+
+function findHex(e){
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  let bestR=-1,bestC=-1,bestDist=Infinity;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const{x,y}=hexPos(r,c);
+    const d=Math.hypot(mx-x,my-y);
+    if(d<HEX_R&&d<bestDist){bestDist=d;bestR=r;bestC=c;}
+  }
+  return[bestR,bestC];
+}
+
+function checkWin(){
+  let unrevealed=0;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(!revealed[r][c])unrevealed++;
+  if(unrevealed===MINES){
+    gameOver=true;clearInterval(timerInterval);
+    document.getElementById('msg').textContent='Gewonnen! Alle sicheren Felder aufgedeckt!';
+  }
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Minesweeper Hex</h2><p>Wie klassisches Minesweeper, aber auf einem <b>Sechseck-Gitter</b>. Jedes Feld hat bis zu 6 Nachbarn.<br><br><b>Steuerung:</b> Linksklick = aufdecken, Rechtsklick = Flagge.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

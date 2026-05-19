@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buchstabierbiene</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center}
+.honeycomb{display:flex;flex-direction:column;align-items:center;gap:4px}
+.hex-row{display:flex;gap:6px}
+.hex{width:52px;height:52px;background:#16213e;border:2px solid #0f3460;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;justify-content:center;align-items:center;font-size:1.3rem;font-weight:bold;cursor:pointer;transition:all .15s}
+.hex:hover{background:#0f3460}
+.hex.center{background:#c9b458;color:#1a1a2e;border-color:#c9b458}
+.input-area{display:flex;gap:8px;align-items:center}
+.word-input{background:#16213e;border:2px solid #0f3460;border-radius:8px;padding:8px 16px;color:#c9b458;font-size:1.2rem;font-weight:bold;text-align:center;min-width:200px;letter-spacing:2px;text-transform:uppercase;outline:none}
+.word-input:focus{border-color:#c9b458}
+.found-words{display:flex;flex-wrap:wrap;gap:4px;max-width:400px;justify-content:center;max-height:150px;overflow-y:auto}
+.found-word{background:#0f3460;padding:2px 8px;border-radius:4px;font-size:.75rem;color:#c9b458}
+.score-bar{width:300px;height:8px;background:#0f3460;border-radius:4px;overflow:hidden}
+.score-fill{height:100%;background:#c9b458;transition:width .3s;border-radius:4px}
+.stats{font-size:.85rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>BUCHSTABIERBIENE</h1>
+<p id="msg">Bilde Wörter mit 4+ Buchstaben. Der mittlere muss dabei sein!</p>
+<div class="honeycomb" id="honeycomb"></div>
+<div class="input-area">
+<input class="word-input" id="input" maxlength="15" placeholder="Wort eingeben..." autocomplete="off">
+<button class="btn" onclick="submitWord()">OK</button>
+</div>
+<div class="score-bar"><div class="score-fill" id="score-fill" style="width:0%"></div></div>
+<p class="stats">Punkte: <span class="val" id="score">0</span> | Gefunden: <span class="val" id="found-count">0</span> / <span class="val" id="total-count">0</span></p>
+<div class="found-words" id="found-words"></div>
+<button class="btn" onclick="newGame()">Neues Rätsel</button>
+
+<script>
+const DICT=['ABER','ADER','ADLER','AFFE','ALARM','AMPEL','ANGEL','ANGST','APFEL','ARBEIT','ARZT','AUTO','BACH','BACK','BAHN','BALL','BAND','BANK','BART','BAUM','BERG','BILD','BLATT','BLAU','BLICK','BLITZ','BLUME','BLUT','BODEN','BOOT','BRAND','BRAUN','BRIEF','BROT','BRUCH','BRUST','BUCH','BURG','DACH','DAME','DAMPF','DANK','DECKE','DICHT','DIENST','DING','DORF','DRAHT','DRANG','DRUCK','DUMM','DUNKEL','ECKE','EGAL','EHRE','EICHE','EIMER','EISEN','ELCH','ENGEL','ERDE','ERNST','ESSEN','EULE','FACH','FADEN','FAHNE','FAHRT','FALL','FALSCH','FARBE','FEDER','FEHLER','FEIER','FELD','FELS','FEST','FEUER','FILM','FISCH','FLASCHE','FLEISCH','FLUG','FLUSS','FORST','FRAGE','FRAU','FREI','FREMD','FREUDE','FRIEDE','FROST','FRUCHT','FUCHS','GABEL','GANG','GARTEN','GAST','GEIST','GELD','GIFT','GLAS','GLOCKE','GOLD','GRAB','GRAF','GRAS','GRAU','GRIFF','GRUND','GUNST','GUSS','HAFEN','HAHN','HALB','HALLE','HALT','HAND','HANG','HART','HASE','HAUS','HAUT','HEFT','HELL','HEMD','HERBST','HERD','HERR','HERZ','HILFE','HIRSCH','HOLZ','HONIG','HUHN','HUND','INSEL','JAGD','KABEL','KALT','KAMM','KAMPF','KARTE','KATZE','KELLER','KERN','KETTE','KIND','KISTE','KLAR','KLEID','KLEIN','KLUG','KNIE','KNOPF','KOPF','KORB','KRAFT','KRANZ','KRAUT','KREIS','KREUZ','KRIEG','KRONE','KUNST','KUPFER','KURZ','LADEN','LAMPE','LAND','LANG','LAUT','LEDER','LEER','LEHRE','LEID','LEISE','LICHT','LIEBE','LIED','LINDE','LINKS','LISTE','LOCH','LUFT','MAGEN','MACHT','MARKT','MAUER','MEHL','MEISTER','MILCH','MITTEL','MOND','MORGEN','MUSTER','NAGEL','NASE','NATUR','NEBEL','NETZ','NICHT','NORDEN','NUDEL','OBEN','OFEN','OSTEN','PAAR','PAPIER','PELZ','PFEIL','PFLICHT','PLATZ','PREIS','PUNKT','RABE','RAHMEN','RAND','RAUCH','RAUM','RECHT','REGAL','REGEN','REICH','REIHE','REISE','RING','ROCK','ROLLE','RUHE','RUHM','RUND','SACK','SALZ','SAND','SATZ','SCHAF','SCHALL','SCHATTEN','SCHEIN','SCHERZ','SCHICHT','SCHILD','SCHLAF','SCHLAG','SCHLOSS','SCHLUSS','SCHNEE','SCHNELL','SCHRANK','SCHRECK','SCHRIFT','SCHULD','SCHULE','SCHUTZ','SCHWACH','SCHWARZ','SCHWER','SEELE','SEIDE','SEIFE','SEIL','SEITE','SILBER','SINN','SITZ','SOCKE','SONNE','SORGE','SPIEL','SPIEGEL','SPORT','STAAT','STADT','STAMM','STAND','STARK','STAUB','STEIN','STELLE','STERN','STILL','STIMME','STIRN','STOFF','STOLZ','STRAND','STRASSE','STREICH','STROM','STURM','SUMPF','SUPPE','TANNE','TASCHE','TASSE','TEMPEL','TEPPICH','TIER','TISCH','TOPF','TRAUM','TREUE','TROST','TROPF','TURM','UFER','UNTEN','VATER','WALD','WAND','WANGE','WASSER','WELT','WERT','WETTER','WILD','WILLE','WIND','WINTER','WISSEN','WOLKE','WORT','WUNDE','WURM','ZAHL','ZAHN','ZAUN','ZEILE','ZEITUNG','ZELT','ZIEGE','ZIMMER','ZORN','ZUCKER','ZUFALL','ZUKUNFT','ZUNGE'];
+
+let center,outer,validWords,foundWords,score;
+
+function newGame(){
+  // Pick 7 unique letters where many words can be formed
+  const letters='ABCDEFGHIKLMNOPRSTUVWZ';
+  let best=[],bestCount=0;
+  for(let attempt=0;attempt<100;attempt++){
+    const shuffled=[...letters].sort(()=>Math.random()-.5);
+    const picked=shuffled.slice(0,7);
+    const c=picked[0];
+    const set=new Set(picked);
+    const count=DICT.filter(w=>w.length>=4&&w.includes(c)&&[...w].every(l=>set.has(l))).length;
+    if(count>bestCount){bestCount=count;best=picked;}
+  }
+  center=best[0];
+  outer=best.slice(1);
+  const set=new Set(best);
+  validWords=DICT.filter(w=>w.length>=4&&w.includes(center)&&[...w].every(l=>set.has(l)));
+  foundWords=new Set();
+  score=0;
+  document.getElementById('msg').textContent=`Bilde Wörter mit dem Buchstaben "${center}" in der Mitte!`;
+  document.getElementById('total-count').textContent=validWords.length;
+  render();
+}
+
+function render(){
+  const hc=document.getElementById('honeycomb');
+  hc.innerHTML='';
+  const row1=document.createElement('div');row1.className='hex-row';
+  [outer[0],outer[1]].forEach(l=>{const h=makeHex(l,false);row1.appendChild(h);});
+  hc.appendChild(row1);
+  const row2=document.createElement('div');row2.className='hex-row';
+  [outer[2],center,outer[3]].forEach((l,i)=>{const h=makeHex(l,i===1);row2.appendChild(h);});
+  hc.appendChild(row2);
+  const row3=document.createElement('div');row3.className='hex-row';
+  [outer[4],outer[5]].forEach(l=>{const h=makeHex(l,false);row3.appendChild(h);});
+  hc.appendChild(row3);
+
+  const fw=document.getElementById('found-words');
+  fw.innerHTML='';
+  for(const w of foundWords){
+    const el=document.createElement('span');el.className='found-word';el.textContent=w;
+    fw.appendChild(el);
+  }
+  document.getElementById('score').textContent=score;
+  document.getElementById('found-count').textContent=foundWords.size;
+  const pct=validWords.length>0?Math.round(foundWords.size/validWords.length*100):0;
+  document.getElementById('score-fill').style.width=pct+'%';
+}
+
+function makeHex(letter,isCenter){
+  const h=document.createElement('div');
+  h.className='hex'+(isCenter?' center':'');
+  h.textContent=letter;
+  h.onclick=()=>{document.getElementById('input').value+=letter;};
+  return h;
+}
+
+function submitWord(){
+  const input=document.getElementById('input');
+  const word=input.value.toUpperCase().trim();
+  input.value='';
+  if(word.length<4){document.getElementById('msg').textContent='Mindestens 4 Buchstaben!';return;}
+  if(!word.includes(center)){document.getElementById('msg').textContent=`Muss "${center}" enthalten!`;return;}
+  if(foundWords.has(word)){document.getElementById('msg').textContent='Bereits gefunden!';return;}
+  if(validWords.includes(word)){
+    foundWords.add(word);
+    const isPangram=[center,...outer].every(l=>word.includes(l));
+    const pts=isPangram?word.length+7:word.length===4?1:word.length;
+    score+=pts;
+    document.getElementById('msg').textContent=isPangram?`PANGRAM! +${pts} Punkte!`:`+${pts} Punkte!`;
+    render();
+  } else {
+    document.getElementById('msg').textContent='Nicht in der Wortliste.';
+  }
+}
+
+document.getElementById('input').onkeydown=e=>{if(e.key==='Enter')submitWord();if(e.key==='Backspace'&&e.ctrlKey){e.preventDefault();document.getElementById('input').value='';}};
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Buchstabierbiene</h2><p>Bilde Wörter aus den angezeigten Buchstaben. Jedes Wort muss den <b>Mittelbuchstaben</b> (gelb markiert) enthalten.<br><br><b>Regeln:</b> Mindestens 4 Buchstaben pro Wort. Buchstaben dürfen mehrfach verwendet werden. Pangram = alle Buchstaben verwendet!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

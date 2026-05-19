@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helicopter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+canvas{border-radius:8px}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>HELICOPTER</h1>
+<canvas id="c" width="700" height="400"></canvas>
+<p id="info">Highscore: <span class="val" id="best">0</span>m</p>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height;
+let heliY,heliVy,scrollX,ceilY,floorY,obstacles,particles,score,gameOver,pressing,started;
+const HELI_X=100,HELI_W=40,HELI_H=20;
+const GRAVITY=0.35,LIFT=-0.65,SPEED=3;
+let ceilPoints=[],floorPoints=[];
+
+function reset(){
+  heliY=H/2;heliVy=0;scrollX=0;score=0;gameOver=false;pressing=false;started=false;
+  obstacles=[];particles=[];
+  ceilPoints=[];floorPoints=[];
+  const gap=H*0.6;
+  for(let x=0;x<W+200;x+=20){
+    const t=x*0.005;
+    const mid=H/2+Math.sin(t)*40;
+    ceilPoints.push(mid-gap/2+Math.sin(t*2)*20);
+    floorPoints.push(mid+gap/2+Math.cos(t*1.5)*20);
+  }
+  draw();
+  ctx.fillStyle='rgba(26,26,46,0.7)';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#c9b458';ctx.font='bold 24px Segoe UI';ctx.textAlign='center';
+  ctx.fillText('Klicken/Leertaste zum Starten',W/2,H/2);
+}
+
+function addTerrain(){
+  const lastIdx=ceilPoints.length-1;
+  const t=(scrollX+lastIdx*20)*0.005;
+  const gap=Math.max(H*0.3,H*0.6-score*0.15);
+  const mid=H/2+Math.sin(t)*60+Math.cos(t*0.7)*30;
+  ceilPoints.push(Math.max(20,mid-gap/2+Math.sin(t*2)*25));
+  floorPoints.push(Math.min(H-20,mid+gap/2+Math.cos(t*1.5)*25));
+}
+
+function addObstacle(){
+  if(Math.random()<0.02+score*0.0002){
+    const idx=Math.floor((scrollX+W)/20);
+    const ceil=ceilPoints[idx]||80;
+    const floor=floorPoints[idx]||H-80;
+    const y=ceil+30+Math.random()*(floor-ceil-80);
+    obstacles.push({x:W+scrollX,y,w:20+Math.random()*20,h:30+Math.random()*40});
+  }
+}
+
+function update(){
+  if(gameOver||!started)return;
+  if(pressing)heliVy+=LIFT;
+  heliVy+=GRAVITY;
+  heliVy=Math.max(-6,Math.min(6,heliVy));
+  heliY+=heliVy;
+  scrollX+=SPEED;
+  score=Math.floor(scrollX/10);
+
+  while(ceilPoints.length<(scrollX+W+200)/20)addTerrain();
+  addObstacle();
+
+  // collision with ceiling/floor
+  const idx=Math.floor((scrollX+HELI_X)/20);
+  const ceil=ceilPoints[idx]||0;
+  const floor=floorPoints[idx]||H;
+  if(heliY-HELI_H/2<ceil||heliY+HELI_H/2>floor){die();return;}
+
+  // collision with obstacles
+  for(const o of obstacles){
+    const ox=o.x-scrollX;
+    if(HELI_X+HELI_W/2>ox&&HELI_X-HELI_W/2<ox+o.w&&
+       heliY+HELI_H/2>o.y&&heliY-HELI_H/2<o.y+o.h){die();return;}
+  }
+  obstacles=obstacles.filter(o=>o.x-scrollX>-50);
+}
+
+function die(){
+  gameOver=true;
+  for(let i=0;i<20;i++){
+    particles.push({x:HELI_X,y:heliY,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:30+Math.random()*20});
+  }
+  const best=parseInt(localStorage.getItem('heli-best')||'0');
+  if(score>best)localStorage.setItem('heli-best',score);
+  document.getElementById('best').textContent=localStorage.getItem('heli-best');
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,H);
+
+  // terrain
+  ctx.fillStyle='#0f3460';
+  ctx.beginPath();ctx.moveTo(0,0);
+  for(let i=0;i<ceilPoints.length;i++){
+    const x=i*20-scrollX;
+    if(x<-20||x>W+20)continue;
+    ctx.lineTo(x,ceilPoints[i]);
+  }
+  ctx.lineTo(W,0);ctx.closePath();ctx.fill();
+
+  ctx.beginPath();ctx.moveTo(0,H);
+  for(let i=0;i<floorPoints.length;i++){
+    const x=i*20-scrollX;
+    if(x<-20||x>W+20)continue;
+    ctx.lineTo(x,floorPoints[i]);
+  }
+  ctx.lineTo(W,H);ctx.closePath();ctx.fill();
+
+  // obstacles
+  ctx.fillStyle='#e74c3c';
+  for(const o of obstacles){
+    const ox=o.x-scrollX;
+    ctx.fillRect(ox,o.y,o.w,o.h);
+  }
+
+  // helicopter
+  if(!gameOver){
+    ctx.fillStyle='#c9b458';
+    ctx.fillRect(HELI_X-HELI_W/2,heliY-HELI_H/2,HELI_W,HELI_H);
+    ctx.fillStyle='#e0e0e0';
+    ctx.fillRect(HELI_X-HELI_W/2-8,heliY-2,8,4);// tail
+    ctx.fillRect(HELI_X-HELI_W/3,heliY-HELI_H/2-4,HELI_W*0.7,3);// rotor
+  }
+
+  // particles
+  for(const p of particles){
+    ctx.fillStyle=`rgba(201,180,88,${p.life/50})`;
+    ctx.fillRect(p.x-2,p.y-2,4,4);
+    p.x+=p.vx;p.y+=p.vy;p.life--;
+  }
+  particles=particles.filter(p=>p.life>0);
+
+  // score
+  ctx.fillStyle='#c9b458';ctx.font='bold 20px Segoe UI';ctx.textAlign='right';
+  ctx.fillText(score+'m',W-20,30);
+
+  if(gameOver){
+    ctx.fillStyle='rgba(26,26,46,0.6)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#c9b458';ctx.font='bold 28px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('Game Over!',W/2,H/2-20);
+    ctx.font='18px Segoe UI';ctx.fillText(`Distanz: ${score}m`,W/2,H/2+15);
+    ctx.fillStyle='#888';ctx.font='14px Segoe UI';
+    ctx.fillText('Klick zum Neustart',W/2,H/2+45);
+  }
+}
+
+function loop(){
+  update();draw();
+  requestAnimationFrame(loop);
+}
+
+function handleDown(){
+  if(gameOver){reset();return;}
+  if(!started)started=true;
+  pressing=true;
+}
+
+canvas.onmousedown=handleDown;
+canvas.onmouseup=()=>pressing=false;
+canvas.ontouchstart=(e)=>{e.preventDefault();handleDown();};
+canvas.ontouchend=(e)=>{e.preventDefault();pressing=false;};
+document.onkeydown=(e)=>{if(e.code==='Space'){e.preventDefault();handleDown();}};
+document.onkeyup=(e)=>{if(e.code==='Space')pressing=false;};
+
+const best=localStorage.getItem('heli-best');
+if(best)document.getElementById('best').textContent=best;
+reset();
+loop();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Helicopter</h2><p>Fliege den Helikopter durch den Tunnel, ohne die Wände zu berühren.<br><br><b>Steuerung:</b> Klick/Leertaste gedrückt halten = steigen, loslassen = sinken.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

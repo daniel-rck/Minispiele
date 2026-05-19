@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nim</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:14px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4;cursor:default}
+#msg{color:#c9b458;font-weight:bold;font-size:1.1rem;min-height:1.5em;text-align:center}
+.settings{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center}
+.settings label{color:#888;font-size:.85rem}
+.settings select{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 6px}
+.board{display:flex;flex-direction:column;gap:16px;align-items:center}
+.nim-row{display:flex;gap:8px;align-items:flex-end;justify-content:center}
+.match{width:8px;height:60px;border-radius:2px 2px 0 0;cursor:pointer;transition:all .2s;position:relative}
+.match .stick{width:100%;height:100%;background:linear-gradient(to bottom,#f5e6c8,#c9a84c);border-radius:2px 2px 0 0}
+.match .head{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:#e74c3c}
+.match:hover .head{background:#ff6b6b;box-shadow:0 0 8px rgba(231,76,60,.6)}
+.match.selected{transform:translateY(-12px)}
+.match.selected .head{background:#c9b458;box-shadow:0 0 12px rgba(201,180,88,.6)}
+.match.taken{opacity:.15;pointer-events:none}
+.row-label{color:#888;font-size:.8rem;min-width:60px;text-align:right}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>NIM</h1>
+<div class="settings">
+<label>Start: <select id="sel-config">
+<option value="1,3,5,7">1-3-5-7</option>
+<option value="3,4,5">3-4-5</option>
+<option value="2,3,4,5,6">2-3-4-5-6</option>
+</select></label>
+<label>KI: <select id="sel-diff">
+<option value="0.5">Leicht</option>
+<option value="0.75">Mittel</option>
+<option value="1" selected>Schwer</option>
+</select></label>
+<label>Modus: <select id="sel-mode">
+<option value="misere">Letzter verliert</option>
+<option value="normal">Letzter gewinnt</option>
+</select></label>
+</div>
+<p id="msg">Wähle Streichhölzer aus einer Reihe, dann klicke "Nehmen".</p>
+<div class="board" id="board"></div>
+<div class="controls">
+<button class="btn" id="btn-take" onclick="takeSelected()" disabled>Nehmen</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+<p id="info">Gewonnen: <span class="val" id="wins">0</span> | Verloren: <span class="val" id="losses">0</span></p>
+
+<script>
+let rows=[],selected=[],selectedRow=-1,isPlayerTurn=true,gameOver=false;
+let wins=parseInt(localStorage.getItem('nim-wins')||'0');
+let losses=parseInt(localStorage.getItem('nim-losses')||'0');
+document.getElementById('wins').textContent=wins;
+document.getElementById('losses').textContent=losses;
+
+function newGame(){
+  const cfg=document.getElementById('sel-config').value.split(',').map(Number);
+  rows=cfg.map(n=>({total:n,remaining:n}));
+  selected=cfg.map(()=>[]);
+  selectedRow=-1;isPlayerTurn=true;gameOver=false;
+  document.getElementById('msg').textContent='Wähle Streichhölzer aus einer Reihe.';
+  render();
+}
+
+function render(){
+  const board=document.getElementById('board');
+  board.innerHTML='';
+  for(let r=0;r<rows.length;r++){
+    const rowDiv=document.createElement('div');
+    rowDiv.className='nim-row';
+    const label=document.createElement('span');
+    label.className='row-label';
+    label.textContent=`Reihe ${r+1} (${rows[r].remaining})`;
+    rowDiv.appendChild(label);
+    for(let m=0;m<rows[r].total;m++){
+      const match=document.createElement('div');
+      const taken=m>=rows[r].remaining;
+      const isSel=selected[r].includes(m);
+      match.className='match'+(taken?' taken':'')+(isSel?' selected':'');
+      match.innerHTML='<div class="head"></div><div class="stick"></div>';
+      if(!taken&&isPlayerTurn&&!gameOver){
+        match.onclick=(()=>{const ri=r,mi=m;return()=>toggleMatch(ri,mi);})();
+      }
+      rowDiv.appendChild(match);
+    }
+    board.appendChild(rowDiv);
+  }
+  document.getElementById('btn-take').disabled=!selected.some(s=>s.length>0)||gameOver||!isPlayerTurn;
+}
+
+function toggleMatch(r,m){
+  if(selectedRow>=0&&selectedRow!==r){
+    selected[selectedRow]=[];
+  }
+  selectedRow=r;
+  const idx=selected[r].indexOf(m);
+  if(idx>=0)selected[r].splice(idx,1);
+  else selected[r].push(m);
+  if(selected[r].length===0)selectedRow=-1;
+  render();
+}
+
+function takeSelected(){
+  if(gameOver||!isPlayerTurn)return;
+  const r=selectedRow;
+  if(r<0)return;
+  const count=selected[r].length;
+  rows[r].remaining-=count;
+  selected=rows.map(()=>[]);
+  selectedRow=-1;
+  if(checkEnd('Du'))return;
+  isPlayerTurn=false;
+  render();
+  document.getElementById('msg').textContent='KI denkt nach...';
+  setTimeout(aiMove,700);
+}
+
+function aiMove(){
+  const diff=parseFloat(document.getElementById('sel-diff').value);
+  const mode=document.getElementById('sel-mode').value;
+  let move=null;
+  if(Math.random()<diff){
+    move=optimalMove(mode);
+  }
+  if(!move){
+    const avail=[];
+    for(let r=0;r<rows.length;r++)if(rows[r].remaining>0)avail.push(r);
+    const r=avail[Math.floor(Math.random()*avail.length)];
+    const take=1+Math.floor(Math.random()*rows[r].remaining);
+    move={row:r,take};
+  }
+  rows[move.row].remaining-=move.take;
+  document.getElementById('msg').textContent=`KI nimmt ${move.take} aus Reihe ${move.row+1}.`;
+  if(checkEnd('KI'))return;
+  isPlayerTurn=true;
+  render();
+}
+
+function optimalMove(mode){
+  const nimSum=rows.reduce((a,r)=>a^r.remaining,0);
+  const totalRemaining=rows.reduce((a,r)=>a+r.remaining,0);
+  const nonzeroHeaps=rows.filter(r=>r.remaining>0).length;
+
+  if(mode==='misere'){
+    if(nonzeroHeaps===0)return null;
+    const allOneOrZero=rows.every(r=>r.remaining<=1);
+    if(allOneOrZero){
+      const ones=rows.filter(r=>r.remaining===1).length;
+      for(let r=0;r<rows.length;r++){
+        if(rows[r].remaining===1){
+          if(ones%2===0)return{row:r,take:1};
+        }
+      }
+      return null;
+    }
+    if(nimSum===0)return null;
+    for(let r=0;r<rows.length;r++){
+      const target=rows[r].remaining^nimSum;
+      if(target<rows[r].remaining){
+        const heapsAboveOneAfter=rows.filter((ro,i)=>i===r?target>1:ro.remaining>1).length;
+        const onesAfter=rows.filter((ro,i)=>i===r?(target===1?1:0):(ro.remaining===1?1:0)).length;
+        if(heapsAboveOneAfter===0){
+          const desiredOnes=onesAfter%2===0?1:0;
+          const newTarget=desiredOnes;
+          if(newTarget<rows[r].remaining)return{row:r,take:rows[r].remaining-newTarget};
+        }
+        return{row:r,take:rows[r].remaining-target};
+      }
+    }
+  } else {
+    if(nimSum===0)return null;
+    for(let r=0;r<rows.length;r++){
+      const target=rows[r].remaining^nimSum;
+      if(target<rows[r].remaining)return{row:r,take:rows[r].remaining-target};
+    }
+  }
+  return null;
+}
+
+function checkEnd(lastPlayer){
+  const total=rows.reduce((a,r)=>a+r.remaining,0);
+  if(total>0)return false;
+  gameOver=true;
+  const mode=document.getElementById('sel-mode').value;
+  let loser;
+  if(mode==='misere')loser=lastPlayer;
+  else loser=lastPlayer==='Du'?'KI':'Du';
+  const winner=loser==='Du'?'KI':'Du';
+  if(winner==='Du'){wins++;localStorage.setItem('nim-wins',wins);document.getElementById('wins').textContent=wins;}
+  else{losses++;localStorage.setItem('nim-losses',losses);document.getElementById('losses').textContent=losses;}
+  document.getElementById('msg').textContent=loser==='Du'?'Du hast verloren!':'Du hast gewonnen!';
+  render();
+  return true;
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Nim</h2><p>Abwechselnd Steine aus einer Reihe nehmen. Du darfst beliebig viele Steine aus <b>einer</b> Reihe nehmen (mindestens 1).<br><br><b>Ziel:</b> Wer den letzten Stein nehmen muss, verliert (Misère-Variante).</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skat</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:8px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4}
+#msg{color:#c9b458;font-weight:bold;font-size:.95rem;min-height:1.4em;text-align:center;max-width:500px}
+.area{background:#16213e;border:1px solid #0f3460;border-radius:10px;padding:10px;width:100%;max-width:580px;text-align:center}
+.area h3{color:#c9b458;font-size:.8rem;margin-bottom:4px}
+.cards{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;min-height:60px}
+.card{width:48px;height:68px;border-radius:5px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:bold;font-size:.75rem;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.card:hover{transform:translateY(-4px)}
+.card-front{background:#f5f5f0}
+.card.red{color:#e74c3c}.card.black{color:#333}
+.card.playable{border-color:#c9b458}
+.card.back{background:#0f3460;color:#c9b458;font-size:1rem;cursor:default}
+.trick{display:flex;gap:8px;justify-content:center;align-items:center;min-height:70px}
+.opp-cards{display:flex;gap:2px;justify-content:center}
+.opp-card{width:24px;height:36px;background:#0f3460;border-radius:3px}
+.bid-area{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.score{font-size:.85rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>SKAT</h1>
+<p id="msg">Neues Spiel — Reizen beginnt.</p>
+<div class="area"><h3>KI Links (<span id="opp0-n">10</span>)</h3><div class="opp-cards" id="opp0"></div></div>
+<div class="area"><h3>KI Rechts (<span id="opp1-n">10</span>)</h3><div class="opp-cards" id="opp1"></div></div>
+<div class="area"><h3>Stich</h3><div class="trick" id="trick"></div></div>
+<div class="area"><h3>Deine Karten</h3><div class="cards" id="hand"></div></div>
+<div class="bid-area" id="bid-area"></div>
+<div style="display:flex;gap:8px">
+<button class="btn" id="btn-next" onclick="nextAction()" style="display:none">Weiter</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+<p class="score">Deine Punkte: <span class="val" id="score">0</span></p>
+
+<script>
+const SUITS=['♣','♠','♥','♦'];
+const RANKS=['7','8','9','10','J','Q','K','A'];
+const CARD_PTS={7:0,8:0,9:0,10:10,J:2,Q:3,K:4,A:11};
+const isRed=s=>s==='♥'||s==='♦';
+
+let deck,hands,skat,trump,declarer,trick,trickCards,lead,phase,stichCount,ptsCollected,totalScore;
+
+function createDeck(){
+  const d=[];
+  for(const s of SUITS)for(const r of RANKS)d.push({suit:s,rank:r});
+  return d.sort(()=>Math.random()-.5);
+}
+
+function cardStr(c){return c.rank+c.suit;}
+function isTrump(c){return c.rank==='J'||c.suit===trump;}
+function trumpOrder(c){
+  if(c.rank==='J'){const o={'♣':4,'♠':3,'♥':2,'♦':1};return 100+o[c.suit];}
+  if(c.suit===trump){const o={7:0,8:1,9:2,Q:3,K:4,10:5,A:6};return o[c.rank];}
+  return-1;
+}
+function suitOrder(c){const o={7:0,8:1,9:2,Q:3,K:4,10:5,A:6};return o[c.rank];}
+
+function newGame(){
+  deck=createDeck();
+  hands=[[],[],[]];
+  for(let i=0;i<10;i++)for(let p=0;p<3;p++)hands[p].push(deck.pop());
+  skat=[deck.pop(),deck.pop()];
+  trump='♣';declarer=0;// player always declares for simplicity
+  trick=[];trickCards=[];lead=-1;phase='play';stichCount=0;
+  ptsCollected=[0,0,0];
+  totalScore=parseInt(localStorage.getItem('skat-score')||'0');
+  document.getElementById('msg').textContent='Du bist Alleinspieler (Kreuz-Trumpf). Spiele eine Karte!';
+  // Add skat to player
+  hands[0].push(...skat);
+  // Player discards 2 (auto: discard lowest)
+  hands[0].sort((a,b)=>cardValue(a)-cardValue(b));
+  hands[0].splice(0,2);
+  sortHand(0);
+  render();
+}
+
+function cardValue(c){return isTrump(c)?trumpOrder(c)+50:suitOrder(c);}
+function sortHand(p){hands[p].sort((a,b)=>cardValue(b)-cardValue(a));}
+
+function canPlay(card,hand){
+  if(trick.length===0)return true;
+  const leadCard=trick[0].card;
+  const leadIsTrump=isTrump(leadCard);
+  if(leadIsTrump){
+    if(hand.some(c=>isTrump(c)))return isTrump(card);
+    return true;
+  }
+  const leadSuit=leadCard.suit;
+  if(hand.some(c=>!isTrump(c)&&c.suit===leadSuit))return!isTrump(card)&&card.suit===leadSuit;
+  return true;
+}
+
+function render(){
+  for(let o=0;o<2;o++){
+    document.getElementById(`opp${o}-n`).textContent=hands[o+1].length;
+    const div=document.getElementById(`opp${o}`);
+    div.innerHTML='';
+    for(let i=0;i<hands[o+1].length;i++){const c=document.createElement('div');c.className='opp-card';div.appendChild(c);}
+  }
+  const tDiv=document.getElementById('trick');
+  tDiv.innerHTML='';
+  for(const t of trick){
+    const el=document.createElement('div');
+    el.className='card card-front '+(isRed(t.card.suit)?'red':'black');
+    el.innerHTML=`<span>${t.card.rank}</span><span>${t.card.suit}</span>`;
+    el.style.cursor='default';
+    tDiv.appendChild(el);
+  }
+  const hDiv=document.getElementById('hand');
+  hDiv.innerHTML='';
+  hands[0].forEach((card,i)=>{
+    const playable=phase==='play'&&(lead===0||trick.length===0&&lead===-1)&&canPlay(card,hands[0]);
+    const el=document.createElement('div');
+    el.className='card card-front '+(isRed(card.suit)?'red':'black')+(playable?' playable':'');
+    el.innerHTML=`<span>${card.rank}</span><span>${card.suit}</span>`;
+    if(playable)el.onclick=()=>playCard(0,i);
+    hDiv.appendChild(el);
+  });
+  document.getElementById('score').textContent=totalScore;
+}
+
+function playCard(pIdx,cardIdx){
+  const card=hands[pIdx].splice(cardIdx,1)[0];
+  trick.push({player:pIdx,card});
+  if(trick.length===1)lead=trick[0].player;
+  render();
+  if(trick.length<3){
+    const nextP=(pIdx+1)%3;
+    setTimeout(()=>aiPlay(nextP),400);
+  } else {
+    setTimeout(resolveTrick,500);
+  }
+}
+
+function aiPlay(pIdx){
+  const hand=hands[pIdx];
+  const playable=hand.map((c,i)=>({c,i})).filter(({c})=>canPlay(c,hand));
+  // Simple: play highest if leading, lowest otherwise
+  const sorted=playable.sort((a,b)=>cardValue(b.c)-cardValue(a.c));
+  const choice=trick.length===0?sorted[0]:sorted[sorted.length-1];
+  playCard(pIdx,choice.i);
+}
+
+function resolveTrick(){
+  let winner=trick[0];
+  for(let i=1;i<trick.length;i++){
+    const c=trick[i].card;
+    const w=winner.card;
+    if(isTrump(c)&&!isTrump(w))winner=trick[i];
+    else if(isTrump(c)&&isTrump(w)&&trumpOrder(c)>trumpOrder(w))winner=trick[i];
+    else if(!isTrump(c)&&!isTrump(w)&&c.suit===w.suit&&suitOrder(c)>suitOrder(w))winner=trick[i];
+  }
+  const pts=trick.reduce((a,t)=>a+CARD_PTS[t.card.rank],0);
+  ptsCollected[winner.player]+=pts;
+  stichCount++;
+  trick=[];lead=winner.player;
+  document.getElementById('msg').textContent=`${['Du','KI Links','KI Rechts'][winner.player]} gewinnt den Stich (+${pts})`;
+  render();
+
+  if(stichCount>=10){
+    // Game over
+    const playerPts=ptsCollected[0];
+    const won=playerPts>=61;
+    if(won)totalScore+=playerPts;
+    else totalScore-=30;
+    localStorage.setItem('skat-score',totalScore);
+    document.getElementById('msg').textContent=won?
+      `Gewonnen! ${playerPts} Augen gesammelt.`:
+      `Verloren! Nur ${playerPts} Augen (61 nötig).`;
+    phase='done';render();return;
+  }
+
+  if(lead!==0){setTimeout(()=>aiPlay(lead),500);}
+  else render();
+}
+
+function nextAction(){}
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Skat</h2><p>Stichspiel für 3 Spieler. Der Alleinspieler spielt gegen die anderen beiden. Reize, um Alleinspieler zu werden, drücke 2 Karten und wähle ein Spiel.<br><br><b>Spielarten:</b> Farbspiel, Grand (nur Buben sind Trumpf), Null (keinen Stich machen).</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

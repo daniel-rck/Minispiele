@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pinball</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+canvas{border-radius:8px}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>PINBALL</h1>
+<canvas id="c" width="380" height="650"></canvas>
+<p id="info">Highscore: <span class="val" id="best">0</span></p>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height;
+const keys={};
+let ball,score,balls,gameOver,launching,launchPower;
+const GRAVITY=0.15,FRICTION=0.998;
+const BUMPERS=[
+  {x:120,y:200,r:22,color:'#00bcd4'},
+  {x:260,y:180,r:22,color:'#e91e63'},
+  {x:190,y:280,r:22,color:'#ffeb3b'},
+  {x:100,y:350,r:18,color:'#00bcd4'},
+  {x:280,y:340,r:18,color:'#e91e63'},
+];
+const FLIPPER_Y=580,FLIPPER_LEN=55,FLIPPER_W=8;
+let leftAngle=0.4,rightAngle=Math.PI-0.4;
+const LEFT_PIVOT={x:110,y:FLIPPER_Y};
+const RIGHT_PIVOT={x:270,y:FLIPPER_Y};
+
+function reset(){
+  ball=null;score=0;balls=3;gameOver=false;launching=false;launchPower=0;
+}
+
+function launchBall(){
+  ball={x:W-25,y:H-80,vx:0,vy:-Math.max(launchPower,12)*0.5,r:8};
+  launching=false;
+}
+
+function update(){
+  if(gameOver||!ball)return;
+  ball.vy+=GRAVITY;
+  ball.vx*=FRICTION;
+  ball.vy*=FRICTION;
+  ball.x+=ball.vx;
+  ball.y+=ball.vy;
+
+  // walls
+  if(ball.x-ball.r<15){ball.x=15+ball.r;ball.vx=Math.abs(ball.vx)*0.8;}
+  if(ball.x+ball.r>W-15){ball.x=W-15-ball.r;ball.vx=-Math.abs(ball.vx)*0.8;}
+  if(ball.y-ball.r<10){ball.y=10+ball.r;ball.vy=Math.abs(ball.vy)*0.8;}
+  // launch chute wall: solid from both sides below curve zone
+  const CHUTE_LEFT=W-45,CHUTE_TOP=80;
+  if(ball.y>CHUTE_TOP){
+    // ball in playing field hitting chute wall from left
+    if(ball.x+ball.r>CHUTE_LEFT&&ball.x<CHUTE_LEFT+ball.r&&ball.vx>0){
+      ball.x=CHUTE_LEFT-ball.r;ball.vx=-Math.abs(ball.vx)*0.5;
+    }
+    // ball in chute hitting wall from right
+    if(ball.x>=CHUTE_LEFT&&ball.vx<0){
+      ball.x=CHUTE_LEFT+ball.r;ball.vx=Math.abs(ball.vx)*0.3;
+    }
+  }
+  // curve zone at top: continuous leftward force redirects ball into field
+  if(ball.x>CHUTE_LEFT-15&&ball.y<CHUTE_TOP+10){
+    ball.vx-=0.8;
+  }
+
+  // side guide collisions (diagonal edges lead directly to flipper pivots)
+  guideCollision(15,H-100,LEFT_PIVOT.x,FLIPPER_Y);
+  guideCollision(CHUTE_LEFT,H-100,RIGHT_PIVOT.x,FLIPPER_Y);
+
+  // bumpers
+  for(const b of BUMPERS){
+    const dx=ball.x-b.x,dy=ball.y-b.y;
+    const dist=Math.hypot(dx,dy);
+    if(dist<ball.r+b.r){
+      const angle=Math.atan2(dy,dx);
+      const speed=Math.hypot(ball.vx,ball.vy);
+      ball.vx=Math.cos(angle)*Math.max(speed,5)*1.2;
+      ball.vy=Math.sin(angle)*Math.max(speed,5)*1.2;
+      ball.x=b.x+Math.cos(angle)*(ball.r+b.r+1);
+      ball.y=b.y+Math.sin(angle)*(ball.r+b.r+1);
+      score+=100;
+      b.flash=10;
+    }
+    if(b.flash>0)b.flash--;
+  }
+
+  // flippers
+  const leftActive=!!(keys.ArrowLeft||keys.a);
+  const rightActive=!!(keys.ArrowRight||keys.d);
+  const lAngle=leftActive?-0.5:0.4;
+  const rAngle=rightActive?Math.PI+0.5:Math.PI-0.4;
+  if(leftActive)leftAngle=lAngle; else leftAngle+=(lAngle-leftAngle)*0.4;
+  if(rightActive)rightAngle=rAngle; else rightAngle+=(rAngle-rightAngle)*0.4;
+
+  flipperCollision(LEFT_PIVOT,leftAngle,leftActive);
+  flipperCollision(RIGHT_PIVOT,rightAngle,rightActive);
+
+  // lost ball
+  if(ball.y>H+20){
+    balls--;
+    if(balls<=0){
+      gameOver=true;
+      const best=parseInt(localStorage.getItem('pinball-best')||'0');
+      if(score>best)localStorage.setItem('pinball-best',score);
+      document.getElementById('best').textContent=localStorage.getItem('pinball-best');
+    }
+    ball=null;
+  }
+}
+
+function flipperCollision(pivot,angle,active){
+  if(!ball)return;
+  const ex=pivot.x+Math.cos(angle)*FLIPPER_LEN;
+  const ey=pivot.y+Math.sin(angle)*FLIPPER_LEN;
+  const dx=ex-pivot.x,dy=ey-pivot.y;
+  const len2=dx*dx+dy*dy;
+  let t=((ball.x-pivot.x)*dx+(ball.y-pivot.y)*dy)/len2;
+  t=Math.max(0,Math.min(1,t));
+  const closestX=pivot.x+t*dx,closestY=pivot.y+t*dy;
+  const dist=Math.hypot(ball.x-closestX,ball.y-closestY);
+  // wider collision zone when active (catches ball after fast swing)
+  const hitR=ball.r+FLIPPER_W/2+(active?12:0);
+  if(dist<hitR){
+    const nx=(ball.x-closestX)/dist||0;
+    const ny=(ball.y-closestY)/dist||-1;
+    ball.x=closestX+nx*(ball.r+FLIPPER_W/2+1);
+    ball.y=closestY+ny*(ball.r+FLIPPER_W/2+1);
+    if(active){
+      // active flipper: always kick UPWARD regardless of ball position
+      const speed=Math.hypot(ball.vx,ball.vy);
+      const kick=Math.max(speed,10);
+      ball.vx=nx*kick;
+      ball.vy=-Math.abs(kick)*0.8-3;
+      score+=10;
+    } else {
+      // resting flipper: solid bounce, ball rolls off
+      const vDotN=ball.vx*nx+ball.vy*ny;
+      if(vDotN<0){
+        ball.vx-=2*vDotN*nx*0.6;
+        ball.vy-=2*vDotN*ny*0.6;
+      }
+    }
+  }
+}
+
+function guideCollision(x1,y1,x2,y2){
+  if(!ball)return;
+  const dx=x2-x1,dy=y2-y1;
+  const len2=dx*dx+dy*dy;
+  let t=((ball.x-x1)*dx+(ball.y-y1)*dy)/len2;
+  t=Math.max(0,Math.min(1,t));
+  const cx=x1+t*dx,cy=y1+t*dy;
+  const dist=Math.hypot(ball.x-cx,ball.y-cy);
+  if(dist<ball.r+3){
+    const nx=(ball.x-cx)/dist,ny=(ball.y-cy)/dist;
+    ball.x=cx+nx*(ball.r+4);
+    ball.y=cy+ny*(ball.r+4);
+    const vDotN=ball.vx*nx+ball.vy*ny;
+    if(vDotN<0){ball.vx-=2*vDotN*nx*0.7;ball.vy-=2*vDotN*ny*0.7;}
+  }
+}
+
+function draw(){
+  ctx.fillStyle='#0a0a1a';ctx.fillRect(0,0,W,H);
+  // walls
+  ctx.fillStyle='#16213e';
+  ctx.fillRect(0,0,15,H);ctx.fillRect(W-15,0,15,H);ctx.fillRect(0,0,W,10);
+  // side guides
+  ctx.fillStyle='#0f3460';
+  ctx.beginPath();ctx.moveTo(15,H-100);ctx.lineTo(LEFT_PIVOT.x,FLIPPER_Y);ctx.lineTo(15,FLIPPER_Y);ctx.fill();
+  ctx.beginPath();ctx.moveTo(W-47,H-100);ctx.lineTo(RIGHT_PIVOT.x,FLIPPER_Y);ctx.lineTo(W-47,FLIPPER_Y);ctx.fill();
+
+  // launch chute left wall
+  ctx.fillStyle='#16213e';
+  ctx.fillRect(W-47,80,4,H-80);
+
+  // bumpers
+  for(const b of BUMPERS){
+    const glow=b.flash>0?1.5:1;
+    ctx.fillStyle=b.color;
+    ctx.shadowColor=b.color;ctx.shadowBlur=b.flash>0?20:8;
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r*glow,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.beginPath();ctx.arc(b.x-4,b.y-4,b.r*0.4,0,Math.PI*2);ctx.fill();
+  }
+
+  // flippers
+  drawFlipper(LEFT_PIVOT,leftAngle);
+  drawFlipper(RIGHT_PIVOT,rightAngle);
+
+  // launch area
+  ctx.fillStyle='#16213e';
+  ctx.fillRect(W-40,H-150,25,150);
+  if(launching){
+    ctx.fillStyle='#e74c3c';
+    ctx.fillRect(W-38,H-10-launchPower*2,21,launchPower*2);
+  }
+
+  // ball
+  if(ball){
+    ctx.fillStyle='#e0e0e0';
+    ctx.shadowColor='#fff';ctx.shadowBlur=8;
+    ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(255,255,255,0.4)';
+    ctx.beginPath();ctx.arc(ball.x-2,ball.y-2,ball.r*0.4,0,Math.PI*2);ctx.fill();
+  }
+
+  // HUD
+  ctx.fillStyle='#c9b458';ctx.font='bold 16px Segoe UI';ctx.textAlign='left';ctx.shadowBlur=0;
+  ctx.fillText(`Punkte: ${score}`,20,30);
+  ctx.fillText(`Bälle: ${'●'.repeat(balls)}`,20,50);
+
+  if(!ball&&!gameOver){
+    ctx.fillStyle='#c9b458';ctx.font='14px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('Leertaste halten zum Laden',W/2,H/2);
+  }
+
+  if(gameOver){
+    ctx.fillStyle='rgba(10,10,26,0.7)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#c9b458';ctx.font='bold 28px Segoe UI';ctx.textAlign='center';
+    ctx.fillText('Game Over!',W/2,H/2-20);
+    ctx.font='18px Segoe UI';ctx.fillText(`Punkte: ${score}`,W/2,H/2+15);
+    ctx.fillStyle='#888';ctx.font='14px Segoe UI';ctx.fillText('Leertaste zum Neustart',W/2,H/2+45);
+  }
+}
+
+function drawFlipper(pivot,angle){
+  const ex=pivot.x+Math.cos(angle)*FLIPPER_LEN;
+  const ey=pivot.y+Math.sin(angle)*FLIPPER_LEN;
+  ctx.strokeStyle='#c9b458';ctx.lineWidth=FLIPPER_W;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(pivot.x,pivot.y);ctx.lineTo(ex,ey);ctx.stroke();
+}
+
+function loop(){
+  if(!ball&&!gameOver&&launching){launchPower=Math.min(40,launchPower+0.5);}
+  update();draw();
+  requestAnimationFrame(loop);
+}
+
+document.onkeydown=e=>{
+  keys[e.key]=true;
+  if(e.code==='Space'){
+    e.preventDefault();
+    if(gameOver){reset();return;}
+    if(!ball&&!launching){launching=true;launchPower=0;}
+  }
+};
+document.onkeyup=e=>{
+  keys[e.key]=false;
+  if(e.code==='Space'&&launching){launchBall();}
+};
+
+canvas.ontouchstart=e=>{
+  e.preventDefault();
+  const rect=canvas.getBoundingClientRect();
+  const tx=e.touches[0].clientX-rect.left;
+  if(gameOver){reset();return;}
+  if(!ball){launching=true;launchPower=0;return;}
+  if(tx<W/2)keys.ArrowLeft=true;else keys.ArrowRight=true;
+};
+canvas.ontouchend=e=>{
+  e.preventDefault();
+  keys.ArrowLeft=false;keys.ArrowRight=false;
+  if(launching)launchBall();
+};
+
+const best=localStorage.getItem('pinball-best');
+if(best)document.getElementById('best').textContent=best;
+reset();loop();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Pinball</h2><p>Halte die Kugel im Spiel und sammle Punkte durch Treffer auf Bumper und Ziele.<br><br><b>Steuerung:</b> Linke/rechte Pfeiltaste oder A/D für die Flipper. Leertaste zum Abschuss.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

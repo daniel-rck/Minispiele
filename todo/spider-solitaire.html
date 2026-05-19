@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spider Solitaire</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; align-items: center; gap: 10px; padding: 50px 10px 20px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  .controls select { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 4px 10px; font-size: 0.9rem; }
+  #info { font-size: 0.9rem; color: #888; }
+  .val { color: #c9b458; font-weight: bold; }
+  .tableau { display: flex; gap: 5px; justify-content: center; }
+  .column { width: 68px; min-height: 95px; position: relative; cursor: pointer; }
+  .card { width: 68px; height: 92px; border-radius: 5px; border: 2px solid #333; position: absolute; display: flex; flex-direction: column; padding: 3px 5px; font-weight: bold; font-size: 0.8rem; line-height: 1; }
+  .card.facedown { background: linear-gradient(135deg, #0f3460, #16213e); border-color: #0f3460; }
+  .card.facedown::after { content: ''; position: absolute; inset: 4px; border: 1px solid #c9b45830; border-radius: 3px; }
+  .card.red { color: #e74c3c; background: #f8f0e8; border-color: #d9c9b8; }
+  .card.black-suit { color: #222; background: #f8f0e8; border-color: #d9c9b8; }
+  .card.selected { box-shadow: 0 0 12px rgba(201,180,88,0.7); border-color: #c9b458; transform: translateX(4px); }
+  .card .suit-big { font-size: 1.3rem; text-align: center; margin-top: 6px; }
+  .stock { display: flex; gap: 4px; margin-top: 8px; }
+  .stock-pile { width: 40px; height: 28px; background: #0f3460; border: 1px solid #c9b45840; border-radius: 4px; cursor: pointer; }
+  .stock-pile:hover { border-color: #c9b458; }
+  .completed { display: flex; gap: 3px; margin-top: 4px; }
+  .completed-pile { width: 30px; height: 20px; background: #2ecc71; border-radius: 3px; border: 1px solid #1a9c54; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1.1rem; min-height: 1.5em; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>SPIDER SOLITAIRE</h1>
+<div class="controls">
+  <select id="suits" onchange="newGame()">
+    <option value="1">1 Farbe</option>
+    <option value="2" selected>2 Farben</option>
+    <option value="4">4 Farben</option>
+  </select>
+  <button onclick="newGame()">Neues Spiel</button>
+  <button onclick="dealRow()">Austeilen</button>
+  <button onclick="undoMove()">Rückgängig</button>
+</div>
+<div id="info">
+  Züge: <span class="val" id="moves">0</span> |
+  Abgeschlossen: <span class="val" id="completed">0</span>/8
+</div>
+<div id="game"></div>
+<p id="msg"></p>
+
+<script>
+const SUITS_ALL = ['♠','♥','♦','♣'];
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const SUIT_COLORS = { '♠':'black-suit','♣':'black-suit','♥':'red','♦':'red' };
+
+let columns = [];
+let stock = [];
+let completedSets = 0;
+let moveCount = 0;
+let selected = null;
+let history = [];
+
+function getSuits() {
+  const n = parseInt(document.getElementById('suits').value);
+  if (n === 1) return ['♠'];
+  if (n === 2) return ['♠','♥'];
+  return SUITS_ALL;
+}
+
+function createDeck(suits) {
+  const deck = [];
+  const decksNeeded = 8 / suits.length; // e.g., 1 suit = 8 decks, 2 suits = 4, 4 suits = 2
+  for (let d = 0; d < decksNeeded; d++) {
+    for (const s of suits) {
+      for (let r = 0; r < 13; r++) {
+        deck.push({ suit: s, rank: r, label: RANKS[r], faceUp: false });
+      }
+    }
+  }
+  return deck;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function newGame() {
+  const suits = getSuits();
+  const deck = createDeck(suits);
+  shuffle(deck);
+
+  columns = Array.from({ length: 10 }, () => []);
+  completedSets = 0;
+  moveCount = 0;
+  selected = null;
+  history = [];
+  document.getElementById('msg').textContent = '';
+
+  // Deal: 6 cards to first 4 columns, 5 to remaining 6
+  let idx = 0;
+  for (let col = 0; col < 10; col++) {
+    const count = col < 4 ? 6 : 5;
+    for (let i = 0; i < count; i++) {
+      columns[col].push(deck[idx++]);
+    }
+    columns[col][columns[col].length - 1].faceUp = true;
+  }
+
+  stock = deck.slice(idx);
+  updateUI();
+  render();
+}
+
+function dealRow() {
+  if (stock.length < 10) return;
+  // Check no empty columns
+  for (const col of columns) {
+    if (col.length === 0) {
+      document.getElementById('msg').textContent = 'Alle Spalten müssen belegt sein!';
+      return;
+    }
+  }
+  saveState();
+  for (let i = 0; i < 10; i++) {
+    const card = stock.pop();
+    card.faceUp = true;
+    columns[i].push(card);
+  }
+  selected = null;
+  checkComplete();
+  updateUI();
+  render();
+}
+
+function saveState() {
+  history.push({
+    columns: columns.map(col => col.map(c => ({ ...c }))),
+    stock: stock.map(c => ({ ...c })),
+    completedSets,
+    moveCount
+  });
+  if (history.length > 50) history.shift();
+}
+
+function undoMove() {
+  if (history.length === 0) return;
+  const s = history.pop();
+  columns = s.columns;
+  stock = s.stock;
+  completedSets = s.completedSets;
+  moveCount = s.moveCount;
+  selected = null;
+  updateUI();
+  render();
+}
+
+function getMovableSequence(col, fromIdx) {
+  const cards = columns[col];
+  if (fromIdx >= cards.length || !cards[fromIdx].faceUp) return null;
+  for (let i = fromIdx; i < cards.length - 1; i++) {
+    if (cards[i].suit !== cards[i + 1].suit || cards[i].rank !== cards[i + 1].rank + 1) return null;
+  }
+  return cards.slice(fromIdx);
+}
+
+function handleClick(col, cardIdx) {
+  if (completedSets >= 8) return;
+
+  if (selected) {
+    if (selected.col === col) { selected = null; render(); return; }
+
+    const seq = getMovableSequence(selected.col, selected.idx);
+    if (!seq) { selected = null; render(); return; }
+
+    const targetCol = columns[col];
+    const topCard = seq[0];
+
+    // Can stack: empty column or rank-1
+    if (targetCol.length === 0 || targetCol[targetCol.length - 1].rank === topCard.rank + 1) {
+      saveState();
+      const moved = columns[selected.col].splice(selected.idx);
+      columns[col].push(...moved);
+      // Flip
+      const srcCol = columns[selected.col];
+      if (srcCol.length > 0 && !srcCol[srcCol.length - 1].faceUp) {
+        srcCol[srcCol.length - 1].faceUp = true;
+      }
+      moveCount++;
+      selected = null;
+      checkComplete();
+      updateUI();
+      render();
+      return;
+    }
+
+    selected = null;
+    render();
+    return;
+  }
+
+  // Select: if clicking the last card, auto-select the full valid sequence
+  if (columns[col].length > 0 && columns[col][cardIdx]?.faceUp) {
+    let selectFrom = cardIdx;
+    if (cardIdx === columns[col].length - 1) {
+      selectFrom = findSequenceStart(col);
+    }
+    if (getMovableSequence(col, selectFrom)) {
+      selected = { col, idx: selectFrom };
+      render();
+    }
+  }
+}
+
+function checkComplete() {
+  for (let col = 0; col < 10; col++) {
+    const cards = columns[col];
+    if (cards.length < 13) continue;
+    const start = cards.length - 13;
+    let valid = true;
+    const suit = cards[start].suit;
+    for (let i = 0; i < 13; i++) {
+      if (!cards[start + i].faceUp || cards[start + i].suit !== suit || cards[start + i].rank !== 12 - i) {
+        valid = false; break;
+      }
+    }
+    if (valid) {
+      columns[col].splice(start, 13);
+      completedSets++;
+      if (columns[col].length > 0 && !columns[col][columns[col].length - 1].faceUp) {
+        columns[col][columns[col].length - 1].faceUp = true;
+      }
+      if (completedSets >= 8) {
+        document.getElementById('msg').textContent = 'Gewonnen!';
+      }
+    }
+  }
+}
+
+function updateUI() {
+  document.getElementById('moves').textContent = moveCount;
+  document.getElementById('completed').textContent = completedSets;
+}
+
+function getCardTop(col, j) {
+  // Facedown cards: compact spacing. Face-up cards: wider spacing for better click targets.
+  let top = 0;
+  for (let i = 0; i < j; i++) {
+    top += columns[col][i].faceUp ? 25 : 14;
+  }
+  return top;
+}
+
+function findSequenceStart(col) {
+  // Find the topmost card index that forms a valid same-suit descending sequence to the bottom
+  const cards = columns[col];
+  if (cards.length === 0) return -1;
+  let start = cards.length - 1;
+  while (start > 0 && cards[start - 1].faceUp
+    && cards[start - 1].suit === cards[start].suit
+    && cards[start - 1].rank === cards[start].rank + 1) {
+    start--;
+  }
+  return start;
+}
+
+function render() {
+  let html = '<div class="tableau">';
+
+  for (let col = 0; col < 10; col++) {
+    const lastTop = columns[col].length > 0 ? getCardTop(col, columns[col].length - 1) + 92 : 95;
+    const maxH = Math.max(95, lastTop);
+    html += `<div class="column" style="height:${maxH}px;" onclick="handleClick(${col},${columns[col].length - 1})">`;
+
+    for (let j = 0; j < columns[col].length; j++) {
+      const c = columns[col][j];
+      const top = getCardTop(col, j);
+      const isSelected = selected && selected.col === col && j >= selected.idx;
+
+      if (!c.faceUp) {
+        html += `<div class="card facedown" style="top:${top}px;z-index:${j};"></div>`;
+      } else {
+        const color = SUIT_COLORS[c.suit];
+        html += `<div class="card ${color} ${isSelected ? 'selected' : ''}" style="top:${top}px;z-index:${j};" onclick="event.stopPropagation();handleClick(${col},${j})">
+          <span>${c.label}${c.suit}</span><span class="suit-big">${c.suit}</span></div>`;
+      }
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  // Stock
+  html += '<div class="stock">';
+  const piles = Math.ceil(stock.length / 10);
+  for (let i = 0; i < piles; i++) {
+    html += '<div class="stock-pile" onclick="dealRow()"></div>';
+  }
+  html += '</div>';
+
+  // Completed
+  if (completedSets > 0) {
+    html += '<div class="completed">';
+    for (let i = 0; i < completedSets; i++) {
+      html += '<div class="completed-pile"></div>';
+    }
+    html += '</div>';
+  }
+
+  document.getElementById('game').innerHTML = html;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'z') undoMove();
+  if (e.key === 'n') newGame();
+  if (e.key === 'd') dealRow();
+});
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Spider Solitaire</h2><p>Bilde auf dem Spielfeld absteigende Reihen von König bis Ass <b>einer Farbe</b>. Vollständige Reihen werden automatisch entfernt.<br><br><b>Regeln:</b> Absteigend anlegen (beliebige Farbe), aber nur gleichfarbige Sequenzen können zusammen verschoben werden. Neue Reihe vom Talon, wenn alle Spalten belegt sind.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

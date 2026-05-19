@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nurikabe</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center;max-width:500px}
+.grid{display:inline-grid;gap:2px}
+.cell{width:44px;height:44px;display:flex;justify-content:center;align-items:center;font-size:1.1rem;font-weight:bold;cursor:pointer;border-radius:4px;transition:all .15s}
+.cell.empty{background:#16213e;color:#888}
+.cell.sea{background:#1a3a5c;color:#3498db}
+.cell.clue{background:#c9b458;color:#1a1a2e;cursor:default;border-radius:4px}
+.cell:hover:not(.clue){opacity:.8}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.controls label{color:#888;font-size:.85rem}
+.controls select{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 6px}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>NURIKABE</h1>
+<div class="controls">
+<label>Größe: <select id="sel-size" onchange="newGame()"><option value="5" selected>5x5</option><option value="7">7x7</option><option value="9">9x9</option></select></label>
+<button class="btn" onclick="newGame()">Neues Rätsel</button>
+<button class="btn" onclick="checkSolution()">Prüfen</button>
+</div>
+<p id="msg">Klicke um Meer (blau) zu setzen. Zahlen = Inselgröße. Meer muss zusammenhängen, keine 2x2-Blöcke.</p>
+<div class="grid" id="grid"></div>
+
+<script>
+let N=5,clues,state;// clues: map "r,c" -> number; state: 0=empty, 1=sea
+
+function newGame(){
+  N=parseInt(document.getElementById('sel-size').value);
+  generatePuzzle();
+  state=Array.from({length:N},()=>Array(N).fill(0));
+  document.getElementById('msg').textContent='Klicke um Meer zu setzen. Inseln = Zahlen, Meer zusammenhängend.';
+  render();
+}
+
+function generatePuzzle(){
+  clues={};
+  // Place random island seeds
+  const numIslands=Math.floor(N*N*0.15)+2;
+  const used=new Set();
+  for(let i=0;i<numIslands;i++){
+    let r,c;
+    do{r=Math.floor(Math.random()*N);c=Math.floor(Math.random()*N);}
+    while(used.has(r+','+c)||hasAdjacentClue(r,c,used));
+    used.add(r+','+c);
+    clues[r+','+c]=1+Math.floor(Math.random()*3);// island size 1-3
+  }
+}
+
+function hasAdjacentClue(r,c,used){
+  return[[-1,0],[1,0],[0,-1],[0,1]].some(([dr,dc])=>used.has((r+dr)+','+(c+dc)));
+}
+
+function render(){
+  const div=document.getElementById('grid');
+  div.style.gridTemplateColumns=`repeat(${N},44px)`;
+  div.innerHTML='';
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const cell=document.createElement('div');
+      const key=r+','+c;
+      if(clues[key]){
+        cell.className='cell clue';
+        cell.textContent=clues[key];
+      } else {
+        cell.className='cell '+(state[r][c]===1?'sea':'empty');
+        cell.textContent=state[r][c]===1?'~':'';
+        cell.onclick=()=>{state[r][c]=state[r][c]===1?0:1;render();};
+      }
+      div.appendChild(cell);
+    }
+  }
+}
+
+function checkSolution(){
+  // Sea connected
+  let seaStart=null,seaCount=0;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    if(state[r][c]===1){seaCount++;if(!seaStart)seaStart=[r,c];}
+  }
+  if(seaCount>0&&seaStart){
+    const visited=new Set();
+    const queue=[seaStart];visited.add(seaStart[0]+','+seaStart[1]);
+    while(queue.length){
+      const[r,c]=queue.shift();
+      for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+        const nr=r+dr,nc=c+dc,key=nr+','+nc;
+        if(nr>=0&&nr<N&&nc>=0&&nc<N&&!visited.has(key)&&state[nr][nc]===1){
+          visited.add(key);queue.push([nr,nc]);
+        }
+      }
+    }
+    if(visited.size!==seaCount){document.getElementById('msg').textContent='Meer muss zusammenhängen!';return;}
+  }
+  // No 2x2 sea blocks
+  for(let r=0;r<N-1;r++)for(let c=0;c<N-1;c++){
+    if(state[r][c]===1&&state[r+1][c]===1&&state[r][c+1]===1&&state[r+1][c+1]===1){
+      document.getElementById('msg').textContent='Keine 2x2 Meer-Blöcke erlaubt!';return;
+    }
+  }
+  // Check island sizes
+  const visited=new Set();
+  for(const[key,size]of Object.entries(clues)){
+    const[cr,cc]=key.split(',').map(Number);
+    if(state[cr][cc]===1){document.getElementById('msg').textContent='Zahlenfelder dürfen kein Meer sein!';return;}
+    // BFS island
+    const queue=[[cr,cc]];const island=new Set();island.add(key);
+    while(queue.length){
+      const[r,c]=queue.shift();
+      for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){
+        const nr=r+dr,nc=c+dc,nk=nr+','+nc;
+        if(nr>=0&&nr<N&&nc>=0&&nc<N&&!island.has(nk)&&state[nr][nc]===0&&!clues[nk]){
+          island.add(nk);queue.push([nr,nc]);
+        }
+      }
+    }
+    if(island.size!==size){document.getElementById('msg').textContent=`Insel bei ${key} hat Größe ${island.size}, erwartet ${size}.`;return;}
+  }
+  document.getElementById('msg').textContent='Gelöst! Alle Regeln erfüllt!';
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Nurikabe</h2><p>Die Zahlen stellen Inseln dar. Jede Insel besteht aus weißen Zellen in der angegebenen Größe. Klicke Zellen, um sie schwarz zu färben (Wasser).<br><br><b>Regeln:</b> Alle Wasserzellen müssen zusammenhängen. Keine 2x2-Blöcke aus Wasser. Jede Insel enthält genau eine Zahl.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>
