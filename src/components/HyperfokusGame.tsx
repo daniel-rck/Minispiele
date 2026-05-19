@@ -26,6 +26,7 @@ import {
   critChance,
   critMultiplier,
   eventRateMultiplier,
+  findCheapestAffordable,
   formatNumber,
   isThemeUnlocked,
   newlyUnlockedAchievements,
@@ -35,6 +36,7 @@ import {
   prestigeReward,
   rollTapReward,
   tapPowerValue,
+  upgradeCost,
   type CoinKind,
   type EventKind,
   type UpgradeId,
@@ -592,6 +594,8 @@ export default function HyperfokusGame() {
     eventDef && activeEvent ? Math.max(0, Math.min(1, eventLeftMs / eventDef.durationMs)) : 0;
   const prestigeAvailable = save.coins >= PRESTIGE_THRESHOLD;
   const prestigeGain = prestigeReward(save.coins);
+  const quickBuy = findCheapestAffordable(save);
+  const quickBuyCost = quickBuy ? upgradeCost(quickBuy, save.upgrades[quickBuy]) : 0;
 
   const accentByEvent = useMemo(() => {
     if (!activeEvent) return null;
@@ -646,6 +650,29 @@ export default function HyperfokusGame() {
             </button>
           </div>
         </div>
+
+        {/* Quick-buy chip — auto-appears when an upgrade becomes affordable
+            so the player doesn't have to open the modal (which would cool the combo). */}
+        {quickBuy && (
+          <button
+            key={`qb-${quickBuy}`}
+            type="button"
+            onClick={() => onBuyUpgrade(quickBuy)}
+            className="card-pop-in flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-accent-300/40 bg-accent-500/20 px-3 py-2 text-left backdrop-blur transition hover:bg-accent-500/30"
+            aria-label={`Schnellkauf: ${UPGRADES[quickBuy].name} für ${formatNumber(quickBuyCost)} Coins`}
+          >
+            <div>
+              <div className="text-[10px] tracking-wide text-accent-200 uppercase">Schnellkauf</div>
+              <div className="text-sm font-extrabold text-white">{UPGRADES[quickBuy].name} +1</div>
+            </div>
+            <div className="shrink-0 text-right">
+              <div className="text-[10px] tracking-wide text-white/60 uppercase">Kosten</div>
+              <div className="text-sm font-extrabold tabular-nums text-accent-200">
+                {formatNumber(quickBuyCost)}
+              </div>
+            </div>
+          </button>
+        )}
 
         {/* Combo bar */}
         <div className="relative h-3 overflow-hidden rounded-full bg-white/10">

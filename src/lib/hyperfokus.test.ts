@@ -15,6 +15,7 @@ import {
   critChance,
   critMultiplier,
   eventRateMultiplier,
+  findCheapestAffordable,
   formatNumber,
   isThemeUnlocked,
   newlyUnlockedAchievements,
@@ -118,6 +119,34 @@ describe('hyperfokus pure logic', () => {
     it('applyUpgrade is noop if unaffordable', () => {
       const save: HyperfokusSave = { ...DEFAULT_SAVE, coins: 1 };
       expect(applyUpgrade(save, 'tapPower')).toBe(save);
+    });
+    it('findCheapestAffordable returns null when broke', () => {
+      expect(findCheapestAffordable({ ...DEFAULT_SAVE, coins: 0 })).toBeNull();
+    });
+    it('findCheapestAffordable returns tapPower at fresh start with 25 coins', () => {
+      expect(findCheapestAffordable({ ...DEFAULT_SAVE, coins: 25 })).toBe('tapPower');
+    });
+    it('findCheapestAffordable skips maxed-out upgrades', () => {
+      const save: HyperfokusSave = {
+        ...DEFAULT_SAVE,
+        coins: 1_000_000,
+        upgrades: { ...DEFAULT_SAVE.upgrades, tapPower: UPGRADES.tapPower.maxLevel },
+      };
+      expect(findCheapestAffordable(save)).not.toBe('tapPower');
+    });
+    it('findCheapestAffordable picks lowest cost when several affordable', () => {
+      const save: HyperfokusSave = { ...DEFAULT_SAVE, coins: 100 };
+      const picked = findCheapestAffordable(save);
+      expect(picked).not.toBeNull();
+      if (picked) {
+        const lvl = save.upgrades[picked];
+        const cost = upgradeCost(picked, lvl);
+        for (const id of ['tapPower', 'autoTapper', 'critChance'] as const) {
+          if (id === picked) continue;
+          const cmp = upgradeCost(id, save.upgrades[id]);
+          expect(cost).toBeLessThanOrEqual(cmp);
+        }
+      }
     });
   });
 

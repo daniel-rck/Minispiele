@@ -148,6 +148,26 @@ export function canAfford(save: HyperfokusSave, id: UpgradeId): boolean {
   return save.coins >= upgradeCost(id, lvl);
 }
 
+/**
+ * Returns the cheapest currently-affordable (unmaxed) upgrade, or null when
+ * nothing fits. Powers the inline "Schnellkauf" chip so the player can spend
+ * coins without opening the modal (and losing combo).
+ */
+export function findCheapestAffordable(save: HyperfokusSave): UpgradeId | null {
+  let cheapest: UpgradeId | null = null;
+  let cheapestCost = Infinity;
+  for (const id of UPGRADE_ORDER) {
+    const lvl = save.upgrades[id];
+    if (lvl >= UPGRADES[id].maxLevel) continue;
+    const cost = upgradeCost(id, lvl);
+    if (save.coins >= cost && cost < cheapestCost) {
+      cheapest = id;
+      cheapestCost = cost;
+    }
+  }
+  return cheapest;
+}
+
 export function applyUpgrade(save: HyperfokusSave, id: UpgradeId): HyperfokusSave {
   if (!canAfford(save, id)) return save;
   const lvl = save.upgrades[id];
