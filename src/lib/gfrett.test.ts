@@ -1,18 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
+  type Block,
   buildState,
+  expandSidebar,
+  type GameState,
+  isLost,
+  isWon,
+  LEVELS,
   loadLevel,
+  maxSlide,
+  popMatches,
+  shuffle,
   slide,
   undo,
-  shuffle,
-  expandSidebar,
-  popMatches,
-  isWon,
-  isLost,
-  maxSlide,
-  LEVELS,
-  type GameState,
-  type Block,
 } from './gfrett';
 
 const build = buildState;

@@ -1,25 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSwipeDetection } from '../hooks/useSwipeDetection';
 import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
-  GRID_SIZE,
+  TwentyFortyEightBestSchema,
+  type TwentyFortyEightState,
+  TwentyFortyEightStateSchema,
+} from '../lib/persistedSchemas';
+import {
   createInitialGrid,
+  type Direction,
+  GRID_SIZE,
   hasWinningTile,
   isGameOver,
   slide,
   spawnRandom,
-  type Direction,
 } from '../lib/twentyFortyEight';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import {
-  TwentyFortyEightBestSchema,
-  TwentyFortyEightStateSchema,
-  type TwentyFortyEightState,
-} from '../lib/persistedSchemas';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const TILE_COLORS: Record<number, string> = {
   0: 'bg-slate-200 dark:bg-slate-800',
@@ -129,25 +130,7 @@ export default function TwentyFortyEightGame() {
     return () => window.removeEventListener('keydown', onKey);
   }, [move]);
 
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    const t = e.touches[0];
-    if (!t) return;
-    touchStart.current = { x: t.clientX, y: t.clientY };
-  };
-  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    const start = touchStart.current;
-    const t = e.changedTouches[0];
-    touchStart.current = null;
-    if (!start || !t) return;
-    const dx = t.clientX - start.x;
-    const dy = t.clientY - start.y;
-    const adx = Math.abs(dx);
-    const ady = Math.abs(dy);
-    if (Math.max(adx, ady) < 30) return;
-    if (adx > ady) move(dx > 0 ? 'right' : 'left');
-    else move(dy > 0 ? 'down' : 'up');
-  };
+  const { onTouchStart, onTouchEnd } = useSwipeDetection({ threshold: 30, onSwipe: move });
 
   const restart = useCallback(() => {
     setState({ grid: createInitialGrid(), score: 0, won: false });

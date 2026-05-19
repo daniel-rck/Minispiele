@@ -1,20 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   canMove,
   createInitialState,
+  type GameState,
   isSolved,
+  type Move,
   NUM_PEGS,
+  type Peg,
   pegCapacity,
   RINGS_PER_COLOR,
+  type Ring,
+  type RingColor,
   selectPeg,
   solve,
   tryMove,
   undoMove,
-  type GameState,
-  type Move,
-  type Peg,
-  type Ring,
-  type RingColor,
 } from './ringSort';
 
 function r(color: RingColor, size = 0, id?: string): Ring {

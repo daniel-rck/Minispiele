@@ -1,9 +1,9 @@
+import { useVibration } from '../hooks/useVibration';
+import type { Theme } from '../lib/crossGameSchemas';
+import { useSettings } from '../lib/useSettings';
+import { MonitorIcon, MoonIcon, SunIcon } from './ui/icons';
 import Sheet from './ui/Sheet';
 import Switch from './ui/Switch';
-import { useSettings } from '../lib/useSettings';
-import { useVibration } from '../hooks/useVibration';
-import { MonitorIcon, MoonIcon, SunIcon } from './ui/icons';
-import type { Theme } from '../lib/crossGameSchemas';
 
 interface SettingsSheetProps {
   open: boolean;

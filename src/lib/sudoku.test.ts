@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { SUDOKU_SIZE, conflictsAt, generatePuzzle, isComplete } from './sudoku';
+import { describe, expect, it } from 'vitest';
+import { conflictsAt, generatePuzzle, isComplete, SUDOKU_SIZE } from './sudoku';
 
 function seededRng(seed: number): () => number {
   // Mulberry32-style PRNG so generatePuzzle is deterministic but varied enough.

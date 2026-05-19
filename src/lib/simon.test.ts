@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   createInitialState,
   extendSequence,
   flashDurationMs,
   pressColor,
-  startInput,
   type SimonColor,
+  startInput,
 } from './simon';
 
 function seededRng(values: number[]): () => number {

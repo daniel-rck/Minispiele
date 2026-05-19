@@ -1,16 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   BOARD_SIZE,
-  EXIT_ROW,
-  PUZZLES,
-  TARGET_ID,
   buildGrid,
   createInitialState,
   driveCar,
+  EXIT_ROW,
   encodeBoard,
   isBlocked,
+  PUZZLES,
   parsePuzzle,
   solveBFS,
+  TARGET_ID,
 } from './trafficJam';
 
 const ALL_PUZZLES = (['easy', 'medium', 'hard'] as const).flatMap((d) =>
@@ -100,22 +100,23 @@ describe('PUZZLES pool', () => {
     expect(occupied).toHaveLength(expectedCells);
   });
 
-  it.each(ALL_PUZZLES)(
-    '$difficulty/$id is solvable via BFS',
-    ({ difficulty, encoded, facings }) => {
-      const cars = parsePuzzle(encoded, facings);
-      const state = {
-        cars,
-        difficulty,
-        puzzleIndex: 0,
-        moves: 0,
-        won: false,
-      };
-      const solution = solveBFS(state);
-      expect(solution).not.toBeNull();
-      expect(solution).toBeGreaterThan(0);
-    },
-  );
+  it.each(ALL_PUZZLES)('$difficulty/$id is solvable via BFS', ({
+    difficulty,
+    encoded,
+    facings,
+  }) => {
+    const cars = parsePuzzle(encoded, facings);
+    const state = {
+      cars,
+      difficulty,
+      puzzleIndex: 0,
+      moves: 0,
+      won: false,
+    };
+    const solution = solveBFS(state);
+    expect(solution).not.toBeNull();
+    expect(solution).toBeGreaterThan(0);
+  });
 });
 
 describe('driveCar', () => {

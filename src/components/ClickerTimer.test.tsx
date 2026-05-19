@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, act } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ClickerTimer from './ClickerTimer';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { expectNoA11yViolations } from '../test/a11y';
+import ClickerTimer from './ClickerTimer';
 
 beforeEach(() => {
   window.localStorage.clear();

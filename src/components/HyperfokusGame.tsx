@@ -1,48 +1,48 @@
 import { forwardRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { STORAGE_KEYS } from '../lib/constants';
-import { HyperfokusSaveSchema } from '../lib/persistedSchemas';
-import type { HyperfokusSave, HyperfokusTheme } from '../lib/persistedSchemas';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { ToneAudio } from '../lib/toneAudio';
 import { useVibration } from '../hooks/useVibration';
-import { particleOpacity, spawnBurst, stepParticles, type Particle } from '../lib/particles';
-import AriaLive from './AriaLive';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
   ACHIEVEMENTS,
-  DEFAULT_SAVE,
-  EVENTS,
-  PRESTIGE_THRESHOLD,
-  THEMES,
-  THEME_ORDER,
-  UPGRADES,
-  UPGRADE_ORDER,
   applyPrestige,
   applyUpgrade,
   autoTapperRate,
+  type CoinKind,
   canAfford,
   comboDecaySec,
   comboMultiplier,
   computeOfflineIncome,
   critChance,
   critMultiplier,
+  DEFAULT_SAVE,
+  EVENTS,
+  type EventKind,
   eventRateMultiplier,
   findCheapestAffordable,
   formatNumber,
   isThemeUnlocked,
   newlyUnlockedAchievements,
   nextEventDelayMs,
+  PRESTIGE_THRESHOLD,
   pickRandomEvent,
   prestigeBonus,
   prestigeReward,
   rollTapReward,
+  THEME_ORDER,
+  THEMES,
   tapPowerValue,
-  upgradeCost,
-  type CoinKind,
-  type EventKind,
+  UPGRADE_ORDER,
+  UPGRADES,
   type UpgradeId,
+  upgradeCost,
 } from '../lib/hyperfokus';
-import Sheet from './ui/Sheet';
+import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
+import type { HyperfokusSave, HyperfokusTheme } from '../lib/persistedSchemas';
+import { HyperfokusSaveSchema } from '../lib/persistedSchemas';
+import { ToneAudio } from '../lib/toneAudio';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import AriaLive from './AriaLive';
 import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const PENTATONIC_HZ = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
 const CRIT_CHORD_HZ = [523.25, 659.25, 783.99];

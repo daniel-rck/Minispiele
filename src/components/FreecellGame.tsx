@@ -1,25 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
-  SUITS,
   autoMoveToFoundation,
+  type Card,
   canPlaceOnFoundation,
   deal,
-  isWon,
-  makeMove,
-  rankLabel,
-  undo,
-  type Card,
   type FreecellState,
+  isWon,
   type MoveSource,
   type MoveTarget,
+  makeMove,
+  rankLabel,
+  SUITS,
+  undo,
 } from '../lib/freecell';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
 import { FreecellBestSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 function CardView({
   card,

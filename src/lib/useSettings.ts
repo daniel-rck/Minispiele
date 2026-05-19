@@ -1,13 +1,13 @@
 import {
   createContext,
   createElement,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
-  type ReactNode,
 } from 'react';
 import { STORAGE_KEYS } from './constants';
-import { DEFAULT_SETTINGS, SettingsSchema, type Settings, type Theme } from './crossGameSchemas';
+import { DEFAULT_SETTINGS, type Settings, SettingsSchema, type Theme } from './crossGameSchemas';
 import { useLocalStorage } from './useLocalStorage';
 
 export interface SettingsContextValue {

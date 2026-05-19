@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Traffic Jam (Stau)', () => {
   test('navigates from home and renders the board', async ({ page }) => {

@@ -1,33 +1,34 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
+import { isBetter } from '../lib/highscores';
+import {
+  EMPTY_TRAFFIC_JAM_HIGHSCORES,
+  type HighscoreEntry,
+  TrafficJamDifficultySchema,
+  TrafficJamHighscoresSchema,
+} from '../lib/persistedSchemas';
 import {
   BOARD_SIZE,
+  type Car,
   createInitialState,
+  type Direction,
   driveCar,
   EXIT_ROW,
   PUZZLES,
   pickRandomPuzzleIndex,
-  type Car,
-  type Direction,
   type TrafficJamDifficulty,
   type TrafficJamState,
 } from '../lib/trafficJam';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import AriaLive from './AriaLive';
-import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import {
-  EMPTY_TRAFFIC_JAM_HIGHSCORES,
-  TrafficJamDifficultySchema,
-  TrafficJamHighscoresSchema,
-  type HighscoreEntry,
-} from '../lib/persistedSchemas';
-import { isBetter } from '../lib/highscores';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { useVibration } from '../hooks/useVibration';
+import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import DifficultySelector from './ui/DifficultySelector';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const difficultyLabels: Record<TrafficJamDifficulty, string> = {
   easy: 'Leicht',
@@ -270,20 +271,11 @@ export default function TrafficJamGame() {
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
-          <select
-            value={state.difficulty}
-            onChange={(e) => onDifficultyChange(e.target.value as TrafficJamDifficulty)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            {(Object.keys(difficultyLabels) as TrafficJamDifficulty[]).map((d) => (
-              <option key={d} value={d}>
-                {difficultyLabels[d]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <DifficultySelector<TrafficJamDifficulty>
+          value={state.difficulty}
+          options={difficultyLabels}
+          onChange={onDifficultyChange}
+        />
         <span className="text-xs text-slate-500 dark:text-slate-400">
           Rätsel {state.puzzleIndex + 1} / {pool.length}
         </span>

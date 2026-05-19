@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { STORAGE_KEYS } from '../lib/constants';
 import { useFavorites } from './useFavorites';

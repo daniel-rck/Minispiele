@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Dice', () => {
   test('parses notation 2d20 and renders two d20 dice', async ({ page }) => {

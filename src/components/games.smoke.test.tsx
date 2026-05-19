@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AnagramGame from './AnagramGame';
-import HyperfokusGame from './HyperfokusGame';
 import BlocksGame from './BlocksGame';
 import BreakoutGame from './BreakoutGame';
 import BubblesGame from './BubblesGame';
@@ -11,6 +10,7 @@ import FreecellGame from './FreecellGame';
 import GfrettGame from './GfrettGame';
 import HangmanGame from './HangmanGame';
 import HanoiGame from './HanoiGame';
+import HyperfokusGame from './HyperfokusGame';
 import LightsOutGame from './LightsOutGame';
 import MastermindGame from './MastermindGame';
 import MemoryGame from './MemoryGame';

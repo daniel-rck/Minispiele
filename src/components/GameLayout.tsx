@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { useFavorites } from '../hooks/useFavorites';
 import { useRecentGames } from '../hooks/useRecentGames';

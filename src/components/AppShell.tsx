@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import { BRAND_NAME } from '../lib/brand';
+import { useSettings } from '../lib/useSettings';
 import OfflineIndicator from './OfflineIndicator';
 import SettingsSheet from './SettingsSheet';
 import IconButton from './ui/IconButton';
 import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from './ui/icons';
-import { useSettings } from '../lib/useSettings';
-import { BRAND_NAME } from '../lib/brand';
 
 export default function AppShell() {
   const { pathname } = useLocation();

@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { generate, lineBetween, matchWord, type WordsearchPuzzle } from '../lib/wordsearch';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
 import { STORAGE_KEYS } from '../lib/constants';
 import { WordsearchBestSchema } from '../lib/persistedSchemas';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import { generate, lineBetween, matchWord, type WordsearchPuzzle } from '../lib/wordsearch';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const SIZE = 10;
 const WORD_COUNT = 8;

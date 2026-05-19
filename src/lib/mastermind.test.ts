@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   CODE_LENGTH,
   COLORS,
-  MAX_GUESSES,
   createInitialState,
   evaluateGuess,
   generateCode,
+  MAX_GUESSES,
   placePeg,
   removePeg,
   submit,

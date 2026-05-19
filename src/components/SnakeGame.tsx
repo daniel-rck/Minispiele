@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  createInitialState,
-  queueDirection,
-  tick,
-  tickIntervalMs,
-  type Direction,
-  type SnakeState,
-} from '../lib/snake';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SnakeBestSchema } from '../lib/persistedSchemas';
+import { useSwipeDetection } from '../hooks/useSwipeDetection';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
+import { STORAGE_KEYS } from '../lib/constants';
+import { SnakeBestSchema } from '../lib/persistedSchemas';
+import {
+  createInitialState,
+  type Direction,
+  queueDirection,
+  type SnakeState,
+  tick,
+  tickIntervalMs,
+} from '../lib/snake';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import GameFooter from './ui/GameFooter';
+import GameOverSheet from './ui/GameOverSheet';
+import GameStats from './ui/GameStats';
 
 const COLS = 20;
 const ROWS = 20;
@@ -38,8 +39,6 @@ const KEY_TO_DIR: Readonly<Record<string, Direction>> = {
   D: 'right',
 };
 
-const SWIPE_THRESHOLD = 24;
-
 export default function SnakeGame() {
   const [state, setState] = useState<SnakeState>(() => createInitialState(COLS, ROWS));
   const [phase, setPhase] = useState<Phase>('idle');
@@ -48,7 +47,6 @@ export default function SnakeGame() {
   const [scoreIsNew, setScoreIsNew] = useState(false);
   const [announcement, setAnnouncement] = useState('');
 
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
   const { vibrate } = useVibration();
@@ -57,6 +55,8 @@ export default function SnakeGame() {
   const handleDirection = useCallback((dir: Direction) => {
     setState((s) => queueDirection(s, dir));
   }, []);
+
+  const { onTouchStart, onTouchEnd } = useSwipeDetection({ onSwipe: handleDirection });
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -108,28 +108,6 @@ export default function SnakeGame() {
   const togglePause = useCallback(() => {
     setPhase((p) => (p === 'playing' ? 'paused' : p === 'paused' ? 'playing' : p));
   }, []);
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0];
-    if (!t) return;
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
-  };
-
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const start = touchStartRef.current;
-    if (!start) return;
-    const t = e.changedTouches[0];
-    if (!t) return;
-    const dx = t.clientX - start.x;
-    const dy = t.clientY - start.y;
-    if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
-    if (Math.abs(dx) > Math.abs(dy)) {
-      handleDirection(dx > 0 ? 'right' : 'left');
-    } else {
-      handleDirection(dy > 0 ? 'down' : 'up');
-    }
-    touchStartRef.current = null;
-  };
 
   const cellW = 100 / state.cols;
   const cellH = 100 / state.rows;
@@ -261,24 +239,15 @@ export default function SnakeGame() {
         )}
       </GameFooter>
 
-      <Sheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
-        <div className="text-center">
-          <div className="mb-2 text-4xl" aria-hidden>
-            🐍
-          </div>
-          {scoreIsNew && (
-            <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-              Neue Bestmarke!
-            </div>
-          )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Du hast {state.score} Punkte erreicht.
-          </p>
-          <Button variant="primary" block onClick={start}>
-            Nochmal spielen
-          </Button>
-        </div>
-      </Sheet>
+      <GameOverSheet
+        open={overOpen}
+        onClose={() => setOverOpen(false)}
+        title="Spiel vorbei"
+        emoji="🐍"
+        isNewRecord={scoreIsNew}
+        message={`Du hast ${state.score} Punkte erreicht.`}
+        primaryAction={{ label: 'Nochmal spielen', onClick: start }}
+      />
     </div>
   );
 }

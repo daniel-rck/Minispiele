@@ -1,22 +1,22 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
-  LEVELS,
   cellOwner,
   colorHex,
   createState,
   endpointFor,
   extendPath,
-  isSolved,
-  startPath,
   type FlowState,
+  isSolved,
+  LEVELS,
+  startPath,
 } from '../lib/flow';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
 import { FlowBestSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 export default function FlowGame() {
   const [levelIdx, setLevelIdx] = useState(0);
