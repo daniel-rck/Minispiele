@@ -49,13 +49,22 @@
   --color-success-500: oklch(0.68 0.2 145);
   --color-success-600: oklch(0.58 0.18 145);
   --color-success-700: oklch(0.48 0.16 145);
+  --color-warning-100: oklch(0.96 0.05 85);
+  --color-warning-200: oklch(0.92 0.09 85);
   --color-warning-400: oklch(0.82 0.16 85);
   --color-warning-500: oklch(0.75 0.18 85);
   --color-warning-600: oklch(0.65 0.18 85);
+  --color-warning-700: oklch(0.54 0.17 85);
+  --color-warning-800: oklch(0.4 0.12 85);
+  --color-warning-900: oklch(0.28 0.08 85);
+  --color-danger-100: oklch(0.95 0.04 25);
+  --color-danger-200: oklch(0.9 0.08 25);
   --color-danger-400: oklch(0.72 0.2 25);
   --color-danger-500: oklch(0.62 0.22 25);
   --color-danger-600: oklch(0.54 0.21 25);
   --color-danger-700: oklch(0.46 0.19 25);
+  --color-danger-800: oklch(0.36 0.15 25);
+  --color-danger-900: oklch(0.26 0.1 25);
 
   /* Neutral "Surface" — grays with slight cyan cast for cohesion */
   --color-surface-0: oklch(1 0 0);
