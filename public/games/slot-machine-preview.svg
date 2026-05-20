@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Einarmiger Bandit Vorschau">
+  <rect width="320" height="180" fill="#020617"/>
+  <rect x="40" y="22" width="240" height="136" rx="18" fill="#1e293b" stroke="#fbbf24" stroke-width="3"/>
+  <text x="160" y="46" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="14" font-weight="700" fill="#fbbf24">JACKPOT</text>
+  <g>
+    <rect x="62"  y="60" width="62" height="80" rx="10" fill="#0f172a" stroke="#fbbf24" stroke-width="2"/>
+    <text x="93"  y="115" text-anchor="middle" font-size="42">💎</text>
+
+    <rect x="129" y="60" width="62" height="80" rx="10" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+    <text x="160" y="115" text-anchor="middle" font-size="42">7️⃣</text>
+
+    <rect x="196" y="60" width="62" height="80" rx="10" fill="#0f172a" stroke="#fbbf24" stroke-width="2"/>
+    <text x="227" y="115" text-anchor="middle" font-size="42">💎</text>
+  </g>
+  <circle cx="160" cy="155" r="10" fill="#fbbf24"/>
+  <text x="160" y="159" text-anchor="middle" font-size="9" font-weight="800" fill="#0f172a">SPIN</text>
+</svg>

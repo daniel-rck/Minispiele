@@ -1,23 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { AlarmAudio } from '../lib/audio';
 import {
-  MAX_TIMER_SECONDS,
   formatRemaining,
   joinSeconds,
+  MAX_TIMER_SECONDS,
   pauseTimer,
   resumeTimer,
   splitSeconds,
 } from '../lib/clickerTimer';
 import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
-import { useLocalStorage } from '../lib/useLocalStorage';
 import {
   DurationSchema,
+  type TimerDisplayMode,
   TimerDisplayModeSchema,
   TimerUserPresetsSchema,
-  type TimerDisplayMode,
 } from '../lib/persistedSchemas';
-import { AlarmAudio } from '../lib/audio';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { useVibration } from '../hooks/useVibration';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import TimerDisplay from './TimerDisplay';
 

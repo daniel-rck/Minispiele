@@ -1,21 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
-  SUDOKU_SIZE,
+  SudokuBestSchema,
+  SudokuDifficultySchema,
+  type SudokuState,
+  SudokuStateSchema,
+} from '../lib/persistedSchemas';
+import {
   conflictsAt,
   generatePuzzle,
   isComplete,
+  SUDOKU_SIZE,
   type SudokuCell,
   type SudokuDifficulty,
 } from '../lib/sudoku';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SudokuBestSchema, SudokuDifficultySchema } from '../lib/persistedSchemas';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import DifficultySelector from './ui/DifficultySelector';
+import Sheet from './ui/Sheet';
 
 const LABELS: Record<SudokuDifficulty, string> = {
   easy: 'Leicht',
@@ -34,6 +40,15 @@ function buildPuzzle(diff: SudokuDifficulty): GameSnapshot {
   return { cells: p.cells, solution: p.solution, difficulty: p.difficulty };
 }
 
+function snapshotToState(snapshot: GameSnapshot, seconds: number): SudokuState {
+  return {
+    difficulty: snapshot.difficulty,
+    puzzle: snapshot.cells,
+    solution: snapshot.solution,
+    seconds,
+  };
+}
+
 export default function SudokuGame() {
   const [difficulty, setDifficulty] = useLocalStorage<SudokuDifficulty>(
     STORAGE_KEYS.SUDOKU_DIFFICULTY,
@@ -45,17 +60,39 @@ export default function SudokuGame() {
     SudokuBestSchema,
     {},
   );
-  const [game, setGame] = useState<GameSnapshot>(() => buildPuzzle(difficulty));
+  const [savedState, setSavedState] = useLocalStorage<SudokuState>(
+    STORAGE_KEYS.SUDOKU_STATE,
+    SudokuStateSchema,
+    null,
+  );
+
+  const restoredOnMount = useRef(savedState);
+  const [game, setGame] = useState<GameSnapshot>(() => {
+    const s = restoredOnMount.current;
+    if (s) {
+      return { cells: s.puzzle, solution: s.solution, difficulty: s.difficulty };
+    }
+    return buildPuzzle(difficulty);
+  });
   const [selected, setSelected] = useState<number | null>(null);
   const [notesMode, setNotesMode] = useState(false);
   const [winOpen, setWinOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
   const [announce, setAnnounce] = useState('');
-  const timer = useGameTimer();
+  const [shakeIdx, setShakeIdx] = useState<number | null>(null);
+  const timer = useGameTimer(restoredOnMount.current?.seconds ?? 0);
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
   useWakeLock(timer.status === 'running');
+
+  const elapsedRef = useRef(timer.elapsedSeconds);
+  elapsedRef.current = timer.elapsedSeconds;
+
+  const gameRef = useRef(game);
+  gameRef.current = game;
+  const wonStateRef = useRef(false);
 
   useEffect(() => {
     if (timer.status === 'idle' && !startedRef.current) {
@@ -81,23 +118,50 @@ export default function SudokuGame() {
       setWinOpen(true);
       setAnnounce(`Sudoku gelöst in ${formatDuration(sec)}`);
       vibrate([40, 30, 60]);
+      setSavedState(null);
     }
-  }, [won, timer, bestMap, game.difficulty, setBestMap, vibrate]);
+  }, [won, timer, bestMap, game.difficulty, setBestMap, vibrate, setSavedState]);
+
+  // Persist current snapshot on tab-hide so a refresh/close keeps progress fresh.
+  // Stable listener reads latest game + won-state from refs to avoid re-subscribing on every move.
+  useEffect(() => {
+    wonStateRef.current = won;
+  }, [won]);
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden && !wonStateRef.current) {
+        setSavedState(snapshotToState(gameRef.current, elapsedRef.current));
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, [setSavedState]);
+
+  // Clear shake highlight after the wordle-shake animation finishes.
+  useEffect(() => {
+    if (shakeIdx === null) return;
+    const t = window.setTimeout(() => setShakeIdx(null), 320);
+    return () => window.clearTimeout(t);
+  }, [shakeIdx]);
 
   const restart = useCallback(
     (d: SudokuDifficulty = difficulty) => {
-      setGame(buildPuzzle(d));
+      const fresh = buildPuzzle(d);
+      setGame(fresh);
       setSelected(null);
       setNotesMode(false);
       setWinOpen(false);
       setScoreIsNew(false);
+      setShakeIdx(null);
       startedRef.current = false;
       wonRef.current = false;
       timer.reset();
       timer.start();
       startedRef.current = true;
+      elapsedRef.current = 0;
+      setSavedState(snapshotToState(fresh, 0));
     },
-    [difficulty, timer],
+    [difficulty, timer, setSavedState],
   );
 
   const changeDifficulty = (d: SudokuDifficulty) => {
@@ -105,11 +169,11 @@ export default function SudokuGame() {
     restart(d);
   };
 
-  const setValue = (idx: number, value: number) => {
-    setGame((g) => {
-      const cell = g.cells[idx];
-      if (!cell || cell.given) return g;
-      const cells = g.cells.slice();
+  const setValue = useCallback(
+    (idx: number, value: number) => {
+      const cell = game.cells[idx];
+      if (!cell || cell.given) return;
+      const cells = game.cells.slice();
       if (notesMode && value !== 0) {
         const has = cell.notes.includes(value);
         cells[idx] = {
@@ -119,9 +183,16 @@ export default function SudokuGame() {
       } else {
         cells[idx] = { ...cell, value, notes: [] };
       }
-      return { ...g, cells };
-    });
-  };
+      const next: GameSnapshot = { ...game, cells };
+      setGame(next);
+      setSavedState(snapshotToState(next, elapsedRef.current));
+      if (!notesMode && value !== 0 && conflictsAt(cells, idx)) {
+        setShakeIdx(idx);
+        vibrate([40, 60, 40]);
+      }
+    },
+    [game, notesMode, setSavedState, vibrate],
+  );
 
   const handleCellPress = (idx: number) => {
     setSelected(idx);
@@ -144,6 +215,12 @@ export default function SudokuGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (helpOpen || winOpen) return; // Sheet handles its own keyboard while open
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setNotesMode((m) => !m);
+        return;
+      }
       if (selected === null) return;
       if (/^[1-9]$/.test(e.key)) {
         e.preventDefault();
@@ -163,7 +240,24 @@ export default function SudokuGame() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected]);
+  }, [selected, helpOpen, winOpen]);
+
+  const handleShare = async () => {
+    const sec = timer.elapsedSeconds;
+    const text = `Sudoku (${LABELS[game.difficulty]}) gelöst in ${formatDuration(sec)} 🧩`;
+    try {
+      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        await navigator.share({ title: 'Minispiele · Sudoku', text });
+        return;
+      }
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setAnnounce('Ergebnis in die Zwischenablage kopiert');
+      }
+    } catch {
+      // user cancelled the share sheet, or unsupported — silent.
+    }
+  };
 
   const best = bestMap[game.difficulty];
   const selectedValue = selected !== null ? (game.cells[selected]?.value ?? 0) : 0;
@@ -172,21 +266,23 @@ export default function SudokuGame() {
     <div className="flex flex-col items-center gap-3 pb-4">
       <AriaLive message={announce} />
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
-          <select
-            value={game.difficulty}
-            onChange={(e) => changeDifficulty(e.target.value as SudokuDifficulty)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            {(Object.keys(LABELS) as SudokuDifficulty[]).map((d) => (
-              <option key={d} value={d}>
-                {LABELS[d]}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <DifficultySelector<SudokuDifficulty>
+          value={game.difficulty}
+          options={LABELS}
+          onChange={changeDifficulty}
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setHelpOpen(true)}
+          aria-label="Spielregeln anzeigen"
+          className="min-h-11 min-w-11 px-3"
+        >
+          <span aria-hidden className="text-lg">
+            ?
+          </span>
+        </Button>
       </div>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -230,21 +326,34 @@ export default function SudokuGame() {
               key={idx}
               type="button"
               onClick={() => handleCellPress(idx)}
-              aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? 'leer' : cell.value}`}
-              className={`relative aspect-square text-base font-semibold tabular-nums sm:text-lg ${borderRight} ${borderBottom} ${
+              aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? 'leer' : cell.value}${conflict ? ', Konflikt' : ''}`}
+              aria-invalid={conflict || undefined}
+              className={`relative aspect-square text-base font-semibold tabular-nums transition-colors duration-150 sm:text-lg ${borderRight} ${borderBottom} ${
                 isSelected
                   ? 'bg-brand-200 dark:bg-brand-900/60'
                   : sameValue
-                    ? 'bg-amber-100 dark:bg-amber-900/40'
+                    ? 'bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)]/40'
                     : sameRow || sameCol || sameBox
                       ? 'bg-slate-100 dark:bg-slate-800'
                       : 'bg-white dark:bg-slate-900'
               } ${cell.given ? 'text-slate-900 dark:text-slate-100' : 'text-brand-700 dark:text-brand-300'} ${
-                conflict ? 'text-red-600 dark:text-red-400' : ''
-              }`}
+                conflict
+                  ? 'text-[var(--color-danger-600)] underline decoration-2 underline-offset-2 dark:text-[var(--color-danger-400)]'
+                  : ''
+              } ${shakeIdx === idx ? 'wordle-shake' : ''}`}
             >
               {cell.value !== 0 ? (
-                cell.value
+                <>
+                  {cell.value}
+                  {conflict && (
+                    <span
+                      aria-hidden
+                      className="absolute top-0 right-0.5 text-[8px] leading-none text-[var(--color-danger-600)] sm:text-[10px] dark:text-[var(--color-danger-400)]"
+                    >
+                      ⚠
+                    </span>
+                  )}
+                </>
               ) : cell.notes.length > 0 ? (
                 <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0 p-[1px] text-[8px] leading-tight text-slate-500 sm:text-[10px] dark:text-slate-400">
                   {Array.from({ length: 9 }, (_, n) => (
@@ -260,7 +369,7 @@ export default function SudokuGame() {
       </div>
 
       <div
-        className="grid w-full max-w-md grid-cols-9 gap-1"
+        className="grid w-full max-w-md grid-cols-5 gap-1 sm:grid-cols-9"
         role="group"
         aria-label="Zahlentastatur"
       >
@@ -269,7 +378,7 @@ export default function SudokuGame() {
             key={n}
             type="button"
             onClick={() => handlePad(n)}
-            className="min-h-11 rounded-lg bg-white text-base font-semibold tabular-nums shadow-sm hover:bg-brand-50 dark:bg-slate-900 dark:hover:bg-slate-800"
+            className="min-h-11 min-w-11 rounded-lg bg-white text-base font-semibold tabular-nums shadow-sm transition-colors hover:bg-brand-50 active:scale-95 dark:bg-slate-900 dark:hover:bg-slate-800"
           >
             {n}
           </button>
@@ -281,9 +390,10 @@ export default function SudokuGame() {
           type="button"
           onClick={() => setNotesMode((m) => !m)}
           aria-pressed={notesMode}
-          className={`min-h-12 flex-1 rounded-xl px-3 text-sm font-medium ${
+          aria-keyshortcuts="n"
+          className={`min-h-12 flex-1 rounded-xl px-3 text-sm font-medium transition-colors ${
             notesMode
-              ? 'bg-amber-500 text-white'
+              ? 'bg-[var(--color-warning-500)] text-white'
               : 'border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
           }`}
         >
@@ -292,7 +402,7 @@ export default function SudokuGame() {
         <button
           type="button"
           onClick={handleErase}
-          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
         >
           Löschen
         </button>
@@ -303,20 +413,75 @@ export default function SudokuGame() {
 
       <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gelöst!">
         <div className="text-center">
-          <div className="mb-2 text-4xl" aria-hidden>
+          <div
+            key={`win-${timer.elapsedSeconds}`}
+            className="mb-2 inline-block text-4xl star-pop"
+            aria-hidden
+          >
             🧩
           </div>
           {scoreIsNew && (
-            <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
+            <div className="mb-2 inline-block rounded-full bg-[var(--color-warning-100)] px-3 py-1 text-xs font-medium text-[var(--color-warning-800)] star-pop dark:bg-[var(--color-warning-900)]/40 dark:text-[var(--color-warning-200)]">
               Neue Bestzeit!
             </div>
           )}
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             Gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
-          <Button variant="primary" block onClick={() => restart()}>
-            Neues Sudoku
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button variant="primary" block onClick={() => restart()}>
+              Neues Sudoku
+            </Button>
+            <Button variant="ghost" block onClick={handleShare}>
+              Ergebnis teilen
+            </Button>
+          </div>
+        </div>
+      </Sheet>
+
+      <Sheet open={helpOpen} onClose={() => setHelpOpen(false)} title="Wie spielt man?">
+        <div className="space-y-3 text-sm text-slate-700 dark:text-slate-200">
+          <p>
+            <strong>Ziel:</strong> Fülle das 9×9-Gitter so, dass jede Ziffer 1 – 9 in jeder Zeile,
+            Spalte und jedem 3×3-Block genau einmal vorkommt.
+          </p>
+          <p>
+            <strong>Steuerung:</strong> Tippe oder klicke eine Zelle an, dann wähle eine Ziffer über
+            die Zahlenleiste, per Tastatur (1 – 9) oder mit den Pfeiltasten zum Navigieren. Mit
+            Backspace, Delete oder „Löschen" entfernst du eine Ziffer.
+          </p>
+          <p>
+            <strong>Notizen:</strong> Wechsle mit „Notizen" (oder Taste{' '}
+            <kbd className="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-semibold dark:bg-slate-800">
+              N
+            </kbd>
+            ) in den Notiz-Modus. Eingegebene Ziffern landen dann als kleine Hinweise in der Zelle,
+            statt als finaler Wert.
+          </p>
+          <div>
+            <strong>Markierungen:</strong>
+            <ul className="mt-1 ml-4 list-disc space-y-1">
+              <li>
+                Die ausgewählte Zelle ist <span className="font-semibold">türkis</span> hinterlegt.
+              </li>
+              <li>
+                Zellen mit derselben Ziffer wie die Auswahl sind{' '}
+                <span className="font-semibold text-[var(--color-warning-700)] dark:text-[var(--color-warning-400)]">
+                  gelb
+                </span>{' '}
+                markiert.
+              </li>
+              <li>Zeile, Spalte und 3×3-Block der Auswahl sind dezent grau betont.</li>
+              <li>
+                Konflikte zeigen sich{' '}
+                <span className="font-semibold text-[var(--color-danger-600)] dark:text-[var(--color-danger-400)]">
+                  rot ⚠
+                </span>{' '}
+                und kurz wackelnd — dann steht die Ziffer schon woanders in Zeile, Spalte oder
+                Block.
+              </li>
+            </ul>
+          </div>
         </div>
       </Sheet>
     </div>

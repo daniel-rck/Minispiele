@@ -1,15 +1,14 @@
-import { describe, it, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-
-import { expectNoA11yViolations } from '../test/a11y';
+import { beforeEach, describe, it } from 'vitest';
 import { SettingsProvider } from '../lib/useSettings';
 import Home from '../pages/Home';
-import RingSortGame from './RingSortGame';
+import { expectNoA11yViolations } from '../test/a11y';
 import DiceRoller from './DiceRoller';
-import MemoryGame from './MemoryGame';
-import SettingsSheet from './SettingsSheet';
 import GameLayout from './GameLayout';
+import MemoryGame from './MemoryGame';
+import RingSortGame from './RingSortGame';
+import SettingsSheet from './SettingsSheet';
 
 beforeEach(() => {
   window.localStorage.clear();

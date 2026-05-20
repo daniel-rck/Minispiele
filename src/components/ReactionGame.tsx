@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { ReactionBestSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 
 type Phase = 'idle' | 'waiting' | 'ready' | 'tooEarly' | 'done';

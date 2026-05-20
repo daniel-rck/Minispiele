@@ -1,22 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
+import { SimonBestSchema } from '../lib/persistedSchemas';
 import {
   createInitialState,
   extendSequence,
   flashDurationMs,
   pressColor,
-  startInput,
   type SimonColor,
   type SimonState,
+  startInput,
 } from '../lib/simon';
 import { ToneAudio } from '../lib/toneAudio';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { SimonBestSchema } from '../lib/persistedSchemas';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 interface PadDef {
   label: string;

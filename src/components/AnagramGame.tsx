@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { pickRandomHangmanWord } from '../lib/hangmanWords';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { AnagramBestSchema } from '../lib/persistedSchemas';
 import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
+import { pickRandomHangmanWord } from '../lib/hangmanWords';
+import { AnagramBestSchema } from '../lib/persistedSchemas';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
 

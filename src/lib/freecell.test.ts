@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  SUITS,
-  type Card,
-  type FreecellState,
   autoMoveToFoundation,
+  type Card,
   canPlaceOnFoundation,
   canPlaceOnTableau,
   deal,
+  type FreecellState,
   isWon,
   makeMove,
   rankLabel,
+  SUITS,
   undo,
 } from './freecell';
 

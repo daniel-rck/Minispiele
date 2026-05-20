@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  LIGHTS_SIZE,
   createInitialState,
   generatePuzzle,
   isAllOff,
+  LIGHTS_SIZE,
   press,
   toggleCell,
 } from './lightsOut';

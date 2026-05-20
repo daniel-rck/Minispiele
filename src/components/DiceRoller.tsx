@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
 import {
+  buildPreset,
+  createDie,
   DICE_COLOR_PALETTE,
   DICE_PRESETS,
   DIE_FACES,
   DIE_TYPES,
+  type Die,
+  type DieType,
   MAX_DICE,
-  buildPreset,
-  createDie,
   maxValue,
   minValue,
+  type RollMode,
   readableTextColor,
   rollAllWithMode,
   rollDie,
@@ -16,25 +20,21 @@ import {
   setDieType,
   sumValues,
   toggleHeld,
-  type Die,
-  type DieType,
-  type RollMode,
 } from '../lib/dice';
 import { parseNotation } from '../lib/diceNotation';
-import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
 import {
+  type DiceHistory,
+  type DiceHistoryEntry,
   DiceHistorySchema,
   DiceModifierSchema,
   DiceRollDurationSchema,
   PersistedDiceSchema,
-  type DiceHistory,
-  type DiceHistoryEntry,
   type PersistedDie,
 } from '../lib/persistedSchemas';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
-import Sheet from './ui/Sheet';
 import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>> = {
   1: [[1, 1]],

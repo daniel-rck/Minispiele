@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
+import { useEffect, useState } from 'react';
 
 export default function PWAUpdatePrompt() {
   const {

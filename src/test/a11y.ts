@@ -1,5 +1,5 @@
-import { expect } from 'vitest';
 import axe, { type AxeResults, type RunOptions, type Spec } from 'axe-core';
+import { expect } from 'vitest';
 
 const DEFAULT_RULES: Spec['rules'] = [
   { id: 'color-contrast', enabled: false },

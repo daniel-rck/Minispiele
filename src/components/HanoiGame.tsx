@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
   createInitialState,
+  type HanoiState,
   isSolved,
   minimumMoves,
   selectPeg,
-  type HanoiState,
 } from '../lib/hanoi';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
 import { HanoiBestSchema, HanoiDisksSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const DISK_OPTIONS = [3, 4, 5, 6, 7, 8] as const;
 const DISK_COLORS = [

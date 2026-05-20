@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Tailwind v4 dark variant tied to `.dark` class (set synchronously by SettingsProvider in src/lib/useSettings.ts) */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -6,11 +6,11 @@
 @theme {
   /* Typography — rounded system stack with Nunito as enhancement when loaded */
   --font-sans:
-    'Nunito', 'ui-rounded', 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', system-ui, -apple-system,
-    'Segoe UI', Roboto, sans-serif;
+    "Nunito", "ui-rounded", "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
   --font-display:
-    'Nunito', 'ui-rounded', 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', system-ui, -apple-system,
-    'Segoe UI', Roboto, sans-serif;
+    "Nunito", "ui-rounded", "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
 
   /* Primary — turquoise/cyan (differentiates from Duolingo green, avoids Snake/Simon overlap) */
   --color-primary-50: oklch(0.97 0.02 195);
@@ -49,13 +49,22 @@
   --color-success-500: oklch(0.68 0.2 145);
   --color-success-600: oklch(0.58 0.18 145);
   --color-success-700: oklch(0.48 0.16 145);
+  --color-warning-100: oklch(0.96 0.05 85);
+  --color-warning-200: oklch(0.92 0.09 85);
   --color-warning-400: oklch(0.82 0.16 85);
   --color-warning-500: oklch(0.75 0.18 85);
   --color-warning-600: oklch(0.65 0.18 85);
+  --color-warning-700: oklch(0.54 0.17 85);
+  --color-warning-800: oklch(0.4 0.12 85);
+  --color-warning-900: oklch(0.28 0.08 85);
+  --color-danger-100: oklch(0.95 0.04 25);
+  --color-danger-200: oklch(0.9 0.08 25);
   --color-danger-400: oklch(0.72 0.2 25);
   --color-danger-500: oklch(0.62 0.22 25);
   --color-danger-600: oklch(0.54 0.21 25);
   --color-danger-700: oklch(0.46 0.19 25);
+  --color-danger-800: oklch(0.36 0.15 25);
+  --color-danger-900: oklch(0.26 0.1 25);
 
   /* Neutral "Surface" — grays with slight cyan cast for cohesion */
   --color-surface-0: oklch(1 0 0);
@@ -155,7 +164,7 @@ body {
 
 /* Self-host Nunito would be ideal for PWA offline; use Google Fonts as enhancement.
    System fallback (ui-rounded / SF Pro Rounded) keeps the playful feel even offline. */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap");
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -168,14 +177,14 @@ body {
 }
 
 button,
-[role='button'],
+[role="button"],
 a {
   touch-action: manipulation;
 }
 
 @media (pointer: coarse) {
   button,
-  [role='button'] {
+  [role="button"] {
     min-height: 44px;
   }
 }
@@ -185,16 +194,16 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
-[role='button']:focus-visible,
-[role='switch']:focus-visible {
+[role="button"]:focus-visible,
+[role="switch"]:focus-visible {
   outline: 3px solid var(--color-primary-400);
   outline-offset: 2px;
   border-radius: var(--radius-md);
 }
 
 /* Hide native clear cross in WebKit/Blink for type="search" — we render our own */
-input[type='search']::-webkit-search-cancel-button,
-input[type='search']::-webkit-search-decoration {
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
   appearance: none;
   -webkit-appearance: none;
 }

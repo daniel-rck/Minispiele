@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   ACHIEVEMENTS,
-  DEFAULT_SAVE,
-  EVENTS,
-  THEMES,
-  UPGRADES,
   applyPrestige,
   applyUpgrade,
   autoTapperRate,
@@ -14,6 +10,8 @@ import {
   computeOfflineIncome,
   critChance,
   critMultiplier,
+  DEFAULT_SAVE,
+  EVENTS,
   eventRateMultiplier,
   findCheapestAffordable,
   formatNumber,
@@ -24,7 +22,9 @@ import {
   prestigeBonus,
   prestigeReward,
   rollTapReward,
+  THEMES,
   tapPowerValue,
+  UPGRADES,
   upgradeCost,
 } from './hyperfokus';
 import type { HyperfokusSave } from './persistedSchemas';

@@ -1,14 +1,14 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { generate, isSolved, type Cell, type Nonogram } from '../lib/nonogram';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { NonogramBestSchema, NonogramSizeSchema } from '../lib/persistedSchemas';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { STORAGE_KEYS } from '../lib/constants';
+import { type Cell, generate, isSolved, type Nonogram } from '../lib/nonogram';
+import { NonogramBestSchema, NonogramSizeSchema } from '../lib/persistedSchemas';
+import { formatDuration, useGameTimer } from '../lib/useGameTimer';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const SIZES = [5, 7, 10] as const;
 

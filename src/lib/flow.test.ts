@@ -1,6 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  LEVELS,
   cellOwner,
   colorHex,
   createState,
@@ -8,6 +7,7 @@ import {
   extendPath,
   isAdjacent,
   isSolved,
+  LEVELS,
   startPath,
 } from './flow';
 

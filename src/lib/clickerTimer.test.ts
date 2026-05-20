@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  MAX_TIMER_SECONDS,
-  MIN_TIMER_SECONDS,
   clampSeconds,
   formatHundredths,
   formatRemaining,
   joinSeconds,
+  MAX_TIMER_SECONDS,
+  MIN_TIMER_SECONDS,
   pauseTimer,
   resumeTimer,
   splitSeconds,
