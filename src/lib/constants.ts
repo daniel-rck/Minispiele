@@ -81,6 +81,7 @@ export const STORAGE_KEYS = {
   GFRETT_BEST: 'minispiele.gfrett.best.v1',
   COLOR_FLOOD_BEST: 'minispiele.colorFlood.bestMoves.v1',
   SPELLING_BEE_BEST: 'minispiele.spellingBee.bestScore.v1',
+  BINGO_BEST: 'minispiele.bingo.bestDraws.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

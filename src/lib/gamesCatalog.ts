@@ -305,6 +305,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: sechs Sechsecke um einen gelben Mittelbuchstaben in Wabenform',
     category: 'wort',
   },
+  {
+    to: '/bingo',
+    title: 'Bingo',
+    description: 'Zwei Karten, 75 Zahlen. Wer zuerst eine Reihe schließt, ruft Bingo!',
+    preview: '/games/bingo-preview.svg',
+    previewAlt: 'Vorschau: eine 5×5-Bingokarte mit Spalten B, I, N, G, O und einer Freimitte',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -31,6 +31,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/gfrett', title: /Gfrett/i },
   { path: '/color-flood', title: /Farbflut/i },
   { path: '/spelling-bee', title: /Buchstabierbiene/i },
+  { path: '/bingo', title: /Bingo/i },
 ];
 
 test.describe('All games smoke render', () => {

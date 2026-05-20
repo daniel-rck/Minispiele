@@ -246,3 +246,5 @@ export const GfrettBestSchema = z.record(z.string(), z.number().int().nonnegativ
 export const ColorFloodBestSchema = NullableNonNegInt;
 
 export const SpellingBeeBestSchema = z.number().int().nonnegative();
+
+export const BingoBestSchema = NullableNonNegInt;
