@@ -259,3 +259,5 @@ export const IdleClickerSaveSchema = z.object({
   upgradeCounts: z.array(z.number().int().nonnegative()).max(32),
 });
 export type IdleClickerSave = z.infer<typeof IdleClickerSaveSchema>;
+
+export const LadderBestSchema = NullableNonNegInt;

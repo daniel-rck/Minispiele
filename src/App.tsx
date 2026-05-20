@@ -43,6 +43,7 @@ const SpellingBee = lazy(() => import('./pages/SpellingBee'));
 const Bingo = lazy(() => import('./pages/Bingo'));
 const SlotMachine = lazy(() => import('./pages/SlotMachine'));
 const IdleClicker = lazy(() => import('./pages/IdleClicker'));
+const Ladders = lazy(() => import('./pages/Ladders'));
 
 function RouteFallback() {
   return (
@@ -372,6 +373,14 @@ export default function App() {
                 element={
                   <LazyRoute label="idle-clicker">
                     <IdleClicker />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="leiterspiel"
+                element={
+                  <LazyRoute label="leiterspiel">
+                    <Ladders />
                   </LazyRoute>
                 }
               />

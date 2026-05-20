@@ -330,6 +330,15 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein goldener Klick-Button mit aufsteigenden Zahlen im Hintergrund',
     category: 'gehirntraining',
   },
+  {
+    to: '/leiterspiel',
+    title: 'Leiterspiel',
+    description:
+      'Snakes & Ladders auf einem 10×10-Brett gegen drei KI-Gegner. Wer zuerst auf 100 ist, gewinnt.',
+    preview: '/games/leiterspiel-preview.svg',
+    previewAlt: 'Vorschau: ein 10×10-Brett mit grünen Leitern und roten Schlangen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
