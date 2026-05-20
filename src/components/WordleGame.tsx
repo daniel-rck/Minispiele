@@ -1,23 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
+import { EMPTY_WORDLE_STATS, type WordleStats, WordleStatsSchema } from '../lib/persistedSchemas';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import {
   appendLetter,
   backspace,
   createInitialState,
   keyboardStatus,
+  type LetterState,
+  MAX_GUESSES,
   pickRandomWord,
   submitGuess,
-  type LetterState,
-  type WordleState,
-  MAX_GUESSES,
   WORD_LENGTH,
+  type WordleState,
 } from '../lib/wordle';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { EMPTY_WORDLE_STATS, WordleStatsSchema, type WordleStats } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import GameOverSheet from './ui/GameOverSheet';
 import WordleKeyboard from './WordleKeyboard';
 
 function cellClass(state: LetterState | undefined, filled: boolean): string {
@@ -243,52 +243,34 @@ export default function WordleGame() {
         </Button>
       )}
 
-      <Sheet
+      <GameOverSheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
         title={state.done === 'won' ? 'Gewonnen!' : 'Verloren'}
-      >
-        <div className="text-center">
-          <div className="mb-2 text-4xl" aria-hidden>
-            {state.done === 'won' ? '🎉' : '🙈'}
-          </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            {state.done === 'won' ? (
-              <>
-                In {state.guesses.length} {state.guesses.length === 1 ? 'Versuch' : 'Versuchen'}{' '}
-                erraten.
-              </>
-            ) : (
-              <>
-                Das Wort war <span className="font-bold uppercase">{state.target}</span>.
-              </>
-            )}
-          </p>
-          <div className="mb-4 grid grid-cols-4 gap-2 text-center text-xs">
-            <div>
-              <div className="text-lg font-semibold tabular-nums">{stats.played}</div>
-              <div className="text-slate-500">Spiele</div>
-            </div>
-            <div>
-              <div className="text-lg font-semibold tabular-nums">
-                {stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0}%
-              </div>
-              <div className="text-slate-500">Siege</div>
-            </div>
-            <div>
-              <div className="text-lg font-semibold tabular-nums">{stats.currentStreak}</div>
-              <div className="text-slate-500">Serie</div>
-            </div>
-            <div>
-              <div className="text-lg font-semibold tabular-nums">{stats.maxStreak}</div>
-              <div className="text-slate-500">Beste</div>
-            </div>
-          </div>
-          <Button variant="primary" block onClick={newGame}>
-            Nochmal spielen
-          </Button>
-        </div>
-      </Sheet>
+        emoji={state.done === 'won' ? '🎉' : '🙈'}
+        message={
+          state.done === 'won' ? (
+            <>
+              In {state.guesses.length} {state.guesses.length === 1 ? 'Versuch' : 'Versuchen'}{' '}
+              erraten.
+            </>
+          ) : (
+            <>
+              Das Wort war <span className="font-bold uppercase">{state.target}</span>.
+            </>
+          )
+        }
+        stats={[
+          { label: 'Spiele', value: stats.played },
+          {
+            label: 'Siege',
+            value: `${stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0}%`,
+          },
+          { label: 'Serie', value: stats.currentStreak },
+          { label: 'Beste', value: stats.maxStreak },
+        ]}
+        primaryAction={{ label: 'Nochmal spielen', onClick: newGame }}
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 const games: { path: string; title: RegExp }[] = [
   { path: '/memory', title: /Memory/i },
@@ -26,7 +26,15 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/reaction', title: /Reaktionstest/i },
   { path: '/schulte', title: /Zahlentafel/i },
   { path: '/stroop', title: /Stroop/i },
+  { path: '/traffic-jam', title: /Stau/i },
   { path: '/hyperfokus', title: /Hyperfokus/i },
+  { path: '/gfrett', title: /Gfrett/i },
+  { path: '/color-flood', title: /Farbflut/i },
+  { path: '/spelling-bee', title: /Buchstabierbiene/i },
+  { path: '/bingo', title: /Bingo/i },
+  { path: '/slot-machine', title: /Einarmiger Bandit/i },
+  { path: '/idle-clicker', title: /Klick-Imperium/i },
+  { path: '/leiterspiel', title: /Leiterspiel/i },
 ];
 
 test.describe('All games smoke render', () => {

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Ring Sort', () => {
   test('navigates from home and renders four pegs', async ({ page }) => {

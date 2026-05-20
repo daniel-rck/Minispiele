@@ -1,27 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
+import { isBetter } from '../lib/highscores';
 import {
   createInitialState,
   flipCard,
-  resolvePicks,
   MEMORY_COLS,
   type MemoryDifficulty,
   type MemoryState,
+  resolvePicks,
 } from '../lib/memory';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { useLocalStorage } from '../lib/useLocalStorage';
 import {
   EMPTY_MEMORY_HIGHSCORES,
+  type HighscoreEntry,
   MemoryDifficultySchema,
   MemoryHighscoresSchema,
-  type HighscoreEntry,
 } from '../lib/persistedSchemas';
-import { isBetter } from '../lib/highscores';
-import { useWakeLock } from '../hooks/useWakeLock';
+import { formatDuration, useGameTimer } from '../lib/useGameTimer';
+import { useLocalStorage } from '../lib/useLocalStorage';
+import Button from './ui/Button';
+import DifficultySelector from './ui/DifficultySelector';
+import GameFooter from './ui/GameFooter';
+import GameOverSheet from './ui/GameOverSheet';
+import GameStats from './ui/GameStats';
 
 const difficultyLabels: Record<MemoryDifficulty, string> = {
   easy: 'Leicht (6 Paare)',
@@ -111,20 +112,11 @@ export default function MemoryGame() {
   return (
     <div className="flex flex-col gap-3 pb-24">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
-          <select
-            value={state.difficulty}
-            onChange={(e) => onDifficultyChange(e.target.value as MemoryDifficulty)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            {(Object.keys(difficultyLabels) as MemoryDifficulty[]).map((d) => (
-              <option key={d} value={d}>
-                {difficultyLabels[d]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <DifficultySelector<MemoryDifficulty>
+          value={state.difficulty}
+          options={difficultyLabels}
+          onChange={onDifficultyChange}
+        />
       </div>
 
       <GameStats
@@ -191,24 +183,16 @@ export default function MemoryGame() {
         </Button>
       </GameFooter>
 
-      <Sheet open={winOpen} onClose={() => setWinOpen(false)} title="Gewonnen!">
-        <div className="text-center">
-          <div className="mb-2 text-4xl" aria-hidden>
-            🎉
-          </div>
-          {scoreIsNew && (
-            <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-              Neue Bestzeit!
-            </div>
-          )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Gelöst in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
-          </p>
-          <Button variant="primary" block onClick={() => restart()}>
-            Nochmal spielen
-          </Button>
-        </div>
-      </Sheet>
+      <GameOverSheet
+        open={winOpen}
+        onClose={() => setWinOpen(false)}
+        title="Gewonnen!"
+        emoji="🎉"
+        isNewRecord={scoreIsNew}
+        recordLabel="Neue Bestzeit!"
+        message={`Gelöst in ${state.moves} Zügen, Zeit ${formatDuration(timer.elapsedSeconds)}.`}
+        primaryAction={{ label: 'Nochmal spielen', onClick: () => restart() }}
+      />
     </div>
   );
 }

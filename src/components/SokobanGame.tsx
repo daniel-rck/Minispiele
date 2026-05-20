@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  LEVELS,
-  isSolved,
-  loadLevel,
-  move,
-  undo,
-  type SokobanDirection,
-  type SokobanState,
-} from '../lib/sokoban';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useSwipeDetection } from '../hooks/useSwipeDetection';
+import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { SokobanBestSchema, SokobanLevelSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import {
+  isSolved,
+  LEVELS,
+  loadLevel,
+  move,
+  type SokobanDirection,
+  type SokobanState,
+  undo,
+} from '../lib/sokoban';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 export default function SokobanGame() {
   const [levelIdx, setLevelIdx] = useLocalStorage<number>(
@@ -32,7 +33,6 @@ export default function SokobanGame() {
   const [scoreIsNew, setScoreIsNew] = useState(false);
   const [announce, setAnnounce] = useState('');
   const wonRef = useRef(false);
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const { vibrate } = useVibration();
 
   const solved = isSolved(state);
@@ -127,23 +127,7 @@ export default function SokobanGame() {
     return () => window.removeEventListener('keydown', onKey);
   }, [handleMove]);
 
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    const t = e.touches[0];
-    if (!t) return;
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
-  };
-
-  const onTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    const start = touchStartRef.current;
-    const t = e.changedTouches[0];
-    if (!start || !t) return;
-    const dx = t.clientX - start.x;
-    const dy = t.clientY - start.y;
-    if (Math.abs(dx) < 20 && Math.abs(dy) < 20) return;
-    if (Math.abs(dx) > Math.abs(dy)) handleMove(dx > 0 ? 'right' : 'left');
-    else handleMove(dy > 0 ? 'down' : 'up');
-    touchStartRef.current = null;
-  };
+  const { onTouchStart, onTouchEnd } = useSwipeDetection({ threshold: 20, onSwipe: handleMove });
 
   const best = bestMap[String(levelIdx)];
 

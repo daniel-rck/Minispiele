@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
-import { BreakoutBestSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { particleOpacity, spawnBurst, stepParticles, type Particle } from '../lib/particles';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
+import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
+import { BreakoutBestSchema } from '../lib/persistedSchemas';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const TRAIL_LENGTH = 6;
 

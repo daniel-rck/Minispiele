@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { LEVELS, loadLevel, move, undo, isSolved } from './sokoban';
+import { describe, expect, it } from 'vitest';
+import { isSolved, LEVELS, loadLevel, move, undo } from './sokoban';
 
 describe('sokoban', () => {
   it('loadLevel parses dimensions, walls, targets, boxes and player', () => {

@@ -1,5 +1,5 @@
-import type { Difficulty } from './ringSort';
 import type { HighscoreEntry, Highscores } from './persistedSchemas';
+import type { Difficulty } from './ringSort';
 
 export function isBetter(candidate: HighscoreEntry, existing: HighscoreEntry | null): boolean {
   if (!existing) return true;

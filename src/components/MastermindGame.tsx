@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
+import { STORAGE_KEYS } from '../lib/constants';
 import {
   CODE_LENGTH,
-  MAX_GUESSES,
   createInitialState,
+  MAX_GUESSES,
+  type MastermindState,
   placePeg,
   removePeg,
   submit,
-  type MastermindState,
 } from '../lib/mastermind';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { STORAGE_KEYS } from '../lib/constants';
 import { MastermindBestSchema } from '../lib/persistedSchemas';
-import { useVibration } from '../hooks/useVibration';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
+import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
+import Button from './ui/Button';
+import Sheet from './ui/Sheet';
 
 const COLOR_CLASSES = [
   'bg-red-500',

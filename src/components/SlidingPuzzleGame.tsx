@@ -1,28 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useWakeLock } from '../hooks/useWakeLock';
+import { STORAGE_KEYS } from '../lib/constants';
+import { isBetter } from '../lib/highscores';
 import {
+  EMPTY_SLIDING_HIGHSCORES,
+  type HighscoreEntry,
+  SlidingDifficultySchema,
+  SlidingHighscoresSchema,
+} from '../lib/persistedSchemas';
+import {
+  type ArrowDirection,
   createInitialState,
   moveByArrow,
   SLIDING_SIZE,
-  tryMove,
-  type ArrowDirection,
   type SlidingDifficulty,
   type SlidingState,
+  tryMove,
 } from '../lib/slidingPuzzle';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import Sheet from './ui/Sheet';
-import Button from './ui/Button';
-import GameStats from './ui/GameStats';
-import GameFooter from './ui/GameFooter';
-import { STORAGE_KEYS } from '../lib/constants';
 import { useLocalStorage } from '../lib/useLocalStorage';
-import {
-  EMPTY_SLIDING_HIGHSCORES,
-  SlidingDifficultySchema,
-  SlidingHighscoresSchema,
-  type HighscoreEntry,
-} from '../lib/persistedSchemas';
-import { isBetter } from '../lib/highscores';
-import { useWakeLock } from '../hooks/useWakeLock';
+import Button from './ui/Button';
+import DifficultySelector from './ui/DifficultySelector';
+import GameFooter from './ui/GameFooter';
+import GameStats from './ui/GameStats';
+import Sheet from './ui/Sheet';
 
 const difficultyLabels: Record<SlidingDifficulty, string> = {
   easy: 'Leicht (3×3)',
@@ -126,20 +127,11 @@ export default function SlidingPuzzleGame() {
   return (
     <div className="flex flex-col gap-3 pb-24">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Schwierigkeit:</span>
-          <select
-            value={state.difficulty}
-            onChange={(e) => onDifficultyChange(e.target.value as SlidingDifficulty)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            {(Object.keys(difficultyLabels) as SlidingDifficulty[]).map((d) => (
-              <option key={d} value={d}>
-                {difficultyLabels[d]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <DifficultySelector<SlidingDifficulty>
+          value={state.difficulty}
+          options={difficultyLabels}
+          onChange={onDifficultyChange}
+        />
       </div>
 
       <GameStats

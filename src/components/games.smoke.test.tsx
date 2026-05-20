@@ -1,15 +1,16 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AnagramGame from './AnagramGame';
-import HyperfokusGame from './HyperfokusGame';
 import BlocksGame from './BlocksGame';
 import BreakoutGame from './BreakoutGame';
 import BubblesGame from './BubblesGame';
 import FlowGame from './FlowGame';
 import FreecellGame from './FreecellGame';
+import GfrettGame from './GfrettGame';
 import HangmanGame from './HangmanGame';
 import HanoiGame from './HanoiGame';
+import HyperfokusGame from './HyperfokusGame';
 import LightsOutGame from './LightsOutGame';
 import MastermindGame from './MastermindGame';
 import MemoryGame from './MemoryGame';
@@ -21,6 +22,7 @@ import SokobanGame from './SokobanGame';
 import StroopGame from './StroopGame';
 import SudokuGame from './SudokuGame';
 import TangramGame from './TangramGame';
+import TrafficJamGame from './TrafficJamGame';
 import TwentyFortyEightGame from './TwentyFortyEightGame';
 import WordsearchGame from './WordsearchGame';
 
@@ -68,6 +70,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['BubblesGame', () => <BubblesGame />],
   ['FlowGame', () => <FlowGame />],
   ['FreecellGame', () => <FreecellGame />],
+  ['GfrettGame', () => <GfrettGame />],
   ['HangmanGame', () => <HangmanGame />],
   ['HanoiGame', () => <HanoiGame />],
   ['LightsOutGame', () => <LightsOutGame />],
@@ -81,6 +84,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['StroopGame', () => <StroopGame />],
   ['SudokuGame', () => <SudokuGame />],
   ['TangramGame', () => <TangramGame />],
+  ['TrafficJamGame', () => <TrafficJamGame />],
   ['TwentyFortyEightGame', () => <TwentyFortyEightGame />],
   ['WordsearchGame', () => <WordsearchGame />],
   ['HyperfokusGame', () => <HyperfokusGame />],

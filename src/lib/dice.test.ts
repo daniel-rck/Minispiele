@@ -1,16 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  DIE_FACES,
   buildPreset,
   createDie,
   DICE_PRESETS,
+  DIE_FACES,
+  type Die,
   readableTextColor,
   rollAll,
   rollDie,
   setDieType,
   sumValues,
   toggleHeld,
-  type Die,
 } from './dice';
 
 function fixedRand(value: number): (faces: number) => number {

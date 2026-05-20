@@ -3,8 +3,8 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import AppShell from './components/AppShell';
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAUpdatePrompt from './components/PWAUpdatePrompt';
-import { SettingsProvider, useSettings } from './lib/useSettings';
 import { setAudioSetting } from './lib/audioSettings';
+import { SettingsProvider, useSettings } from './lib/useSettings';
 
 const Home = lazy(() => import('./pages/Home'));
 const RingSort = lazy(() => import('./pages/RingSort'));
@@ -35,7 +35,15 @@ const Blocks = lazy(() => import('./pages/Blocks'));
 const Freecell = lazy(() => import('./pages/Freecell'));
 const Tangram = lazy(() => import('./pages/Tangram'));
 const Flow = lazy(() => import('./pages/Flow'));
+const TrafficJam = lazy(() => import('./pages/TrafficJam'));
 const Hyperfokus = lazy(() => import('./pages/Hyperfokus'));
+const Gfrett = lazy(() => import('./pages/Gfrett'));
+const ColorFlood = lazy(() => import('./pages/ColorFlood'));
+const SpellingBee = lazy(() => import('./pages/SpellingBee'));
+const Bingo = lazy(() => import('./pages/Bingo'));
+const SlotMachine = lazy(() => import('./pages/SlotMachine'));
+const IdleClicker = lazy(() => import('./pages/IdleClicker'));
+const Ladders = lazy(() => import('./pages/Ladders'));
 
 function RouteFallback() {
   return (
@@ -305,10 +313,74 @@ export default function App() {
                 }
               />
               <Route
+                path="traffic-jam"
+                element={
+                  <LazyRoute label="traffic-jam">
+                    <TrafficJam />
+                  </LazyRoute>
+                }
+              />
+              <Route
                 path="hyperfokus"
                 element={
                   <LazyRoute label="hyperfokus">
                     <Hyperfokus />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="gfrett"
+                element={
+                  <LazyRoute label="gfrett">
+                    <Gfrett />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="color-flood"
+                element={
+                  <LazyRoute label="color-flood">
+                    <ColorFlood />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="spelling-bee"
+                element={
+                  <LazyRoute label="spelling-bee">
+                    <SpellingBee />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="bingo"
+                element={
+                  <LazyRoute label="bingo">
+                    <Bingo />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="slot-machine"
+                element={
+                  <LazyRoute label="slot-machine">
+                    <SlotMachine />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="idle-clicker"
+                element={
+                  <LazyRoute label="idle-clicker">
+                    <IdleClicker />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="leiterspiel"
+                element={
+                  <LazyRoute label="leiterspiel">
+                    <Ladders />
                   </LazyRoute>
                 }
               />

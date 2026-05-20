@@ -199,6 +199,20 @@ export const FreecellBestSchema = NullableNonNegInt;
 export const TangramLevelSchema = z.number().int().min(0).max(99);
 export const FlowBestSchema = z.record(z.string(), z.number().int().nonnegative());
 
+export const TrafficJamDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const TrafficJamHighscoresSchema = z.object({
+  easy: HighscoreEntrySchema.nullable(),
+  medium: HighscoreEntrySchema.nullable(),
+  hard: HighscoreEntrySchema.nullable(),
+});
+export type TrafficJamDifficulty = z.infer<typeof TrafficJamDifficultySchema>;
+export type TrafficJamHighscores = z.infer<typeof TrafficJamHighscoresSchema>;
+export const EMPTY_TRAFFIC_JAM_HIGHSCORES: TrafficJamHighscores = {
+  easy: null,
+  medium: null,
+  hard: null,
+};
+
 export const HyperfokusThemeSchema = z.enum(['default', 'neon', 'kosmos', 'aurora']);
 export type HyperfokusTheme = z.infer<typeof HyperfokusThemeSchema>;
 
@@ -225,3 +239,25 @@ export const HyperfokusSaveSchema = z.object({
   lastSavedAt: z.number().nonnegative(),
 });
 export type HyperfokusSave = z.infer<typeof HyperfokusSaveSchema>;
+
+export const GfrettLevelSchema = z.number().int().min(0).max(99);
+export const GfrettBestSchema = z.record(z.string(), z.number().int().nonnegative());
+
+export const ColorFloodBestSchema = NullableNonNegInt;
+
+export const SpellingBeeBestSchema = z.number().int().nonnegative();
+
+export const BingoBestSchema = NullableNonNegInt;
+
+export const SlotMachineBestSchema = z.number().int().nonnegative();
+
+export const IdleClickerSaveSchema = z.object({
+  version: z.literal(1),
+  points: z.number().nonnegative(),
+  totalEarned: z.number().nonnegative(),
+  multiplier: z.number().int().nonnegative().max(1000),
+  upgradeCounts: z.array(z.number().int().nonnegative()).max(32),
+});
+export type IdleClickerSave = z.infer<typeof IdleClickerSaveSchema>;
+
+export const LadderBestSchema = NullableNonNegInt;

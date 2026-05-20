@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   createInitialState,
   flipCard,
-  resolvePicks,
   MEMORY_PAIRS,
   type MemoryState,
+  resolvePicks,
 } from './memory';
 
 describe('memory.createInitialState', () => {

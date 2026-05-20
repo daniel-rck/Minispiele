@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { STORAGE_KEYS } from '../lib/constants';
-import { FavoritesSchema, type Favorites } from '../lib/crossGameSchemas';
+import { type Favorites, FavoritesSchema } from '../lib/crossGameSchemas';
 import { useLocalStorage } from '../lib/useLocalStorage';
 
 const MAX_FAVORITES = 64;
