@@ -82,6 +82,7 @@ export const STORAGE_KEYS = {
   COLOR_FLOOD_BEST: 'minispiele.colorFlood.bestMoves.v1',
   SPELLING_BEE_BEST: 'minispiele.spellingBee.bestScore.v1',
   BINGO_BEST: 'minispiele.bingo.bestDraws.v1',
+  SLOT_MACHINE_BEST: 'minispiele.slotMachine.maxBalance.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

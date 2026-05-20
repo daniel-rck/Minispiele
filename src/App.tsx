@@ -41,6 +41,7 @@ const Gfrett = lazy(() => import('./pages/Gfrett'));
 const ColorFlood = lazy(() => import('./pages/ColorFlood'));
 const SpellingBee = lazy(() => import('./pages/SpellingBee'));
 const Bingo = lazy(() => import('./pages/Bingo'));
+const SlotMachine = lazy(() => import('./pages/SlotMachine'));
 
 function RouteFallback() {
   return (
@@ -354,6 +355,14 @@ export default function App() {
                 element={
                   <LazyRoute label="bingo">
                     <Bingo />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="slot-machine"
+                element={
+                  <LazyRoute label="slot-machine">
+                    <SlotMachine />
                   </LazyRoute>
                 }
               />

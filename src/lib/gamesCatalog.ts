@@ -311,7 +311,15 @@ const GAME_INPUTS: GameCardInput[] = [
     description: 'Zwei Karten, 75 Zahlen. Wer zuerst eine Reihe schließt, ruft Bingo!',
     preview: '/games/bingo-preview.svg',
     previewAlt: 'Vorschau: eine 5×5-Bingokarte mit Spalten B, I, N, G, O und einer Freimitte',
-    category: 'logik',
+    category: 'werkzeuge',
+  },
+  {
+    to: '/slot-machine',
+    title: 'Einarmiger Bandit',
+    description: 'Klassische Drei-Walzen-Slot. Setze Token und jage den 50×-Diamanten-Jackpot.',
+    preview: '/games/slot-machine-preview.svg',
+    previewAlt: 'Vorschau: drei Walzen mit Glücksspielsymbolen wie Kirsche, Sieben und Diamant',
+    category: 'werkzeuge',
   },
 ];
 

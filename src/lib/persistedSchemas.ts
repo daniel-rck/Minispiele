@@ -248,3 +248,5 @@ export const ColorFloodBestSchema = NullableNonNegInt;
 export const SpellingBeeBestSchema = z.number().int().nonnegative();
 
 export const BingoBestSchema = NullableNonNegInt;
+
+export const SlotMachineBestSchema = z.number().int().nonnegative();
