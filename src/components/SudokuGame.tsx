@@ -90,6 +90,10 @@ export default function SudokuGame() {
   const elapsedRef = useRef(timer.elapsedSeconds);
   elapsedRef.current = timer.elapsedSeconds;
 
+  const gameRef = useRef(game);
+  gameRef.current = game;
+  const wonStateRef = useRef(false);
+
   useEffect(() => {
     if (timer.status === 'idle' && !startedRef.current) {
       timer.start();
@@ -119,16 +123,19 @@ export default function SudokuGame() {
   }, [won, timer, bestMap, game.difficulty, setBestMap, vibrate, setSavedState]);
 
   // Persist current snapshot on tab-hide so a refresh/close keeps progress fresh.
+  // Stable listener reads latest game + won-state from refs to avoid re-subscribing on every move.
   useEffect(() => {
-    if (won) return;
+    wonStateRef.current = won;
+  }, [won]);
+  useEffect(() => {
     const onVisibility = () => {
-      if (document.hidden) {
-        setSavedState(snapshotToState(game, elapsedRef.current));
+      if (document.hidden && !wonStateRef.current) {
+        setSavedState(snapshotToState(gameRef.current, elapsedRef.current));
       }
     };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [game, won, setSavedState]);
+  }, [setSavedState]);
 
   // Clear shake highlight after the wordle-shake animation finishes.
   useEffect(() => {
