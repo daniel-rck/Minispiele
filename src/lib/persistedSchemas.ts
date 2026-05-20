@@ -244,3 +244,5 @@ export const GfrettLevelSchema = z.number().int().min(0).max(99);
 export const GfrettBestSchema = z.record(z.string(), z.number().int().nonnegative());
 
 export const ColorFloodBestSchema = NullableNonNegInt;
+
+export const SpellingBeeBestSchema = z.number().int().nonnegative();

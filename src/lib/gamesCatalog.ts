@@ -296,6 +296,15 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein buntes 14×14-Raster mit sechs Farben',
     category: 'logik',
   },
+  {
+    to: '/spelling-bee',
+    title: 'Buchstabierbiene',
+    description:
+      'Bilde deutsche Wörter aus sieben Buchstaben — der mittlere muss immer dabei sein.',
+    preview: '/games/spelling-bee-preview.svg',
+    previewAlt: 'Vorschau: sechs Sechsecke um einen gelben Mittelbuchstaben in Wabenform',
+    category: 'wort',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

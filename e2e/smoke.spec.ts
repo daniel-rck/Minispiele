@@ -30,6 +30,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/hyperfokus', title: /Hyperfokus/i },
   { path: '/gfrett', title: /Gfrett/i },
   { path: '/color-flood', title: /Farbflut/i },
+  { path: '/spelling-bee', title: /Buchstabierbiene/i },
 ];
 
 test.describe('All games smoke render', () => {

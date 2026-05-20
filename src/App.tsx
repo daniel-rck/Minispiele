@@ -39,6 +39,7 @@ const TrafficJam = lazy(() => import('./pages/TrafficJam'));
 const Hyperfokus = lazy(() => import('./pages/Hyperfokus'));
 const Gfrett = lazy(() => import('./pages/Gfrett'));
 const ColorFlood = lazy(() => import('./pages/ColorFlood'));
+const SpellingBee = lazy(() => import('./pages/SpellingBee'));
 
 function RouteFallback() {
   return (
@@ -336,6 +337,14 @@ export default function App() {
                 element={
                   <LazyRoute label="color-flood">
                     <ColorFlood />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="spelling-bee"
+                element={
+                  <LazyRoute label="spelling-bee">
+                    <SpellingBee />
                   </LazyRoute>
                 }
               />
