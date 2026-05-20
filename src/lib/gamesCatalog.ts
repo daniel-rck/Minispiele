@@ -287,6 +287,58 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: bunte Blöcke auf einem Raster mit Match-Leiste am Rand',
     category: 'logik',
   },
+  {
+    to: '/color-flood',
+    title: 'Farbflut',
+    description:
+      'Färbe das Feld von oben links aus ein. Schaffe alles in einer Farbe in höchstens 25 Zügen.',
+    preview: '/games/color-flood-preview.svg',
+    previewAlt: 'Vorschau: ein buntes 14×14-Raster mit sechs Farben',
+    category: 'logik',
+  },
+  {
+    to: '/spelling-bee',
+    title: 'Buchstabierbiene',
+    description:
+      'Bilde deutsche Wörter aus sieben Buchstaben — der mittlere muss immer dabei sein.',
+    preview: '/games/spelling-bee-preview.svg',
+    previewAlt: 'Vorschau: sechs Sechsecke um einen gelben Mittelbuchstaben in Wabenform',
+    category: 'wort',
+  },
+  {
+    to: '/bingo',
+    title: 'Bingo',
+    description: 'Zwei Karten, 75 Zahlen. Wer zuerst eine Reihe schließt, ruft Bingo!',
+    preview: '/games/bingo-preview.svg',
+    previewAlt: 'Vorschau: eine 5×5-Bingokarte mit Spalten B, I, N, G, O und einer Freimitte',
+    category: 'werkzeuge',
+  },
+  {
+    to: '/slot-machine',
+    title: 'Einarmiger Bandit',
+    description: 'Klassische Drei-Walzen-Slot. Setze Token und jage den 50×-Diamanten-Jackpot.',
+    preview: '/games/slot-machine-preview.svg',
+    previewAlt: 'Vorschau: drei Walzen mit Glücksspielsymbolen wie Kirsche, Sieben und Diamant',
+    category: 'werkzeuge',
+  },
+  {
+    to: '/idle-clicker',
+    title: 'Klick-Imperium',
+    description:
+      'Idle-Clicker mit sieben Upgrade-Stufen und Prestige-Multiplikator ab 10K Punkten.',
+    preview: '/games/idle-clicker-preview.svg',
+    previewAlt: 'Vorschau: ein goldener Klick-Button mit aufsteigenden Zahlen im Hintergrund',
+    category: 'gehirntraining',
+  },
+  {
+    to: '/leiterspiel',
+    title: 'Leiterspiel',
+    description:
+      'Snakes & Ladders auf einem 10×10-Brett gegen drei KI-Gegner. Wer zuerst auf 100 ist, gewinnt.',
+    preview: '/games/leiterspiel-preview.svg',
+    previewAlt: 'Vorschau: ein 10×10-Brett mit grünen Leitern und roten Schlangen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
