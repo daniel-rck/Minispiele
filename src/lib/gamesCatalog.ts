@@ -321,6 +321,15 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: drei Walzen mit Glücksspielsymbolen wie Kirsche, Sieben und Diamant',
     category: 'werkzeuge',
   },
+  {
+    to: '/idle-clicker',
+    title: 'Klick-Imperium',
+    description:
+      'Idle-Clicker mit sieben Upgrade-Stufen und Prestige-Multiplikator ab 10K Punkten.',
+    preview: '/games/idle-clicker-preview.svg',
+    previewAlt: 'Vorschau: ein goldener Klick-Button mit aufsteigenden Zahlen im Hintergrund',
+    category: 'gehirntraining',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

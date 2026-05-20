@@ -250,3 +250,12 @@ export const SpellingBeeBestSchema = z.number().int().nonnegative();
 export const BingoBestSchema = NullableNonNegInt;
 
 export const SlotMachineBestSchema = z.number().int().nonnegative();
+
+export const IdleClickerSaveSchema = z.object({
+  version: z.literal(1),
+  points: z.number().nonnegative(),
+  totalEarned: z.number().nonnegative(),
+  multiplier: z.number().int().nonnegative().max(1000),
+  upgradeCounts: z.array(z.number().int().nonnegative()).max(32),
+});
+export type IdleClickerSave = z.infer<typeof IdleClickerSaveSchema>;

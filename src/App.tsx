@@ -42,6 +42,7 @@ const ColorFlood = lazy(() => import('./pages/ColorFlood'));
 const SpellingBee = lazy(() => import('./pages/SpellingBee'));
 const Bingo = lazy(() => import('./pages/Bingo'));
 const SlotMachine = lazy(() => import('./pages/SlotMachine'));
+const IdleClicker = lazy(() => import('./pages/IdleClicker'));
 
 function RouteFallback() {
   return (
@@ -363,6 +364,14 @@ export default function App() {
                 element={
                   <LazyRoute label="slot-machine">
                     <SlotMachine />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="idle-clicker"
+                element={
+                  <LazyRoute label="idle-clicker">
+                    <IdleClicker />
                   </LazyRoute>
                 }
               />
