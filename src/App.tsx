@@ -38,6 +38,7 @@ const Flow = lazy(() => import('./pages/Flow'));
 const TrafficJam = lazy(() => import('./pages/TrafficJam'));
 const Hyperfokus = lazy(() => import('./pages/Hyperfokus'));
 const Gfrett = lazy(() => import('./pages/Gfrett'));
+const ColorFlood = lazy(() => import('./pages/ColorFlood'));
 
 function RouteFallback() {
   return (
@@ -327,6 +328,14 @@ export default function App() {
                 element={
                   <LazyRoute label="gfrett">
                     <Gfrett />
+                  </LazyRoute>
+                }
+              />
+              <Route
+                path="color-flood"
+                element={
+                  <LazyRoute label="color-flood">
+                    <ColorFlood />
                   </LazyRoute>
                 }
               />

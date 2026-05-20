@@ -79,6 +79,7 @@ export const STORAGE_KEYS = {
   HYPERFOKUS_SAVE: 'minispiele.hyperfokus.save.v1',
   GFRETT_LEVEL: 'minispiele.gfrett.level.v1',
   GFRETT_BEST: 'minispiele.gfrett.best.v1',
+  COLOR_FLOOD_BEST: 'minispiele.colorFlood.bestMoves.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

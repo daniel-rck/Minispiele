@@ -287,6 +287,15 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: bunte Blöcke auf einem Raster mit Match-Leiste am Rand',
     category: 'logik',
   },
+  {
+    to: '/color-flood',
+    title: 'Farbflut',
+    description:
+      'Färbe das Feld von oben links aus ein. Schaffe alles in einer Farbe in höchstens 25 Zügen.',
+    preview: '/games/color-flood-preview.svg',
+    previewAlt: 'Vorschau: ein buntes 14×14-Raster mit sechs Farben',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
