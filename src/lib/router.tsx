@@ -221,6 +221,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.qwirkle),
         lazy: lazyPage(() => import('../pages/Qwirkle.tsx')),
       },
+      {
+        path: rel(ROUTES.roulette),
+        lazy: lazyPage(() => import('../pages/Roulette.tsx')),
+      },
     ],
   },
 ]);

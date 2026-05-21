@@ -310,3 +310,5 @@ export const PongDifficultySchema = z.enum(['easy', 'medium', 'hard']);
 export type PongDifficulty = z.infer<typeof PongDifficultySchema>;
 
 export const QuizBestSchema = z.number().int().nonnegative();
+
+export const RouletteBalanceSchema = z.number().int().nonnegative();

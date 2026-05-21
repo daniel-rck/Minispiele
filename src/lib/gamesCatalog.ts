@@ -543,6 +543,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Brett mit Steinen unterschiedlicher Farben und Symbole',
     category: 'logik',
   },
+  {
+    to: '/roulette',
+    title: 'Roulette',
+    description: 'Setze Chips auf Zahlen, Farben oder Gruppen — Rien ne va plus.',
+    preview: '/games/roulette-preview.svg',
+    previewAlt: 'Vorschau: eine grüne Null neben roten und schwarzen Roulette-Zahlen',
+    category: 'werkzeuge',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

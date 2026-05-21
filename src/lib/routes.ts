@@ -62,6 +62,7 @@ export const ROUTES = {
   pong: '/pong',
   quiz: '/quiz',
   qwirkle: '/qwirkle',
+  roulette: '/roulette',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
