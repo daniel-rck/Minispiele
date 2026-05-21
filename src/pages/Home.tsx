@@ -165,7 +165,7 @@ export default function Home() {
   const isSearching = deferredSearch.trim().length > 0;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
       {/* Hero */}
       <section className="mb-6 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-primary-50 to-white p-4 sm:gap-5 sm:p-6 dark:from-primary-900/30 dark:to-surface-900">
         <MascotIcon size={84} className="shrink-0 drop-shadow-md sm:size-24" />
@@ -204,7 +204,7 @@ export default function Home() {
               {favoriteTiles.length}
             </Badge>
           </div>
-          <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {favoriteTiles.map((game, i) => (
               <GameTile
                 key={`fav-${game.slug}`}
@@ -264,7 +264,7 @@ export default function Home() {
           )}
         </div>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.map((game, i) => {
             const at = recentMap.get(game.slug);
             return (

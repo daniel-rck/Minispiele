@@ -32,9 +32,8 @@ export default function AppShellRoute() {
       </a>
       <AppHeader
         title={BRAND_NAME}
-        logo={<img src="/logo.svg" alt="" width="32" height="32" className="size-8" />}
-        actions={
-          <>
+        logo={
+          <span className="inline-flex items-center gap-1">
             {!isHome && (
               <IconButton
                 icon={<ChevronLeftIcon />}
@@ -44,6 +43,11 @@ export default function AppShellRoute() {
                 onClick={() => navigate(ROUTES.home)}
               />
             )}
+            <img src="/logo.svg" alt="" width="32" height="32" className="size-8" />
+          </span>
+        }
+        actions={
+          <>
             <IconButton
               icon={settings.sound ? <Volume2Icon /> : <VolumeXIcon />}
               label={settings.sound ? 'Töne ausschalten' : 'Töne einschalten'}
