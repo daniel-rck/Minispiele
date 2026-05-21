@@ -4,6 +4,7 @@ import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
 import { BreakoutBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -91,6 +92,7 @@ export default function BreakoutGame() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const flashPaddle = useCallback(() => {
     setPaddleFlash(true);
@@ -172,7 +174,10 @@ export default function BreakoutGame() {
       }
       return b;
     });
-    if (mutated) bricks = newBricks;
+    if (mutated) {
+      bricks = newBricks;
+      sfx.pop();
+    }
     // bottom
     let status: State['status'] = s.status;
     if (ballY > FIELD_H) {
@@ -205,7 +210,7 @@ export default function BreakoutGame() {
       flashPaddle();
     }
     rafRef.current = window.requestAnimationFrame(step);
-  }, [vibrate, flashPaddle]);
+  }, [vibrate, flashPaddle, sfx]);
 
   // particles loop (independent of game step so they keep flying briefly after a hit)
   useAnimationFrame((delta) => {
@@ -231,10 +236,12 @@ export default function BreakoutGame() {
           : `Verloren mit ${state.score} Punkten`,
       );
       vibrate(state.status === 'won' ? [40, 30, 60] : [80, 60, 80]);
+      if (state.status === 'won') sfx.win();
+      else sfx.lose();
       const id = window.setTimeout(() => setDoneOpen(true), 400);
       return () => window.clearTimeout(id);
     }
-  }, [state.status, state.score, best, setBest, vibrate]);
+  }, [state.status, state.score, best, setBest, vibrate, sfx]);
 
   const start = () => {
     finishedRef.current = false;

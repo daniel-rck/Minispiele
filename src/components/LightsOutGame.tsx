@@ -3,6 +3,7 @@ import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { createInitialState, LIGHTS_SIZE, type LightsState, press } from '../lib/lightsOut';
 import { LightsBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -35,6 +36,7 @@ export default function LightsOutGame() {
   const [announce, setAnnounce] = useState('');
   const prevSolvedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     if (state.solved && !prevSolvedRef.current) {
@@ -47,9 +49,10 @@ export default function LightsOutGame() {
       setWinOpen(true);
       setAnnounce('Geschafft!');
       vibrate([40, 30, 60]);
+      sfx.win();
     }
     prevSolvedRef.current = state.solved;
-  }, [state.solved, state.moves, best, setBest, vibrate]);
+  }, [state.solved, state.moves, best, setBest, vibrate, sfx]);
 
   const restart = useCallback(
     (d: Difficulty = difficulty) => {

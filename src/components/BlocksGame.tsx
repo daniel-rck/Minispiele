@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { BlocksBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -268,6 +269,7 @@ export default function BlocksGame() {
   const clearTimerRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     return () => {
@@ -312,6 +314,7 @@ export default function BlocksGame() {
       const rows = fullRowIndices(merged);
       if (rows.length > 0) {
         vibrate(25);
+        sfx.clear();
         if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
         clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
         return { ...s, board: merged, piece: null, flashingRows: rows };
@@ -322,7 +325,7 @@ export default function BlocksGame() {
       }
       return { ...s, board: merged, piece: nextPiece };
     });
-  }, [vibrate, finalizeClear]);
+  }, [vibrate, finalizeClear, sfx]);
 
   useEffect(() => {
     if (state.status !== 'playing') return;
@@ -339,10 +342,11 @@ export default function BlocksGame() {
       if (state.score > best) setBest(state.score);
       setAnnounce(`Spiel vorbei. ${state.score} Punkte`);
       vibrate([80, 60, 80]);
+      sfx.lose();
       const id = window.setTimeout(() => setDoneOpen(true), 400);
       return () => window.clearTimeout(id);
     }
-  }, [state.status, state.score, best, setBest, vibrate]);
+  }, [state.status, state.score, best, setBest, vibrate, sfx]);
 
   const start = () => {
     finishedRef.current = false;

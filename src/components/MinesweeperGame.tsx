@@ -15,6 +15,7 @@ import {
   type MinesEntry,
   MinesHighscoresSchema,
 } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
@@ -71,6 +72,7 @@ export default function MinesweeperGame() {
   const prevWonRef = useRef(false);
   const prevLostRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     if (state.firstClick) return;
@@ -91,9 +93,10 @@ export default function MinesweeperGame() {
       }
       setWinOpen(true);
       setAnnouncement('Gewonnen!');
+      sfx.win();
     }
     prevWonRef.current = state.won;
-  }, [state.won, state.difficulty, timer, highscores, setHighscores]);
+  }, [state.won, state.difficulty, timer, highscores, setHighscores, sfx]);
 
   useEffect(() => {
     if (state.lost && !prevLostRef.current) {
@@ -101,9 +104,10 @@ export default function MinesweeperGame() {
       vibrate([80, 60, 80]);
       setLostOpen(true);
       setAnnouncement('Verloren — auf eine Mine getreten');
+      sfx.lose();
     }
     prevLostRef.current = state.lost;
-  }, [state.lost, timer, vibrate]);
+  }, [state.lost, timer, vibrate, sfx]);
 
   const restart = useCallback(
     (nextDifficulty: MinesDifficulty = difficulty) => {

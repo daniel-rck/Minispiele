@@ -3,6 +3,7 @@ import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { pickRandomHangmanWord } from '../lib/hangmanWords';
 import { AnagramBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -36,6 +37,7 @@ export default function AnagramGame() {
   const [announce, setAnnounce] = useState('');
   const submittedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const newRound = useCallback(() => {
     const next = pickRandomHangmanWord();
@@ -89,6 +91,7 @@ export default function AnagramGame() {
       setFeedback('correct');
       setAnnounce(`Richtig: ${word}`);
       vibrate([40, 30, 60]);
+      sfx.match();
       submittedRef.current = true;
       setStreak((s) => {
         const next = s + 1;
@@ -99,10 +102,11 @@ export default function AnagramGame() {
       setFeedback('wrong');
       setAnnounce('Falsch — versuche es nochmal');
       vibrate([80, 60, 80]);
+      sfx.error();
       setStreak(0);
       window.setTimeout(() => setFeedback('none'), 1000);
     }
-  }, [slots, word, best, setBest, vibrate]);
+  }, [slots, word, best, setBest, vibrate, sfx]);
 
   useEffect(() => {
     const remaining = slots.some((s) => s === null);

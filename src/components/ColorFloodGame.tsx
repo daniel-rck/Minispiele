@@ -11,6 +11,7 @@ import {
 } from '../lib/colorFlood';
 import { STORAGE_KEYS } from '../lib/constants';
 import { ColorFloodBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -30,6 +31,7 @@ export default function ColorFloodGame() {
   const [announce, setAnnounce] = useState('');
   const prevDoneRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const done = state.won || state.lost;
   const currentColor = state.grid[0];
@@ -51,13 +53,15 @@ export default function ColorFloodGame() {
       }
       setAnnounce(`Gewonnen in ${state.moves} Zügen!`);
       vibrate([40, 30, 60]);
+      sfx.win();
     } else {
       setScoreIsNew(false);
       setAnnounce('Vorbei – zu viele Züge.');
       vibrate(120);
+      sfx.lose();
     }
     setEndOpen(true);
-  }, [done, state.won, state.moves, best, setBest, vibrate]);
+  }, [done, state.won, state.moves, best, setBest, vibrate, sfx]);
 
   const restart = useCallback(() => {
     setState(createInitialState());

@@ -23,6 +23,7 @@ import {
   undo,
 } from '../lib/gfrett';
 import { GfrettBestSchema, GfrettLevelSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -99,6 +100,7 @@ export default function GfrettGame() {
   const boardRef = useRef<HTMLDivElement | null>(null);
   const focusedBlockRef = useRef<string | null>(null);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   // React to win / lose transitions.
   useEffect(() => {
@@ -116,6 +118,7 @@ export default function GfrettGame() {
       setWinOpen(true);
       setAnnounce(`Geschafft! Level ${state.level + 1} in ${state.moves} Zügen.`);
       vibrate([40, 30, 60]);
+      sfx.win();
     }
     if ((state.status === 'lost' || state.status === 'gridlock') && !lostRef.current) {
       lostRef.current = true;
@@ -127,8 +130,9 @@ export default function GfrettGame() {
           : `Zuglimit erreicht (${state.moveLimit}).`,
       );
       vibrate([80, 40, 80]);
+      sfx.lose();
     }
-  }, [state.status, state.moves, state.level, state.moveLimit, bestMap, setBestMap, vibrate]);
+  }, [state.status, state.moves, state.level, state.moveLimit, bestMap, setBestMap, vibrate, sfx]);
 
   const restart = useCallback(
     (idx: number = levelIdx) => {

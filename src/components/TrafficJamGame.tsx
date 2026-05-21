@@ -21,6 +21,7 @@ import {
   type TrafficJamDifficulty,
   type TrafficJamState,
 } from '../lib/trafficJam';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
@@ -198,6 +199,7 @@ export default function TrafficJamGame() {
   const prevMovesRef = useRef(0);
   const prevWonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     if (state.moves > prevMovesRef.current) timer.start();
@@ -217,10 +219,11 @@ export default function TrafficJamGame() {
       }
       setAnnounce(`Gelöst in ${state.moves} Klicks, Zeit ${formatDuration(timer.elapsedSeconds)}.`);
       setWinOpen(true);
+      sfx.win();
     }
     prevMovesRef.current = state.moves;
     prevWonRef.current = state.won;
-  }, [state.moves, state.won, state.difficulty, timer, highscores, setHighscores]);
+  }, [state.moves, state.won, state.difficulty, timer, highscores, setHighscores, sfx]);
 
   const restart = useCallback(
     (nextDifficulty: TrafficJamDifficulty = difficulty, nextIndex: number = 0) => {

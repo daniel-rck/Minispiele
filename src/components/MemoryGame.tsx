@@ -16,6 +16,7 @@ import {
   MemoryDifficultySchema,
   MemoryHighscoresSchema,
 } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import Button from './ui/Button';
@@ -49,6 +50,8 @@ export default function MemoryGame() {
   useWakeLock(timer.status === 'running');
   const peekTimeoutRef = useRef<number | null>(null);
   const prevWonRef = useRef(false);
+  const prevMatchedRef = useRef(0);
+  const sfx = useGameSfx();
 
   const handleFlip = useCallback((index: number) => {
     setState((s) => flipCard(s, index));
@@ -70,6 +73,12 @@ export default function MemoryGame() {
   }, [state.secondPick]);
 
   useEffect(() => {
+    const matched = state.cards.filter((c) => c.matched).length;
+    if (matched > prevMatchedRef.current && !state.won) sfx.match();
+    prevMatchedRef.current = matched;
+  }, [state.cards, state.won, sfx]);
+
+  useEffect(() => {
     if (state.won && !prevWonRef.current) {
       timer.stop();
       const entry: HighscoreEntry = {
@@ -85,9 +94,10 @@ export default function MemoryGame() {
         setScoreIsNew(false);
       }
       setWinOpen(true);
+      sfx.win();
     }
     prevWonRef.current = state.won;
-  }, [state.won, state.moves, state.difficulty, timer, highscores, setHighscores]);
+  }, [state.won, state.moves, state.difficulty, timer, highscores, setHighscores, sfx]);
 
   const restart = useCallback(
     (nextDifficulty: MemoryDifficulty = difficulty) => {

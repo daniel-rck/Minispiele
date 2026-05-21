@@ -12,6 +12,7 @@ import {
 } from '../lib/bingo';
 import { STORAGE_KEYS } from '../lib/constants';
 import { BingoBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -29,6 +30,7 @@ export default function BingoGame() {
   const [announce, setAnnounce] = useState('');
   const prevWonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const lastDrawn = state.drawn[state.drawn.length - 1];
 
@@ -44,9 +46,10 @@ export default function BingoGame() {
       setWinOpen(true);
       setAnnounce(`Bingo! Karte ${(state.winningCard ?? 0) + 1} hat gewonnen.`);
       vibrate([40, 30, 60, 30, 60]);
+      sfx.win();
     }
     prevWonRef.current = state.won;
-  }, [state.won, state.winningCard, state.drawn.length, best, setBest, vibrate]);
+  }, [state.won, state.winningCard, state.drawn.length, best, setBest, vibrate, sfx]);
 
   const draw = useCallback(() => {
     if (state.won || state.pool.length === 0) return;

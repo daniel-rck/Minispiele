@@ -16,6 +16,7 @@ import {
   slide,
   spawnRandom,
 } from '../lib/twentyFortyEight';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import Button from './ui/Button';
 import GameFooter from './ui/GameFooter';
@@ -48,6 +49,16 @@ function fontSizeClass(value: number): string {
   return 'text-xl sm:text-2xl';
 }
 
+/** Returns the largest tile value whose count grew between before and after — i.e. the biggest tile this turn produced. */
+function highestMergedTile(before: readonly number[], after: readonly number[]): number {
+  const counts = new Map<number, number>();
+  for (const v of after) if (v > 0) counts.set(v, (counts.get(v) ?? 0) + 1);
+  for (const v of before) if (v > 0) counts.set(v, (counts.get(v) ?? 0) - 1);
+  let max = 0;
+  for (const [v, delta] of counts) if (delta > 0 && v > max) max = v;
+  return max;
+}
+
 const initialState: TwentyFortyEightState = {
   grid: createInitialGrid(),
   score: 0,
@@ -68,6 +79,8 @@ export default function TwentyFortyEightGame() {
   const [gameOver, setGameOver] = useState(false);
   const [winShown, setWinShown] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const prevGameOverRef = useRef(false);
+  const sfx = useGameSfx();
   useWakeLock(state.score > 0 && !gameOver);
 
   useEffect(() => {
@@ -75,8 +88,11 @@ export default function TwentyFortyEightGame() {
   }, [state.score, bestScore, setBestScore]);
 
   useEffect(() => {
-    setGameOver(isGameOver(state.grid));
-  }, [state.grid]);
+    const over = isGameOver(state.grid);
+    setGameOver(over);
+    if (over && !prevGameOverRef.current && !state.won) sfx.lose();
+    prevGameOverRef.current = over;
+  }, [state.grid, state.won, sfx]);
 
   const move = useCallback(
     (direction: Direction) => {
@@ -85,7 +101,14 @@ export default function TwentyFortyEightGame() {
         if (!moved) return current;
         const withSpawn = spawnRandom(after);
         const justWon = !current.won && hasWinningTile(withSpawn);
-        if (justWon) setWinShown(true);
+        if (gained > 0) {
+          const mergedValue = highestMergedTile(current.grid, after);
+          if (mergedValue > 0) sfx.merge(Math.log2(mergedValue));
+        }
+        if (justWon) {
+          setWinShown(true);
+          sfx.win();
+        }
         return {
           grid: withSpawn,
           score: current.score + gained,
@@ -93,7 +116,7 @@ export default function TwentyFortyEightGame() {
         };
       });
     },
-    [setState],
+    [setState, sfx],
   );
 
   useEffect(() => {

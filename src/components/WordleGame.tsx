@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { EMPTY_WORDLE_STATS, type WordleStats, WordleStatsSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import {
   appendLetter,
@@ -68,6 +69,7 @@ export default function WordleGame() {
   const errorTimeoutRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const flashError = useCallback((message: string) => {
     setError(message);
@@ -92,24 +94,28 @@ export default function WordleGame() {
       if (s.current.length < WORD_LENGTH) {
         flashError('Zu wenig Buchstaben');
         vibrate(40);
+        sfx.error();
         return s;
       }
       const r = submitGuess(s, s.current);
       if (r.error === 'not-a-word') {
         flashError('Nicht im Wörterbuch');
         vibrate(40);
+        sfx.error();
         return s;
       }
       if (r.state.done === 'won') {
         vibrate([40, 30, 40, 30, 80]);
+        sfx.win();
         setAnnouncement(`Gewonnen in ${r.state.guesses.length} Versuchen`);
       } else if (r.state.done === 'lost') {
         vibrate([80, 60, 80]);
+        sfx.lose();
         setAnnouncement(`Verloren. Wort war ${r.state.target}`);
       }
       return r.state;
     });
-  }, [flashError, vibrate]);
+  }, [flashError, vibrate, sfx]);
 
   const handleLetter = useCallback((ch: string) => {
     setState((s) => appendLetter(s, ch));

@@ -22,6 +22,7 @@ import {
   toggleHeld,
 } from '../lib/dice';
 import { parseNotation } from '../lib/diceNotation';
+import { DiceSound } from '../lib/diceSound';
 import {
   type DiceHistory,
   type DiceHistoryEntry,
@@ -236,11 +237,14 @@ export default function DiceRoller() {
   const [lastAnnouncement, setLastAnnouncement] = useState('');
 
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
+  const settleTimeoutRef = useRef<number | null>(null);
   const cycleIntervalRef = useRef<number | null>(null);
   const diceRef = useRef<Die[]>(dice);
   diceRef.current = dice;
   const rollingIdsRef = useRef<ReadonlySet<string>>(rollingIds);
   rollingIdsRef.current = rollingIds;
+  const soundRef = useRef<DiceSound | null>(null);
+  if (soundRef.current === null) soundRef.current = new DiceSound();
 
   useEffect(() => {
     if (rollingIds.size === 0) {
@@ -284,6 +288,12 @@ export default function DiceRoller() {
     return () => {
       timeouts.forEach((t) => window.clearTimeout(t));
       timeouts.clear();
+      if (settleTimeoutRef.current !== null) {
+        window.clearTimeout(settleTimeoutRef.current);
+        settleTimeoutRef.current = null;
+      }
+      soundRef.current?.dispose();
+      soundRef.current = null;
     };
   }, []);
 
@@ -291,6 +301,7 @@ export default function DiceRoller() {
     (ids: readonly string[]) => {
       if (ids.length === 0) return;
       const timeouts = rollTimeoutsRef.current;
+      soundRef.current?.playRoll(rollDuration, ids.length);
       setRollingIds((prev) => {
         const next = new Set(prev);
         ids.forEach((id) => next.add(id));
@@ -310,6 +321,11 @@ export default function DiceRoller() {
         }, rollDuration);
         timeouts.set(id, t);
       });
+      if (settleTimeoutRef.current !== null) window.clearTimeout(settleTimeoutRef.current);
+      settleTimeoutRef.current = window.setTimeout(() => {
+        settleTimeoutRef.current = null;
+        soundRef.current?.playSettle(ids.length);
+      }, rollDuration);
     },
     [rollDuration],
   );

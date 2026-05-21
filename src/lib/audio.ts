@@ -1,15 +1,6 @@
+import { getAudioCtor } from './audioContext';
 import { isAudioEnabled } from './audioSettings';
 import { AUDIO } from './constants';
-
-interface AudioWindow extends Window {
-  webkitAudioContext?: typeof AudioContext;
-}
-
-function getAudioCtor(): typeof AudioContext | null {
-  if (typeof window === 'undefined') return null;
-  const w = window as AudioWindow;
-  return window.AudioContext ?? w.webkitAudioContext ?? null;
-}
 
 export class AlarmAudio {
   private ctx: AudioContext | null = null;

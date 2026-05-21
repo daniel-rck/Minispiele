@@ -4,6 +4,7 @@ import { useWakeLock } from '../hooks/useWakeLock';
 import { STORAGE_KEYS } from '../lib/constants';
 import { type Cell, generate, isSolved, type Nonogram } from '../lib/nonogram';
 import { NonogramBestSchema, NonogramSizeSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
@@ -33,6 +34,7 @@ export default function NonogramGame() {
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
   useWakeLock(timer.status === 'running');
 
   const solved = useMemo(() => isSolved(puzzle, cells), [puzzle, cells]);
@@ -60,8 +62,9 @@ export default function NonogramGame() {
       setWinOpen(true);
       setAnnounce(`Gelöst in ${formatDuration(sec)}`);
       vibrate([40, 30, 60]);
+      sfx.win();
     }
-  }, [solved, timer, bestMap, puzzle.size, setBestMap, vibrate]);
+  }, [solved, timer, bestMap, puzzle.size, setBestMap, vibrate, sfx]);
 
   const restart = useCallback(
     (nextSize: number = size) => {

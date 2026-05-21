@@ -14,6 +14,7 @@ import {
   type SlotSymbol,
   spinReels,
 } from '../lib/slotMachine';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -40,6 +41,7 @@ export default function SlotMachineGame() {
   const tickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     if (balance > maxBalance) setMaxBalance(balance);
@@ -87,6 +89,7 @@ export default function SlotMachineGame() {
           next[i as 0 | 1 | 2] = finalSym;
           return next;
         });
+        sfx.reelTick();
         if (i === REEL_STOP_DELAYS.length - 1) {
           if (tickerRef.current) clearInterval(tickerRef.current);
           tickerRef.current = null;
@@ -101,6 +104,7 @@ export default function SlotMachineGame() {
             setMessage(txt);
             setAnnounce(txt);
             vibrate(payout.multiplier >= 15 ? [60, 30, 60, 30, 60] : 30);
+            sfx.win();
           } else {
             setMessage('Kein Gewinn.');
           }
@@ -108,7 +112,7 @@ export default function SlotMachineGame() {
       }, delay);
       timersRef.current.push(t);
     });
-  }, [balance, bet, spinning, cleanup, vibrate]);
+  }, [balance, bet, spinning, cleanup, vibrate, sfx]);
 
   const restart = () => {
     cleanup();
