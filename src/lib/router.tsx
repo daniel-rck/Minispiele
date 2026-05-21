@@ -193,6 +193,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.match3),
         lazy: lazyPage(() => import('../pages/Match3.tsx')),
       },
+      {
+        path: rel(ROUTES.minesweeperHex),
+        lazy: lazyPage(() => import('../pages/MinesweeperHex.tsx')),
+      },
     ],
   },
 ]);

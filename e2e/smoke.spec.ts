@@ -53,6 +53,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/kniffel', title: /Kniffel/i },
   { path: '/crossword', title: /Kreuzworträtsel/i },
   { path: '/match3', title: /Match-3/i },
+  { path: '/minesweeper-hex', title: /Hex-Minensucher/i },
 ];
 
 test.describe('All games smoke render', () => {

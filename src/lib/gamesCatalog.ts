@@ -487,6 +487,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 8×8-Gitter mit bunten Kugeln, drei in einer Reihe',
     category: 'logik',
   },
+  {
+    to: '/minesweeper-hex',
+    title: 'Hex-Minensucher',
+    description: 'Minesweeper auf Sechseck-Gitter — jede Zelle hat bis zu 6 Nachbarn.',
+    preview: '/games/minesweeper-hex-preview.svg',
+    previewAlt: 'Vorschau: ein Wabenfeld aus sechseckigen Zellen mit Zahlen und Flaggen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -296,3 +296,6 @@ export type HitoriSize = z.infer<typeof HitoriSizeSchema>;
 export const KniffelBestSchema = z.number().int().nonnegative();
 
 export const Match3BestSchema = z.number().int().nonnegative();
+
+export const MinesweeperHexDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type MinesweeperHexDifficulty = z.infer<typeof MinesweeperHexDifficultySchema>;
