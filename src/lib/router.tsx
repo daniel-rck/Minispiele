@@ -205,6 +205,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.pentomino),
         lazy: lazyPage(() => import('../pages/Pentomino.tsx')),
       },
+      {
+        path: rel(ROUTES.pipePuzzle),
+        lazy: lazyPage(() => import('../pages/PipePuzzle.tsx')),
+      },
     ],
   },
 ]);

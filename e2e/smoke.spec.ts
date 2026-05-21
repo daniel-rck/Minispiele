@@ -55,6 +55,8 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/match3', title: /Match-3/i },
   { path: '/minesweeper-hex', title: /Hex-Minensucher/i },
   { path: '/nurikabe', title: /Nurikabe/i },
+  { path: '/pentomino', title: /Pentomino/i },
+  { path: '/pipe-puzzle', title: /Rohre drehen/i },
 ];
 
 test.describe('All games smoke render', () => {

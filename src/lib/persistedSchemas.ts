@@ -302,3 +302,6 @@ export type MinesweeperHexDifficulty = z.infer<typeof MinesweeperHexDifficultySc
 
 export const NurikabeSizeSchema = z.union([z.literal(5), z.literal(7), z.literal(9)]);
 export type NurikabeSize = z.infer<typeof NurikabeSizeSchema>;
+
+export const PipePuzzleSizeSchema = z.union([z.literal(5), z.literal(7), z.literal(9)]);
+export type PipePuzzleSize = z.infer<typeof PipePuzzleSizeSchema>;

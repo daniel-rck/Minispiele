@@ -511,6 +511,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Brett mit unterschiedlich geformten farbigen Pentomino-Teilen',
     category: 'logik',
   },
+  {
+    to: '/pipe-puzzle',
+    title: 'Rohre drehen',
+    description: 'Drehe die Rohre, bis alle Felder zu einem zusammenhängenden Netz verbunden sind.',
+    preview: '/games/pipe-puzzle-preview.svg',
+    previewAlt: 'Vorschau: ein Gitter aus Rohrteilen — verbundene Stücke leuchten grün',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -58,6 +58,7 @@ export const ROUTES = {
   minesweeperHex: '/minesweeper-hex',
   nurikabe: '/nurikabe',
   pentomino: '/pentomino',
+  pipePuzzle: '/pipe-puzzle',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

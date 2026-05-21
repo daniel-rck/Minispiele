@@ -35,6 +35,7 @@ import MinesweeperHexGame from './MinesweeperHexGame';
 import NonogramGame from './NonogramGame';
 import NurikabeGame from './NurikabeGame';
 import PentominoGame from './PentominoGame';
+import PipePuzzleGame from './PipePuzzleGame';
 import ReactionGame from './ReactionGame';
 import SchulteGame from './SchulteGame';
 import SlidingPuzzleGame from './SlidingPuzzleGame';
@@ -118,6 +119,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['NonogramGame', () => <NonogramGame />],
   ['NurikabeGame', () => <NurikabeGame />],
   ['PentominoGame', () => <PentominoGame />],
+  ['PipePuzzleGame', () => <PipePuzzleGame />],
   ['ReactionGame', () => <ReactionGame />],
   ['SchulteGame', () => <SchulteGame />],
   ['SlidingPuzzleGame', () => <SlidingPuzzleGame />],
