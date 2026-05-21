@@ -18,6 +18,7 @@ import FroggerGame from './FroggerGame';
 import FutoshikiGame from './FutoshikiGame';
 import GameOfLifeGame from './GameOfLifeGame';
 import GfrettGame from './GfrettGame';
+import HalmaGame from './HalmaGame';
 import HangmanGame from './HangmanGame';
 import HanoiGame from './HanoiGame';
 import HyperfokusGame from './HyperfokusGame';
@@ -92,6 +93,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['GameOfLifeGame', () => <GameOfLifeGame />],
   ['FreecellGame', () => <FreecellGame />],
   ['GfrettGame', () => <GfrettGame />],
+  ['HalmaGame', () => <HalmaGame />],
   ['HangmanGame', () => <HangmanGame />],
   ['HanoiGame', () => <HanoiGame />],
   ['LightsOutGame', () => <LightsOutGame />],

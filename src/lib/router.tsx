@@ -165,6 +165,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.gameOfLife),
         lazy: lazyPage(() => import('../pages/GameOfLife.tsx')),
       },
+      {
+        path: rel(ROUTES.halma),
+        lazy: lazyPage(() => import('../pages/Halma.tsx')),
+      },
     ],
   },
 ]);

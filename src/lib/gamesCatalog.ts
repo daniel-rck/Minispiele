@@ -431,6 +431,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Gitter mit gelben lebenden Zellen in Mustern',
     category: 'logik',
   },
+  {
+    to: '/halma',
+    title: 'Halma',
+    description: 'Bring deine zehn Steine in die gegnerische Ecke. Kettensprünge erlaubt.',
+    preview: '/games/halma-preview.svg',
+    previewAlt: 'Vorschau: ein 10×10-Brett mit blauen und roten Steinen in den Ecken',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
