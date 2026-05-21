@@ -42,6 +42,7 @@ export const ROUTES = {
   binairo: '/binairo',
   columns: '/columns',
   connections: '/connections',
+  conwayBattle: '/conway-battle',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

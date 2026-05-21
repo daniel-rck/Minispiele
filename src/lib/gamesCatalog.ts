@@ -383,6 +383,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 4×4-Gitter mit Wörtern in vier Farbgruppen',
     category: 'wort',
   },
+  {
+    to: '/conway-battle',
+    title: 'Conway Battle',
+    description: 'Platziere Zellen, simuliere Conways Game of Life — Blau gegen Rot.',
+    preview: '/games/conway-battle-preview.svg',
+    previewAlt: 'Vorschau: ein Pixelfeld mit blauen und roten Zellen im Konflikt',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
