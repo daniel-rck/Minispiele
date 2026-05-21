@@ -177,6 +177,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.hitori),
         lazy: lazyPage(() => import('../pages/Hitori.tsx')),
       },
+      {
+        path: rel(ROUTES.kakuro),
+        lazy: lazyPage(() => import('../pages/Kakuro.tsx')),
+      },
     ],
   },
 ]);

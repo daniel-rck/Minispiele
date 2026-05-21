@@ -455,6 +455,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 5×5-Gitter mit schwarzen und weißen Zellen mit Ziffern',
     category: 'logik',
   },
+  {
+    to: '/kakuro',
+    title: 'Kakuro',
+    description: 'Zahlen-Kreuzworträtsel mit Summenhinweisen. Drei vorgegebene Stufen.',
+    preview: '/games/kakuro-preview.svg',
+    previewAlt: 'Vorschau: ein Kakuro-Gitter mit Summenhinweisen in schwarzen Diagonalen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

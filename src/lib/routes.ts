@@ -51,6 +51,7 @@ export const ROUTES = {
   halma: '/halma',
   helicopter: '/helicopter',
   hitori: '/hitori',
+  kakuro: '/kakuro',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

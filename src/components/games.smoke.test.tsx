@@ -24,6 +24,7 @@ import HanoiGame from './HanoiGame';
 import HelicopterGame from './HelicopterGame';
 import HitoriGame from './HitoriGame';
 import HyperfokusGame from './HyperfokusGame';
+import KakuroGame from './KakuroGame';
 import LightsOutGame from './LightsOutGame';
 import MastermindGame from './MastermindGame';
 import MemoryGame from './MemoryGame';
@@ -100,6 +101,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['HanoiGame', () => <HanoiGame />],
   ['HelicopterGame', () => <HelicopterGame />],
   ['HitoriGame', () => <HitoriGame />],
+  ['KakuroGame', () => <KakuroGame />],
   ['LightsOutGame', () => <LightsOutGame />],
   ['MastermindGame', () => <MastermindGame />],
   ['MemoryGame', () => <MemoryGame />],
