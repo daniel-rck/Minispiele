@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Asteroids Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g fill="none" stroke="#cbd5e1" stroke-width="1.5">
+    <polygon points="60,40 80,30 92,42 90,60 72,66 56,56"/>
+    <polygon points="240,50 258,42 270,55 264,70 248,72 234,62"/>
+    <polygon points="200,120 218,112 230,124 224,140 208,142 196,128"/>
+    <polygon points="50,130 66,124 78,134 72,150 56,150 44,140"/>
+  </g>
+  <g transform="translate(160,90) rotate(-15)">
+    <polygon points="14,0 -8,-7 -5,0 -8,7" fill="none" stroke="#fbbf24" stroke-width="2.2"/>
+    <polygon points="-6,-3 -13,0 -6,3" fill="#f97316"/>
+  </g>
+  <circle cx="180" cy="80" r="2" fill="#fde047"/>
+  <circle cx="195" cy="74" r="2" fill="#fde047"/>
+</svg>

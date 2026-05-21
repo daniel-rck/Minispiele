@@ -351,6 +351,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 3×3-Gitter mit X und O Symbolen',
     category: 'logik',
   },
+  {
+    to: '/asteroids',
+    title: 'Asteroids',
+    description: 'Drehe das Raumschiff, schub und schieße — Asteroiden in immer mehr Wellen.',
+    preview: '/games/asteroids-preview.svg',
+    previewAlt: 'Vorschau: ein dreieckiges Raumschiff zwischen unregelmäßigen Asteroiden',
+    category: 'action',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

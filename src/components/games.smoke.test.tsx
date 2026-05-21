@@ -2,6 +2,7 @@ import { render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AnagramGame from './AnagramGame';
+import AsteroidsGame from './AsteroidsGame';
 import BlocksGame from './BlocksGame';
 import BreakoutGame from './BreakoutGame';
 import BubblesGame from './BubblesGame';
@@ -66,6 +67,7 @@ beforeEach(() => {
 
 const cases: Array<[string, () => React.ReactElement]> = [
   ['AnagramGame', () => <AnagramGame />],
+  ['AsteroidsGame', () => <AsteroidsGame />],
   ['BlocksGame', () => <BlocksGame />],
   ['BreakoutGame', () => <BreakoutGame />],
   ['BubblesGame', () => <BubblesGame />],

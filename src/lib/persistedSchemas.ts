@@ -271,3 +271,5 @@ export const TicTacToeScoresSchema = z.object({
   d: z.number().int().nonnegative(),
 });
 export type TicTacToeScores = z.infer<typeof TicTacToeScoresSchema>;
+
+export const AsteroidsBestSchema = z.number().int().nonnegative();

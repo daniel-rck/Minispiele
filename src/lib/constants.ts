@@ -87,6 +87,7 @@ export const STORAGE_KEYS = {
   LADDERS_BEST: 'minispiele.ladders.bestTurns.v1',
   TIC_TAC_TOE_DIFFICULTY: 'minispiele.ticTacToe.difficulty.v1',
   TIC_TAC_TOE_SCORES: 'minispiele.ticTacToe.scores.v1',
+  ASTEROIDS_BEST: 'minispiele.asteroids.bestScore.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',
