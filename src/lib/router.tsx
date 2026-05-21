@@ -249,6 +249,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.whackAMole),
         lazy: lazyPage(() => import('../pages/WhackAMole.tsx')),
       },
+      {
+        path: rel(ROUTES.wuerfelpoker),
+        lazy: lazyPage(() => import('../pages/Wuerfelpoker.tsx')),
+      },
     ],
   },
 ]);

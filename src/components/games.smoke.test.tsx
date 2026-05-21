@@ -57,6 +57,7 @@ import VierBilderGame from './VierBilderGame';
 import ViergewinntGame from './ViergewinntGame';
 import WhackAMoleGame from './WhackAMoleGame';
 import WordsearchGame from './WordsearchGame';
+import WuerfelpokerGame from './WuerfelpokerGame';
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -151,6 +152,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['ViergewinntGame', () => <ViergewinntGame />],
   ['WhackAMoleGame', () => <WhackAMoleGame />],
   ['WordsearchGame', () => <WordsearchGame />],
+  ['WuerfelpokerGame', () => <WuerfelpokerGame />],
   ['HyperfokusGame', () => <HyperfokusGame />],
 ];
 

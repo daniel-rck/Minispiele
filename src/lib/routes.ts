@@ -69,6 +69,7 @@ export const ROUTES = {
   viergewinnt: '/viergewinnt',
   millionaer: '/wer-wird-millionaer',
   whackAMole: '/whack-a-mole',
+  wuerfelpoker: '/wuerfelpoker',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

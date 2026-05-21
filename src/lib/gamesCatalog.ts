@@ -599,6 +599,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 3×3-Raster aus braunen Löchern mit aufgetauchten Maulwürfen',
     category: 'gehirntraining',
   },
+  {
+    to: '/wuerfelpoker',
+    title: 'Würfelpoker',
+    description: '5 Würfel, 3 Würfe — bilde die beste Pokerhand gegen die KI.',
+    preview: '/games/wuerfelpoker-preview.svg',
+    previewAlt: 'Vorschau: fünf Würfel und Spielstand gegen KI',
+    category: 'karten',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

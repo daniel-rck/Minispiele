@@ -110,6 +110,7 @@ export const STORAGE_KEYS = {
   VIERGEWINNT_DIFFICULTY: 'minispiele.viergewinnt.difficulty.v1',
   MILLIONAER_BEST: 'minispiele.millionaer.bestScore.v1',
   WHACK_A_MOLE_BEST: 'minispiele.whackAMole.bestScore.v1',
+  WUERFELPOKER_SCORES: 'minispiele.wuerfelpoker.scores.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

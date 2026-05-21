@@ -326,3 +326,10 @@ export type ViergewinntDifficulty = z.infer<typeof ViergewinntDifficultySchema>;
 export const MillionaerBestSchema = z.number().int().nonnegative();
 
 export const WhackAMoleBestSchema = z.number().int().nonnegative();
+
+export const WuerfelpokerScoresSchema = z.object({
+  you: z.number().int().nonnegative(),
+  ai: z.number().int().nonnegative(),
+  draws: z.number().int().nonnegative(),
+});
+export type WuerfelpokerScores = z.infer<typeof WuerfelpokerScoresSchema>;
