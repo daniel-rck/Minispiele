@@ -36,8 +36,10 @@ export function getDB(): Promise<IDBPDatabase<AppSchema>> {
 /** Test helper: wipe all stores in the current DB. */
 export async function clearAll(): Promise<void> {
   const db = await getDB();
-  const tx = db.transaction(Array.from(db.objectStoreNames), 'readwrite');
-  await Promise.all(Array.from(db.objectStoreNames).map((name) => tx.objectStore(name).clear()));
+  const storeNames = Array.from(db.objectStoreNames);
+  if (storeNames.length === 0) return;
+  const tx = db.transaction(storeNames, 'readwrite');
+  await Promise.all(storeNames.map((name) => tx.objectStore(name).clear()));
   await tx.done;
   notifyMutation('*');
 }

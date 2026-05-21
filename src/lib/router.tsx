@@ -1,6 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { ROUTES } from './routes.ts';
 
+const rel = (path: string) => (path.startsWith('/') ? path.slice(1) : path);
+
 export const router = createBrowserRouter([
   {
     path: ROUTES.home,
@@ -14,155 +16,155 @@ export const router = createBrowserRouter([
         lazy: async () => ({ Component: (await import('../pages/Home.tsx')).default }),
       },
       {
-        path: 'ring-sort',
+        path: rel(ROUTES.ringSort),
         lazy: async () => ({ Component: (await import('../pages/RingSort.tsx')).default }),
       },
       {
-        path: 'timer',
+        path: rel(ROUTES.timer),
         lazy: async () => ({ Component: (await import('../pages/Timer.tsx')).default }),
       },
       {
-        path: 'dice',
+        path: rel(ROUTES.dice),
         lazy: async () => ({ Component: (await import('../pages/Dice.tsx')).default }),
       },
       {
-        path: 'memory',
+        path: rel(ROUTES.memory),
         lazy: async () => ({ Component: (await import('../pages/Memory.tsx')).default }),
       },
       {
-        path: 'twenty-forty-eight',
+        path: rel(ROUTES.twentyFortyEight),
         lazy: async () => ({
           Component: (await import('../pages/TwentyFortyEight.tsx')).default,
         }),
       },
       {
-        path: 'sliding-puzzle',
+        path: rel(ROUTES.slidingPuzzle),
         lazy: async () => ({
           Component: (await import('../pages/SlidingPuzzle.tsx')).default,
         }),
       },
       {
-        path: 'simon',
+        path: rel(ROUTES.simon),
         lazy: async () => ({ Component: (await import('../pages/Simon.tsx')).default }),
       },
       {
-        path: 'minesweeper',
+        path: rel(ROUTES.minesweeper),
         lazy: async () => ({ Component: (await import('../pages/Minesweeper.tsx')).default }),
       },
       {
-        path: 'snake',
+        path: rel(ROUTES.snake),
         lazy: async () => ({ Component: (await import('../pages/Snake.tsx')).default }),
       },
       {
-        path: 'wordle',
+        path: rel(ROUTES.wordle),
         lazy: async () => ({ Component: (await import('../pages/Wordle.tsx')).default }),
       },
       {
-        path: 'reaction',
+        path: rel(ROUTES.reaction),
         lazy: async () => ({ Component: (await import('../pages/Reaction.tsx')).default }),
       },
       {
-        path: 'stroop',
+        path: rel(ROUTES.stroop),
         lazy: async () => ({ Component: (await import('../pages/Stroop.tsx')).default }),
       },
       {
-        path: 'schulte',
+        path: rel(ROUTES.schulte),
         lazy: async () => ({ Component: (await import('../pages/Schulte.tsx')).default }),
       },
       {
-        path: 'hanoi',
+        path: rel(ROUTES.hanoi),
         lazy: async () => ({ Component: (await import('../pages/Hanoi.tsx')).default }),
       },
       {
-        path: 'lights-out',
+        path: rel(ROUTES.lightsOut),
         lazy: async () => ({ Component: (await import('../pages/LightsOut.tsx')).default }),
       },
       {
-        path: 'mastermind',
+        path: rel(ROUTES.mastermind),
         lazy: async () => ({ Component: (await import('../pages/Mastermind.tsx')).default }),
       },
       {
-        path: 'hangman',
+        path: rel(ROUTES.hangman),
         lazy: async () => ({ Component: (await import('../pages/Hangman.tsx')).default }),
       },
       {
-        path: 'anagram',
+        path: rel(ROUTES.anagram),
         lazy: async () => ({ Component: (await import('../pages/Anagram.tsx')).default }),
       },
       {
-        path: 'sudoku',
+        path: rel(ROUTES.sudoku),
         lazy: async () => ({ Component: (await import('../pages/Sudoku.tsx')).default }),
       },
       {
-        path: 'nonogram',
+        path: rel(ROUTES.nonogram),
         lazy: async () => ({ Component: (await import('../pages/Nonogram.tsx')).default }),
       },
       {
-        path: 'sokoban',
+        path: rel(ROUTES.sokoban),
         lazy: async () => ({ Component: (await import('../pages/Sokoban.tsx')).default }),
       },
       {
-        path: 'wordsearch',
+        path: rel(ROUTES.wordsearch),
         lazy: async () => ({ Component: (await import('../pages/Wordsearch.tsx')).default }),
       },
       {
-        path: 'breakout',
+        path: rel(ROUTES.breakout),
         lazy: async () => ({ Component: (await import('../pages/Breakout.tsx')).default }),
       },
       {
-        path: 'bubbles',
+        path: rel(ROUTES.bubbles),
         lazy: async () => ({ Component: (await import('../pages/Bubbles.tsx')).default }),
       },
       {
-        path: 'blocks',
+        path: rel(ROUTES.blocks),
         lazy: async () => ({ Component: (await import('../pages/Blocks.tsx')).default }),
       },
       {
-        path: 'freecell',
+        path: rel(ROUTES.freecell),
         lazy: async () => ({ Component: (await import('../pages/Freecell.tsx')).default }),
       },
       {
-        path: 'tangram',
+        path: rel(ROUTES.tangram),
         lazy: async () => ({ Component: (await import('../pages/Tangram.tsx')).default }),
       },
       {
-        path: 'flow',
+        path: rel(ROUTES.flow),
         lazy: async () => ({ Component: (await import('../pages/Flow.tsx')).default }),
       },
       {
-        path: 'traffic-jam',
+        path: rel(ROUTES.trafficJam),
         lazy: async () => ({ Component: (await import('../pages/TrafficJam.tsx')).default }),
       },
       {
-        path: 'hyperfokus',
+        path: rel(ROUTES.hyperfokus),
         lazy: async () => ({ Component: (await import('../pages/Hyperfokus.tsx')).default }),
       },
       {
-        path: 'gfrett',
+        path: rel(ROUTES.gfrett),
         lazy: async () => ({ Component: (await import('../pages/Gfrett.tsx')).default }),
       },
       {
-        path: 'color-flood',
+        path: rel(ROUTES.colorFlood),
         lazy: async () => ({ Component: (await import('../pages/ColorFlood.tsx')).default }),
       },
       {
-        path: 'spelling-bee',
+        path: rel(ROUTES.spellingBee),
         lazy: async () => ({ Component: (await import('../pages/SpellingBee.tsx')).default }),
       },
       {
-        path: 'bingo',
+        path: rel(ROUTES.bingo),
         lazy: async () => ({ Component: (await import('../pages/Bingo.tsx')).default }),
       },
       {
-        path: 'slot-machine',
+        path: rel(ROUTES.slotMachine),
         lazy: async () => ({ Component: (await import('../pages/SlotMachine.tsx')).default }),
       },
       {
-        path: 'idle-clicker',
+        path: rel(ROUTES.idleClicker),
         lazy: async () => ({ Component: (await import('../pages/IdleClicker.tsx')).default }),
       },
       {
-        path: 'leiterspiel',
+        path: rel(ROUTES.leiterspiel),
         lazy: async () => ({ Component: (await import('../pages/Ladders.tsx')).default }),
       },
     ],

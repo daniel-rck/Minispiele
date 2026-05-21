@@ -45,7 +45,8 @@ export function useLiveQuery<T>(
       };
     }
 
-    const channels = [new BroadcastChannel(`db:${storeName}`), new BroadcastChannel('db:*')];
+    const channelNames = Array.from(new Set([`db:${storeName}`, 'db:*']));
+    const channels = channelNames.map((name) => new BroadcastChannel(name));
     for (const channel of channels) {
       channel.onmessage = () => {
         run();
