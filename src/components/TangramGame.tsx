@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { TangramLevelSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -62,6 +63,8 @@ export default function TangramGame() {
   const [placed, setPlaced] = useState<Set<number>>(new Set());
   const [announce, setAnnounce] = useState('');
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
+  const prevAllPlacedRef = useRef(false);
 
   const puzzle = PUZZLES[levelIdx % PUZZLES.length]!;
 
@@ -79,6 +82,11 @@ export default function TangramGame() {
   );
 
   const allPlaced = placed.size === PIECES.length;
+
+  useEffect(() => {
+    if (allPlaced && !prevAllPlacedRef.current) sfx.win();
+    prevAllPlacedRef.current = allPlaced;
+  }, [allPlaced, sfx]);
 
   const nextPuzzle = useCallback(() => {
     const idx = (levelIdx + 1) % PUZZLES.length;

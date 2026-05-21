@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { StroopBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -50,6 +51,7 @@ export default function StroopGame() {
   const [announce, setAnnounce] = useState('');
   const tickRef = useRef<number | null>(null);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     if (phase !== 'playing') return;
@@ -66,8 +68,9 @@ export default function StroopGame() {
       setPhase('done');
       if (score > best) setBest(score);
       setAnnounce(`Fertig. ${score} Punkte`);
+      sfx.win();
     }
-  }, [timeLeft, phase, score, best, setBest]);
+  }, [timeLeft, phase, score, best, setBest, sfx]);
 
   const startRound = useCallback(() => {
     setScore(0);
@@ -88,10 +91,11 @@ export default function StroopGame() {
       } else {
         setWrong((w) => w + 1);
         vibrate([50, 30, 50]);
+        sfx.error();
       }
       setChallenge((prev) => nextChallenge(prev));
     },
-    [phase, challenge, vibrate],
+    [phase, challenge, vibrate, sfx],
   );
 
   return (

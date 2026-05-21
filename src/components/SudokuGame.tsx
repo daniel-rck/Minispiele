@@ -16,6 +16,7 @@ import {
   type SudokuCell,
   type SudokuDifficulty,
 } from '../lib/sudoku';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
@@ -85,6 +86,7 @@ export default function SudokuGame() {
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
   useWakeLock(timer.status === 'running');
 
   const elapsedRef = useRef(timer.elapsedSeconds);
@@ -118,9 +120,10 @@ export default function SudokuGame() {
       setWinOpen(true);
       setAnnounce(`Sudoku gelöst in ${formatDuration(sec)}`);
       vibrate([40, 30, 60]);
+      sfx.win();
       setSavedState(null);
     }
-  }, [won, timer, bestMap, game.difficulty, setBestMap, vibrate, setSavedState]);
+  }, [won, timer, bestMap, game.difficulty, setBestMap, vibrate, sfx, setSavedState]);
 
   // Persist current snapshot on tab-hide so a refresh/close keeps progress fresh.
   // Stable listener reads latest game + won-state from refs to avoid re-subscribing on every move.
@@ -189,9 +192,10 @@ export default function SudokuGame() {
       if (!notesMode && value !== 0 && conflictsAt(cells, idx)) {
         setShakeIdx(idx);
         vibrate([40, 60, 40]);
+        sfx.error();
       }
     },
-    [game, notesMode, setSavedState, vibrate],
+    [game, notesMode, setSavedState, vibrate, sfx],
   );
 
   const handleCellPress = (idx: number) => {

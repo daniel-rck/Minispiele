@@ -9,6 +9,7 @@ import {
   selectPeg,
 } from '../lib/hanoi';
 import { HanoiBestSchema, HanoiDisksSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -39,6 +40,7 @@ export default function HanoiGame() {
   const [announce, setAnnounce] = useState('');
   const prevSolvedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const solved = isSolved(state);
   const optimal = minimumMoves(state.disks);
@@ -58,9 +60,10 @@ export default function HanoiGame() {
       setWinOpen(true);
       setAnnounce('Gelöst!');
       vibrate([40, 30, 60]);
+      sfx.win();
     }
     prevSolvedRef.current = solved;
-  }, [solved, state.moves, state.disks, bestMap, setBestMap, vibrate]);
+  }, [solved, state.moves, state.disks, bestMap, setBestMap, vibrate, sfx]);
 
   const restart = useCallback(
     (next: number = disks) => {

@@ -12,6 +12,7 @@ import {
   tick,
   tickIntervalMs,
 } from '../lib/snake';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -49,8 +50,17 @@ export default function SnakeGame() {
 
   const stateRef = useRef(state);
   stateRef.current = state;
+  const prevScoreRef = useRef(state.score);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
   useWakeLock(phase === 'playing');
+
+  useEffect(() => {
+    if (phase === 'playing' && state.score > prevScoreRef.current) {
+      sfx.match();
+    }
+    prevScoreRef.current = state.score;
+  }, [state.score, phase, sfx]);
 
   const handleDirection = useCallback((dir: Direction) => {
     setState((s) => queueDirection(s, dir));
@@ -71,6 +81,7 @@ export default function SnakeGame() {
     if (!state.alive && phase === 'playing') {
       setPhase('over');
       vibrate([80, 60, 80]);
+      sfx.lose();
       if (state.score > best) {
         setBest(state.score);
         setScoreIsNew(true);
@@ -80,7 +91,7 @@ export default function SnakeGame() {
       setAnnouncement(`Verloren mit ${state.score} Punkten`);
       setOverOpen(true);
     }
-  }, [state.alive, state.score, phase, best, setBest, vibrate]);
+  }, [state.alive, state.score, phase, best, setBest, vibrate, sfx]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

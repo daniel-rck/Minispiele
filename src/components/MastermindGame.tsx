@@ -11,6 +11,7 @@ import {
   submit,
 } from '../lib/mastermind';
 import { MastermindBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -38,6 +39,7 @@ export default function MastermindGame() {
   const [announce, setAnnounce] = useState('');
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     if (state.done && !finishedRef.current) {
@@ -52,15 +54,17 @@ export default function MastermindGame() {
         }
         setAnnounce(`Gewonnen in ${count} Versuchen`);
         vibrate([40, 30, 40, 30, 80]);
+        sfx.win();
       } else {
         setScoreIsNew(false);
         setAnnounce('Verloren');
         vibrate([80, 60, 80]);
+        sfx.lose();
       }
       const id = window.setTimeout(() => setDoneOpen(true), 500);
       return () => window.clearTimeout(id);
     }
-  }, [state.done, state.guesses.length, best, setBest, vibrate]);
+  }, [state.done, state.guesses.length, best, setBest, vibrate, sfx]);
 
   const restart = useCallback(() => {
     finishedRef.current = false;

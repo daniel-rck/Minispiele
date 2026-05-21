@@ -16,6 +16,7 @@ import {
   slide,
   spawnRandom,
 } from '../lib/twentyFortyEight';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import Button from './ui/Button';
 import GameFooter from './ui/GameFooter';
@@ -68,6 +69,8 @@ export default function TwentyFortyEightGame() {
   const [gameOver, setGameOver] = useState(false);
   const [winShown, setWinShown] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const prevGameOverRef = useRef(false);
+  const sfx = useGameSfx();
   useWakeLock(state.score > 0 && !gameOver);
 
   useEffect(() => {
@@ -75,8 +78,11 @@ export default function TwentyFortyEightGame() {
   }, [state.score, bestScore, setBestScore]);
 
   useEffect(() => {
-    setGameOver(isGameOver(state.grid));
-  }, [state.grid]);
+    const over = isGameOver(state.grid);
+    setGameOver(over);
+    if (over && !prevGameOverRef.current && !state.won) sfx.lose();
+    prevGameOverRef.current = over;
+  }, [state.grid, state.won, sfx]);
 
   const move = useCallback(
     (direction: Direction) => {
@@ -85,7 +91,11 @@ export default function TwentyFortyEightGame() {
         if (!moved) return current;
         const withSpawn = spawnRandom(after);
         const justWon = !current.won && hasWinningTile(withSpawn);
-        if (justWon) setWinShown(true);
+        if (gained > 0) sfx.merge(Math.log2(Math.max(2, gained)));
+        if (justWon) {
+          setWinShown(true);
+          sfx.win();
+        }
         return {
           grid: withSpawn,
           score: current.score + gained,
@@ -93,7 +103,7 @@ export default function TwentyFortyEightGame() {
         };
       });
     },
-    [setState],
+    [setState, sfx],
   );
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
+import { DiceSound } from '../lib/diceSound';
 import {
   applyDieRoll,
   BOARD_SIZE,
@@ -151,6 +152,8 @@ export default function LaddersGame() {
   const [announce, setAnnounce] = useState('');
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const { vibrate } = useVibration();
+  const diceSoundRef = useRef<DiceSound | null>(null);
+  if (diceSoundRef.current === null) diceSoundRef.current = new DiceSound();
 
   const cleanup = useCallback(() => {
     for (const t of timersRef.current) clearTimeout(t);
@@ -158,6 +161,14 @@ export default function LaddersGame() {
   }, []);
 
   useEffect(() => cleanup, [cleanup]);
+
+  useEffect(
+    () => () => {
+      diceSoundRef.current?.dispose();
+      diceSoundRef.current = null;
+    },
+    [],
+  );
 
   // Draw whenever the relevant slice of state changes.
   useEffect(() => {
@@ -208,6 +219,9 @@ export default function LaddersGame() {
     const aiIdx = state.current;
     const t = setTimeout(() => {
       const roll = rollDie();
+      diceSoundRef.current?.playRoll(280, 1);
+      const settleId = setTimeout(() => diceSoundRef.current?.playSettle(1), 280);
+      timersRef.current.push(settleId);
       setMessage(`${PLAYER_NAMES[aiIdx]} würfelt ${roll}.`);
       moveAndFinish(aiIdx, roll);
     }, AI_DELAY_MS);
@@ -237,6 +251,9 @@ export default function LaddersGame() {
   const handleRoll = () => {
     if (state.status !== 'idle' || state.current !== 0) return;
     const roll = rollDie();
+    diceSoundRef.current?.playRoll(320, 1);
+    const settleId = setTimeout(() => diceSoundRef.current?.playSettle(1), 320);
+    timersRef.current.push(settleId);
     setMessage(`Du würfelst ${roll}.`);
     vibrate(20);
     setState((s) => ({ ...s, humanTurns: s.humanTurns + 1 }));

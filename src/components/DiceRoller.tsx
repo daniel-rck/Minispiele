@@ -22,6 +22,7 @@ import {
   toggleHeld,
 } from '../lib/dice';
 import { parseNotation } from '../lib/diceNotation';
+import { DiceSound } from '../lib/diceSound';
 import {
   type DiceHistory,
   type DiceHistoryEntry,
@@ -236,11 +237,14 @@ export default function DiceRoller() {
   const [lastAnnouncement, setLastAnnouncement] = useState('');
 
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
+  const settleTimeoutsRef = useRef<Map<string, number>>(new Map());
   const cycleIntervalRef = useRef<number | null>(null);
   const diceRef = useRef<Die[]>(dice);
   diceRef.current = dice;
   const rollingIdsRef = useRef<ReadonlySet<string>>(rollingIds);
   rollingIdsRef.current = rollingIds;
+  const soundRef = useRef<DiceSound | null>(null);
+  if (soundRef.current === null) soundRef.current = new DiceSound();
 
   useEffect(() => {
     if (rollingIds.size === 0) {
@@ -281,9 +285,14 @@ export default function DiceRoller() {
 
   useEffect(() => {
     const timeouts = rollTimeoutsRef.current;
+    const settles = settleTimeoutsRef.current;
     return () => {
       timeouts.forEach((t) => window.clearTimeout(t));
       timeouts.clear();
+      settles.forEach((t) => window.clearTimeout(t));
+      settles.clear();
+      soundRef.current?.dispose();
+      soundRef.current = null;
     };
   }, []);
 
@@ -291,6 +300,8 @@ export default function DiceRoller() {
     (ids: readonly string[]) => {
       if (ids.length === 0) return;
       const timeouts = rollTimeoutsRef.current;
+      const settles = settleTimeoutsRef.current;
+      soundRef.current?.playRoll(rollDuration, ids.length);
       setRollingIds((prev) => {
         const next = new Set(prev);
         ids.forEach((id) => next.add(id));
@@ -299,6 +310,8 @@ export default function DiceRoller() {
       ids.forEach((id) => {
         const existing = timeouts.get(id);
         if (existing !== undefined) window.clearTimeout(existing);
+        const existingSettle = settles.get(id);
+        if (existingSettle !== undefined) window.clearTimeout(existingSettle);
         const t = window.setTimeout(() => {
           timeouts.delete(id);
           setRollingIds((prev) => {
@@ -310,6 +323,13 @@ export default function DiceRoller() {
         }, rollDuration);
         timeouts.set(id, t);
       });
+      const settleId = window.setTimeout(() => {
+        settles.delete('__settle');
+        soundRef.current?.playSettle(ids.length);
+      }, rollDuration);
+      const prevSettle = settles.get('__settle');
+      if (prevSettle !== undefined) window.clearTimeout(prevSettle);
+      settles.set('__settle', settleId);
     },
     [rollDuration],
   );

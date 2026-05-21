@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { ReactionBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 
@@ -22,6 +23,7 @@ export default function ReactionGame() {
   const timeoutRef = useRef<number | null>(null);
   const readyAtRef = useRef<number>(0);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(
     () => () => {
@@ -46,8 +48,9 @@ export default function ReactionGame() {
       readyAtRef.current = performance.now();
       setPhase('ready');
       vibrate(20);
+      sfx.match();
     }, delay);
-  }, [clearPending, vibrate]);
+  }, [clearPending, vibrate, sfx]);
 
   const handleTap = useCallback(() => {
     if (phase === 'idle' || phase === 'done' || phase === 'tooEarly') {
@@ -59,6 +62,7 @@ export default function ReactionGame() {
       setPhase('tooEarly');
       setAnnounce('Zu früh!');
       vibrate([60, 40, 60]);
+      sfx.error();
       return;
     }
     if (phase === 'ready') {
@@ -68,8 +72,9 @@ export default function ReactionGame() {
       setAnnounce(`${ms} Millisekunden`);
       if (best === null || ms < best) setBest(ms);
       vibrate(30);
+      sfx.win();
     }
-  }, [phase, startWaiting, clearPending, best, setBest, vibrate]);
+  }, [phase, startWaiting, clearPending, best, setBest, vibrate, sfx]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

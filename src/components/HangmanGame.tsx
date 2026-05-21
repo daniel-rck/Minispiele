@@ -7,6 +7,7 @@ import {
   type HangmanStats,
   HangmanStatsSchema,
 } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -77,6 +78,7 @@ export default function HangmanGame() {
   const [announce, setAnnounce] = useState('');
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const won = isWon(state);
   const lost = isLost(state);
@@ -101,10 +103,12 @@ export default function HangmanGame() {
       });
       setAnnounce(won ? 'Gewonnen!' : `Verloren. Wort war ${state.word}`);
       vibrate(won ? [40, 30, 80] : [80, 60, 80]);
+      if (won) sfx.win();
+      else sfx.lose();
       const id = window.setTimeout(() => setDoneOpen(true), 500);
       return () => window.clearTimeout(id);
     }
-  }, [done, won, state.word, setStats, vibrate]);
+  }, [done, won, state.word, setStats, vibrate, sfx]);
 
   const guess = useCallback(
     (ch: string) => {
@@ -116,11 +120,12 @@ export default function HangmanGame() {
         const guessed = new Set(s.guessed);
         guessed.add(up);
         const hit = s.word.includes(up);
+        if (!hit) sfx.error();
         return { ...s, guessed, mistakes: hit ? s.mistakes : s.mistakes + 1 };
       });
       vibrate(15);
     },
-    [done, vibrate],
+    [done, vibrate, sfx],
   );
 
   useEffect(() => {

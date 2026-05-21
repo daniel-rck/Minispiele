@@ -4,6 +4,7 @@ import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
 import { BubblesBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -243,6 +244,7 @@ export default function BubblesGame() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     return () => {
@@ -270,10 +272,11 @@ export default function BubblesGame() {
       if (state.score > best) setBest(state.score);
       setAnnounce(`Spiel zu Ende. ${state.score} Punkte`);
       vibrate([80, 60, 80]);
+      sfx.lose();
       const id = window.setTimeout(() => setDoneOpen(true), 400);
       return () => window.clearTimeout(id);
     }
-  }, [state.done, state.score, best, setBest, vibrate]);
+  }, [state.done, state.score, best, setBest, vibrate, sfx]);
 
   const resolveLanding = useCallback(
     (color: number, idx: number) => {
@@ -295,6 +298,7 @@ export default function BubblesGame() {
       for (const i of after.removedIdx) popIdxSet.add(i);
       if (after.removed > 0) added += after.removed * 15;
       vibrate(popped ? 25 : 12);
+      if (popped) sfx.pop();
 
       if (popIdxSet.size > 0) {
         setPoppingIdx(popIdxSet);
@@ -339,7 +343,7 @@ export default function BubblesGame() {
         }));
       }
     },
-    [state.grid, vibrate],
+    [state.grid, vibrate, sfx],
   );
 
   const shoot = useCallback(

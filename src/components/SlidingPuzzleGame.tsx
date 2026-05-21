@@ -17,6 +17,7 @@ import {
   type SlidingState,
   tryMove,
 } from '../lib/slidingPuzzle';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import Button from './ui/Button';
@@ -50,6 +51,7 @@ export default function SlidingPuzzleGame() {
   useWakeLock(timer.status === 'running');
   const prevMovesRef = useRef(0);
   const prevWonRef = useRef(false);
+  const sfx = useGameSfx();
 
   const handleTile = useCallback((tileIndex: number) => {
     setState((s) => tryMove(s, tileIndex));
@@ -72,10 +74,11 @@ export default function SlidingPuzzleGame() {
         setScoreIsNew(false);
       }
       setWinOpen(true);
+      sfx.win();
     }
     prevMovesRef.current = state.moves;
     prevWonRef.current = state.won;
-  }, [state.moves, state.won, state.difficulty, timer, highscores, setHighscores]);
+  }, [state.moves, state.won, state.difficulty, timer, highscores, setHighscores, sfx]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

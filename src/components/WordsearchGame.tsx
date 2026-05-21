@@ -3,6 +3,7 @@ import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { STORAGE_KEYS } from '../lib/constants';
 import { WordsearchBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import { generate, lineBetween, matchWord, type WordsearchPuzzle } from '../lib/wordsearch';
@@ -30,6 +31,7 @@ export default function WordsearchGame() {
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
   useWakeLock(timer.status === 'running');
 
   useEffect(() => {
@@ -55,8 +57,9 @@ export default function WordsearchGame() {
       setWinOpen(true);
       setAnnounce(`Alle Wörter gefunden in ${formatDuration(sec)}`);
       vibrate([40, 30, 60]);
+      sfx.win();
     }
-  }, [allFound, timer, best, setBest, vibrate]);
+  }, [allFound, timer, best, setBest, vibrate, sfx]);
 
   const restart = useCallback(() => {
     setPuzzle(generate(SIZE, WORD_COUNT));
@@ -96,6 +99,7 @@ export default function WordsearchGame() {
           next.add(w.word);
           setFound(next);
           vibrate(25);
+          sfx.match();
         }
       }
     }

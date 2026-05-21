@@ -17,6 +17,7 @@ import {
   upgradeCost,
 } from '../lib/idleClicker';
 import { IdleClickerSaveSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -61,6 +62,7 @@ export default function IdleClickerGame() {
   const [announce, setAnnounce] = useState('');
   const [pulse, setPulse] = useState(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   // Persist roughly every 5 seconds.
   useEffect(() => {
@@ -105,6 +107,7 @@ export default function IdleClickerGame() {
     if (!prestigeReady) return;
     setState((s) => doPrestige(s));
     vibrate([60, 30, 60]);
+    sfx.win();
     setAnnounce('Prestige! Multiplikator erhöht.');
   };
 

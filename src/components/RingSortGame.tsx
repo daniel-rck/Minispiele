@@ -20,6 +20,7 @@ import {
   tryMove,
   undoMove,
 } from '../lib/ringSort';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import Peg from './Peg';
@@ -72,6 +73,7 @@ export default function RingSortGame() {
   const prevMovesRef = useRef(state.moves);
   const prevWonRef = useRef(state.won);
   const hintTimeoutRef = useRef<number | null>(null);
+  const sfx = useGameSfx();
 
   useEffect(() => {
     if (state.moves > prevMovesRef.current) timer.start();
@@ -86,10 +88,11 @@ export default function RingSortGame() {
       setHighscores(result.scores);
       setScoreIsNew(result.isNew);
       setWinSheetOpen(true);
+      sfx.win();
     }
     prevMovesRef.current = state.moves;
     prevWonRef.current = state.won;
-  }, [state.moves, state.won, state.difficulty, timer, highscores, setHighscores]);
+  }, [state.moves, state.won, state.difficulty, timer, highscores, setHighscores, sfx]);
 
   useEffect(
     () => () => {

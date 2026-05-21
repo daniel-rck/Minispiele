@@ -12,6 +12,7 @@ import {
   type SokobanState,
   undo,
 } from '../lib/sokoban';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -34,6 +35,7 @@ export default function SokobanGame() {
   const [announce, setAnnounce] = useState('');
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const solved = isSolved(state);
 
@@ -51,8 +53,9 @@ export default function SokobanGame() {
       setWinOpen(true);
       setAnnounce(`Level gelöst in ${state.moves} Zügen`);
       vibrate([40, 30, 60]);
+      sfx.win();
     }
-  }, [solved, state.moves, levelIdx, bestMap, setBestMap, vibrate]);
+  }, [solved, state.moves, levelIdx, bestMap, setBestMap, vibrate, sfx]);
 
   const restart = useCallback(
     (idx: number = levelIdx) => {

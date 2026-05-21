@@ -8,6 +8,7 @@ import {
   type SpellingBeePuzzle,
   submitWord,
 } from '../lib/spellingBee';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -33,6 +34,7 @@ export default function SpellingBeeGame() {
     0,
   );
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   useEffect(() => {
     setMessage(`Bilde Wörter mit dem Buchstaben „${puzzle.center}" in der Mitte.`);
@@ -70,14 +72,17 @@ export default function SpellingBeeGame() {
       case 'too-short':
         setMessage(`Mindestens ${SPELLING_BEE_MIN_WORD_LENGTH} Buchstaben.`);
         vibrate(40);
+        sfx.error();
         return;
       case 'missing-center':
         setMessage(`Muss „${puzzle.center}" enthalten.`);
         vibrate(40);
+        sfx.error();
         return;
       case 'invalid-letters':
         setMessage('Nur die angezeigten Buchstaben.');
         vibrate(40);
+        sfx.error();
         return;
       case 'already-found':
         setMessage('Bereits gefunden.');
@@ -85,6 +90,7 @@ export default function SpellingBeeGame() {
       case 'unknown':
         setMessage('Nicht in der Wortliste.');
         vibrate(40);
+        sfx.error();
         return;
       case 'accepted': {
         setProgress((prev) => {
@@ -95,6 +101,8 @@ export default function SpellingBeeGame() {
           return { found, score };
         });
         vibrate(result.pangram ? [40, 30, 60, 30, 60] : 25);
+        if (result.pangram) sfx.win();
+        else sfx.match();
         const text = result.pangram
           ? `Pangram! +${result.points} Punkte für ${result.word}.`
           : `+${result.points} Punkte für ${result.word}.`;

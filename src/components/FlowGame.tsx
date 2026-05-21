@@ -13,6 +13,7 @@ import {
   startPath,
 } from '../lib/flow';
 import { FlowBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -33,6 +34,7 @@ export default function FlowGame() {
   const [announce, setAnnounce] = useState('');
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const solved = useMemo(() => isSolved(state), [state]);
 
@@ -50,8 +52,9 @@ export default function FlowGame() {
       setWinOpen(true);
       setAnnounce(`Level gelöst in ${moves} Zügen`);
       vibrate([40, 30, 60]);
+      sfx.win();
     }
-  }, [solved, moves, levelIdx, bestMap, setBestMap, vibrate]);
+  }, [solved, moves, levelIdx, bestMap, setBestMap, vibrate, sfx]);
 
   const restart = useCallback(
     (idx: number = levelIdx) => {

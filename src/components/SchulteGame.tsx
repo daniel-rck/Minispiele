@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { SchulteBestSchema, SchulteSizeSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
@@ -34,6 +35,7 @@ export default function SchulteGame() {
   const tickRef = useRef<number | null>(null);
   const [announce, setAnnounce] = useState('');
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const total = size * size;
 
@@ -69,6 +71,7 @@ export default function SchulteGame() {
     if (finishedSec !== null) return;
     if (value !== next) {
       vibrate([60, 30, 60]);
+      sfx.error();
       return;
     }
     vibrate(15);
@@ -83,6 +86,7 @@ export default function SchulteGame() {
         setBestMap({ ...bestMap, [key]: sec });
       }
       setAnnounce(`Fertig in ${sec} Sekunden`);
+      sfx.win();
     } else {
       setNext(value + 1);
     }

@@ -16,6 +16,7 @@ import {
   undo,
 } from '../lib/freecell';
 import { FreecellBestSchema } from '../lib/persistedSchemas';
+import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -76,6 +77,7 @@ export default function FreecellGame() {
   const [announce, setAnnounce] = useState('');
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
+  const sfx = useGameSfx();
 
   const won = isWon(state);
 
@@ -91,8 +93,9 @@ export default function FreecellGame() {
       setWinOpen(true);
       setAnnounce(`Gewonnen in ${state.moves} Zügen`);
       vibrate([40, 30, 60]);
+      sfx.win();
     }
-  }, [won, state.moves, best, setBest, vibrate]);
+  }, [won, state.moves, best, setBest, vibrate, sfx]);
 
   const restart = useCallback(() => {
     setState(deal());
@@ -151,8 +154,10 @@ export default function FreecellGame() {
       setState(next);
       setSelected(null);
       vibrate(20);
+      sfx.match();
     } else {
       vibrate([40, 20, 40]);
+      sfx.error();
     }
   };
 
