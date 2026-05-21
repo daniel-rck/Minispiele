@@ -189,6 +189,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.crossword),
         lazy: lazyPage(() => import('../pages/Crossword.tsx')),
       },
+      {
+        path: rel(ROUTES.match3),
+        lazy: lazyPage(() => import('../pages/Match3.tsx')),
+      },
     ],
   },
 ]);

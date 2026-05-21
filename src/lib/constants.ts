@@ -97,6 +97,7 @@ export const STORAGE_KEYS = {
   HELICOPTER_BEST: 'minispiele.helicopter.bestScore.v1',
   HITORI_SIZE: 'minispiele.hitori.size.v1',
   KNIFFEL_BEST: 'minispiele.kniffel.bestScore.v1',
+  MATCH3_BEST: 'minispiele.match3.bestScore.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

@@ -294,3 +294,5 @@ export const HitoriSizeSchema = z.union([z.literal(5), z.literal(6), z.literal(7
 export type HitoriSize = z.infer<typeof HitoriSizeSchema>;
 
 export const KniffelBestSchema = z.number().int().nonnegative();
+
+export const Match3BestSchema = z.number().int().nonnegative();

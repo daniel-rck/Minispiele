@@ -479,6 +479,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Gitter mit schwarzen Feldern und nummerierten Hinweisen',
     category: 'wort',
   },
+  {
+    to: '/match3',
+    title: 'Match-3',
+    description: 'Tausche bunte Edelsteine zu Dreierreihen mit Kaskaden-Effekt. 30 Züge.',
+    preview: '/games/match3-preview.svg',
+    previewAlt: 'Vorschau: ein 8×8-Gitter mit bunten Kugeln, drei in einer Reihe',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
