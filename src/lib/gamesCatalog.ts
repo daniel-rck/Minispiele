@@ -1,8 +1,12 @@
+import { ROUTES } from './routes.ts';
+
 export type Category = 'logik' | 'wort' | 'action' | 'gehirntraining' | 'karten' | 'werkzeuge';
 
+export type RoutePath = (typeof ROUTES)[keyof typeof ROUTES];
+
 export interface GameCard {
-  /** Route path, e.g. "/ring-sort" */
-  to: string;
+  /** Route path, e.g. "/ring-sort". Must match a value from `ROUTES`. */
+  to: RoutePath;
   /** Stable slug used for stats/favorites/recent. Derived from `to` without leading slash. */
   slug: string;
   title: string;
@@ -22,7 +26,7 @@ export const CATEGORIES: { id: Category; label: string }[] = [
 ];
 
 interface GameCardInput {
-  to: string;
+  to: RoutePath;
   title: string;
   description: string;
   preview: string;

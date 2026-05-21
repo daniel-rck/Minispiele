@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import Badge from '../components/ui/Badge';
 import Card from '../components/ui/Card';
 import Chip from '../components/ui/Chip';
@@ -62,7 +62,7 @@ function GameTile({ game, isFavorite, onToggleFavorite, todayAt, index = 0 }: Ga
               />
               {todayAt !== undefined && (
                 <div className="absolute bottom-2 left-2">
-                  <Badge variant="accent" size="sm">
+                  <Badge variant="highlight" size="sm">
                     Heute gespielt
                   </Badge>
                 </div>
@@ -165,7 +165,7 @@ export default function Home() {
   const isSearching = deferredSearch.trim().length > 0;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:py-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
       {/* Hero */}
       <section className="mb-6 flex items-center gap-4 rounded-3xl bg-gradient-to-br from-primary-50 to-white p-4 sm:gap-5 sm:p-6 dark:from-primary-900/30 dark:to-surface-900">
         <MascotIcon size={84} className="shrink-0 drop-shadow-md sm:size-24" />
@@ -198,13 +198,13 @@ export default function Home() {
       {hasFavorites && (
         <section className="mb-6">
           <div className="mb-3 flex items-center gap-2">
-            <SparkleIcon size={20} className="text-accent-500" />
+            <SparkleIcon size={20} className="text-highlight-500" />
             <h2 className="font-display text-lg font-extrabold">Deine Favoriten</h2>
             <Badge variant="neutral" size="sm">
               {favoriteTiles.length}
             </Badge>
           </div>
-          <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+          <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {favoriteTiles.map((game, i) => (
               <GameTile
                 key={`fav-${game.slug}`}
@@ -228,7 +228,7 @@ export default function Home() {
       <div role="group" aria-label="Nach Kategorie filtern" className="mb-5 flex flex-wrap gap-2">
         <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
           Alle{' '}
-          <Badge variant={filter === 'all' ? 'accent' : 'neutral'} size="sm">
+          <Badge variant={filter === 'all' ? 'highlight' : 'neutral'} size="sm">
             {GAMES.length}
           </Badge>
         </Chip>
@@ -239,7 +239,7 @@ export default function Home() {
           return (
             <Chip key={c.id} active={active} accent={c.id} onClick={() => setFilter(c.id)}>
               {c.label}{' '}
-              <Badge variant={active ? 'accent' : 'neutral'} size="sm">
+              <Badge variant={active ? 'highlight' : 'neutral'} size="sm">
                 {count}
               </Badge>
             </Chip>
@@ -264,7 +264,7 @@ export default function Home() {
           )}
         </div>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:gap-4">
+        <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filtered.map((game, i) => {
             const at = recentMap.get(game.slug);
             return (

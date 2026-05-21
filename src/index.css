@@ -1,9 +1,16 @@
-@import "tailwindcss";
+/* web-base shared design tokens (theme.css imports tailwindcss itself).
+   We extend & override below: Minispiele uses turquoise (hue 195) as the
+   web-base Accent slot; numbered scales, category families and the warm
+   "highlight" color stay app-specific. */
+@import "./lib/ui/theme.css";
 
 /* Tailwind v4 dark variant tied to `.dark` class (set synchronously by SettingsProvider in src/lib/useSettings.ts) */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Override web-base default Accent hue (was 250 / slate-blue) with Minispiele turquoise */
+  --accent-h: 195;
+
   /* Typography — rounded system stack with Nunito as enhancement when loaded */
   --font-sans:
     "Nunito", "ui-rounded", "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, -apple-system,
@@ -12,36 +19,39 @@
     "Nunito", "ui-rounded", "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, -apple-system,
     "Segoe UI", Roboto, sans-serif;
 
-  /* Primary — turquoise/cyan (differentiates from Duolingo green, avoids Snake/Simon overlap) */
-  --color-primary-50: oklch(0.97 0.02 195);
-  --color-primary-100: oklch(0.93 0.05 195);
-  --color-primary-200: oklch(0.87 0.09 195);
-  --color-primary-300: oklch(0.78 0.14 195);
-  --color-primary-400: oklch(0.7 0.16 195);
-  --color-primary-500: oklch(0.62 0.17 195);
-  --color-primary-600: oklch(0.54 0.16 195);
-  --color-primary-700: oklch(0.46 0.14 195);
-  --color-primary-800: oklch(0.36 0.11 195);
-  --color-primary-900: oklch(0.26 0.08 195);
+  /* Primary — alias of Accent so 38 existing `bg-primary-*` callsites stay turquoise */
+  --color-primary-50: var(--color-accent-50);
+  --color-primary-100: var(--color-accent-100);
+  --color-primary-200: var(--color-accent-200);
+  --color-primary-300: var(--color-accent-300);
+  --color-primary-400: var(--color-accent-400);
+  --color-primary-500: var(--color-accent-500);
+  --color-primary-600: var(--color-accent-600);
+  --color-primary-700: var(--color-accent-700);
+  --color-primary-800: var(--color-accent-800);
+  --color-primary-900: var(--color-accent-900);
 
-  /* Brand — alias to primary so existing `bg-brand-*` utilities in 29 games inherit the rebrand */
-  --color-brand-50: oklch(0.97 0.02 195);
-  --color-brand-100: oklch(0.93 0.05 195);
-  --color-brand-200: oklch(0.87 0.09 195);
-  --color-brand-300: oklch(0.78 0.14 195);
-  --color-brand-400: oklch(0.7 0.16 195);
-  --color-brand-500: oklch(0.62 0.17 195);
-  --color-brand-600: oklch(0.54 0.16 195);
-  --color-brand-700: oklch(0.46 0.14 195);
-  --color-brand-800: oklch(0.36 0.11 195);
-  --color-brand-900: oklch(0.26 0.08 195);
+  /* Brand — alias of Accent so 93 existing `bg-brand-*` callsites stay turquoise */
+  --color-brand-50: var(--color-accent-50);
+  --color-brand-100: var(--color-accent-100);
+  --color-brand-200: var(--color-accent-200);
+  --color-brand-300: var(--color-accent-300);
+  --color-brand-400: var(--color-accent-400);
+  --color-brand-500: var(--color-accent-500);
+  --color-brand-600: var(--color-accent-600);
+  --color-brand-700: var(--color-accent-700);
+  --color-brand-800: var(--color-accent-800);
+  --color-brand-900: var(--color-accent-900);
 
-  /* Accent — warm orange for streaks, CTAs, highlights */
-  --color-accent-300: oklch(0.84 0.13 55);
-  --color-accent-400: oklch(0.78 0.16 55);
-  --color-accent-500: oklch(0.72 0.19 55);
-  --color-accent-600: oklch(0.63 0.2 55);
-  --color-accent-700: oklch(0.54 0.19 55);
+  /* Highlight — warm orange for streaks, secondary CTAs, attention markers
+     (previously named `accent` in app code; renamed to free the `accent` slot
+     for the web-base Brand semantic above) */
+  --color-highlight-200: oklch(0.89 0.1 55);
+  --color-highlight-300: oklch(0.84 0.13 55);
+  --color-highlight-400: oklch(0.78 0.16 55);
+  --color-highlight-500: oklch(0.72 0.19 55);
+  --color-highlight-600: oklch(0.63 0.2 55);
+  --color-highlight-700: oklch(0.54 0.19 55);
 
   /* Semantic */
   --color-success-300: oklch(0.85 0.14 145);
@@ -117,6 +127,31 @@
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-snappy: cubic-bezier(0.2, 0.9, 0.3, 1.2);
+
+  /* Override web-base's flat surface/fg/border tokens to use Minispiele's
+     12-step Surface scale (richer shadings than the 3-step default). */
+  --color-surface: var(--color-surface-0);
+  --color-surface-muted: var(--color-surface-50);
+  --color-surface-sunken: var(--color-surface-100);
+  --color-border: var(--color-surface-200);
+  --color-fg: var(--color-surface-900);
+  --color-fg-muted: var(--color-surface-600);
+  --color-fg-subtle: var(--color-surface-500);
+
+  /* Bind web-base's flat semantic tokens to our numbered-500 stops */
+  --color-success: var(--color-success-500);
+  --color-warning: var(--color-warning-500);
+  --color-danger: var(--color-danger-500);
+}
+
+:where(.dark) {
+  --color-border: var(--color-surface-700);
+  --color-surface: var(--color-surface-950);
+  --color-surface-muted: var(--color-surface-900);
+  --color-surface-sunken: var(--color-surface-800);
+  --color-fg: var(--color-surface-100);
+  --color-fg-muted: var(--color-surface-400);
+  --color-fg-subtle: var(--color-surface-500);
 }
 
 /* ----- Base ----- */

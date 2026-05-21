@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import { useFavorites } from '../hooks/useFavorites';
 import { useRecentGames } from '../hooks/useRecentGames';
 import { findGameByPath } from '../lib/gamesCatalog';
