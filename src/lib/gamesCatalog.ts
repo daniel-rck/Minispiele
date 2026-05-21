@@ -575,6 +575,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 2×2-Raster mit Emojis und Buchstabenkacheln darunter',
     category: 'wort',
   },
+  {
+    to: '/viergewinnt',
+    title: '4 Gewinnt',
+    description: 'Vier-in-einer-Reihe gegen die KI — drei Schwierigkeitsstufen mit Minimax.',
+    preview: '/games/viergewinnt-preview.svg',
+    previewAlt: 'Vorschau: ein 6×7-Brett mit roten und gelben Spielsteinen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -197,6 +197,7 @@ export default function VierBilderGame() {
         {puzzle.emojis.map((emoji, i) => (
           <div
             key={i}
+            role="img"
             aria-label={`Bild ${i + 1}`}
             className="flex aspect-square items-center justify-center rounded-2xl bg-surface-100 text-5xl dark:bg-surface-800"
           >
