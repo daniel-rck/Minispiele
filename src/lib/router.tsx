@@ -233,6 +233,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.typingTest),
         lazy: lazyPage(() => import('../pages/TypingTest.tsx')),
       },
+      {
+        path: rel(ROUTES.vierBilder),
+        lazy: lazyPage(() => import('../pages/VierBilder.tsx')),
+      },
     ],
   },
 ]);

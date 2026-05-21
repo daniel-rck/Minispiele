@@ -317,3 +317,5 @@ export const SlitherlinkSizeSchema = z.union([z.literal(4), z.literal(5), z.lite
 export type SlitherlinkSize = z.infer<typeof SlitherlinkSizeSchema>;
 
 export const TypingTestBestSchema = z.number().int().nonnegative();
+
+export const VierBilderBestSchema = z.number().int().nonnegative();

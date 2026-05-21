@@ -567,6 +567,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Textfeld mit teils grün, teils gelb gefärbten Buchstaben',
     category: 'gehirntraining',
   },
+  {
+    to: '/vier-bilder',
+    title: '4 Bilder 1 Wort',
+    description: 'Vier Emojis verbinden ein gemeinsames Wort. 30 Rätsel.',
+    preview: '/games/vier-bilder-preview.svg',
+    previewAlt: 'Vorschau: ein 2×2-Raster mit Emojis und Buchstabenkacheln darunter',
+    category: 'wort',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

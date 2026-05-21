@@ -106,6 +106,7 @@ export const STORAGE_KEYS = {
   ROULETTE_BALANCE: 'minispiele.roulette.balance.v1',
   SLITHERLINK_SIZE: 'minispiele.slitherlink.size.v1',
   TYPING_TEST_BEST: 'minispiele.typingTest.bestWpm.v1',
+  VIER_BILDER_BEST: 'minispiele.vierBilder.bestScore.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

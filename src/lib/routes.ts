@@ -65,6 +65,7 @@ export const ROUTES = {
   roulette: '/roulette',
   slitherlink: '/slitherlink',
   typingTest: '/typing-test',
+  vierBilder: '/vier-bilder',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
