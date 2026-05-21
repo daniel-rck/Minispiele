@@ -503,6 +503,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Gitter mit blauen Meer-Zellen, weißen Inseln und Zahlen',
     category: 'logik',
   },
+  {
+    to: '/pentomino',
+    title: 'Pentomino',
+    description: 'Lege 12 Pentomino-Teile (je 5 Zellen) lückenlos auf ein 6×10-Brett.',
+    preview: '/games/pentomino-preview.svg',
+    previewAlt: 'Vorschau: ein Brett mit unterschiedlich geformten farbigen Pentomino-Teilen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

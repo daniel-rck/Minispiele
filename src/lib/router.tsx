@@ -201,6 +201,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.nurikabe),
         lazy: lazyPage(() => import('../pages/Nurikabe.tsx')),
       },
+      {
+        path: rel(ROUTES.pentomino),
+        lazy: lazyPage(() => import('../pages/Pentomino.tsx')),
+      },
     ],
   },
 ]);
