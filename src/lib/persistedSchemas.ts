@@ -282,3 +282,5 @@ export const ColumnsBestSchema = z.number().int().nonnegative();
 export const DoodleJumpBestSchema = z.number().int().nonnegative();
 
 export const FlappyBirdBestSchema = z.number().int().nonnegative();
+
+export const FroggerBestSchema = z.number().int().nonnegative();

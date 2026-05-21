@@ -153,6 +153,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.flappyBird),
         lazy: lazyPage(() => import('../pages/FlappyBird.tsx')),
       },
+      {
+        path: rel(ROUTES.frogger),
+        lazy: lazyPage(() => import('../pages/Frogger.tsx')),
+      },
     ],
   },
 ]);

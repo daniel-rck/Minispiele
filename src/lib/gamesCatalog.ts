@@ -407,6 +407,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein gelber Vogel zwischen blauen Rohrpaaren',
     category: 'action',
   },
+  {
+    to: '/frogger',
+    title: 'Frogger',
+    description: 'Bring den Frosch über Straße und Fluss in die Zielreihe.',
+    preview: '/games/frogger-preview.svg',
+    previewAlt: 'Vorschau: ein grüner Frosch zwischen Autos und Baumstämmen',
+    category: 'action',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -43,6 +43,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/conway-battle', title: /Conway Battle/i },
   { path: '/doodle-jump', title: /Doodle Jump/i },
   { path: '/flappy-bird', title: /Flappy Bird/i },
+  { path: '/frogger', title: /Frogger/i },
 ];
 
 test.describe('All games smoke render', () => {

@@ -45,6 +45,7 @@ export const ROUTES = {
   conwayBattle: '/conway-battle',
   doodleJump: '/doodle-jump',
   flappyBird: '/flappy-bird',
+  frogger: '/frogger',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

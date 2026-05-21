@@ -14,6 +14,7 @@ import DoodleJumpGame from './DoodleJumpGame';
 import FlappyBirdGame from './FlappyBirdGame';
 import FlowGame from './FlowGame';
 import FreecellGame from './FreecellGame';
+import FroggerGame from './FroggerGame';
 import GfrettGame from './GfrettGame';
 import HangmanGame from './HangmanGame';
 import HanoiGame from './HanoiGame';
@@ -84,6 +85,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['DoodleJumpGame', () => <DoodleJumpGame />],
   ['FlappyBirdGame', () => <FlappyBirdGame />],
   ['FlowGame', () => <FlowGame />],
+  ['FroggerGame', () => <FroggerGame />],
   ['FreecellGame', () => <FreecellGame />],
   ['GfrettGame', () => <GfrettGame />],
   ['HangmanGame', () => <HangmanGame />],
