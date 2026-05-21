@@ -56,6 +56,7 @@ export const ROUTES = {
   crossword: '/crossword',
   match3: '/match3',
   minesweeperHex: '/minesweeper-hex',
+  nurikabe: '/nurikabe',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

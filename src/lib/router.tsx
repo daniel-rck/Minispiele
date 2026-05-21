@@ -197,6 +197,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.minesweeperHex),
         lazy: lazyPage(() => import('../pages/MinesweeperHex.tsx')),
       },
+      {
+        path: rel(ROUTES.nurikabe),
+        lazy: lazyPage(() => import('../pages/Nurikabe.tsx')),
+      },
     ],
   },
 ]);

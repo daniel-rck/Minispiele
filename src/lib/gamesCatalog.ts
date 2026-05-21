@@ -495,6 +495,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Wabenfeld aus sechseckigen Zellen mit Zahlen und Flaggen',
     category: 'logik',
   },
+  {
+    to: '/nurikabe',
+    title: 'Nurikabe',
+    description: 'Inseln und Meer trennen — keine 2×2-Wasserblöcke, Inseln zusammenhängend.',
+    preview: '/games/nurikabe-preview.svg',
+    previewAlt: 'Vorschau: ein Gitter mit blauen Meer-Zellen, weißen Inseln und Zahlen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

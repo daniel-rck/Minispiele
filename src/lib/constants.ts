@@ -99,6 +99,7 @@ export const STORAGE_KEYS = {
   KNIFFEL_BEST: 'minispiele.kniffel.bestScore.v1',
   MATCH3_BEST: 'minispiele.match3.bestScore.v1',
   MINESWEEPER_HEX_DIFFICULTY: 'minispiele.minesweeperHex.difficulty.v1',
+  NURIKABE_SIZE: 'minispiele.nurikabe.size.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',
