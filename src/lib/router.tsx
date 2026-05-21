@@ -229,6 +229,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.slitherlink),
         lazy: lazyPage(() => import('../pages/Slitherlink.tsx')),
       },
+      {
+        path: rel(ROUTES.typingTest),
+        lazy: lazyPage(() => import('../pages/TypingTest.tsx')),
+      },
     ],
   },
 ]);

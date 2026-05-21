@@ -559,6 +559,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Punktgitter mit Zahlen und einer geschwungenen Linie',
     category: 'logik',
   },
+  {
+    to: '/typing-test',
+    title: 'Typing Test',
+    description: 'Teste deine Tippgeschwindigkeit in Wörtern pro Minute (WPM).',
+    preview: '/games/typing-test-preview.svg',
+    previewAlt: 'Vorschau: ein Textfeld mit teils grün, teils gelb gefärbten Buchstaben',
+    category: 'gehirntraining',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -315,3 +315,5 @@ export const RouletteBalanceSchema = z.number().int().nonnegative();
 
 export const SlitherlinkSizeSchema = z.union([z.literal(4), z.literal(5), z.literal(6)]);
 export type SlitherlinkSize = z.infer<typeof SlitherlinkSizeSchema>;
+
+export const TypingTestBestSchema = z.number().int().nonnegative();

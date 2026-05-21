@@ -51,6 +51,7 @@ import TangramGame from './TangramGame';
 import TicTacToeGame from './TicTacToeGame';
 import TrafficJamGame from './TrafficJamGame';
 import TwentyFortyEightGame from './TwentyFortyEightGame';
+import TypingTestGame from './TypingTestGame';
 import WordsearchGame from './WordsearchGame';
 
 beforeEach(() => {
@@ -140,6 +141,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['TicTacToeGame', () => <TicTacToeGame />],
   ['TrafficJamGame', () => <TrafficJamGame />],
   ['TwentyFortyEightGame', () => <TwentyFortyEightGame />],
+  ['TypingTestGame', () => <TypingTestGame />],
   ['WordsearchGame', () => <WordsearchGame />],
   ['HyperfokusGame', () => <HyperfokusGame />],
 ];

@@ -105,6 +105,7 @@ export const STORAGE_KEYS = {
   QUIZ_BEST: 'minispiele.quiz.bestScore.v1',
   ROULETTE_BALANCE: 'minispiele.roulette.balance.v1',
   SLITHERLINK_SIZE: 'minispiele.slitherlink.size.v1',
+  TYPING_TEST_BEST: 'minispiele.typingTest.bestWpm.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

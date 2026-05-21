@@ -64,6 +64,7 @@ export const ROUTES = {
   qwirkle: '/qwirkle',
   roulette: '/roulette',
   slitherlink: '/slitherlink',
+  typingTest: '/typing-test',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
