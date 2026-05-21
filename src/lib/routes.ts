@@ -46,6 +46,7 @@ export const ROUTES = {
   doodleJump: '/doodle-jump',
   flappyBird: '/flappy-bird',
   frogger: '/frogger',
+  futoshiki: '/futoshiki',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

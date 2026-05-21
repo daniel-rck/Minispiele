@@ -415,6 +415,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein grüner Frosch zwischen Autos und Baumstämmen',
     category: 'action',
   },
+  {
+    to: '/futoshiki',
+    title: 'Futoshiki',
+    description: 'Latein-Quadrat mit Vergleichszeichen — fülle das Gitter mit 1 bis N.',
+    preview: '/games/futoshiki-preview.svg',
+    previewAlt: 'Vorschau: ein 5×5-Gitter mit Zahlen und Größer-/Kleiner-Zeichen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

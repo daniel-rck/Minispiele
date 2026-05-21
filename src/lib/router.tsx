@@ -157,6 +157,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.frogger),
         lazy: lazyPage(() => import('../pages/Frogger.tsx')),
       },
+      {
+        path: rel(ROUTES.futoshiki),
+        lazy: lazyPage(() => import('../pages/Futoshiki.tsx')),
+      },
     ],
   },
 ]);

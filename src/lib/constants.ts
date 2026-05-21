@@ -93,6 +93,7 @@ export const STORAGE_KEYS = {
   DOODLE_JUMP_BEST: 'minispiele.doodleJump.bestScore.v1',
   FLAPPY_BIRD_BEST: 'minispiele.flappyBird.bestScore.v1',
   FROGGER_BEST: 'minispiele.frogger.bestScore.v1',
+  FUTOSHIKI_SIZE: 'minispiele.futoshiki.size.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',
