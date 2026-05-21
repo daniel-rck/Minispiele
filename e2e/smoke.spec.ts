@@ -67,6 +67,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/viergewinnt', title: /4 Gewinnt/i },
   { path: '/wer-wird-millionaer', title: /Wer wird Millionär/i },
   { path: '/whack-a-mole', title: /Whack-a-Mole/i },
+  { path: '/wuerfelpoker', title: /Würfelpoker/i },
 ];
 
 test.describe('All games smoke render', () => {
