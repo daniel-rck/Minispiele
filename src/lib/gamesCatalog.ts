@@ -343,6 +343,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 10×10-Brett mit grünen Leitern und roten Schlangen',
     category: 'logik',
   },
+  {
+    to: '/tic-tac-toe',
+    title: 'Tic-Tac-Toe',
+    description: 'Drei in einer Reihe gegen die KI mit Minimax-Suche und drei Stufen.',
+    preview: '/games/tic-tac-toe-preview.svg',
+    previewAlt: 'Vorschau: ein 3×3-Gitter mit X und O Symbolen',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -85,6 +85,8 @@ export const STORAGE_KEYS = {
   SLOT_MACHINE_BEST: 'minispiele.slotMachine.maxBalance.v1',
   IDLE_CLICKER_SAVE: 'minispiele.idleClicker.save.v1',
   LADDERS_BEST: 'minispiele.ladders.bestTurns.v1',
+  TIC_TAC_TOE_DIFFICULTY: 'minispiele.ticTacToe.difficulty.v1',
+  TIC_TAC_TOE_SCORES: 'minispiele.ticTacToe.scores.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

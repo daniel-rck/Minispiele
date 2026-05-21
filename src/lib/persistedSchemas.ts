@@ -261,3 +261,13 @@ export const IdleClickerSaveSchema = z.object({
 export type IdleClickerSave = z.infer<typeof IdleClickerSaveSchema>;
 
 export const LadderBestSchema = NullableNonNegInt;
+
+export const TicTacToeDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type TicTacToeDifficulty = z.infer<typeof TicTacToeDifficultySchema>;
+
+export const TicTacToeScoresSchema = z.object({
+  x: z.number().int().nonnegative(),
+  o: z.number().int().nonnegative(),
+  d: z.number().int().nonnegative(),
+});
+export type TicTacToeScores = z.infer<typeof TicTacToeScoresSchema>;

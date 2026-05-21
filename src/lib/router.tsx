@@ -121,6 +121,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.leiterspiel),
         lazy: lazyPage(() => import('../pages/Ladders.tsx')),
       },
+      {
+        path: rel(ROUTES.ticTacToe),
+        lazy: lazyPage(() => import('../pages/TicTacToe.tsx')),
+      },
     ],
   },
 ]);

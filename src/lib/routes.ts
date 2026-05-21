@@ -37,6 +37,7 @@ export const ROUTES = {
   slotMachine: '/slot-machine',
   idleClicker: '/idle-clicker',
   leiterspiel: '/leiterspiel',
+  ticTacToe: '/tic-tac-toe',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

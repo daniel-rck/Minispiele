@@ -35,6 +35,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/slot-machine', title: /Einarmiger Bandit/i },
   { path: '/idle-clicker', title: /Klick-Imperium/i },
   { path: '/leiterspiel', title: /Leiterspiel/i },
+  { path: '/tic-tac-toe', title: /Tic-Tac-Toe/i },
 ];
 
 test.describe('All games smoke render', () => {
