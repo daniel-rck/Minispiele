@@ -583,6 +583,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 6×7-Brett mit roten und gelben Spielsteinen',
     category: 'logik',
   },
+  {
+    to: '/wer-wird-millionaer',
+    title: 'Wer wird Millionär',
+    description: '15 Fragen, 3 Joker (50:50, Publikum, Telefon), Sicherheitsstufen.',
+    preview: '/games/wer-wird-millionaer-preview.svg',
+    previewAlt: 'Vorschau: eine Frage mit Multiple-Choice-Antworten und einer Gewinnpyramide',
+    category: 'gehirntraining',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

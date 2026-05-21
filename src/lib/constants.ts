@@ -108,6 +108,7 @@ export const STORAGE_KEYS = {
   TYPING_TEST_BEST: 'minispiele.typingTest.bestWpm.v1',
   VIER_BILDER_BEST: 'minispiele.vierBilder.bestScore.v1',
   VIERGEWINNT_DIFFICULTY: 'minispiele.viergewinnt.difficulty.v1',
+  MILLIONAER_BEST: 'minispiele.millionaer.bestScore.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

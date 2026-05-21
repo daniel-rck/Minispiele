@@ -322,3 +322,5 @@ export const VierBilderBestSchema = z.number().int().nonnegative();
 
 export const ViergewinntDifficultySchema = z.enum(['easy', 'medium', 'hard']);
 export type ViergewinntDifficulty = z.infer<typeof ViergewinntDifficultySchema>;
+
+export const MillionaerBestSchema = z.number().int().nonnegative();

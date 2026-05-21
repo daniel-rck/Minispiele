@@ -67,6 +67,7 @@ export const ROUTES = {
   typingTest: '/typing-test',
   vierBilder: '/vier-bilder',
   viergewinnt: '/viergewinnt',
+  millionaer: '/wer-wird-millionaer',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

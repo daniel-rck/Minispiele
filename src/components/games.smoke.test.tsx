@@ -31,6 +31,7 @@ import LightsOutGame from './LightsOutGame';
 import MastermindGame from './MastermindGame';
 import Match3Game from './Match3Game';
 import MemoryGame from './MemoryGame';
+import MillionaerGame from './MillionaerGame';
 import MinesweeperHexGame from './MinesweeperHexGame';
 import NonogramGame from './NonogramGame';
 import NurikabeGame from './NurikabeGame';
@@ -123,6 +124,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['Match3Game', () => <Match3Game />],
   ['MastermindGame', () => <MastermindGame />],
   ['MemoryGame', () => <MemoryGame />],
+  ['MillionaerGame', () => <MillionaerGame />],
   ['MinesweeperHexGame', () => <MinesweeperHexGame />],
   ['NonogramGame', () => <NonogramGame />],
   ['NurikabeGame', () => <NurikabeGame />],

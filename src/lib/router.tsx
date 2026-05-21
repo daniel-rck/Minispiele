@@ -241,6 +241,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.viergewinnt),
         lazy: lazyPage(() => import('../pages/Viergewinnt.tsx')),
       },
+      {
+        path: rel(ROUTES.millionaer),
+        lazy: lazyPage(() => import('../pages/Millionaer.tsx')),
+      },
     ],
   },
 ]);
