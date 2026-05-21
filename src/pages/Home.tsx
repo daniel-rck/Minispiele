@@ -62,7 +62,7 @@ function GameTile({ game, isFavorite, onToggleFavorite, todayAt, index = 0 }: Ga
               />
               {todayAt !== undefined && (
                 <div className="absolute bottom-2 left-2">
-                  <Badge variant="accent" size="sm">
+                  <Badge variant="highlight" size="sm">
                     Heute gespielt
                   </Badge>
                 </div>
@@ -198,7 +198,7 @@ export default function Home() {
       {hasFavorites && (
         <section className="mb-6">
           <div className="mb-3 flex items-center gap-2">
-            <SparkleIcon size={20} className="text-accent-500" />
+            <SparkleIcon size={20} className="text-highlight-500" />
             <h2 className="font-display text-lg font-extrabold">Deine Favoriten</h2>
             <Badge variant="neutral" size="sm">
               {favoriteTiles.length}
@@ -228,7 +228,7 @@ export default function Home() {
       <div role="group" aria-label="Nach Kategorie filtern" className="mb-5 flex flex-wrap gap-2">
         <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
           Alle{' '}
-          <Badge variant={filter === 'all' ? 'accent' : 'neutral'} size="sm">
+          <Badge variant={filter === 'all' ? 'highlight' : 'neutral'} size="sm">
             {GAMES.length}
           </Badge>
         </Chip>
@@ -239,7 +239,7 @@ export default function Home() {
           return (
             <Chip key={c.id} active={active} accent={c.id} onClick={() => setFilter(c.id)}>
               {c.label}{' '}
-              <Badge variant={active ? 'accent' : 'neutral'} size="sm">
+              <Badge variant={active ? 'highlight' : 'neutral'} size="sm">
                 {count}
               </Badge>
             </Chip>

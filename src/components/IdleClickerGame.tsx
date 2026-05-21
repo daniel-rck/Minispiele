@@ -173,7 +173,7 @@ export default function IdleClickerGame() {
 
       <div className="flex w-full max-w-md flex-col items-center gap-1">
         <Button
-          variant="accent"
+          variant="highlight"
           onClick={handlePrestige}
           disabled={!prestigeReady}
           aria-label="Prestige auslösen"

@@ -658,16 +658,18 @@ export default function HyperfokusGame() {
             key={`qb-${quickBuy}`}
             type="button"
             onClick={() => onBuyUpgrade(quickBuy)}
-            className="card-pop-in flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-accent-300/40 bg-accent-500/20 px-3 py-2 text-left backdrop-blur transition hover:bg-accent-500/30"
+            className="card-pop-in flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-highlight-300/40 bg-highlight-500/20 px-3 py-2 text-left backdrop-blur transition hover:bg-highlight-500/30"
             aria-label={`Schnellkauf: ${UPGRADES[quickBuy].name} für ${formatNumber(quickBuyCost)} Coins`}
           >
             <div>
-              <div className="text-[10px] tracking-wide text-accent-200 uppercase">Schnellkauf</div>
+              <div className="text-[10px] tracking-wide text-highlight-200 uppercase">
+                Schnellkauf
+              </div>
               <div className="text-sm font-extrabold text-white">{UPGRADES[quickBuy].name} +1</div>
             </div>
             <div className="shrink-0 text-right">
               <div className="text-[10px] tracking-wide text-white/60 uppercase">Kosten</div>
-              <div className="text-sm font-extrabold tabular-nums text-accent-200">
+              <div className="text-sm font-extrabold tabular-nums text-highlight-200">
                 {formatNumber(quickBuyCost)}
               </div>
             </div>
@@ -769,7 +771,7 @@ export default function HyperfokusGame() {
                 </div>
               </div>
               <Button
-                variant="accent"
+                variant="highlight"
                 size="sm"
                 onClick={onPrestige}
                 aria-label="Prestige durchführen"

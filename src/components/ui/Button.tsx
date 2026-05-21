@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { forwardRef } from 'react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'success' | 'danger' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'highlight' | 'success' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -23,8 +23,8 @@ const variantClasses: Record<ButtonVariant, string> = {
     'bg-primary-500 text-white shadow-[0_4px_0_0_var(--color-primary-700)] hover:bg-primary-400 active:translate-y-1 active:shadow-[0_0_0_0_var(--color-primary-700)] dark:shadow-[0_4px_0_0_var(--color-primary-800)] dark:active:shadow-[0_0_0_0_var(--color-primary-800)]',
   secondary:
     'bg-surface-100 text-surface-800 shadow-[0_3px_0_0_var(--color-surface-300)] hover:bg-surface-200 active:translate-y-0.5 active:shadow-[0_0_0_0_var(--color-surface-300)] dark:bg-surface-800 dark:text-surface-100 dark:shadow-[0_3px_0_0_var(--color-surface-900)] dark:active:shadow-[0_0_0_0_var(--color-surface-900)]',
-  accent:
-    'bg-accent-500 text-white shadow-[0_4px_0_0_var(--color-accent-700)] hover:bg-accent-400 active:translate-y-1 active:shadow-[0_0_0_0_var(--color-accent-700)]',
+  highlight:
+    'bg-highlight-500 text-white shadow-[0_4px_0_0_var(--color-highlight-700)] hover:bg-highlight-400 active:translate-y-1 active:shadow-[0_0_0_0_var(--color-highlight-700)]',
   success:
     'bg-success-500 text-white shadow-[0_4px_0_0_var(--color-success-700)] hover:bg-success-400 active:translate-y-1 active:shadow-[0_0_0_0_var(--color-success-700)]',
   danger:
