@@ -280,3 +280,5 @@ export type BinairoSize = z.infer<typeof BinairoSizeSchema>;
 export const ColumnsBestSchema = z.number().int().nonnegative();
 
 export const DoodleJumpBestSchema = z.number().int().nonnegative();
+
+export const FlappyBirdBestSchema = z.number().int().nonnegative();

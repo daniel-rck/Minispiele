@@ -149,6 +149,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.doodleJump),
         lazy: lazyPage(() => import('../pages/DoodleJump.tsx')),
       },
+      {
+        path: rel(ROUTES.flappyBird),
+        lazy: lazyPage(() => import('../pages/FlappyBird.tsx')),
+      },
     ],
   },
 ]);

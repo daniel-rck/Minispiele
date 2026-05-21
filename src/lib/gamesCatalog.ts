@@ -399,6 +399,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: eine gelbe Figur springt zwischen grünen Plattformen',
     category: 'action',
   },
+  {
+    to: '/flappy-bird',
+    title: 'Flappy Bird',
+    description: 'Flatter durch die Rohrenlücken — wie weit schaffst du es?',
+    preview: '/games/flappy-bird-preview.svg',
+    previewAlt: 'Vorschau: ein gelber Vogel zwischen blauen Rohrpaaren',
+    category: 'action',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
