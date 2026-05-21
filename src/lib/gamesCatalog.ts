@@ -471,6 +471,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: fünf weiße Würfel mit Augen',
     category: 'gehirntraining',
   },
+  {
+    to: '/crossword',
+    title: 'Kreuzworträtsel',
+    description: 'Klassisches Kreuzworträtsel mit deutschen Wörtern und Hinweisen.',
+    preview: '/games/crossword-preview.svg',
+    previewAlt: 'Vorschau: ein Gitter mit schwarzen Feldern und nummerierten Hinweisen',
+    category: 'wort',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

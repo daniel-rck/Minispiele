@@ -185,6 +185,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.kniffel),
         lazy: lazyPage(() => import('../pages/Kniffel.tsx')),
       },
+      {
+        path: rel(ROUTES.crossword),
+        lazy: lazyPage(() => import('../pages/Crossword.tsx')),
+      },
     ],
   },
 ]);

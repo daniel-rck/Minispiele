@@ -53,6 +53,7 @@ export const ROUTES = {
   hitori: '/hitori',
   kakuro: '/kakuro',
   kniffel: '/kniffel',
+  crossword: '/crossword',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
