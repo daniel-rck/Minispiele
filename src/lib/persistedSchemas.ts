@@ -278,3 +278,5 @@ export const BinairoSizeSchema = z.union([z.literal(6), z.literal(8), z.literal(
 export type BinairoSize = z.infer<typeof BinairoSizeSchema>;
 
 export const ColumnsBestSchema = z.number().int().nonnegative();
+
+export const DoodleJumpBestSchema = z.number().int().nonnegative();

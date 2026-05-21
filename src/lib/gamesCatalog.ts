@@ -391,6 +391,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Pixelfeld mit blauen und roten Zellen im Konflikt',
     category: 'logik',
   },
+  {
+    to: '/doodle-jump',
+    title: 'Doodle Jump',
+    description: 'Hüpfe von Plattform zu Plattform — wie hoch schaffst du es?',
+    preview: '/games/doodle-jump-preview.svg',
+    previewAlt: 'Vorschau: eine gelbe Figur springt zwischen grünen Plattformen',
+    category: 'action',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

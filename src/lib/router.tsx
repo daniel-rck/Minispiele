@@ -145,6 +145,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.conwayBattle),
         lazy: lazyPage(() => import('../pages/ConwayBattle.tsx')),
       },
+      {
+        path: rel(ROUTES.doodleJump),
+        lazy: lazyPage(() => import('../pages/DoodleJump.tsx')),
+      },
     ],
   },
 ]);

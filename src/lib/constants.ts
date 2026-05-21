@@ -90,6 +90,7 @@ export const STORAGE_KEYS = {
   ASTEROIDS_BEST: 'minispiele.asteroids.bestScore.v1',
   BINAIRO_SIZE: 'minispiele.binairo.size.v1',
   COLUMNS_BEST: 'minispiele.columns.bestScore.v1',
+  DOODLE_JUMP_BEST: 'minispiele.doodleJump.bestScore.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

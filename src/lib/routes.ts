@@ -43,6 +43,7 @@ export const ROUTES = {
   columns: '/columns',
   connections: '/connections',
   conwayBattle: '/conway-battle',
+  doodleJump: '/doodle-jump',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
