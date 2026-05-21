@@ -39,6 +39,7 @@ export const ROUTES = {
   leiterspiel: '/leiterspiel',
   ticTacToe: '/tic-tac-toe',
   asteroids: '/asteroids',
+  binairo: '/binairo',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

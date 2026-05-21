@@ -129,6 +129,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.asteroids),
         lazy: lazyPage(() => import('../pages/Asteroids.tsx')),
       },
+      {
+        path: rel(ROUTES.binairo),
+        lazy: lazyPage(() => import('../pages/Binairo.tsx')),
+      },
     ],
   },
 ]);

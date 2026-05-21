@@ -359,6 +359,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein dreieckiges Raumschiff zwischen unregelmäßigen Asteroiden',
     category: 'action',
   },
+  {
+    to: '/binairo',
+    title: 'Binairo',
+    description: 'Fülle das Gitter mit 0 und 1 — höchstens zwei Gleiche nebeneinander.',
+    preview: '/games/binairo-preview.svg',
+    previewAlt: 'Vorschau: ein 8×8-Gitter mit blauen 0en und roten 1en',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

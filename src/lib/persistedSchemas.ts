@@ -273,3 +273,6 @@ export const TicTacToeScoresSchema = z.object({
 export type TicTacToeScores = z.infer<typeof TicTacToeScoresSchema>;
 
 export const AsteroidsBestSchema = z.number().int().nonnegative();
+
+export const BinairoSizeSchema = z.union([z.literal(6), z.literal(8), z.literal(10)]);
+export type BinairoSize = z.infer<typeof BinairoSizeSchema>;
