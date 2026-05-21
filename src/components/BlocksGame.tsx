@@ -182,12 +182,16 @@ interface Piece {
 interface GameState {
   board: number[];
   piece: Piece | null;
+  nextType: number;
   score: number;
   level: number;
   lines: number;
   status: 'idle' | 'playing' | 'over';
   flashingRows: number[];
 }
+
+// SRS-style wall-kick offsets tried in order when a basic rotation does not fit.
+const WALL_KICKS: number[] = [0, -1, 1, -2, 2];
 
 function fullRowIndices(board: number[]): number[] {
   const rows: number[] = [];
@@ -208,9 +212,13 @@ function emptyBoard(): number[] {
   return new Array(COLS * ROWS).fill(0);
 }
 
-function spawnPiece(): Piece {
-  const type = Math.floor(Math.random() * PIECES.length);
-  return { type, rot: 0, x: 3, y: 0 };
+function randomType(): number {
+  return Math.floor(Math.random() * PIECES.length);
+}
+
+function spawnPiece(type?: number): Piece {
+  const t = type ?? randomType();
+  return { type: t, rot: 0, x: 3, y: 0 };
 }
 
 function cellsOf(piece: Piece): [number, number][] {
@@ -256,6 +264,7 @@ export default function BlocksGame() {
   const [state, setState] = useState<GameState>({
     board: emptyBoard(),
     piece: null,
+    nextType: randomType(),
     score: 0,
     level: 0,
     lines: 0,
@@ -287,14 +296,23 @@ export default function BlocksGame() {
       const newLines = s.lines + lineCount;
       const newLevel = Math.floor(newLines / 10);
       const scoreAdd = [0, 100, 300, 500, 800][lineCount] ?? 0;
-      const nextPiece = spawnPiece();
+      const nextPiece = spawnPiece(s.nextType);
+      const newNextType = randomType();
       if (!fits(cleared, nextPiece)) {
-        return { ...s, board: cleared, piece: null, status: 'over', flashingRows: [] };
+        return {
+          ...s,
+          board: cleared,
+          piece: null,
+          nextType: newNextType,
+          status: 'over',
+          flashingRows: [],
+        };
       }
       return {
         ...s,
         board: cleared,
         piece: nextPiece,
+        nextType: newNextType,
         score: s.score + scoreAdd,
         lines: newLines,
         level: newLevel,
@@ -319,11 +337,12 @@ export default function BlocksGame() {
         clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
         return { ...s, board: merged, piece: null, flashingRows: rows };
       }
-      const nextPiece = spawnPiece();
+      const nextPiece = spawnPiece(s.nextType);
+      const newNextType = randomType();
       if (!fits(merged, nextPiece)) {
-        return { ...s, board: merged, piece: null, status: 'over' };
+        return { ...s, board: merged, piece: null, nextType: newNextType, status: 'over' };
       }
-      return { ...s, board: merged, piece: nextPiece };
+      return { ...s, board: merged, piece: nextPiece, nextType: newNextType };
     });
   }, [vibrate, finalizeClear, sfx]);
 
@@ -358,6 +377,7 @@ export default function BlocksGame() {
     setState({
       board: emptyBoard(),
       piece: spawnPiece(),
+      nextType: randomType(),
       score: 0,
       level: 0,
       lines: 0,
@@ -377,8 +397,14 @@ export default function BlocksGame() {
   const rotate = useCallback(() => {
     setState((s) => {
       if (!s.piece || s.status !== 'playing') return s;
-      const moved: Piece = { ...s.piece, rot: s.piece.rot + 1 };
-      return fits(s.board, moved) ? { ...s, piece: moved } : s;
+      const rotated: Piece = { ...s.piece, rot: s.piece.rot + 1 };
+      for (const kick of WALL_KICKS) {
+        const candidate: Piece = { ...rotated, x: rotated.x + kick };
+        if (fits(s.board, candidate)) {
+          return { ...s, piece: candidate };
+        }
+      }
+      return s;
     });
   }, []);
 
@@ -388,21 +414,35 @@ export default function BlocksGame() {
     setState((s) => {
       if (!s.piece || s.status !== 'playing' || s.flashingRows.length > 0) return s;
       let p = s.piece;
-      while (fits(s.board, { ...p, y: p.y + 1 })) p = { ...p, y: p.y + 1 };
+      let dropDistance = 0;
+      while (fits(s.board, { ...p, y: p.y + 1 })) {
+        p = { ...p, y: p.y + 1 };
+        dropDistance += 1;
+      }
       const merged = merge(s.board, p);
       const rows = fullRowIndices(merged);
+      const scoreAdd = dropDistance * 2;
       if (rows.length > 0) {
         if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
         clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
-        return { ...s, board: merged, piece: null, flashingRows: rows };
+        return {
+          ...s,
+          board: merged,
+          piece: null,
+          flashingRows: rows,
+          score: s.score + scoreAdd,
+        };
       }
-      const next = spawnPiece();
+      const next = spawnPiece(s.nextType);
+      const newNextType = randomType();
       const status = fits(merged, next) ? 'playing' : 'over';
       return {
         ...s,
         board: merged,
         piece: status === 'playing' ? next : null,
+        nextType: newNextType,
         status,
+        score: s.score + scoreAdd,
       };
     });
     vibrate(20);
@@ -449,19 +489,51 @@ export default function BlocksGame() {
   }
   const flashSet = new Set(state.flashingRows);
 
+  const nextDef = PIECES[state.nextType]!;
+  const nextCells = nextDef.rotations[0]!;
+  const nextMaxX = Math.max(...nextCells.map(([x]) => x));
+  const nextMaxY = Math.max(...nextCells.map(([, y]) => y));
+  const nextGrid = Array.from({ length: (nextMaxY + 1) * (nextMaxX + 1) }, () => 0);
+  for (const [x, y] of nextCells) {
+    nextGrid[y * (nextMaxX + 1) + x] = nextDef.color;
+  }
+
   return (
     <div className="flex flex-col items-center gap-3 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-xs grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
-        <div>
-          Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
+      <div className="flex w-full max-w-xs items-center justify-between gap-2 text-sm text-slate-600 dark:text-slate-300">
+        <div className="grid flex-1 grid-cols-3 gap-2">
+          <div>
+            Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
+          </div>
+          <div className="text-center">
+            Lv: <span className="font-semibold tabular-nums">{state.level}</span>
+          </div>
+          <div className="text-right">
+            Best: <span className="font-semibold tabular-nums">{best}</span>
+          </div>
         </div>
-        <div className="text-center">
-          Lv: <span className="font-semibold tabular-nums">{state.level}</span>
-        </div>
-        <div className="text-right">
-          Best: <span className="font-semibold tabular-nums">{best}</span>
+        <div
+          className="flex flex-col items-center rounded-lg bg-slate-100 px-2 py-1 dark:bg-slate-800"
+          aria-label="Nächster Block"
+        >
+          <span className="mb-1 text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Nächster
+          </span>
+          <div
+            className="grid gap-px"
+            style={{ gridTemplateColumns: `repeat(${nextMaxX + 1}, 0.6rem)` }}
+            aria-hidden
+          >
+            {nextGrid.map((v, i) => (
+              <div
+                key={i}
+                className="h-2.5 w-2.5 rounded-sm"
+                style={{ background: v === 0 ? 'transparent' : COLORS[v] }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
