@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 export type LiveQueryResult<T> = {
   data: T | undefined;
@@ -23,7 +23,6 @@ export function useLiveQuery<T>(
   const queryRef = useRef(query);
   queryRef.current = query;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are user-provided
   useEffect(() => {
     let cancelled = false;
 
@@ -40,13 +39,13 @@ export function useLiveQuery<T>(
 
     run();
 
-    if (typeof BroadcastChannel === "undefined") {
+    if (typeof BroadcastChannel === 'undefined') {
       return () => {
         cancelled = true;
       };
     }
 
-    const channels = [new BroadcastChannel(`db:${storeName}`), new BroadcastChannel("db:*")];
+    const channels = [new BroadcastChannel(`db:${storeName}`), new BroadcastChannel('db:*')];
     for (const channel of channels) {
       channel.onmessage = () => {
         run();

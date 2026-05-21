@@ -117,6 +117,32 @@
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-snappy: cubic-bezier(0.2, 0.9, 0.3, 1.2);
+
+  /* web-base lib/ui compat aliases — extend Accent scale + flat semantic + fg/surface/border tokens
+     that lib/ui/primitives.tsx expects (Card, Button, Badge, EmptyState, Spinner). */
+  --color-accent-100: oklch(0.94 0.07 55);
+  --color-accent-200: oklch(0.89 0.1 55);
+  --color-accent-900: oklch(0.3 0.1 55);
+  --color-border: var(--color-surface-200);
+  --color-surface: var(--color-surface-0);
+  --color-surface-muted: var(--color-surface-50);
+  --color-surface-sunken: var(--color-surface-100);
+  --color-fg: var(--color-surface-900);
+  --color-fg-muted: var(--color-surface-600);
+  --color-fg-subtle: var(--color-surface-500);
+  --color-success: var(--color-success-500);
+  --color-warning: var(--color-warning-500);
+  --color-danger: var(--color-danger-500);
+}
+
+:where(.dark) {
+  --color-border: var(--color-surface-700);
+  --color-surface: var(--color-surface-950);
+  --color-surface-muted: var(--color-surface-900);
+  --color-surface-sunken: var(--color-surface-800);
+  --color-fg: var(--color-surface-100);
+  --color-fg-muted: var(--color-surface-400);
+  --color-fg-subtle: var(--color-surface-500);
 }
 
 /* ----- Base ----- */

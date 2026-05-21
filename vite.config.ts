@@ -13,7 +13,15 @@ export default defineConfig({
     }),
     tailwindcss(),
     VitePWA({
-      registerType: 'prompt',
+      strategies: 'injectManifest',
+      srcDir: 'src/sw',
+      filename: 'index.ts',
+      injectRegister: 'auto',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webp,woff2}'],
+      },
+      registerType: 'autoUpdate',
+      devOptions: { enabled: false, type: 'module' },
       includeAssets: ['logo.svg', 'logo-maskable.svg'],
       manifest: {
         name: 'Minispiele',
@@ -30,9 +38,6 @@ export default defineConfig({
           { src: '/logo-maskable.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },
         ],
       },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
-      },
     }),
     visualizer({
       filename: 'dist/stats.html',
@@ -46,7 +51,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
-          router: ['react-router'],
+          router: ['react-router-dom'],
         },
       },
     },

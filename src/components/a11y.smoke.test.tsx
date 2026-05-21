@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, it } from 'vitest';
 import { SettingsProvider } from '../lib/useSettings';
 import Home from '../pages/Home';

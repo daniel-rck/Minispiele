@@ -14,18 +14,11 @@
   },
   "author": "Daniel Rück",
   "license": "MIT",
-  "keywords": [
-    "games",
-    "minispiele",
-    "browser-games",
-    "pwa",
-    "react",
-    "typescript"
-  ],
+  "packageManager": "bun@1.3.11",
+  "keywords": ["games", "minispiele", "browser-games", "pwa", "react", "typescript"],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "biome check .",
     "check": "biome check .",
     "format": "biome format --write .",
     "format:check": "biome format .",
@@ -44,22 +37,19 @@
     "pre-commit": "bunx lint-staged"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx,json,md,css,html,yml,yaml}": [
-      "biome check --write --no-errors-on-unmatched"
-    ]
+    "*.{ts,tsx,js,jsx,json,md,css,html,yml,yaml}": ["biome check --write --no-errors-on-unmatched"]
   },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router": "^7.1.0",
-    "zod": "^3.23.0",
     "react-router-dom": "^7.14.2",
+    "zod": "^3.23.0",
     "idb": "^8.0.3",
     "lucide-react": "^1.16.0"
   },
   "devDependencies": {
     "@axe-core/react": "^4.10.0",
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.4.15",
     "@cloudflare/workers-types": "^4.20260504.1",
     "@playwright/test": "^1.49.0",
     "@tailwindcss/vite": "^4.0.0",

@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import { AppHeader } from "./AppHeader.tsx";
-import { AppNav, type NavItem } from "./AppNav.tsx";
+import type { ReactNode } from 'react';
+import { AppHeader } from './AppHeader.tsx';
+import { AppNav, type NavItem } from './AppNav.tsx';
 
 export type AppShellProps = {
   title: string;
