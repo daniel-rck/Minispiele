@@ -161,6 +161,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.futoshiki),
         lazy: lazyPage(() => import('../pages/Futoshiki.tsx')),
       },
+      {
+        path: rel(ROUTES.gameOfLife),
+        lazy: lazyPage(() => import('../pages/GameOfLife.tsx')),
+      },
     ],
   },
 ]);

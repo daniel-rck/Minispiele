@@ -423,6 +423,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 5×5-Gitter mit Zahlen und Größer-/Kleiner-Zeichen',
     category: 'logik',
   },
+  {
+    to: '/game-of-life',
+    title: 'Game of Life',
+    description: 'Conways Zellularautomat — zeichne Muster und beobachte sie wachsen.',
+    preview: '/games/game-of-life-preview.svg',
+    previewAlt: 'Vorschau: ein Gitter mit gelben lebenden Zellen in Mustern',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
