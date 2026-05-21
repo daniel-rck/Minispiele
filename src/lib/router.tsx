@@ -213,6 +213,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.pong),
         lazy: lazyPage(() => import('../pages/Pong.tsx')),
       },
+      {
+        path: rel(ROUTES.quiz),
+        lazy: lazyPage(() => import('../pages/Quiz.tsx')),
+      },
     ],
   },
 ]);

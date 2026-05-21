@@ -308,3 +308,5 @@ export type PipePuzzleSize = z.infer<typeof PipePuzzleSizeSchema>;
 
 export const PongDifficultySchema = z.enum(['easy', 'medium', 'hard']);
 export type PongDifficulty = z.infer<typeof PongDifficultySchema>;
+
+export const QuizBestSchema = z.number().int().nonnegative();

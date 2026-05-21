@@ -102,6 +102,7 @@ export const STORAGE_KEYS = {
   NURIKABE_SIZE: 'minispiele.nurikabe.size.v1',
   PIPE_PUZZLE_SIZE: 'minispiele.pipePuzzle.size.v1',
   PONG_DIFFICULTY: 'minispiele.pong.difficulty.v1',
+  QUIZ_BEST: 'minispiele.quiz.bestScore.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

@@ -527,6 +527,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: zwei Schläger an den Seiten und ein Ball in der Mitte',
     category: 'action',
   },
+  {
+    to: '/quiz',
+    title: 'Quiz',
+    description: '10 Fragen aus gemischten Kategorien (Geografie, Geschichte, Wissenschaft, …).',
+    preview: '/games/quiz-preview.svg',
+    previewAlt: 'Vorschau: eine Frage mit vier Multiple-Choice-Antworten',
+    category: 'gehirntraining',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

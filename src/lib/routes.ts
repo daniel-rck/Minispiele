@@ -60,6 +60,7 @@ export const ROUTES = {
   pentomino: '/pentomino',
   pipePuzzle: '/pipe-puzzle',
   pong: '/pong',
+  quiz: '/quiz',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
