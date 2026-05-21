@@ -50,6 +50,7 @@ export const ROUTES = {
   gameOfLife: '/game-of-life',
   halma: '/halma',
   helicopter: '/helicopter',
+  hitori: '/hitori',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

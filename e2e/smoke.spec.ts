@@ -48,6 +48,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/game-of-life', title: /Game of Life/i },
   { path: '/halma', title: /Halma/i },
   { path: '/helicopter', title: /Helicopter/i },
+  { path: '/hitori', title: /Hitori/i },
 ];
 
 test.describe('All games smoke render', () => {

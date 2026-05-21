@@ -173,6 +173,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.helicopter),
         lazy: lazyPage(() => import('../pages/Helicopter.tsx')),
       },
+      {
+        path: rel(ROUTES.hitori),
+        lazy: lazyPage(() => import('../pages/Hitori.tsx')),
+      },
     ],
   },
 ]);

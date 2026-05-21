@@ -447,6 +447,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein gelber Helikopter zwischen Felswänden mit Hindernissen',
     category: 'action',
   },
+  {
+    to: '/hitori',
+    title: 'Hitori',
+    description: 'Schwärze Zellen, bis keine Duplikate mehr pro Zeile oder Spalte vorkommen.',
+    preview: '/games/hitori-preview.svg',
+    previewAlt: 'Vorschau: ein 5×5-Gitter mit schwarzen und weißen Zellen mit Ziffern',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
