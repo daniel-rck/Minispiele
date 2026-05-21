@@ -181,6 +181,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.kakuro),
         lazy: lazyPage(() => import('../pages/Kakuro.tsx')),
       },
+      {
+        path: rel(ROUTES.kniffel),
+        lazy: lazyPage(() => import('../pages/Kniffel.tsx')),
+      },
     ],
   },
 ]);

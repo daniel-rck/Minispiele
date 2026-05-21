@@ -463,6 +463,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Kakuro-Gitter mit Summenhinweisen in schwarzen Diagonalen',
     category: 'logik',
   },
+  {
+    to: '/kniffel',
+    title: 'Kniffel',
+    description: 'Würfelspiel mit 13 Kategorien — 3 Würfe pro Runde.',
+    preview: '/games/kniffel-preview.svg',
+    previewAlt: 'Vorschau: fünf weiße Würfel mit Augen',
+    category: 'gehirntraining',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
