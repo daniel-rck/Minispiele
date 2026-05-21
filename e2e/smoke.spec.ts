@@ -59,6 +59,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/pipe-puzzle', title: /Rohre drehen/i },
   { path: '/pong', title: /Pong/i },
   { path: '/quiz', title: /Quiz/i },
+  { path: '/qwirkle', title: /Qwirkle/i },
 ];
 
 test.describe('All games smoke render', () => {
