@@ -63,6 +63,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/roulette', title: /Roulette/i },
   { path: '/slitherlink', title: /Slitherlink/i },
   { path: '/typing-test', title: /Typing Test/i },
+  { path: '/vier-bilder', title: /4 Bilder 1 Wort/i },
 ];
 
 test.describe('All games smoke render', () => {
