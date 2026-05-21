@@ -38,6 +38,7 @@ import PentominoGame from './PentominoGame';
 import PipePuzzleGame from './PipePuzzleGame';
 import PongGame from './PongGame';
 import QuizGame from './QuizGame';
+import QwirkleGame from './QwirkleGame';
 import ReactionGame from './ReactionGame';
 import SchulteGame from './SchulteGame';
 import SlidingPuzzleGame from './SlidingPuzzleGame';
@@ -124,6 +125,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['PipePuzzleGame', () => <PipePuzzleGame />],
   ['PongGame', () => <PongGame />],
   ['QuizGame', () => <QuizGame />],
+  ['QwirkleGame', () => <QwirkleGame />],
   ['ReactionGame', () => <ReactionGame />],
   ['SchulteGame', () => <SchulteGame />],
   ['SlidingPuzzleGame', () => <SlidingPuzzleGame />],

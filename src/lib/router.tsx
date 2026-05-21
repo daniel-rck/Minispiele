@@ -217,6 +217,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.quiz),
         lazy: lazyPage(() => import('../pages/Quiz.tsx')),
       },
+      {
+        path: rel(ROUTES.qwirkle),
+        lazy: lazyPage(() => import('../pages/Qwirkle.tsx')),
+      },
     ],
   },
 ]);

@@ -535,6 +535,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: eine Frage mit vier Multiple-Choice-Antworten',
     category: 'gehirntraining',
   },
+  {
+    to: '/qwirkle',
+    title: 'Qwirkle',
+    description: 'Lege Steine an — gleiche Farbe oder gleiche Form pro Reihe, keine Duplikate.',
+    preview: '/games/qwirkle-preview.svg',
+    previewAlt: 'Vorschau: ein Brett mit Steinen unterschiedlicher Farben und Symbole',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);
