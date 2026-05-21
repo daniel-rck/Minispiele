@@ -591,6 +591,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: eine Frage mit Multiple-Choice-Antworten und einer Gewinnpyramide',
     category: 'gehirntraining',
   },
+  {
+    to: '/whack-a-mole',
+    title: 'Whack-a-Mole',
+    description: 'Erwische die Maulwürfe — 30 Sekunden, immer schneller.',
+    preview: '/games/whack-a-mole-preview.svg',
+    previewAlt: 'Vorschau: ein 3×3-Raster aus braunen Löchern mit aufgetauchten Maulwürfen',
+    category: 'gehirntraining',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -245,6 +245,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.millionaer),
         lazy: lazyPage(() => import('../pages/Millionaer.tsx')),
       },
+      {
+        path: rel(ROUTES.whackAMole),
+        lazy: lazyPage(() => import('../pages/WhackAMole.tsx')),
+      },
     ],
   },
 ]);
