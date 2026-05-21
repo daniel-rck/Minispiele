@@ -2,7 +2,7 @@ import { Suspense, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BRAND_NAME } from '../lib/brand';
 import { ROUTES } from '../lib/routes.ts';
-import { AppHeader } from '../lib/ui';
+import { AppHeader, InstallButton } from '../lib/ui';
 import { useSettings } from '../lib/useSettings';
 import ErrorBoundary from './ErrorBoundary';
 import OfflineIndicator from './OfflineIndicator';
@@ -48,6 +48,7 @@ export default function AppShellRoute() {
         }
         actions={
           <>
+            <InstallButton />
             <IconButton
               icon={settings.sound ? <Volume2Icon /> : <VolumeXIcon />}
               label={settings.sound ? 'Töne ausschalten' : 'Töne einschalten'}

@@ -31,7 +31,8 @@
     "analyze": "vite build && open dist/stats.html",
     "worker:dev": "wrangler dev",
     "worker:deploy": "wrangler deploy",
-    "prepare": "simple-git-hooks || true"
+    "prepare": "simple-git-hooks || true",
+    "lint": "biome check ."
   },
   "simple-git-hooks": {
     "pre-commit": "bunx lint-staged"
