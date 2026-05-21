@@ -101,6 +101,7 @@ export const STORAGE_KEYS = {
   MINESWEEPER_HEX_DIFFICULTY: 'minispiele.minesweeperHex.difficulty.v1',
   NURIKABE_SIZE: 'minispiele.nurikabe.size.v1',
   PIPE_PUZZLE_SIZE: 'minispiele.pipePuzzle.size.v1',
+  PONG_DIFFICULTY: 'minispiele.pong.difficulty.v1',
   HOME_CATEGORY_FILTER: 'minispiele.home.categoryFilter.v1',
   RECENT_GAMES: 'minispiele.recent.v1',
   FAVORITES: 'minispiele.favorites.v1',

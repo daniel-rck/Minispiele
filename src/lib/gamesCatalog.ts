@@ -519,6 +519,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein Gitter aus Rohrteilen — verbundene Stücke leuchten grün',
     category: 'logik',
   },
+  {
+    to: '/pong',
+    title: 'Pong',
+    description: 'Tischtennis gegen den Computer — drei Schwierigkeitsstufen, erster mit 11.',
+    preview: '/games/pong-preview.svg',
+    previewAlt: 'Vorschau: zwei Schläger an den Seiten und ein Ball in der Mitte',
+    category: 'action',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

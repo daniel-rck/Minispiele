@@ -59,6 +59,7 @@ export const ROUTES = {
   nurikabe: '/nurikabe',
   pentomino: '/pentomino',
   pipePuzzle: '/pipe-puzzle',
+  pong: '/pong',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

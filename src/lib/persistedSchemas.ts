@@ -305,3 +305,6 @@ export type NurikabeSize = z.infer<typeof NurikabeSizeSchema>;
 
 export const PipePuzzleSizeSchema = z.union([z.literal(5), z.literal(7), z.literal(9)]);
 export type PipePuzzleSize = z.infer<typeof PipePuzzleSizeSchema>;
+
+export const PongDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type PongDifficulty = z.infer<typeof PongDifficultySchema>;
