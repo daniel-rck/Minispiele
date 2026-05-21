@@ -237,7 +237,7 @@ export default function DiceRoller() {
   const [lastAnnouncement, setLastAnnouncement] = useState('');
 
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
-  const settleTimeoutsRef = useRef<Map<string, number>>(new Map());
+  const settleTimeoutRef = useRef<number | null>(null);
   const cycleIntervalRef = useRef<number | null>(null);
   const diceRef = useRef<Die[]>(dice);
   diceRef.current = dice;
@@ -285,12 +285,13 @@ export default function DiceRoller() {
 
   useEffect(() => {
     const timeouts = rollTimeoutsRef.current;
-    const settles = settleTimeoutsRef.current;
     return () => {
       timeouts.forEach((t) => window.clearTimeout(t));
       timeouts.clear();
-      settles.forEach((t) => window.clearTimeout(t));
-      settles.clear();
+      if (settleTimeoutRef.current !== null) {
+        window.clearTimeout(settleTimeoutRef.current);
+        settleTimeoutRef.current = null;
+      }
       soundRef.current?.dispose();
       soundRef.current = null;
     };
@@ -300,7 +301,6 @@ export default function DiceRoller() {
     (ids: readonly string[]) => {
       if (ids.length === 0) return;
       const timeouts = rollTimeoutsRef.current;
-      const settles = settleTimeoutsRef.current;
       soundRef.current?.playRoll(rollDuration, ids.length);
       setRollingIds((prev) => {
         const next = new Set(prev);
@@ -310,8 +310,6 @@ export default function DiceRoller() {
       ids.forEach((id) => {
         const existing = timeouts.get(id);
         if (existing !== undefined) window.clearTimeout(existing);
-        const existingSettle = settles.get(id);
-        if (existingSettle !== undefined) window.clearTimeout(existingSettle);
         const t = window.setTimeout(() => {
           timeouts.delete(id);
           setRollingIds((prev) => {
@@ -323,13 +321,11 @@ export default function DiceRoller() {
         }, rollDuration);
         timeouts.set(id, t);
       });
-      const settleId = window.setTimeout(() => {
-        settles.delete('__settle');
+      if (settleTimeoutRef.current !== null) window.clearTimeout(settleTimeoutRef.current);
+      settleTimeoutRef.current = window.setTimeout(() => {
+        settleTimeoutRef.current = null;
         soundRef.current?.playSettle(ids.length);
       }, rollDuration);
-      const prevSettle = settles.get('__settle');
-      if (prevSettle !== undefined) window.clearTimeout(prevSettle);
-      settles.set('__settle', settleId);
     },
     [rollDuration],
   );

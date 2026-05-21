@@ -1,14 +1,5 @@
+import { getAudioCtor } from './audioContext';
 import { isAudioEnabled } from './audioSettings';
-
-interface AudioWindow extends Window {
-  webkitAudioContext?: typeof AudioContext;
-}
-
-function getAudioCtor(): typeof AudioContext | null {
-  if (typeof window === 'undefined') return null;
-  const w = window as AudioWindow;
-  return window.AudioContext ?? w.webkitAudioContext ?? null;
-}
 
 const NOISE_DURATION_S = 0.25;
 const CLICK_MIN_INTERVAL_MS = 35;

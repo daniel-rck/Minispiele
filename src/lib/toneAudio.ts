@@ -1,14 +1,5 @@
+import { getAudioCtor } from './audioContext';
 import { isAudioEnabled } from './audioSettings';
-
-interface AudioWindow extends Window {
-  webkitAudioContext?: typeof AudioContext;
-}
-
-function getAudioCtor(): typeof AudioContext | null {
-  if (typeof window === 'undefined') return null;
-  const w = window as AudioWindow;
-  return window.AudioContext ?? w.webkitAudioContext ?? null;
-}
 
 export interface PlayToneOptions {
   peak?: number;

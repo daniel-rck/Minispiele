@@ -49,6 +49,16 @@ function fontSizeClass(value: number): string {
   return 'text-xl sm:text-2xl';
 }
 
+/** Returns the largest tile value whose count grew between before and after — i.e. the biggest tile this turn produced. */
+function highestMergedTile(before: readonly number[], after: readonly number[]): number {
+  const counts = new Map<number, number>();
+  for (const v of after) if (v > 0) counts.set(v, (counts.get(v) ?? 0) + 1);
+  for (const v of before) if (v > 0) counts.set(v, (counts.get(v) ?? 0) - 1);
+  let max = 0;
+  for (const [v, delta] of counts) if (delta > 0 && v > max) max = v;
+  return max;
+}
+
 const initialState: TwentyFortyEightState = {
   grid: createInitialGrid(),
   score: 0,
@@ -91,7 +101,10 @@ export default function TwentyFortyEightGame() {
         if (!moved) return current;
         const withSpawn = spawnRandom(after);
         const justWon = !current.won && hasWinningTile(withSpawn);
-        if (gained > 0) sfx.merge(Math.log2(Math.max(2, gained)));
+        if (gained > 0) {
+          const mergedValue = highestMergedTile(current.grid, after);
+          if (mergedValue > 0) sfx.merge(Math.log2(mergedValue));
+        }
         if (justWon) {
           setWinShown(true);
           sfx.win();
