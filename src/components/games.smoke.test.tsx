@@ -43,6 +43,7 @@ import ReactionGame from './ReactionGame';
 import RouletteGame from './RouletteGame';
 import SchulteGame from './SchulteGame';
 import SlidingPuzzleGame from './SlidingPuzzleGame';
+import SlitherlinkGame from './SlitherlinkGame';
 import SokobanGame from './SokobanGame';
 import StroopGame from './StroopGame';
 import SudokuGame from './SudokuGame';
@@ -131,6 +132,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['RouletteGame', () => <RouletteGame />],
   ['SchulteGame', () => <SchulteGame />],
   ['SlidingPuzzleGame', () => <SlidingPuzzleGame />],
+  ['SlitherlinkGame', () => <SlitherlinkGame />],
   ['SokobanGame', () => <SokobanGame />],
   ['StroopGame', () => <StroopGame />],
   ['SudokuGame', () => <SudokuGame />],

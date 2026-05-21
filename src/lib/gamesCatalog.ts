@@ -551,6 +551,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: eine grüne Null neben roten und schwarzen Roulette-Zahlen',
     category: 'werkzeuge',
   },
+  {
+    to: '/slitherlink',
+    title: 'Slitherlink',
+    description: 'Ziehe eine geschlossene Schleife so, dass alle Zahlenhinweise stimmen.',
+    preview: '/games/slitherlink-preview.svg',
+    previewAlt: 'Vorschau: ein Punktgitter mit Zahlen und einer geschwungenen Linie',
+    category: 'logik',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

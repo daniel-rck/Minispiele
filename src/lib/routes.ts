@@ -63,6 +63,7 @@ export const ROUTES = {
   quiz: '/quiz',
   qwirkle: '/qwirkle',
   roulette: '/roulette',
+  slitherlink: '/slitherlink',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;
