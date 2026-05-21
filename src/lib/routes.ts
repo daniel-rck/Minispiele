@@ -41,6 +41,7 @@ export const ROUTES = {
   asteroids: '/asteroids',
   binairo: '/binairo',
   columns: '/columns',
+  connections: '/connections',
 } as const;
 
 export type RouteKey = keyof typeof ROUTES;

@@ -375,6 +375,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein schmales Spielfeld mit fallenden farbigen Steinkolumnen',
     category: 'action',
   },
+  {
+    to: '/connections',
+    title: 'Connections',
+    description: 'Sortiere 16 Wörter in vier zusammengehörige Vierergruppen.',
+    preview: '/games/connections-preview.svg',
+    previewAlt: 'Vorschau: ein 4×4-Gitter mit Wörtern in vier Farbgruppen',
+    category: 'wort',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

@@ -137,6 +137,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.columns),
         lazy: lazyPage(() => import('../pages/Columns.tsx')),
       },
+      {
+        path: rel(ROUTES.connections),
+        lazy: lazyPage(() => import('../pages/Connections.tsx')),
+      },
     ],
   },
 ]);

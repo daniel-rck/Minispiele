@@ -8,6 +8,7 @@ import BlocksGame from './BlocksGame';
 import BreakoutGame from './BreakoutGame';
 import BubblesGame from './BubblesGame';
 import ColumnsGame from './ColumnsGame';
+import ConnectionsGame from './ConnectionsGame';
 import FlowGame from './FlowGame';
 import FreecellGame from './FreecellGame';
 import GfrettGame from './GfrettGame';
@@ -75,6 +76,7 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['BreakoutGame', () => <BreakoutGame />],
   ['BubblesGame', () => <BubblesGame />],
   ['ColumnsGame', () => <ColumnsGame />],
+  ['ConnectionsGame', () => <ConnectionsGame />],
   ['FlowGame', () => <FlowGame />],
   ['FreecellGame', () => <FreecellGame />],
   ['GfrettGame', () => <GfrettGame />],
