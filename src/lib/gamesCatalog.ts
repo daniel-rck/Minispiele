@@ -439,6 +439,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 10×10-Brett mit blauen und roten Steinen in den Ecken',
     category: 'logik',
   },
+  {
+    to: '/helicopter',
+    title: 'Helicopter',
+    description: 'Fliege den Hubschrauber durch die Höhle — halte gedrückt zum Steigen.',
+    preview: '/games/helicopter-preview.svg',
+    previewAlt: 'Vorschau: ein gelber Helikopter zwischen Felswänden mit Hindernissen',
+    category: 'action',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

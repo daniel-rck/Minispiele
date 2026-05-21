@@ -169,6 +169,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.halma),
         lazy: lazyPage(() => import('../pages/Halma.tsx')),
       },
+      {
+        path: rel(ROUTES.helicopter),
+        lazy: lazyPage(() => import('../pages/Helicopter.tsx')),
+      },
     ],
   },
 ]);

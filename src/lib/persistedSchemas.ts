@@ -287,3 +287,5 @@ export const FroggerBestSchema = z.number().int().nonnegative();
 
 export const FutoshikiSizeSchema = z.union([z.literal(4), z.literal(5), z.literal(6)]);
 export type FutoshikiSize = z.infer<typeof FutoshikiSizeSchema>;
+
+export const HelicopterBestSchema = z.number().int().nonnegative();
