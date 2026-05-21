@@ -367,6 +367,14 @@ const GAME_INPUTS: GameCardInput[] = [
     previewAlt: 'Vorschau: ein 8×8-Gitter mit blauen 0en und roten 1en',
     category: 'logik',
   },
+  {
+    to: '/columns',
+    title: 'Columns',
+    description: 'Fallende Dreierstäbe — bilde Dreierreihen waagrecht, senkrecht oder diagonal.',
+    preview: '/games/columns-preview.svg',
+    previewAlt: 'Vorschau: ein schmales Spielfeld mit fallenden farbigen Steinkolumnen',
+    category: 'action',
+  },
 ];
 
 export const GAMES: GameCard[] = GAME_INPUTS.map(asGame);

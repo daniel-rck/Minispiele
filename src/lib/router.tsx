@@ -133,6 +133,10 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.binairo),
         lazy: lazyPage(() => import('../pages/Binairo.tsx')),
       },
+      {
+        path: rel(ROUTES.columns),
+        lazy: lazyPage(() => import('../pages/Columns.tsx')),
+      },
     ],
   },
 ]);

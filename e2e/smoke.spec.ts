@@ -38,6 +38,7 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/tic-tac-toe', title: /Tic-Tac-Toe/i },
   { path: '/asteroids', title: /Asteroids/i },
   { path: '/binairo', title: /Binairo/i },
+  { path: '/columns', title: /Columns/i },
 ];
 
 test.describe('All games smoke render', () => {
