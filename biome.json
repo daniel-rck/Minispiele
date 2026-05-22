@@ -22,7 +22,6 @@
       "!**/bun.lock",
       "!**/public",
       "!**/.wrangler",
-      "!**/coverage",
       "!**/playwright-report",
       "!**/test-results"
     ]
@@ -30,15 +29,7 @@
   "linter": {
     "enabled": true,
     "rules": { "recommended": false, "style": { "useBlockStatements": "off" } },
-    "includes": [
-      "**",
-      "!dist",
-      "!node_modules",
-      "!dev-dist",
-      "!coverage",
-      "!playwright-report",
-      "!test-results"
-    ]
+    "includes": ["**", "!dist", "!node_modules", "!dev-dist", "!playwright-report", "!test-results"]
   },
   "javascript": {
     "formatter": {
