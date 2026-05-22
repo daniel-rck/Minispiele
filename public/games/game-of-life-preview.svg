@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Game of Life Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g fill="#fbbf24">
+    <!-- Glider -->
+    <rect x="40" y="40" width="10" height="10"/>
+    <rect x="50" y="50" width="10" height="10"/>
+    <rect x="30" y="60" width="10" height="10"/>
+    <rect x="40" y="60" width="10" height="10"/>
+    <rect x="50" y="60" width="10" height="10"/>
+    <!-- Blinker (vertical) -->
+    <rect x="150" y="30" width="10" height="10"/>
+    <rect x="150" y="40" width="10" height="10"/>
+    <rect x="150" y="50" width="10" height="10"/>
+    <!-- Pulsar fragment -->
+    <rect x="240" y="40" width="10" height="10"/>
+    <rect x="250" y="40" width="10" height="10"/>
+    <rect x="260" y="40" width="10" height="10"/>
+    <rect x="240" y="70" width="10" height="10"/>
+    <rect x="250" y="70" width="10" height="10"/>
+    <rect x="260" y="70" width="10" height="10"/>
+    <rect x="280" y="50" width="10" height="10"/>
+    <rect x="280" y="60" width="10" height="10"/>
+    <rect x="220" y="50" width="10" height="10"/>
+    <rect x="220" y="60" width="10" height="10"/>
+    <!-- More cells -->
+    <rect x="100" y="120" width="10" height="10"/>
+    <rect x="110" y="120" width="10" height="10"/>
+    <rect x="120" y="120" width="10" height="10"/>
+    <rect x="110" y="110" width="10" height="10"/>
+    <rect x="160" y="140" width="10" height="10"/>
+    <rect x="170" y="140" width="10" height="10"/>
+    <rect x="160" y="150" width="10" height="10"/>
+    <rect x="170" y="150" width="10" height="10"/>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Qwirkle Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g font-family="ui-sans-serif,system-ui" font-size="22" font-weight="800" text-anchor="middle">
+    <rect x="100" y="30" width="32" height="32" rx="4" fill="#1e293b"/>
+    <text x="116" y="55" fill="#f43f5e">●</text>
+    <rect x="135" y="30" width="32" height="32" rx="4" fill="#1e293b"/>
+    <text x="151" y="55" fill="#fbbf24">●</text>
+    <rect x="170" y="30" width="32" height="32" rx="4" fill="#1e293b"/>
+    <text x="186" y="55" fill="#10b981">●</text>
+    <rect x="205" y="30" width="32" height="32" rx="4" fill="#1e293b"/>
+    <text x="221" y="55" fill="#0ea5e9">●</text>
+    <rect x="100" y="70" width="32" height="32" rx="4" fill="#1e293b"/>
+    <text x="116" y="95" fill="#f43f5e">◆</text>
+    <rect x="100" y="110" width="32" height="32" rx="4" fill="#1e293b"/>
+    <text x="116" y="135" fill="#f43f5e">■</text>
+    <rect x="100" y="150" width="32" height="32" rx="4" fill="#fbbf24" opacity="0.4"/>
+    <text x="116" y="175" fill="#f43f5e">★</text>
+    <rect x="135" y="70" width="32" height="32" rx="4" fill="#1e293b"/>
+    <text x="151" y="95" fill="#a855f7">◆</text>
+  </g>
+</svg>

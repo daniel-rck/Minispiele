@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Halma Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g stroke="#1e293b" stroke-width="1">
+    <rect x="60" y="20" width="200" height="140" fill="#1e293b" rx="6"/>
+  </g>
+  <!-- Red corner top-left -->
+  <g fill="#f43f5e">
+    <circle cx="80" cy="40" r="7"/>
+    <circle cx="100" cy="40" r="7"/>
+    <circle cx="120" cy="40" r="7"/>
+    <circle cx="80" cy="60" r="7"/>
+    <circle cx="100" cy="60" r="7"/>
+    <circle cx="80" cy="80" r="7"/>
+  </g>
+  <!-- Blue corner bottom-right -->
+  <g fill="#0ea5e9">
+    <circle cx="240" cy="140" r="7"/>
+    <circle cx="220" cy="140" r="7"/>
+    <circle cx="200" cy="140" r="7"/>
+    <circle cx="240" cy="120" r="7"/>
+    <circle cx="220" cy="120" r="7"/>
+    <circle cx="240" cy="100" r="7"/>
+  </g>
+  <!-- Jump arrow -->
+  <path d="M150 100 Q160 80 170 70" stroke="#fbbf24" stroke-width="2" fill="none" stroke-dasharray="3 3"/>
+</svg>

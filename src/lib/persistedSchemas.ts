@@ -261,3 +261,75 @@ export const IdleClickerSaveSchema = z.object({
 export type IdleClickerSave = z.infer<typeof IdleClickerSaveSchema>;
 
 export const LadderBestSchema = NullableNonNegInt;
+
+export const TicTacToeDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type TicTacToeDifficulty = z.infer<typeof TicTacToeDifficultySchema>;
+
+export const TicTacToeScoresSchema = z.object({
+  x: z.number().int().nonnegative(),
+  o: z.number().int().nonnegative(),
+  d: z.number().int().nonnegative(),
+});
+export type TicTacToeScores = z.infer<typeof TicTacToeScoresSchema>;
+
+export const AsteroidsBestSchema = z.number().int().nonnegative();
+
+export const BinairoSizeSchema = z.union([z.literal(6), z.literal(8), z.literal(10)]);
+export type BinairoSize = z.infer<typeof BinairoSizeSchema>;
+
+export const ColumnsBestSchema = z.number().int().nonnegative();
+
+export const DoodleJumpBestSchema = z.number().int().nonnegative();
+
+export const FlappyBirdBestSchema = z.number().int().nonnegative();
+
+export const FroggerBestSchema = z.number().int().nonnegative();
+
+export const FutoshikiSizeSchema = z.union([z.literal(4), z.literal(5), z.literal(6)]);
+export type FutoshikiSize = z.infer<typeof FutoshikiSizeSchema>;
+
+export const HelicopterBestSchema = z.number().int().nonnegative();
+
+export const HitoriSizeSchema = z.union([z.literal(5), z.literal(6), z.literal(7)]);
+export type HitoriSize = z.infer<typeof HitoriSizeSchema>;
+
+export const KniffelBestSchema = z.number().int().nonnegative();
+
+export const Match3BestSchema = z.number().int().nonnegative();
+
+export const MinesweeperHexDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type MinesweeperHexDifficulty = z.infer<typeof MinesweeperHexDifficultySchema>;
+
+export const NurikabeSizeSchema = z.union([z.literal(5), z.literal(7), z.literal(9)]);
+export type NurikabeSize = z.infer<typeof NurikabeSizeSchema>;
+
+export const PipePuzzleSizeSchema = z.union([z.literal(5), z.literal(7), z.literal(9)]);
+export type PipePuzzleSize = z.infer<typeof PipePuzzleSizeSchema>;
+
+export const PongDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type PongDifficulty = z.infer<typeof PongDifficultySchema>;
+
+export const QuizBestSchema = z.number().int().nonnegative();
+
+export const RouletteBalanceSchema = z.number().int().nonnegative();
+
+export const SlitherlinkSizeSchema = z.union([z.literal(4), z.literal(5), z.literal(6)]);
+export type SlitherlinkSize = z.infer<typeof SlitherlinkSizeSchema>;
+
+export const TypingTestBestSchema = z.number().int().nonnegative();
+
+export const VierBilderBestSchema = z.number().int().nonnegative();
+
+export const ViergewinntDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export type ViergewinntDifficulty = z.infer<typeof ViergewinntDifficultySchema>;
+
+export const MillionaerBestSchema = z.number().int().nonnegative();
+
+export const WhackAMoleBestSchema = z.number().int().nonnegative();
+
+export const WuerfelpokerScoresSchema = z.object({
+  you: z.number().int().nonnegative(),
+  ai: z.number().int().nonnegative(),
+  draws: z.number().int().nonnegative(),
+});
+export type WuerfelpokerScores = z.infer<typeof WuerfelpokerScoresSchema>;

@@ -121,6 +121,138 @@ export const router = createBrowserRouter([
         path: rel(ROUTES.leiterspiel),
         lazy: lazyPage(() => import('../pages/Ladders.tsx')),
       },
+      {
+        path: rel(ROUTES.ticTacToe),
+        lazy: lazyPage(() => import('../pages/TicTacToe.tsx')),
+      },
+      {
+        path: rel(ROUTES.asteroids),
+        lazy: lazyPage(() => import('../pages/Asteroids.tsx')),
+      },
+      {
+        path: rel(ROUTES.binairo),
+        lazy: lazyPage(() => import('../pages/Binairo.tsx')),
+      },
+      {
+        path: rel(ROUTES.columns),
+        lazy: lazyPage(() => import('../pages/Columns.tsx')),
+      },
+      {
+        path: rel(ROUTES.connections),
+        lazy: lazyPage(() => import('../pages/Connections.tsx')),
+      },
+      {
+        path: rel(ROUTES.conwayBattle),
+        lazy: lazyPage(() => import('../pages/ConwayBattle.tsx')),
+      },
+      {
+        path: rel(ROUTES.doodleJump),
+        lazy: lazyPage(() => import('../pages/DoodleJump.tsx')),
+      },
+      {
+        path: rel(ROUTES.flappyBird),
+        lazy: lazyPage(() => import('../pages/FlappyBird.tsx')),
+      },
+      {
+        path: rel(ROUTES.frogger),
+        lazy: lazyPage(() => import('../pages/Frogger.tsx')),
+      },
+      {
+        path: rel(ROUTES.futoshiki),
+        lazy: lazyPage(() => import('../pages/Futoshiki.tsx')),
+      },
+      {
+        path: rel(ROUTES.gameOfLife),
+        lazy: lazyPage(() => import('../pages/GameOfLife.tsx')),
+      },
+      {
+        path: rel(ROUTES.halma),
+        lazy: lazyPage(() => import('../pages/Halma.tsx')),
+      },
+      {
+        path: rel(ROUTES.helicopter),
+        lazy: lazyPage(() => import('../pages/Helicopter.tsx')),
+      },
+      {
+        path: rel(ROUTES.hitori),
+        lazy: lazyPage(() => import('../pages/Hitori.tsx')),
+      },
+      {
+        path: rel(ROUTES.kakuro),
+        lazy: lazyPage(() => import('../pages/Kakuro.tsx')),
+      },
+      {
+        path: rel(ROUTES.kniffel),
+        lazy: lazyPage(() => import('../pages/Kniffel.tsx')),
+      },
+      {
+        path: rel(ROUTES.crossword),
+        lazy: lazyPage(() => import('../pages/Crossword.tsx')),
+      },
+      {
+        path: rel(ROUTES.match3),
+        lazy: lazyPage(() => import('../pages/Match3.tsx')),
+      },
+      {
+        path: rel(ROUTES.minesweeperHex),
+        lazy: lazyPage(() => import('../pages/MinesweeperHex.tsx')),
+      },
+      {
+        path: rel(ROUTES.nurikabe),
+        lazy: lazyPage(() => import('../pages/Nurikabe.tsx')),
+      },
+      {
+        path: rel(ROUTES.pentomino),
+        lazy: lazyPage(() => import('../pages/Pentomino.tsx')),
+      },
+      {
+        path: rel(ROUTES.pipePuzzle),
+        lazy: lazyPage(() => import('../pages/PipePuzzle.tsx')),
+      },
+      {
+        path: rel(ROUTES.pong),
+        lazy: lazyPage(() => import('../pages/Pong.tsx')),
+      },
+      {
+        path: rel(ROUTES.quiz),
+        lazy: lazyPage(() => import('../pages/Quiz.tsx')),
+      },
+      {
+        path: rel(ROUTES.qwirkle),
+        lazy: lazyPage(() => import('../pages/Qwirkle.tsx')),
+      },
+      {
+        path: rel(ROUTES.roulette),
+        lazy: lazyPage(() => import('../pages/Roulette.tsx')),
+      },
+      {
+        path: rel(ROUTES.slitherlink),
+        lazy: lazyPage(() => import('../pages/Slitherlink.tsx')),
+      },
+      {
+        path: rel(ROUTES.typingTest),
+        lazy: lazyPage(() => import('../pages/TypingTest.tsx')),
+      },
+      {
+        path: rel(ROUTES.vierBilder),
+        lazy: lazyPage(() => import('../pages/VierBilder.tsx')),
+      },
+      {
+        path: rel(ROUTES.viergewinnt),
+        lazy: lazyPage(() => import('../pages/Viergewinnt.tsx')),
+      },
+      {
+        path: rel(ROUTES.millionaer),
+        lazy: lazyPage(() => import('../pages/Millionaer.tsx')),
+      },
+      {
+        path: rel(ROUTES.whackAMole),
+        lazy: lazyPage(() => import('../pages/WhackAMole.tsx')),
+      },
+      {
+        path: rel(ROUTES.wuerfelpoker),
+        lazy: lazyPage(() => import('../pages/Wuerfelpoker.tsx')),
+      },
     ],
   },
 ]);

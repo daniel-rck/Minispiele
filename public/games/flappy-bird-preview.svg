@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Flappy Bird Vorschau">
+  <rect width="320" height="180" fill="#0a0a1e"/>
+  <rect y="120" width="320" height="60" fill="#92400e"/>
+  <g fill="#0e7490">
+    <rect x="80" y="0" width="40" height="60"/>
+    <rect x="76" y="60" width="48" height="12"/>
+    <rect x="80" y="110" width="40" height="50"/>
+    <rect x="76" y="100" width="48" height="12"/>
+    <rect x="200" y="0" width="40" height="90"/>
+    <rect x="196" y="90" width="48" height="12"/>
+    <rect x="200" y="140" width="40" height="20"/>
+    <rect x="196" y="130" width="48" height="12"/>
+  </g>
+  <g transform="translate(160,80)">
+    <ellipse cx="0" cy="0" rx="16" ry="13" fill="#fbbf24"/>
+    <circle cx="6" cy="-4" r="4" fill="#fff"/>
+    <circle cx="7" cy="-4" r="2" fill="#0f172a"/>
+    <polygon points="14,-2 22,1 14,4" fill="#f97316"/>
+  </g>
+</svg>

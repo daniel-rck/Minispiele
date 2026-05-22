@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Columns Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g>
+    <!-- Falling 3-piece column -->
+    <circle cx="160" cy="40" r="14" fill="#f43f5e" stroke="#fbbf24" stroke-width="2"/>
+    <circle cx="160" cy="70" r="14" fill="#0ea5e9" stroke="#fbbf24" stroke-width="2"/>
+    <circle cx="160" cy="100" r="14" fill="#10b981" stroke="#fbbf24" stroke-width="2"/>
+  </g>
+  <g>
+    <!-- Stacked board bottom -->
+    <circle cx="100" cy="150" r="13" fill="#fbbf24"/>
+    <circle cx="130" cy="150" r="13" fill="#fbbf24"/>
+    <circle cx="160" cy="150" r="13" fill="#fbbf24"/>
+    <circle cx="190" cy="150" r="13" fill="#a855f7"/>
+    <circle cx="220" cy="150" r="13" fill="#f97316"/>
+    <circle cx="130" cy="125" r="13" fill="#10b981"/>
+    <circle cx="160" cy="125" r="13" fill="#a855f7"/>
+    <circle cx="190" cy="125" r="13" fill="#f43f5e"/>
+  </g>
+</svg>

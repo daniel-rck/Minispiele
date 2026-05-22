@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Pong Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <line x1="160" y1="0" x2="160" y2="180" stroke="#1e293b" stroke-width="2" stroke-dasharray="8 8"/>
+  <rect x="30" y="60" width="14" height="60" fill="#fbbf24"/>
+  <rect x="276" y="40" width="14" height="60" fill="#f43f5e"/>
+  <circle cx="160" cy="90" r="10" fill="#fbbf24"/>
+  <text x="80" y="120" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="60" font-weight="800" fill="rgba(255,255,255,0.04)">3</text>
+  <text x="240" y="120" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="60" font-weight="800" fill="rgba(255,255,255,0.04)">2</text>
+</svg>

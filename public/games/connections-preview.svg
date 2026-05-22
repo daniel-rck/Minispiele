@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Connections Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g font-family="ui-sans-serif,system-ui" font-size="10" font-weight="700" text-anchor="middle">
+    <g fill="#fbbf24"><rect x="40" y="30" width="55" height="30" rx="6"/><rect x="105" y="30" width="55" height="30" rx="6"/></g>
+    <g fill="#10b981"><rect x="170" y="30" width="55" height="30" rx="6"/><rect x="235" y="30" width="55" height="30" rx="6"/></g>
+    <g fill="#0ea5e9"><rect x="40" y="70" width="55" height="30" rx="6"/><rect x="105" y="70" width="55" height="30" rx="6"/></g>
+    <g fill="#a855f7"><rect x="170" y="70" width="55" height="30" rx="6"/><rect x="235" y="70" width="55" height="30" rx="6"/></g>
+    <g fill="#1e293b" stroke="#475569"><rect x="40" y="110" width="55" height="30" rx="6"/><rect x="105" y="110" width="55" height="30" rx="6"/><rect x="170" y="110" width="55" height="30" rx="6"/><rect x="235" y="110" width="55" height="30" rx="6"/></g>
+    <text x="67" y="49" fill="#fff">APFEL</text>
+    <text x="132" y="49" fill="#fff">BIRNE</text>
+    <text x="197" y="49" fill="#fff">HAMMER</text>
+    <text x="262" y="49" fill="#fff">ZANGE</text>
+    <text x="67" y="89" fill="#fff">MARS</text>
+    <text x="132" y="89" fill="#fff">VENUS</text>
+    <text x="197" y="89" fill="#fff">KÖNIG</text>
+    <text x="262" y="89" fill="#fff">DAME</text>
+    <text x="67" y="129" fill="#cbd5e1">PFLAUME</text>
+    <text x="132" y="129" fill="#cbd5e1">SÄGE</text>
+    <text x="197" y="129" fill="#cbd5e1">JUPITER</text>
+    <text x="262" y="129" fill="#cbd5e1">TURM</text>
+  </g>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Kakuro Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g font-family="ui-sans-serif,system-ui" font-size="14" font-weight="800" text-anchor="middle">
+    <!-- Row 1 -->
+    <rect x="80" y="20" width="32" height="32" fill="#020617"/>
+    <rect x="115" y="20" width="32" height="32" fill="#1e293b">
+      <title>hint: down 17 right 16</title>
+    </rect>
+    <text x="142" y="32" fill="#fbbf24" font-size="9">17</text>
+    <text x="120" y="50" fill="#fbbf24" font-size="9">16</text>
+    <line x1="115" y1="20" x2="147" y2="52" stroke="#475569"/>
+    <rect x="150" y="20" width="32" height="32" fill="#1e293b">
+      <title>hint: down 24</title>
+    </rect>
+    <text x="166" y="50" fill="#fbbf24" font-size="9">24</text>
+    <rect x="185" y="20" width="32" height="32" fill="#020617"/>
+    <rect x="220" y="20" width="32" height="32" fill="#1e293b">
+      <title>hint: down 9</title>
+    </rect>
+    <text x="236" y="50" fill="#fbbf24" font-size="9">9</text>
+    <!-- Row 2 -->
+    <rect x="80" y="55" width="32" height="32" fill="#1e293b"/>
+    <text x="108" y="67" fill="#fbbf24" font-size="9">21</text>
+    <rect x="115" y="55" width="32" height="32" fill="#cbd5e1" rx="2"/>
+    <text x="131" y="77" fill="#0f172a">5</text>
+    <rect x="150" y="55" width="32" height="32" fill="#cbd5e1" rx="2"/>
+    <text x="166" y="77" fill="#0f172a">8</text>
+    <rect x="185" y="55" width="32" height="32" fill="#cbd5e1" rx="2"/>
+    <text x="201" y="77" fill="#0f172a">3</text>
+    <rect x="220" y="55" width="32" height="32" fill="#cbd5e1" rx="2"/>
+    <text x="236" y="77" fill="#0f172a">5</text>
+    <!-- Row 3 -->
+    <rect x="80" y="90" width="32" height="32" fill="#1e293b"/>
+    <text x="108" y="102" fill="#fbbf24" font-size="9">11</text>
+    <rect x="115" y="90" width="32" height="32" fill="#cbd5e1" rx="2"/>
+    <text x="131" y="112" fill="#0f172a">7</text>
+    <rect x="150" y="90" width="32" height="32" fill="#cbd5e1" rx="2"/>
+    <text x="166" y="112" fill="#0f172a">4</text>
+    <rect x="185" y="90" width="32" height="32" fill="#cbd5e1" rx="2"/>
+    <text x="201" y="112" fill="#0f172a">2</text>
+    <rect x="220" y="90" width="32" height="32" fill="#020617"/>
+  </g>
+</svg>

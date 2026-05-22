@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Match-3 Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g>
+    <circle cx="60" cy="40" r="14" fill="#0ea5e9"/>
+    <circle cx="95" cy="40" r="14" fill="#f43f5e"/>
+    <circle cx="130" cy="40" r="14" fill="#fbbf24"/>
+    <circle cx="165" cy="40" r="14" fill="#10b981"/>
+    <circle cx="200" cy="40" r="14" fill="#10b981"/>
+    <circle cx="235" cy="40" r="14" fill="#10b981"/>
+    <circle cx="270" cy="40" r="14" fill="#a855f7"/>
+    <circle cx="60" cy="75" r="14" fill="#f97316"/>
+    <circle cx="95" cy="75" r="14" fill="#a855f7"/>
+    <circle cx="130" cy="75" r="14" fill="#a855f7"/>
+    <circle cx="165" cy="75" r="14" fill="#a855f7"/>
+    <circle cx="200" cy="75" r="14" fill="#f43f5e"/>
+    <circle cx="235" cy="75" r="14" fill="#0ea5e9"/>
+    <circle cx="270" cy="75" r="14" fill="#fbbf24"/>
+    <circle cx="60" cy="110" r="14" fill="#fbbf24"/>
+    <circle cx="95" cy="110" r="14" fill="#fbbf24"/>
+    <circle cx="130" cy="110" r="14" fill="#fbbf24"/>
+    <circle cx="165" cy="110" r="14" fill="#10b981"/>
+    <circle cx="200" cy="110" r="14" fill="#0ea5e9"/>
+    <circle cx="235" cy="110" r="14" fill="#a855f7"/>
+    <circle cx="270" cy="110" r="14" fill="#f43f5e"/>
+    <circle cx="60" cy="145" r="14" fill="#f43f5e"/>
+    <circle cx="95" cy="145" r="14" fill="#10b981"/>
+    <circle cx="130" cy="145" r="14" fill="#0ea5e9"/>
+    <circle cx="165" cy="145" r="14" fill="#f97316"/>
+    <circle cx="200" cy="145" r="14" fill="#fbbf24"/>
+    <circle cx="235" cy="145" r="14" fill="#a855f7"/>
+    <circle cx="270" cy="145" r="14" fill="#f43f5e"/>
+  </g>
+</svg>

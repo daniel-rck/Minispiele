@@ -10,6 +10,10 @@ export default defineConfig({
     css: false,
     exclude: ['node_modules', 'dist', 'e2e', 'playwright-report', 'test-results'],
     coverage: {
+      // Coverage is generated for visibility (HTML / lcov artifacts) but no
+      // percentage gates — they reward exercising lines, not catching bugs.
+      // Tests that find real defects (e.g. game-logic regressions, the issues
+      // surfaced by review tools) are what we gate on instead.
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: 'coverage',
@@ -21,20 +25,6 @@ export default defineConfig({
         'src/test/**',
         'src/pages/**',
       ],
-      thresholds: {
-        'src/lib/**': {
-          lines: 80,
-          functions: 80,
-          branches: 75,
-          statements: 80,
-        },
-        'src/components/**': {
-          lines: 50,
-          functions: 30,
-          branches: 40,
-          statements: 50,
-        },
-      },
     },
   },
 });

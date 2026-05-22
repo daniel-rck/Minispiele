@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Würfelpoker Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <text x="160" y="30" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="13" font-weight="800" fill="#fbbf24">Full House</text>
+  <g>
+    <rect x="30" y="55" width="48" height="48" rx="8" fill="#fff"/>
+    <text x="54" y="92" text-anchor="middle" font-size="36" fill="#0f172a">⚄</text>
+    <rect x="85" y="55" width="48" height="48" rx="8" fill="#fff" stroke="#fbbf24" stroke-width="3"/>
+    <text x="109" y="92" text-anchor="middle" font-size="36" fill="#0f172a">⚄</text>
+    <rect x="140" y="55" width="48" height="48" rx="8" fill="#fff" stroke="#fbbf24" stroke-width="3"/>
+    <text x="164" y="92" text-anchor="middle" font-size="36" fill="#0f172a">⚄</text>
+    <rect x="195" y="55" width="48" height="48" rx="8" fill="#fff" stroke="#fbbf24" stroke-width="3"/>
+    <text x="219" y="92" text-anchor="middle" font-size="36" fill="#0f172a">⚁</text>
+    <rect x="250" y="55" width="48" height="48" rx="8" fill="#fff" stroke="#fbbf24" stroke-width="3"/>
+    <text x="274" y="92" text-anchor="middle" font-size="36" fill="#0f172a">⚁</text>
+  </g>
+  <text x="160" y="140" text-anchor="middle" font-family="ui-sans-serif,system-ui" font-size="13" font-weight="700" fill="#cbd5e1">Du 3 · KI 2</text>
+</svg>

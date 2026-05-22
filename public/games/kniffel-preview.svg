@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Kniffel Vorschau">
+  <rect width="320" height="180" fill="#0f172a"/>
+  <g>
+    <rect x="20" y="65" width="50" height="50" rx="8" fill="#fff"/>
+    <circle cx="45" cy="90" r="5" fill="#0f172a"/>
+    <rect x="80" y="65" width="50" height="50" rx="8" fill="#fff" stroke="#fbbf24" stroke-width="3"/>
+    <circle cx="92" cy="77" r="5" fill="#0f172a"/>
+    <circle cx="118" cy="103" r="5" fill="#0f172a"/>
+    <rect x="140" y="65" width="50" height="50" rx="8" fill="#fff"/>
+    <circle cx="152" cy="77" r="5" fill="#0f172a"/>
+    <circle cx="165" cy="90" r="5" fill="#0f172a"/>
+    <circle cx="178" cy="103" r="5" fill="#0f172a"/>
+    <rect x="200" y="65" width="50" height="50" rx="8" fill="#fff" stroke="#fbbf24" stroke-width="3"/>
+    <circle cx="212" cy="77" r="5" fill="#0f172a"/>
+    <circle cx="238" cy="77" r="5" fill="#0f172a"/>
+    <circle cx="212" cy="103" r="5" fill="#0f172a"/>
+    <circle cx="238" cy="103" r="5" fill="#0f172a"/>
+    <rect x="260" y="65" width="50" height="50" rx="8" fill="#fff"/>
+    <circle cx="272" cy="77" r="5" fill="#0f172a"/>
+    <circle cx="298" cy="77" r="5" fill="#0f172a"/>
+    <circle cx="285" cy="90" r="5" fill="#0f172a"/>
+    <circle cx="272" cy="103" r="5" fill="#0f172a"/>
+    <circle cx="298" cy="103" r="5" fill="#0f172a"/>
+  </g>
+</svg>
