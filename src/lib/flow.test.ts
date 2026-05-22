@@ -87,4 +87,104 @@ describe('flow', () => {
   it('isSolved is false on a fresh state', () => {
     expect(isSolved(createState(LEVELS[0]!))).toBe(false);
   });
+
+  describe('LEVELS', () => {
+    it('all levels are well-formed', () => {
+      for (let i = 0; i < LEVELS.length; i++) {
+        const lvl = LEVELS[i]!;
+        const totalCells = lvl.size * lvl.size;
+        const seen = new Set<number>();
+        for (const ep of lvl.endpoints) {
+          for (const c of ep.cells) {
+            expect(c, `Level ${i + 1} cell ${c} out of bounds`).toBeGreaterThanOrEqual(0);
+            expect(c, `Level ${i + 1} cell ${c} out of bounds`).toBeLessThan(totalCells);
+            expect(seen.has(c), `Level ${i + 1} cell ${c} used by multiple endpoints`).toBe(false);
+            seen.add(c);
+          }
+          expect(ep.cells[0]).not.toBe(ep.cells[1]);
+        }
+      }
+    });
+
+    // Sanity check: each level admits a full-coverage solution where every cell
+    // belongs to some color's path. Brute-force solver kept fast by pruning.
+    it('every level has at least one full-coverage solution', () => {
+      for (let i = 0; i < LEVELS.length; i++) {
+        const lvl = LEVELS[i]!;
+        expect(canSolve(lvl), `Level ${i + 1} (${lvl.size}x${lvl.size}) is unsolvable`).toBe(true);
+      }
+    });
+  });
 });
+
+function canSolve(level: {
+  size: number;
+  endpoints: { color: number; cells: [number, number] }[];
+}): boolean {
+  const N = level.size;
+  const total = N * N;
+  const board = new Int8Array(total).fill(-1);
+  for (const ep of level.endpoints) {
+    board[ep.cells[0]] = ep.color;
+    board[ep.cells[1]] = ep.color;
+  }
+  const neighbors = (i: number): number[] => {
+    const r = (i / N) | 0;
+    const c = i % N;
+    const n: number[] = [];
+    if (r > 0) n.push(i - N);
+    if (r < N - 1) n.push(i + N);
+    if (c > 0) n.push(i - 1);
+    if (c < N - 1) n.push(i + 1);
+    return n;
+  };
+  const colors = level.endpoints.map((e) => e.color);
+  let found = false;
+  const tryColor = (idx: number): void => {
+    if (found) return;
+    if (idx === colors.length) {
+      for (let i = 0; i < total; i++) if (board[i] === -1) return;
+      found = true;
+      return;
+    }
+    const color = colors[idx]!;
+    const ep = level.endpoints.find((e) => e.color === color)!;
+    const [start, end] = ep.cells;
+    const visited = new Uint8Array(total);
+    visited[start] = 1;
+    const path: number[] = [start];
+    const dfs = (cur: number): void => {
+      if (found) return;
+      if (cur === end && path.length >= 2) {
+        const written: number[] = [];
+        for (let k = 1; k < path.length - 1; k++) {
+          board[path[k]!] = color;
+          written.push(path[k]!);
+        }
+        tryColor(idx + 1);
+        for (const w of written) board[w] = -1;
+        return;
+      }
+      for (const nb of neighbors(cur)) {
+        if (visited[nb]) continue;
+        if (nb === end) {
+          visited[nb] = 1;
+          path.push(nb);
+          dfs(nb);
+          path.pop();
+          visited[nb] = 0;
+          continue;
+        }
+        if (board[nb] !== -1) continue;
+        visited[nb] = 1;
+        path.push(nb);
+        dfs(nb);
+        path.pop();
+        visited[nb] = 0;
+      }
+    };
+    dfs(start);
+  };
+  tryColor(0);
+  return found;
+}

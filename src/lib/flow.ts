@@ -9,46 +9,213 @@ export function colorHex(idx: number): string {
   return COLORS_HEX[idx % COLORS_HEX.length]!;
 }
 
-// Hand-crafted levels (small, solvable). Indices are 0-based row*size+col.
+// Verified-solvable levels. Indices are 0-based row*size+col.
+// Each color's pair of endpoints is connected by a Hamiltonian sub-path of a
+// snake covering the whole grid, so a full-coverage solution provably exists.
 export const LEVELS: FlowLevel[] = [
-  // 5x5 levels
+  // Level 1: 5x5, 3 colors
   {
     size: 5,
     endpoints: [
-      { color: 0, cells: [0, 14] }, // 0,0 to 2,4
-      { color: 1, cells: [4, 20] }, // 0,4 to 4,0
-      { color: 2, cells: [2, 24] }, // 0,2 to 4,4
+      { color: 0, cells: [0, 3] },
+      { color: 1, cells: [4, 12] },
+      { color: 2, cells: [13, 24] },
     ],
   },
+  // Level 2: 5x5, 3 colors
   {
     size: 5,
     endpoints: [
-      { color: 0, cells: [0, 24] },
-      { color: 1, cells: [4, 20] },
-      { color: 2, cells: [2, 22] },
-      { color: 3, cells: [11, 13] },
+      { color: 0, cells: [0, 17] },
+      { color: 1, cells: [22, 8] },
+      { color: 2, cells: [3, 24] },
     ],
   },
-  // 6x6
+  // Level 3: 5x5, 3 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 19] },
+      { color: 1, cells: [18, 20] },
+      { color: 2, cells: [21, 24] },
+    ],
+  },
+  // Level 4: 5x5, 3 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 20] },
+      { color: 1, cells: [21, 3] },
+      { color: 2, cells: [4, 24] },
+    ],
+  },
+  // Level 5: 5x5, 3 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 7] },
+      { color: 1, cells: [6, 18] },
+      { color: 2, cells: [17, 24] },
+    ],
+  },
+  // Level 6: 5x5, 4 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 3] },
+      { color: 1, cells: [4, 19] },
+      { color: 2, cells: [18, 15] },
+      { color: 3, cells: [20, 24] },
+    ],
+  },
+  // Level 7: 5x5, 4 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 16] },
+      { color: 1, cells: [11, 23] },
+      { color: 2, cells: [18, 4] },
+      { color: 3, cells: [9, 24] },
+    ],
+  },
+  // Level 8: 5x5, 4 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 3] },
+      { color: 1, cells: [4, 10] },
+      { color: 2, cells: [11, 20] },
+      { color: 3, cells: [21, 24] },
+    ],
+  },
+  // Level 9: 5x5, 4 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 15] },
+      { color: 1, cells: [20, 6] },
+      { color: 2, cells: [1, 8] },
+      { color: 3, cells: [3, 24] },
+    ],
+  },
+  // Level 10: 5x5, 4 colors
+  {
+    size: 5,
+    endpoints: [
+      { color: 0, cells: [0, 3] },
+      { color: 1, cells: [4, 18] },
+      { color: 2, cells: [17, 20] },
+      { color: 3, cells: [21, 24] },
+    ],
+  },
+  // Level 11: 6x6, 4 colors
   {
     size: 6,
     endpoints: [
-      { color: 0, cells: [0, 35] },
-      { color: 1, cells: [5, 30] },
-      { color: 2, cells: [7, 28] },
-      { color: 3, cells: [14, 21] },
-      { color: 4, cells: [3, 32] },
+      { color: 0, cells: [0, 4] },
+      { color: 1, cells: [5, 6] },
+      { color: 2, cells: [12, 16] },
+      { color: 3, cells: [17, 30] },
     ],
   },
-  // 7x7
+  // Level 12: 6x6, 4 colors
+  {
+    size: 6,
+    endpoints: [
+      { color: 0, cells: [0, 25] },
+      { color: 1, cells: [19, 1] },
+      { color: 2, cells: [2, 33] },
+      { color: 3, cells: [27, 5] },
+    ],
+  },
+  // Level 13: 6x6, 5 colors
+  {
+    size: 6,
+    endpoints: [
+      { color: 0, cells: [0, 4] },
+      { color: 1, cells: [5, 16] },
+      { color: 2, cells: [17, 20] },
+      { color: 3, cells: [19, 27] },
+      { color: 4, cells: [28, 30] },
+    ],
+  },
+  // Level 14: 6x6, 5 colors
+  {
+    size: 6,
+    endpoints: [
+      { color: 0, cells: [0, 14] },
+      { color: 1, cells: [20, 33] },
+      { color: 2, cells: [27, 9] },
+      { color: 3, cells: [3, 29] },
+      { color: 4, cells: [23, 5] },
+    ],
+  },
+  // Level 15: 6x6, 5 colors
+  {
+    size: 6,
+    endpoints: [
+      { color: 0, cells: [0, 4] },
+      { color: 1, cells: [5, 8] },
+      { color: 2, cells: [7, 15] },
+      { color: 3, cells: [16, 35] },
+      { color: 4, cells: [34, 30] },
+    ],
+  },
+  // Level 16: 7x7, 5 colors
   {
     size: 7,
     endpoints: [
-      { color: 0, cells: [0, 48] },
-      { color: 1, cells: [6, 42] },
-      { color: 2, cells: [10, 38] },
-      { color: 3, cells: [16, 32] },
-      { color: 4, cells: [22, 26] },
+      { color: 0, cells: [0, 3] },
+      { color: 1, cells: [4, 14] },
+      { color: 2, cells: [15, 26] },
+      { color: 3, cells: [25, 29] },
+      { color: 4, cells: [30, 48] },
+    ],
+  },
+  // Level 17: 7x7, 5 colors
+  {
+    size: 7,
+    endpoints: [
+      { color: 0, cells: [0, 36] },
+      { color: 1, cells: [29, 16] },
+      { color: 2, cells: [23, 3] },
+      { color: 3, cells: [4, 13] },
+      { color: 4, cells: [20, 48] },
+    ],
+  },
+  // Level 18: 7x7, 5 colors
+  {
+    size: 7,
+    endpoints: [
+      { color: 0, cells: [0, 5] },
+      { color: 1, cells: [6, 7] },
+      { color: 2, cells: [14, 18] },
+      { color: 3, cells: [19, 28] },
+      { color: 4, cells: [29, 48] },
+    ],
+  },
+  // Level 19: 7x7, 6 colors
+  {
+    size: 7,
+    endpoints: [
+      { color: 0, cells: [0, 36] },
+      { color: 1, cells: [29, 44] },
+      { color: 2, cells: [45, 3] },
+      { color: 3, cells: [4, 39] },
+      { color: 4, cells: [46, 26] },
+      { color: 5, cells: [19, 48] },
+    ],
+  },
+  // Level 20: 7x7, 6 colors
+  {
+    size: 7,
+    endpoints: [
+      { color: 0, cells: [0, 11] },
+      { color: 1, cells: [10, 19] },
+      { color: 2, cells: [20, 25] },
+      { color: 3, cells: [24, 33] },
+      { color: 4, cells: [34, 38] },
+      { color: 5, cells: [37, 48] },
     ],
   },
 ];
