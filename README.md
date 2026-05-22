@@ -62,7 +62,6 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 | `bun run dev`           | Dev-Server (HMR)                               |
 | `bun run test`          | Unit-Tests (einmalig)                          |
 | `bun run test:watch`    | Unit-Tests im Watch-Modus                      |
-| `bun run test:coverage` | Coverage-Report nach `coverage/`               |
 | `bun run test:e2e`      | Playwright-E2E auf gebauter App                |
 | `bun run lint`          | ESLint                                         |
 | `bun run format`        | Prettier (Schreiben)                           |
@@ -81,7 +80,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 ## CI / Deployment
 
-CI grün = mergebar. Pipeline: `format:check` → `lint` → `typecheck` → `test:coverage` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
+CI grün = mergebar. Pipeline: `format:check` → `lint` → `typecheck` → `test` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
 
 ## Beitragen
 

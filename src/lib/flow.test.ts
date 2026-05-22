@@ -106,16 +106,15 @@ describe('flow', () => {
       }
     });
 
-    // Sanity check: each level admits a full-coverage solution where every cell
-    // belongs to some color's path. The brute-force DFS is fast in dev (<1s
-    // total) but coverage instrumentation in CI inflates it ~10×, so the
-    // timeout is bumped well above the worst observed runtime.
+    // Sanity check: each level admits a full-coverage solution where every
+    // cell belongs to some color's path. Brute-force DFS finishes the 20-level
+    // sweep in roughly a second on a dev box; 15s leaves CI headroom.
     it('every level has at least one full-coverage solution', () => {
       for (let i = 0; i < LEVELS.length; i++) {
         const lvl = LEVELS[i]!;
         expect(canSolve(lvl), `Level ${i + 1} (${lvl.size}x${lvl.size}) is unsolvable`).toBe(true);
       }
-    }, 60_000);
+    }, 15_000);
   });
 });
 
