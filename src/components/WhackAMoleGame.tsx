@@ -35,6 +35,8 @@ export default function WhackAMoleGame() {
     }
     for (const id of hideTimeoutsRef.current.values()) window.clearTimeout(id);
     hideTimeoutsRef.current.clear();
+    // Invalidate any in-flight spawnMole callbacks — they guard on this ref.
+    startedAt.current = null;
   }, []);
 
   useEffect(() => () => cleanup(), [cleanup]);

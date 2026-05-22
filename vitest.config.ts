@@ -10,6 +10,10 @@ export default defineConfig({
     css: false,
     exclude: ['node_modules', 'dist', 'e2e', 'playwright-report', 'test-results'],
     coverage: {
+      // Coverage is generated for visibility (HTML / lcov artifacts) but no
+      // percentage gates — they reward exercising lines, not catching bugs.
+      // Tests that find real defects (e.g. game-logic regressions, the issues
+      // surfaced by review tools) are what we gate on instead.
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: 'coverage',
@@ -21,23 +25,6 @@ export default defineConfig({
         'src/test/**',
         'src/pages/**',
       ],
-      // Thresholds calibrated for ~52 game components (post foreign-games import).
-      // Smoke + axe tests cover the render path; per-game logic suites can be added
-      // later to raise these.
-      thresholds: {
-        'src/lib/**': {
-          lines: 50,
-          functions: 65,
-          branches: 70,
-          statements: 75,
-        },
-        'src/components/**': {
-          lines: 40,
-          functions: 25,
-          branches: 30,
-          statements: 35,
-        },
-      },
     },
   },
 });

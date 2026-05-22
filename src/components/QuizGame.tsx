@@ -150,7 +150,7 @@ export default function QuizGame() {
       <div className="h-1.5 w-full max-w-md overflow-hidden rounded-full bg-surface-200 dark:bg-surface-800">
         <div
           className="h-full bg-amber-400 transition-all"
-          style={{ width: `${(current / TOTAL) * 100}%` }}
+          style={{ width: `${((current + 1) / TOTAL) * 100}%` }}
         />
       </div>
 
