@@ -100,7 +100,8 @@ const GAME_INPUTS: GameCardInput[] = [
   {
     to: '/minesweeper',
     title: 'Minensucher',
-    description: 'Decke Felder auf, ohne eine Mine zu treffen. Drei Schwierigkeitsstufen.',
+    description:
+      'Decke Felder auf, ohne eine Mine zu treffen. Wahlweise Rechteck- oder Hex-Gitter.',
     preview: '/games/minesweeper-preview.svg',
     previewAlt: 'Vorschau: ein Raster mit aufgedeckten Zahlen, Flaggen und einer sichtbaren Mine',
     category: 'logik',
@@ -326,15 +327,6 @@ const GAME_INPUTS: GameCardInput[] = [
     category: 'werkzeuge',
   },
   {
-    to: '/idle-clicker',
-    title: 'Klick-Imperium',
-    description:
-      'Idle-Clicker mit sieben Upgrade-Stufen und Prestige-Multiplikator ab 10K Punkten.',
-    preview: '/games/idle-clicker-preview.svg',
-    previewAlt: 'Vorschau: ein goldener Klick-Button mit aufsteigenden Zahlen im Hintergrund',
-    category: 'gehirntraining',
-  },
-  {
     to: '/leiterspiel',
     title: 'Leiterspiel',
     description:
@@ -366,14 +358,6 @@ const GAME_INPUTS: GameCardInput[] = [
     preview: '/games/binairo-preview.svg',
     previewAlt: 'Vorschau: ein 8×8-Gitter mit blauen 0en und roten 1en',
     category: 'logik',
-  },
-  {
-    to: '/columns',
-    title: 'Columns',
-    description: 'Fallende Dreierstäbe — bilde Dreierreihen waagrecht, senkrecht oder diagonal.',
-    preview: '/games/columns-preview.svg',
-    previewAlt: 'Vorschau: ein schmales Spielfeld mit fallenden farbigen Steinkolumnen',
-    category: 'action',
   },
   {
     to: '/connections',
@@ -440,14 +424,6 @@ const GAME_INPUTS: GameCardInput[] = [
     category: 'logik',
   },
   {
-    to: '/helicopter',
-    title: 'Helicopter',
-    description: 'Fliege den Hubschrauber durch die Höhle — halte gedrückt zum Steigen.',
-    preview: '/games/helicopter-preview.svg',
-    previewAlt: 'Vorschau: ein gelber Helikopter zwischen Felswänden mit Hindernissen',
-    category: 'action',
-  },
-  {
     to: '/hitori',
     title: 'Hitori',
     description: 'Schwärze Zellen, bis keine Duplikate mehr pro Zeile oder Spalte vorkommen.',
@@ -488,14 +464,6 @@ const GAME_INPUTS: GameCardInput[] = [
     category: 'logik',
   },
   {
-    to: '/minesweeper-hex',
-    title: 'Hex-Minensucher',
-    description: 'Minesweeper auf Sechseck-Gitter — jede Zelle hat bis zu 6 Nachbarn.',
-    preview: '/games/minesweeper-hex-preview.svg',
-    previewAlt: 'Vorschau: ein Wabenfeld aus sechseckigen Zellen mit Zahlen und Flaggen',
-    category: 'logik',
-  },
-  {
     to: '/nurikabe',
     title: 'Nurikabe',
     description: 'Inseln und Meer trennen — keine 2×2-Wasserblöcke, Inseln zusammenhängend.',
@@ -530,7 +498,7 @@ const GAME_INPUTS: GameCardInput[] = [
   {
     to: '/quiz',
     title: 'Quiz',
-    description: '10 Fragen aus gemischten Kategorien (Geografie, Geschichte, Wissenschaft, …).',
+    description: 'Klassisch (10 Fragen) oder Millionär (15 Fragen mit Joker und Gewinnpyramide).',
     preview: '/games/quiz-preview.svg',
     previewAlt: 'Vorschau: eine Frage mit vier Multiple-Choice-Antworten',
     category: 'gehirntraining',
@@ -582,14 +550,6 @@ const GAME_INPUTS: GameCardInput[] = [
     preview: '/games/viergewinnt-preview.svg',
     previewAlt: 'Vorschau: ein 6×7-Brett mit roten und gelben Spielsteinen',
     category: 'logik',
-  },
-  {
-    to: '/wer-wird-millionaer',
-    title: 'Wer wird Millionär',
-    description: '15 Fragen, 3 Joker (50:50, Publikum, Telefon), Sicherheitsstufen.',
-    preview: '/games/wer-wird-millionaer-preview.svg',
-    previewAlt: 'Vorschau: eine Frage mit Multiple-Choice-Antworten und einer Gewinnpyramide',
-    category: 'gehirntraining',
   },
   {
     to: '/whack-a-mole',

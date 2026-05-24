@@ -114,10 +114,6 @@ export const router = createBrowserRouter([
         lazy: lazyPage(() => import('../pages/SlotMachine.tsx')),
       },
       {
-        path: rel(ROUTES.idleClicker),
-        lazy: lazyPage(() => import('../pages/IdleClicker.tsx')),
-      },
-      {
         path: rel(ROUTES.leiterspiel),
         lazy: lazyPage(() => import('../pages/Ladders.tsx')),
       },
@@ -132,10 +128,6 @@ export const router = createBrowserRouter([
       {
         path: rel(ROUTES.binairo),
         lazy: lazyPage(() => import('../pages/Binairo.tsx')),
-      },
-      {
-        path: rel(ROUTES.columns),
-        lazy: lazyPage(() => import('../pages/Columns.tsx')),
       },
       {
         path: rel(ROUTES.connections),
@@ -170,10 +162,6 @@ export const router = createBrowserRouter([
         lazy: lazyPage(() => import('../pages/Halma.tsx')),
       },
       {
-        path: rel(ROUTES.helicopter),
-        lazy: lazyPage(() => import('../pages/Helicopter.tsx')),
-      },
-      {
         path: rel(ROUTES.hitori),
         lazy: lazyPage(() => import('../pages/Hitori.tsx')),
       },
@@ -192,10 +180,6 @@ export const router = createBrowserRouter([
       {
         path: rel(ROUTES.match3),
         lazy: lazyPage(() => import('../pages/Match3.tsx')),
-      },
-      {
-        path: rel(ROUTES.minesweeperHex),
-        lazy: lazyPage(() => import('../pages/MinesweeperHex.tsx')),
       },
       {
         path: rel(ROUTES.nurikabe),
@@ -240,10 +224,6 @@ export const router = createBrowserRouter([
       {
         path: rel(ROUTES.viergewinnt),
         lazy: lazyPage(() => import('../pages/Viergewinnt.tsx')),
-      },
-      {
-        path: rel(ROUTES.millionaer),
-        lazy: lazyPage(() => import('../pages/Millionaer.tsx')),
       },
       {
         path: rel(ROUTES.whackAMole),

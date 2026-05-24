@@ -1,4 +1,5 @@
 export type MineDifficulty = 'easy' | 'medium' | 'hard';
+export type MinesMode = 'rect' | 'hex';
 
 export interface MineCell {
   mine: boolean;
@@ -18,6 +19,7 @@ export interface MinesweeperState {
   won: boolean;
   firstClick: boolean;
   difficulty: MineDifficulty;
+  mode: MinesMode;
   /** Index of the mine that ended the game, or null. */
   losingIdx: number | null;
 }
@@ -34,12 +36,25 @@ export const DIFFICULTY: Readonly<Record<MineDifficulty, DifficultyConfig>> = {
   hard: { cols: 12, rows: 18, mines: 42 },
 };
 
+export const HEX_DIFFICULTY: Readonly<Record<MineDifficulty, DifficultyConfig>> = {
+  easy: { cols: 8, rows: 8, mines: 10 },
+  medium: { cols: 10, rows: 10, mines: 18 },
+  hard: { cols: 12, rows: 12, mines: 30 },
+};
+
+export function configFor(mode: MinesMode, difficulty: MineDifficulty): DifficultyConfig {
+  return mode === 'hex' ? HEX_DIFFICULTY[difficulty] : DIFFICULTY[difficulty];
+}
+
 function emptyCell(): MineCell {
   return { mine: false, revealed: false, flagged: false, adjacent: 0 };
 }
 
-export function createInitialState(difficulty: MineDifficulty): MinesweeperState {
-  const cfg = DIFFICULTY[difficulty];
+export function createInitialState(
+  difficulty: MineDifficulty,
+  mode: MinesMode = 'rect',
+): MinesweeperState {
+  const cfg = configFor(mode, difficulty);
   const total = cfg.cols * cfg.rows;
   const grid = Array.from({ length: total }, emptyCell);
   return {
@@ -53,11 +68,12 @@ export function createInitialState(difficulty: MineDifficulty): MinesweeperState
     won: false,
     firstClick: true,
     difficulty,
+    mode,
     losingIdx: null,
   };
 }
 
-function neighborIndices(idx: number, cols: number, rows: number): number[] {
+function rectNeighbors(idx: number, cols: number, rows: number): number[] {
   const x = idx % cols;
   const y = Math.floor(idx / cols);
   const result: number[] = [];
@@ -74,12 +90,58 @@ function neighborIndices(idx: number, cols: number, rows: number): number[] {
   return result;
 }
 
-function computeAdjacents(grid: MineCell[], cols: number, rows: number): void {
+function hexNeighbors(idx: number, cols: number, rows: number): number[] {
+  const c = idx % cols;
+  const r = Math.floor(idx / cols);
+  const even = r % 2 === 0;
+  const dirs: [number, number][] = even
+    ? [
+        [-1, -1],
+        [-1, 0],
+        [0, -1],
+        [0, 1],
+        [1, -1],
+        [1, 0],
+      ]
+    : [
+        [-1, 0],
+        [-1, 1],
+        [0, -1],
+        [0, 1],
+        [1, 0],
+        [1, 1],
+      ];
+  const result: number[] = [];
+  for (const [dr, dc] of dirs) {
+    const nr = r + dr;
+    const nc = c + dc;
+    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+      result.push(nr * cols + nc);
+    }
+  }
+  return result;
+}
+
+export function neighborIndices(
+  idx: number,
+  cols: number,
+  rows: number,
+  mode: MinesMode = 'rect',
+): number[] {
+  return mode === 'hex' ? hexNeighbors(idx, cols, rows) : rectNeighbors(idx, cols, rows);
+}
+
+function computeAdjacents(
+  grid: MineCell[],
+  cols: number,
+  rows: number,
+  mode: MinesMode = 'rect',
+): void {
   for (let i = 0; i < grid.length; i++) {
     const cell = grid[i]!;
     if (cell.mine) continue;
     let count = 0;
-    for (const n of neighborIndices(i, cols, rows)) {
+    for (const n of neighborIndices(i, cols, rows, mode)) {
       if (grid[n]!.mine) count += 1;
     }
     cell.adjacent = count;
@@ -91,9 +153,9 @@ export function placeMinesAvoiding(
   firstIdx: number,
   rng: () => number = Math.random,
 ): MinesweeperState {
-  const { cols, rows, mines } = state;
+  const { cols, rows, mines, mode } = state;
   const total = cols * rows;
-  const forbidden = new Set<number>([firstIdx, ...neighborIndices(firstIdx, cols, rows)]);
+  const forbidden = new Set<number>([firstIdx, ...neighborIndices(firstIdx, cols, rows, mode)]);
   const available: number[] = [];
   for (let i = 0; i < total; i++) if (!forbidden.has(i)) available.push(i);
 
@@ -108,7 +170,7 @@ export function placeMinesAvoiding(
   const minesToPlace = Math.min(mines, available.length);
   const mineSet = new Set(available.slice(0, minesToPlace));
   const grid = state.grid.map((cell, i) => ({ ...cell, mine: mineSet.has(i) }));
-  computeAdjacents(grid, cols, rows);
+  computeAdjacents(grid, cols, rows, mode);
   return { ...state, grid, firstClick: false };
 }
 
@@ -157,7 +219,7 @@ export function reveal(
     c.revealed = true;
     revealedDelta += 1;
     if (c.adjacent === 0) {
-      for (const n of neighborIndices(current, working.cols, working.rows)) {
+      for (const n of neighborIndices(current, working.cols, working.rows, working.mode)) {
         const nc = grid[n]!;
         if (!nc.revealed && !nc.flagged && !nc.mine) queue.push(n);
       }
