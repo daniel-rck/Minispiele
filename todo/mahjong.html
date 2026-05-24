@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mahjong Solitaire</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 12px; user-select: none; padding: 10px; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #status { font-size: 1.1rem; padding: 8px 24px; border-radius: 8px; background: #16213e; border: 1px solid #0f3460; display: flex; align-items: center; gap: 20px; }
+  #status.won { background: #1a5c1a; border-color: #3a3; font-weight: bold; }
+  #status.lost { background: #5c1a1a; border-color: #a33; font-weight: bold; }
+  #board { position: relative; }
+  .tile {
+    position: absolute; width: 44px; height: 56px;
+    background: #f5f0e1; border-radius: 4px; cursor: pointer;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-size: 11px; font-weight: bold; color: #1a1a2e;
+    transition: box-shadow 0.15s, opacity 0.3s;
+    border-right: 2px solid #b8a88a; border-bottom: 3px solid #a08868;
+  }
+  .tile:hover { filter: brightness(1.05); }
+  .tile.blocked { opacity: 0.65; cursor: default; }
+  .tile.selected { box-shadow: 0 0 0 3px #7b61ff, 0 2px 8px rgba(123,97,255,0.5); z-index: 9000 !important; }
+  .tile.hint { box-shadow: 0 0 0 3px #c9b458; }
+  .tile .symbol { font-size: 20px; line-height: 1; }
+  .tile .label { font-size: 9px; color: #666; }
+  #controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  button { padding: 8px 20px; border: 1px solid #c9b458; background: #16213e; color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+  button:hover { background: #0f3460; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>MAHJONG</h1>
+<div id="status">
+  <span>Steine: <span id="remaining">144</span></span>
+  <span>Paare: <span id="pairs-left">0</span></span>
+</div>
+<div id="board"></div>
+<div id="controls">
+  <button onclick="newGame()">Neues Spiel</button>
+  <button onclick="showHint()">Hinweis</button>
+  <button onclick="shuffleFree()">Mischen</button>
+</div>
+
+<script>
+// Tile types: 9 dots, 9 bamboo, 9 chars, 4 winds, 3 dragons = 34 types, 4 each = 136
+// + 4 seasons (unique) + 4 flowers (unique) = 144
+const TILE_TYPES = [];
+const DOT_SYMBOLS = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨'];
+const BAMBOO_SYMBOLS = ['🀐','❷','❸','❹','❺','❻','❼','❽','❾'];
+const CHAR_SYMBOLS = ['一','二','三','四','五','六','七','八','九'];
+const WIND_SYMBOLS = ['N','O','S','W'];
+const DRAGON_SYMBOLS = ['龍','發','白'];
+
+for (let i = 0; i < 9; i++) TILE_TYPES.push({ id: `dot${i}`, group: 'dot', symbol: DOT_SYMBOLS[i], label: `Kreis ${i+1}`, match: `dot${i}` });
+for (let i = 0; i < 9; i++) TILE_TYPES.push({ id: `bam${i}`, group: 'bam', symbol: (i+1).toString(), label: `Bambus ${i+1}`, match: `bam${i}` });
+for (let i = 0; i < 9; i++) TILE_TYPES.push({ id: `chr${i}`, group: 'chr', symbol: CHAR_SYMBOLS[i], label: `Zeichen ${i+1}`, match: `chr${i}` });
+for (let i = 0; i < 4; i++) TILE_TYPES.push({ id: `wind${i}`, group: 'wind', symbol: WIND_SYMBOLS[i], label: ['Nord','Ost','Süd','West'][i], match: `wind${i}` });
+for (let i = 0; i < 3; i++) TILE_TYPES.push({ id: `drag${i}`, group: 'drag', symbol: DRAGON_SYMBOLS[i], label: ['Rot','Grün','Weiss'][i], match: `drag${i}` });
+
+// Seasons and flowers match within group
+const SEASON_TYPES = [
+  { id: 's0', group: 'season', symbol: '春', label: 'Frühling', match: 'season' },
+  { id: 's1', group: 'season', symbol: '夏', label: 'Sommer', match: 'season' },
+  { id: 's2', group: 'season', symbol: '秋', label: 'Herbst', match: 'season' },
+  { id: 's3', group: 'season', symbol: '冬', label: 'Winter', match: 'season' },
+];
+const FLOWER_TYPES = [
+  { id: 'f0', group: 'flower', symbol: '梅', label: 'Pflaume', match: 'flower' },
+  { id: 'f1', group: 'flower', symbol: '蘭', label: 'Orchidee', match: 'flower' },
+  { id: 'f2', group: 'flower', symbol: '菊', label: 'Chrysantheme', match: 'flower' },
+  { id: 'f3', group: 'flower', symbol: '竹', label: 'Bambus', match: 'flower' },
+];
+
+// Turtle layout: positions as [layer, row, col]
+const LAYOUT = [];
+// Layer 0: 12 columns x 8 rows with classic shape
+const L0 = [
+  [0,0,0,1,1,1,1,1,1,0,0,0],
+  [0,0,1,1,1,1,1,1,1,1,0,0],
+  [0,1,1,1,1,1,1,1,1,1,1,0],
+  [1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1],
+  [0,1,1,1,1,1,1,1,1,1,1,0],
+  [0,0,1,1,1,1,1,1,1,1,0,0],
+  [0,0,0,1,1,1,1,1,1,0,0,0],
+];
+for (let r = 0; r < 8; r++)
+  for (let c = 0; c < 12; c++)
+    if (L0[r][c]) LAYOUT.push([0, r, c]);
+
+// Layer 1: 10x6 centered
+const L1 = [
+  [0,0,1,1,1,1,1,1,0,0],
+  [0,1,1,1,1,1,1,1,1,0],
+  [0,1,1,1,1,1,1,1,1,0],
+  [0,1,1,1,1,1,1,1,1,0],
+  [0,1,1,1,1,1,1,1,1,0],
+  [0,0,1,1,1,1,1,1,0,0],
+];
+for (let r = 0; r < 6; r++)
+  for (let c = 0; c < 10; c++)
+    if (L1[r][c]) LAYOUT.push([1, r + 1, c + 1]);
+
+// Layer 2: 6x4 centered
+const L2 = [
+  [0,1,1,1,1,0],
+  [1,1,1,1,1,1],
+  [1,1,1,1,1,1],
+  [0,1,1,1,1,0],
+];
+for (let r = 0; r < 4; r++)
+  for (let c = 0; c < 6; c++)
+    if (L2[r][c]) LAYOUT.push([2, r + 2, c + 3]);
+
+// Layer 3: 2x2 centered
+LAYOUT.push([3, 3, 5]);
+LAYOUT.push([3, 3, 6]);
+LAYOUT.push([3, 4, 5]);
+LAYOUT.push([3, 4, 6]);
+
+// Layer 4: 1 tile on top
+LAYOUT.push([4, 3, 5]);
+
+// Trim to 144 tiles
+while (LAYOUT.length > 144) LAYOUT.pop();
+// Pad if needed
+while (LAYOUT.length < 144) {
+  // Add extra layer 0 tiles
+  LAYOUT.push([0, 3, 12 + LAYOUT.length - 140]);
+}
+
+let tiles, selected, gameOver;
+
+function shuffle(arr) { for (let i = arr.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+function createPairPool() {
+  // 34 regular types × 2 pairs = 68 pairs + 2 season + 2 flower = 72 pairs = 144 tiles
+  const pairs = [];
+  for (const type of TILE_TYPES) {
+    pairs.push([{ ...type }, { ...type }]);
+    pairs.push([{ ...type }, { ...type }]);
+  }
+  pairs.push([{ ...SEASON_TYPES[0] }, { ...SEASON_TYPES[1] }]);
+  pairs.push([{ ...SEASON_TYPES[2] }, { ...SEASON_TYPES[3] }]);
+  pairs.push([{ ...FLOWER_TYPES[0] }, { ...FLOWER_TYPES[1] }]);
+  pairs.push([{ ...FLOWER_TYPES[2] }, { ...FLOWER_TYPES[3] }]);
+  return shuffle(pairs);
+}
+
+function newGame() {
+  // 1. Create all tiles as alive, no type yet
+  tiles = LAYOUT.map((pos) => ({
+    layer: pos[0], row: pos[1], col: pos[2],
+    type: null, alive: true
+  }));
+
+  // 2. Simulate playing: find free pairs, assign types, "remove" them.
+  //    This guarantees solvability — the game can be solved in the same order.
+  const pairs = createPairPool();
+  let pairIdx = 0;
+  const assignOrder = []; // track removal order for verification
+
+  for (let safety = 0; safety < 200 && pairIdx < pairs.length; safety++) {
+    // Find all currently free tiles (alive ones)
+    const free = tiles.filter(t => t.alive && isFree(t));
+    if (free.length < 2) break;
+    shuffle(free);
+
+    // Assign a pair to the first two free tiles, then remove them
+    const t1 = free[0], t2 = free[1];
+    t1.type = pairs[pairIdx][0];
+    t2.type = pairs[pairIdx][1];
+    t1.alive = false;
+    t2.alive = false;
+    assignOrder.push([t1, t2]);
+    pairIdx++;
+  }
+
+  // 3. Restore all tiles to alive
+  tiles.forEach(t => t.alive = true);
+
+  // 4. Handle any unassigned tiles (layout has odd spots etc.)
+  const unassigned = tiles.filter(t => t.type === null);
+  for (let i = 0; i < unassigned.length - 1; i += 2) {
+    const type = TILE_TYPES[i % TILE_TYPES.length];
+    unassigned[i].type = { ...type };
+    unassigned[i + 1].type = { ...type };
+  }
+  if (unassigned.length % 2 === 1) {
+    unassigned[unassigned.length - 1].type = { ...TILE_TYPES[0] };
+  }
+
+  selected = null; gameOver = false;
+  document.getElementById('status').className = '';
+  render();
+}
+
+function isFree(tile) {
+  if (!tile.alive) return false;
+  // Not covered from above
+  const covered = tiles.some(t => t.alive && t.layer === tile.layer + 1 &&
+    Math.abs(t.row - tile.row) < 1.5 && Math.abs(t.col - tile.col) < 1.5 &&
+    t !== tile);
+  if (covered) return false;
+  // Not blocked both left AND right
+  const leftBlocked = tiles.some(t => t.alive && t.layer === tile.layer &&
+    t.row === tile.row && t.col === tile.col - 1 && t !== tile);
+  const rightBlocked = tiles.some(t => t.alive && t.layer === tile.layer &&
+    t.row === tile.row && t.col === tile.col + 1 && t !== tile);
+  return !(leftBlocked && rightBlocked);
+}
+
+function canMatch(a, b) {
+  if (a === b) return false;
+  if (!a.alive || !b.alive) return false;
+  if (!isFree(a) || !isFree(b)) return false;
+  return a.type.match === b.type.match;
+}
+
+function findPair() {
+  const free = tiles.filter(t => t.alive && isFree(t));
+  for (let i = 0; i < free.length; i++)
+    for (let j = i + 1; j < free.length; j++)
+      if (free[i].type.match === free[j].type.match) return [free[i], free[j]];
+  return null;
+}
+
+function clickTile(tile) {
+  if (gameOver || !tile.alive || !isFree(tile)) return;
+
+  if (!selected) { selected = tile; render(); return; }
+
+  if (selected === tile) { selected = null; render(); return; }
+
+  if (canMatch(selected, tile)) {
+    selected.alive = false;
+    tile.alive = false;
+    selected = null;
+    const remaining = tiles.filter(t => t.alive).length;
+    if (remaining === 0) {
+      gameOver = true;
+      document.getElementById('status').className = 'won';
+    } else if (!findPair()) {
+      gameOver = true;
+      document.getElementById('status').className = 'lost';
+    }
+    render();
+  } else {
+    selected = tile;
+    render();
+  }
+}
+
+function showHint() {
+  if (gameOver) return;
+  const pair = findPair();
+  if (!pair) return;
+  selected = null;
+  render();
+  // Highlight hint tiles
+  const els = document.querySelectorAll('.tile');
+  els.forEach(el => {
+    const idx = parseInt(el.dataset.idx);
+    if (idx === tiles.indexOf(pair[0]) || idx === tiles.indexOf(pair[1])) {
+      el.classList.add('hint');
+    }
+  });
+}
+
+function shuffleFree() {
+  if (gameOver) return;
+  const free = tiles.filter(t => t.alive && isFree(t));
+  const types = free.map(t => t.type);
+  shuffle(types);
+  free.forEach((t, i) => t.type = types[i]);
+  selected = null;
+  render();
+}
+
+function render() {
+  const board = document.getElementById('board');
+  const TW = 44, TH = 56, GAP = 2, LAYER_DX = 4, LAYER_DY = 4;
+  const CELL_W = TW + GAP, CELL_H = TH + GAP;
+  const maxCol = Math.max(...tiles.filter(t => t.alive).map(t => t.col));
+  const maxRow = Math.max(...tiles.filter(t => t.alive).map(t => t.row));
+  board.style.width = (maxCol + 1) * CELL_W + 5 * LAYER_DX + TW + 30 + 'px';
+  board.style.height = (maxRow + 1) * CELL_H + 5 * LAYER_DY + TH + 20 + 'px';
+  board.innerHTML = '';
+
+  const remaining = tiles.filter(t => t.alive).length;
+  document.getElementById('remaining').textContent = remaining;
+  const pair = findPair();
+  document.getElementById('pairs-left').textContent = pair ? 'verfügbar' : 'keine!';
+
+  // Sort: lower layers first, then top-to-bottom, left-to-right
+  const sorted = tiles.filter(t => t.alive).sort((a, b) =>
+    a.layer - b.layer || a.row - b.row || a.col - b.col
+  );
+
+  sorted.forEach(tile => {
+    const idx = tiles.indexOf(tile);
+    const el = document.createElement('div');
+    el.className = 'tile';
+    el.dataset.idx = idx;
+
+    const x = 10 + tile.col * CELL_W + tile.layer * LAYER_DX;
+    const y = 10 + tile.row * CELL_H - tile.layer * LAYER_DY;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.zIndex = tile.layer * 100 + tile.row * 10;
+
+    // Layer shadow for 3D effect
+    if (tile.layer > 0) {
+      el.style.borderRight = `${2 + tile.layer}px solid #b8a88a`;
+      el.style.borderBottom = `${3 + tile.layer}px solid #a08868`;
+    }
+
+    const free = isFree(tile);
+    if (!free) el.classList.add('blocked');
+    if (selected === tile) el.classList.add('selected');
+
+    // Color coding by group
+    const groupColors = { dot: '#1a4a8a', bam: '#1a6a3a', chr: '#8a1a1a', wind: '#4a1a6a', drag: '#6a4a1a', season: '#1a6a6a', flower: '#6a1a4a' };
+    el.style.borderTop = `2px solid ${groupColors[tile.type.group] || '#888'}`;
+
+    el.innerHTML = `<div class="symbol">${tile.type.symbol}</div><div class="label">${tile.type.label}</div>`;
+    el.addEventListener('click', () => clickTile(tile));
+    board.appendChild(el);
+  });
+
+  if (gameOver) {
+    if (remaining === 0) {
+      document.getElementById('pairs-left').textContent = 'Gewonnen!';
+    } else {
+      document.getElementById('pairs-left').textContent = 'Keine Züge!';
+    }
+  }
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Mahjong Solitaire</h2><p>Finde und entferne Paare gleicher Steine. Ein Stein ist nur spielbar, wenn er <b>frei</b> ist (nicht von einem anderen bedeckt und mindestens eine Seite frei).<br><br><b>Ziel:</b> Räume alle Steine ab!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

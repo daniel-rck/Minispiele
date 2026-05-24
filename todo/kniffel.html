@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kniffel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px;align-items:center}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4;cursor:default}
+.dice-area{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.die{width:60px;height:60px;background:#f5f5f0;border-radius:10px;display:flex;justify-content:center;align-items:center;cursor:pointer;transition:all .2s;border:3px solid transparent;position:relative}
+.die.held{border-color:#c9b458;background:#e8e0c8}
+.die.rolling{animation:roll .3s ease}
+@keyframes roll{0%{transform:rotate(0)}50%{transform:rotate(180deg) scale(.8)}100%{transform:rotate(360deg)}}
+.die canvas{border-radius:6px}
+.pip{width:10px;height:10px;background:#333;border-radius:50%;position:absolute}
+#msg{color:#c9b458;font-weight:bold;font-size:1.05rem;min-height:1.5em;text-align:center}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+table{border-collapse:collapse;background:#16213e;border-radius:8px;overflow:hidden}
+th,td{padding:6px 14px;border:1px solid #0f3460;font-size:.85rem;text-align:center}
+th{background:#0f3460;color:#c9b458}
+td.clickable{cursor:pointer;color:#888}
+td.clickable:hover{background:#0f3460;color:#c9b458}
+td.scored{color:#c9b458;font-weight:bold}
+td.preview{color:#555;font-style:italic}
+.total-row td{background:#0f3460;color:#c9b458;font-weight:bold}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>KNIFFEL</h1>
+<p id="msg">Würfle los!</p>
+<div class="dice-area" id="dice"></div>
+<div class="controls">
+<button class="btn" id="btn-roll" onclick="rollDice()">Würfeln (3 übrig)</button>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+<table id="scorecard"></table>
+<p id="info">Highscore: <span class="val" id="best">-</span></p>
+
+<script>
+const CATS=[
+  {id:'ones',name:'Einser',section:'upper',fn:d=>d.filter(x=>x===1).reduce((a,b)=>a+b,0)},
+  {id:'twos',name:'Zweier',section:'upper',fn:d=>d.filter(x=>x===2).reduce((a,b)=>a+b,0)},
+  {id:'threes',name:'Dreier',section:'upper',fn:d=>d.filter(x=>x===3).reduce((a,b)=>a+b,0)},
+  {id:'fours',name:'Vierer',section:'upper',fn:d=>d.filter(x=>x===4).reduce((a,b)=>a+b,0)},
+  {id:'fives',name:'Fünfer',section:'upper',fn:d=>d.filter(x=>x===5).reduce((a,b)=>a+b,0)},
+  {id:'sixes',name:'Sechser',section:'upper',fn:d=>d.filter(x=>x===6).reduce((a,b)=>a+b,0)},
+  {id:'three_kind',name:'Dreierpasch',section:'lower',fn:d=>{const c=counts(d);return Object.values(c).some(v=>v>=3)?d.reduce((a,b)=>a+b,0):0}},
+  {id:'four_kind',name:'Viererpasch',section:'lower',fn:d=>{const c=counts(d);return Object.values(c).some(v=>v>=4)?d.reduce((a,b)=>a+b,0):0}},
+  {id:'full_house',name:'Full House',section:'lower',fn:d=>{const c=Object.values(counts(d)).sort();return(c.length===2&&c[0]===2&&c[1]===3)?25:0}},
+  {id:'sm_straight',name:'Kleine Straße',section:'lower',fn:d=>{const u=[...new Set(d)].sort();const s=u.join('');return s.includes('1234')||s.includes('2345')||s.includes('3456')?30:0}},
+  {id:'lg_straight',name:'Große Straße',section:'lower',fn:d=>{const u=[...new Set(d)].sort().join('');return u==='12345'||u==='23456'?40:0}},
+  {id:'kniffel',name:'Kniffel',section:'lower',fn:d=>{const c=counts(d);return Object.values(c).some(v=>v===5)?50:0}},
+  {id:'chance',name:'Chance',section:'lower',fn:d=>d.reduce((a,b)=>a+b,0)},
+];
+function counts(d){const c={};d.forEach(v=>{c[v]=(c[v]||0)+1});return c;}
+
+let dice=[1,2,3,4,5],held=[false,false,false,false,false],rollsLeft=3,scores={},round=0,gameOver=false;
+
+function newGame(){
+  dice=[1,2,3,4,5];held=[false,false,false,false,false];rollsLeft=3;scores={};round=0;gameOver=false;
+  document.getElementById('msg').textContent='Würfle los!';
+  renderDice();renderScorecard();
+  document.getElementById('btn-roll').disabled=false;
+}
+
+function rollDice(){
+  if(rollsLeft<=0||gameOver)return;
+  rollsLeft--;
+  for(let i=0;i<5;i++){if(!held[i])dice[i]=1+Math.floor(Math.random()*6);}
+  document.getElementById('btn-roll').textContent=`Würfeln (${rollsLeft} übrig)`;
+  document.getElementById('btn-roll').disabled=rollsLeft===0;
+  document.getElementById('msg').textContent=rollsLeft>0?'Klicke Würfel zum Halten, dann nochmal würfeln.':'Wähle eine Kategorie.';
+  renderDice();renderScorecard();
+}
+
+function renderDice(){
+  const area=document.getElementById('dice');
+  area.innerHTML='';
+  const pipPositions={
+    1:[[50,50]],
+    2:[[25,25],[75,75]],
+    3:[[25,25],[50,50],[75,75]],
+    4:[[25,25],[75,25],[25,75],[75,75]],
+    5:[[25,25],[75,25],[50,50],[25,75],[75,75]],
+    6:[[25,25],[75,25],[25,50],[75,50],[25,75],[75,75]]
+  };
+  for(let i=0;i<5;i++){
+    const div=document.createElement('div');
+    div.className='die'+(held[i]?' held':'');
+    const pips=pipPositions[dice[i]];
+    for(const[px,py]of pips){
+      const pip=document.createElement('div');
+      pip.className='pip';
+      pip.style.left=(px-8)+'%';pip.style.top=(py-8)+'%';
+      div.appendChild(pip);
+    }
+    div.onclick=(()=>{const idx=i;return()=>{
+      if(rollsLeft===3||rollsLeft<0||gameOver)return;
+      held[idx]=!held[idx];renderDice();
+    };})();
+    area.appendChild(div);
+  }
+}
+
+function renderScorecard(){
+  const table=document.getElementById('scorecard');
+  table.innerHTML='<tr><th>Kategorie</th><th>Punkte</th></tr>';
+  let upperSum=0,totalSum=0;
+  for(const cat of CATS){
+    if(cat.section==='upper'&&cat.id==='ones'){
+      // no extra header needed
+    }
+    const tr=document.createElement('tr');
+    const tdName=document.createElement('td');tdName.textContent=cat.name;
+    const tdScore=document.createElement('td');
+    if(scores[cat.id]!==undefined){
+      tdScore.textContent=scores[cat.id];
+      tdScore.className='scored';
+      if(cat.section==='upper')upperSum+=scores[cat.id];
+      totalSum+=scores[cat.id];
+    } else if(rollsLeft<3&&!gameOver){
+      const preview=cat.fn(dice);
+      tdScore.textContent=preview;
+      tdScore.className='clickable preview';
+      tdScore.onclick=(()=>{const c=cat;return()=>scoreCategory(c);})();
+    } else {
+      tdScore.textContent='-';
+    }
+    tr.appendChild(tdName);tr.appendChild(tdScore);
+    table.appendChild(tr);
+    if(cat.id==='sixes'){
+      const bonus=upperSum>=63?35:0;
+      const br=document.createElement('tr');br.className='total-row';
+      br.innerHTML=`<td>Bonus (${upperSum}/63)</td><td>${round>=6?(bonus>0?'+35':'0'):'...'}</td>`;
+      table.appendChild(br);
+      if(round>=6)totalSum+=bonus;
+    }
+  }
+  const tr=document.createElement('tr');tr.className='total-row';
+  tr.innerHTML=`<td>Gesamt</td><td>${totalSum}</td>`;
+  table.appendChild(tr);
+}
+
+function scoreCategory(cat){
+  if(scores[cat.id]!==undefined||rollsLeft===3)return;
+  scores[cat.id]=cat.fn(dice);
+  round++;
+  if(round>=13){
+    gameOver=true;
+    let upperSum=0;
+    for(const c of CATS)if(c.section==='upper'&&scores[c.id])upperSum+=scores[c.id];
+    const bonus=upperSum>=63?35:0;
+    let total=Object.values(scores).reduce((a,b)=>a+b,0)+bonus;
+    document.getElementById('msg').textContent=`Spiel vorbei! Gesamt: ${total} Punkte`;
+    const best=localStorage.getItem('kniffel-best');
+    if(!best||total>parseInt(best))localStorage.setItem('kniffel-best',total);
+    document.getElementById('best').textContent=localStorage.getItem('kniffel-best');
+  } else {
+    rollsLeft=3;held=[false,false,false,false,false];
+    document.getElementById('btn-roll').textContent='Würfeln (3 übrig)';
+    document.getElementById('btn-roll').disabled=false;
+    document.getElementById('msg').textContent=`Runde ${round+1}/13 — Würfle!`;
+  }
+  renderDice();renderScorecard();
+}
+
+const best=localStorage.getItem('kniffel-best');
+if(best)document.getElementById('best').textContent=best;
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Kniffel (Yahtzee)</h2><p>Würfle bis zu 3 Mal pro Runde. Halte Würfel, die du behalten willst, und versuche die Kombinationen zu erfüllen.<br><br><b>Kombinationen:</b> Einer bis Sechser (Summe), Dreierpasch, Viererpasch, Full House (25), Kleine Straße (30), Große Straße (40), Kniffel/Yahtzee (50), Chance.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

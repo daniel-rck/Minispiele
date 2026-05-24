@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic-Tac-Toe</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 18px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 10px; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  #info { font-size: 1rem; color: #888; }
+  .val { color: #c9b458; font-weight: bold; }
+  #board { display: grid; grid-template-columns: repeat(3, 100px); gap: 6px; }
+  .cell { width: 100px; height: 100px; background: #16213e; border: 2px solid #0f3460; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; font-weight: bold; cursor: pointer; transition: all 0.15s; }
+  .cell:hover { background: #1a2a5e; }
+  .cell.x { color: #c9b458; }
+  .cell.o { color: #e74c3c; }
+  .cell.win { background: #1a4a2e; border-color: #2ecc71; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1.2rem; min-height: 1.5em; }
+  #scores { display: flex; gap: 30px; font-size: 1rem; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>TIC-TAC-TOE</h1>
+<div class="controls">
+  <select id="difficulty">
+    <option value="easy">Leicht</option>
+    <option value="medium" selected>Mittel</option>
+    <option value="hard">Schwer</option>
+  </select>
+  <button onclick="newGame()">Neues Spiel</button>
+  <button onclick="resetScores()">Punkte zurücksetzen</button>
+</div>
+<div id="scores">
+  <span>Du (X): <span class="val" id="scoreX">0</span></span>
+  <span>Unentschieden: <span class="val" id="scoreD">0</span></span>
+  <span>Computer (O): <span class="val" id="scoreO">0</span></span>
+</div>
+<p id="msg">Du bist dran</p>
+<div id="board"></div>
+
+<script>
+let board = Array(9).fill('');
+let gameOver = false;
+let scores = { x: 0, o: 0, d: 0 };
+let winCells = [];
+
+const LINES = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+function newGame() {
+  board = Array(9).fill('');
+  gameOver = false;
+  winCells = [];
+  document.getElementById('msg').textContent = 'Du bist dran';
+  render();
+}
+
+function resetScores() {
+  scores = { x: 0, o: 0, d: 0 };
+  updateScores();
+  newGame();
+}
+
+function updateScores() {
+  document.getElementById('scoreX').textContent = scores.x;
+  document.getElementById('scoreO').textContent = scores.o;
+  document.getElementById('scoreD').textContent = scores.d;
+}
+
+function checkWin(b) {
+  for (const [a, bb, c] of LINES) {
+    if (b[a] && b[a] === b[bb] && b[a] === b[c]) return { winner: b[a], cells: [a, bb, c] };
+  }
+  return null;
+}
+
+function isDraw(b) { return b.every(c => c !== ''); }
+
+function minimax(b, isMax, alpha, beta) {
+  const result = checkWin(b);
+  if (result) return result.winner === 'O' ? 10 : -10;
+  if (isDraw(b)) return 0;
+
+  if (isMax) {
+    let best = -Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (b[i]) continue;
+      b[i] = 'O';
+      best = Math.max(best, minimax(b, false, alpha, beta));
+      b[i] = '';
+      alpha = Math.max(alpha, best);
+      if (beta <= alpha) break;
+    }
+    return best;
+  } else {
+    let best = Infinity;
+    for (let i = 0; i < 9; i++) {
+      if (b[i]) continue;
+      b[i] = 'X';
+      best = Math.min(best, minimax(b, true, alpha, beta));
+      b[i] = '';
+      beta = Math.min(beta, best);
+      if (beta <= alpha) break;
+    }
+    return best;
+  }
+}
+
+function aiPerfectMove() {
+  let bestScore = -Infinity;
+  let bestMove = -1;
+  for (let i = 0; i < 9; i++) {
+    if (board[i]) continue;
+    board[i] = 'O';
+    const score = minimax(board, false, -Infinity, Infinity);
+    board[i] = '';
+    if (score > bestScore) { bestScore = score; bestMove = i; }
+  }
+  return bestMove;
+}
+
+function aiRandomMove() {
+  const empty = board.map((v, i) => v === '' ? i : -1).filter(i => i >= 0);
+  return empty[Math.floor(Math.random() * empty.length)];
+}
+
+function aiBestMove() {
+  const diff = document.getElementById('difficulty').value;
+  if (diff === 'easy') {
+    // 20% Chance auf optimalen Zug, sonst zufällig
+    return Math.random() < 0.2 ? aiPerfectMove() : aiRandomMove();
+  }
+  if (diff === 'medium') {
+    // 60% Chance auf optimalen Zug
+    return Math.random() < 0.6 ? aiPerfectMove() : aiRandomMove();
+  }
+  return aiPerfectMove();
+}
+
+function handleEnd() {
+  const result = checkWin(board);
+  if (result) {
+    winCells = result.cells;
+    gameOver = true;
+    if (result.winner === 'X') { scores.x++; document.getElementById('msg').textContent = 'Du gewinnst!'; }
+    else { scores.o++; document.getElementById('msg').textContent = 'Computer gewinnt!'; }
+    updateScores();
+    render();
+    return true;
+  }
+  if (isDraw(board)) {
+    gameOver = true;
+    scores.d++;
+    document.getElementById('msg').textContent = 'Unentschieden!';
+    updateScores();
+    render();
+    return true;
+  }
+  return false;
+}
+
+function humanMove(idx) {
+  if (gameOver || board[idx]) return;
+  board[idx] = 'X';
+  render();
+  if (handleEnd()) return;
+
+  // AI move
+  setTimeout(() => {
+    const move = aiBestMove();
+    if (move >= 0) {
+      board[move] = 'O';
+      render();
+      if (handleEnd()) return;
+      document.getElementById('msg').textContent = 'Du bist dran';
+    }
+  }, 200);
+}
+
+function render() {
+  const el = document.getElementById('board');
+  el.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const div = document.createElement('div');
+    div.className = 'cell';
+    if (board[i] === 'X') { div.classList.add('x'); div.textContent = 'X'; }
+    else if (board[i] === 'O') { div.classList.add('o'); div.textContent = 'O'; }
+    if (winCells.includes(i)) div.classList.add('win');
+    div.onclick = () => humanMove(i);
+    el.appendChild(div);
+  }
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Tic-Tac-Toe</h2><p>Setze abwechselnd X und O auf das 3x3-Feld. Wer zuerst 3 in einer Reihe hat (horizontal, vertikal oder diagonal), gewinnt.<br><br><b>Tipp:</b> Belege die Mitte und die Ecken für den strategischen Vorteil!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

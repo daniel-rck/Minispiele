@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hex</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+canvas{border-radius:8px;cursor:pointer}
+#msg{color:#c9b458;font-weight:bold;font-size:1.1rem;min-height:1.5em;text-align:center}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+.controls label{color:#888;font-size:.85rem}
+.controls select{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 6px}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>HEX</h1>
+<div class="controls">
+<label>Brett: <select id="sel-size" onchange="newGame()"><option value="7">7x7</option><option value="11" selected>11x11</option><option value="14">14x14</option></select></label>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+</div>
+<p id="msg">Du (Blau) verbindest Oben-Unten. KI (Rot) verbindet Links-Rechts.</p>
+<canvas id="c"></canvas>
+<p id="info">Gewonnen: <span class="val" id="wins">0</span> | Verloren: <span class="val" id="losses">0</span></p>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+let SIZE=11,board,gameOver,playerTurn;
+let wins=parseInt(localStorage.getItem('hex-wins')||'0');
+let losses=parseInt(localStorage.getItem('hex-losses')||'0');
+document.getElementById('wins').textContent=wins;
+document.getElementById('losses').textContent=losses;
+
+const HEX_H=28;
+const sqrt3=Math.sqrt(3);
+
+function hexToPixel(r,c){
+  const w=HEX_H*sqrt3;
+  const x=60+c*w+r*w/2;
+  const y=50+r*HEX_H*1.5;
+  return{x,y};
+}
+
+function newGame(){
+  SIZE=parseInt(document.getElementById('sel-size').value);
+  board=Array.from({length:SIZE},()=>new Int8Array(SIZE));
+  gameOver=false;playerTurn=true;
+  canvas.width=Math.max(400,60+SIZE*HEX_H*sqrt3+SIZE*HEX_H*sqrt3/2+60);
+  canvas.height=Math.max(300,50+SIZE*HEX_H*1.5+60);
+  document.getElementById('msg').textContent='Du (Blau): Oben-Unten. KI (Rot): Links-Rechts.';
+  draw();
+}
+
+function drawHex(cx,cy,r,fill,stroke){
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+    const angle=Math.PI/6+i*Math.PI/3;
+    const x=cx+r*Math.cos(angle);
+    const y=cy+r*Math.sin(angle);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();}
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,canvas.width,canvas.height);
+  const r=HEX_H-2;
+  // border indicators
+  for(let i=0;i<SIZE;i++){
+    const t=hexToPixel(0,i);
+    ctx.fillStyle='rgba(52,152,219,0.3)';ctx.fillRect(t.x-10,t.y-HEX_H-5,20,5);
+    const b=hexToPixel(SIZE-1,i);
+    ctx.fillStyle='rgba(52,152,219,0.3)';ctx.fillRect(b.x-10,b.y+HEX_H,20,5);
+    const l=hexToPixel(i,0);
+    ctx.fillStyle='rgba(231,76,60,0.3)';ctx.fillRect(l.x-HEX_H-5,l.y-5,5,10);
+    const ri2=hexToPixel(i,SIZE-1);
+    ctx.fillStyle='rgba(231,76,60,0.3)';ctx.fillRect(ri2.x+HEX_H,ri2.y-5,5,10);
+  }
+  for(let row=0;row<SIZE;row++){
+    for(let col=0;col<SIZE;col++){
+      const{x,y}=hexToPixel(row,col);
+      let fill='#16213e';
+      if(board[row][col]===1)fill='#3498db';
+      else if(board[row][col]===2)fill='#e74c3c';
+      drawHex(x,y,r,fill,'#0f3460');
+    }
+  }
+  // winning path
+  if(gameOver&&winPath){
+    for(const[row,col]of winPath){
+      const{x,y}=hexToPixel(row,col);
+      drawHex(x,y,r-2,null,'#c9b458');
+      ctx.lineWidth=3;ctx.stroke();
+    }
+  }
+}
+
+let winPath=null;
+function checkWin(player){
+  const visited=Array.from({length:SIZE},()=>new Uint8Array(SIZE));
+  const queue=[];
+  const parent=Array.from({length:SIZE},()=>Array.from({length:SIZE},()=>null));
+  if(player===1){
+    for(let c=0;c<SIZE;c++)if(board[0][c]===1){queue.push([0,c]);visited[0][c]=1;}
+  } else {
+    for(let r=0;r<SIZE;r++)if(board[r][0]===2){queue.push([r,0]);visited[r][0]=1;}
+  }
+  const dirs=[[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0]];
+  while(queue.length){
+    const[r,c]=queue.shift();
+    if(player===1&&r===SIZE-1){
+      winPath=[];let cur=[r,c];while(cur){winPath.push(cur);cur=parent[cur[0]][cur[1]];}
+      return true;
+    }
+    if(player===2&&c===SIZE-1){
+      winPath=[];let cur=[r,c];while(cur){winPath.push(cur);cur=parent[cur[0]][cur[1]];}
+      return true;
+    }
+    for(const[dr,dc]of dirs){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&!visited[nr][nc]&&board[nr][nc]===player){
+        visited[nr][nc]=1;
+        parent[nr][nc]=[r,c];
+        queue.push([nr,nc]);
+      }
+    }
+  }
+  return false;
+}
+
+canvas.onclick=function(e){
+  if(gameOver||!playerTurn)return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const my=(e.clientY-rect.top)*(canvas.height/rect.height);
+  let best=null,bestDist=Infinity;
+  for(let r=0;r<SIZE;r++){
+    for(let c=0;c<SIZE;c++){
+      const{x,y}=hexToPixel(r,c);
+      const d=Math.hypot(mx-x,my-y);
+      if(d<HEX_H&&d<bestDist){bestDist=d;best=[r,c];}
+    }
+  }
+  if(!best||board[best[0]][best[1]])return;
+  board[best[0]][best[1]]=1;
+  if(checkWin(1)){
+    gameOver=true;wins++;localStorage.setItem('hex-wins',wins);
+    document.getElementById('wins').textContent=wins;
+    document.getElementById('msg').textContent='Du hast gewonnen!';
+    draw();return;
+  }
+  playerTurn=false;draw();
+  setTimeout(aiMove,300);
+};
+
+function aiMove(){
+  // Simple strategy: block player, try to connect
+  const empty=[];
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++)if(!board[r][c])empty.push([r,c]);
+  if(empty.length===0)return;
+  let bestMove=null,bestScore=-Infinity;
+  const sample=empty.length>30?empty.sort(()=>Math.random()-.5).slice(0,30):empty;
+  for(const[r,c]of sample){
+    let score=0;
+    // prefer center
+    score+=SIZE-Math.abs(r-SIZE/2)-Math.abs(c-SIZE/2);
+    // check neighbors for own pieces
+    const dirs=[[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0]];
+    for(const[dr,dc]of dirs){
+      const nr=r+dr,nc=c+dc;
+      if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE){
+        if(board[nr][nc]===2)score+=3;
+        if(board[nr][nc]===1)score+=2;// block
+      }
+    }
+    // test win
+    board[r][c]=2;
+    if(checkWin(2)){board[r][c]=0;winPath=null;bestMove=[r,c];break;}
+    board[r][c]=0;winPath=null;
+    // test block
+    board[r][c]=1;
+    if(checkWin(1)){board[r][c]=0;winPath=null;score+=20;}
+    else{board[r][c]=0;winPath=null;}
+    if(score>bestScore){bestScore=score;bestMove=[r,c];}
+  }
+  if(!bestMove)bestMove=empty[0];
+  board[bestMove[0]][bestMove[1]]=2;
+  if(checkWin(2)){
+    gameOver=true;losses++;localStorage.setItem('hex-losses',losses);
+    document.getElementById('losses').textContent=losses;
+    document.getElementById('msg').textContent='KI hat gewonnen!';
+  }
+  playerTurn=true;
+  draw();
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Hex</h2><p>Verbinde deine beiden gegenüberliegenden Seiten des Bretts mit einer ununterbrochenen Kette deiner Steine.<br><br><b>Spielablauf:</b> Abwechselnd einen Stein auf ein freies Feld setzen. Es kann kein Unentschieden geben!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

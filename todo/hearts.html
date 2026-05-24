@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearts</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 10px; user-select: none; padding: 20px; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  #scores { display: flex; gap: 20px; font-size: 0.9rem; padding: 6px 20px; background: #16213e; border: 1px solid #0f3460; border-radius: 8px; }
+  .player-score { text-align: center; }
+  .player-score .name { color: #888; font-size: 0.8rem; }
+  .player-score .pts { color: #c9b458; font-weight: bold; font-size: 1.1rem; }
+  .player-score.active .name { color: #c9b458; }
+  #table { width: 300px; height: 200px; background: #16213e; border: 2px solid #0f3460; border-radius: 12px; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; position: relative; }
+  .table-card { width: 50px; height: 70px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; border: 1px solid #ccc; }
+  .table-card.red { color: #e74c3c; background: #f8f0e8; }
+  .table-card.blk { color: #222; background: #f8f0e8; }
+  .table-card .tc-suit { font-size: 1.1rem; }
+  .table-label { position: absolute; font-size: 0.6rem; color: #888; }
+  #hand { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; max-width: 700px; }
+  .hand-card { width: 55px; height: 78px; border-radius: 5px; border: 2px solid #d9c9b8; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4px; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+  .hand-card.red { color: #e74c3c; background: #f8f0e8; }
+  .hand-card.blk { color: #222; background: #f8f0e8; }
+  .hand-card:hover { transform: translateY(-8px); }
+  .hand-card.disabled { opacity: 0.4; cursor: not-allowed; }
+  .hand-card.disabled:hover { transform: none; }
+  .hand-card .hc-suit { font-size: 1.2rem; margin-top: 4px; }
+  #msg { color: #c9b458; font-weight: bold; min-height: 1.5em; text-align: center; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>HEARTS</h1>
+<div class="controls"><button onclick="newGame()">Neues Spiel</button></div>
+<div id="scores"></div>
+<p id="msg"></p>
+<div id="table"></div>
+<div id="hand"></div>
+
+<script>
+const SUITS = ['♣','♦','♠','♥'];
+const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const SUIT_COLOR = { '♣':'blk','♦':'red','♠':'blk','♥':'red' };
+const NAMES = ['Du','West','Nord','Ost'];
+
+let hands = [[],[],[],[]];
+let scores = [0,0,0,0];
+let roundScores = [0,0,0,0];
+let trick = []; // {player, card}
+let leadPlayer = 0;
+let currentPlayer = 0;
+let heartsBroken = false;
+let trickNum = 0;
+let gameOver = false;
+
+function card(suit, rank) { return { suit, rank, label: RANKS[rank] }; }
+function cardPoints(c) { if (c.suit === '♥') return 1; if (c.suit === '♠' && c.rank === 10) return 13; return 0; }
+function cardValue(c) { return c.rank; }
+function cardSort(a, b) { const si = SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit); return si !== 0 ? si : a.rank - b.rank; }
+
+function createDeck() {
+  const d = [];
+  for (const s of SUITS) for (let r = 0; r < 13; r++) d.push(card(s, r));
+  return d;
+}
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } }
+
+function newGame() {
+  scores = [0,0,0,0];
+  startRound();
+}
+
+function startRound() {
+  const deck = createDeck();
+  shuffle(deck);
+  hands = [deck.slice(0,13), deck.slice(13,26), deck.slice(26,39), deck.slice(39,52)];
+  hands.forEach(h => h.sort(cardSort));
+  roundScores = [0,0,0,0];
+  trick = [];
+  heartsBroken = false;
+  trickNum = 0;
+  gameOver = false;
+
+  // Find 2 of clubs
+  for (let p = 0; p < 4; p++) {
+    const idx = hands[p].findIndex(c => c.suit === '♣' && c.rank === 0);
+    if (idx >= 0) { leadPlayer = p; currentPlayer = p; break; }
+  }
+
+  document.getElementById('msg').textContent = trickNum === 0 ? '2 Kreuz muss gespielt werden' : '';
+  render();
+  if (currentPlayer !== 0) aiTurn();
+}
+
+function canPlay(card, playerIdx) {
+  const hand = hands[playerIdx];
+  if (trick.length === 0) {
+    // First trick: must play 2 of clubs
+    if (trickNum === 0) return card.suit === '♣' && card.rank === 0;
+    // Lead: can't lead hearts unless broken
+    if (card.suit === '♥' && !heartsBroken) {
+      return hand.every(c => c.suit === '♥');
+    }
+    return true;
+  }
+  const leadSuit = trick[0].card.suit;
+  if (card.suit === leadSuit) return true;
+  // Must follow suit
+  if (hand.some(c => c.suit === leadSuit)) return false;
+  // First trick: no points
+  if (trickNum === 0) {
+    if (cardPoints(card) > 0) return hand.every(c => cardPoints(c) > 0);
+  }
+  return true;
+}
+
+function playCard(playerIdx, cardIdx) {
+  const c = hands[playerIdx].splice(cardIdx, 1)[0];
+  trick.push({ player: playerIdx, card: c });
+  if (c.suit === '♥') heartsBroken = true;
+
+  if (trick.length === 4) {
+    // Determine winner
+    const leadSuit = trick[0].card.suit;
+    let winner = trick[0];
+    for (let i = 1; i < 4; i++) {
+      if (trick[i].card.suit === leadSuit && trick[i].card.rank > winner.card.rank) winner = trick[i];
+    }
+    const pts = trick.reduce((s, t) => s + cardPoints(t.card), 0);
+    roundScores[winner.player] += pts;
+
+    setTimeout(() => {
+      trick = [];
+      trickNum++;
+      leadPlayer = winner.player;
+      currentPlayer = winner.player;
+
+      if (trickNum >= 13) {
+        // Shoot the moon check
+        for (let p = 0; p < 4; p++) {
+          if (roundScores[p] === 26) {
+            for (let q = 0; q < 4; q++) roundScores[q] = q === p ? 0 : 26;
+          }
+        }
+        for (let p = 0; p < 4; p++) scores[p] += roundScores[p];
+
+        if (scores.some(s => s >= 100)) {
+          gameOver = true;
+          const winner = scores.indexOf(Math.min(...scores));
+          document.getElementById('msg').textContent = `Spiel vorbei — ${NAMES[winner]} gewinnt!`;
+          render();
+          return;
+        }
+        document.getElementById('msg').textContent = 'Runde vorbei — nächste Runde...';
+        render();
+        setTimeout(() => startRound(), 2000);
+        return;
+      }
+
+      document.getElementById('msg').textContent = '';
+      render();
+      if (currentPlayer !== 0) aiTurn();
+    }, 800);
+
+    render();
+    return;
+  }
+
+  currentPlayer = (currentPlayer + 1) % 4;
+  render();
+  if (currentPlayer !== 0 && trick.length < 4) {
+    setTimeout(() => aiTurn(), 400);
+  }
+}
+
+function aiTurn() {
+  if (currentPlayer === 0 || trick.length >= 4) return;
+  const hand = hands[currentPlayer];
+  const playable = hand.map((c, i) => ({ c, i })).filter(x => canPlay(x.c, currentPlayer));
+
+  if (playable.length === 0) return;
+
+  // Simple AI: avoid taking points
+  let choice;
+  if (trick.length === 0) {
+    // Lead with lowest non-heart
+    choice = playable.find(x => x.c.suit !== '♥') || playable[0];
+  } else {
+    const leadSuit = trick[0].card.suit;
+    const following = playable.filter(x => x.c.suit === leadSuit);
+    if (following.length > 0) {
+      // Play highest that won't win, or lowest
+      const highestPlayed = Math.max(...trick.filter(t => t.card.suit === leadSuit).map(t => t.card.rank));
+      const safe = following.filter(x => x.c.rank < highestPlayed);
+      choice = safe.length > 0 ? safe[safe.length - 1] : following[0];
+    } else {
+      // Dump queen of spades or high hearts
+      const qs = playable.find(x => x.c.suit === '♠' && x.c.rank === 10);
+      if (qs) choice = qs;
+      else {
+        const hearts = playable.filter(x => x.c.suit === '♥').sort((a, b) => b.c.rank - a.c.rank);
+        choice = hearts.length > 0 ? hearts[0] : playable[playable.length - 1];
+      }
+    }
+  }
+
+  playCard(currentPlayer, choice.i);
+}
+
+function humanPlay(cardIdx) {
+  if (currentPlayer !== 0 || gameOver) return;
+  if (!canPlay(hands[0][cardIdx], 0)) return;
+  playCard(0, cardIdx);
+}
+
+function render() {
+  // Scores
+  const scoresEl = document.getElementById('scores');
+  scoresEl.innerHTML = NAMES.map((n, i) =>
+    `<div class="player-score ${currentPlayer === i ? 'active' : ''}"><div class="name">${n}</div><div class="pts">${scores[i]}${roundScores[i] > 0 ? ` (+${roundScores[i]})` : ''}</div></div>`
+  ).join('');
+
+  // Table
+  const tableEl = document.getElementById('table');
+  tableEl.innerHTML = trick.map(t => {
+    const color = SUIT_COLOR[t.card.suit];
+    return `<div class="table-card ${color}"><span>${t.card.label}${t.card.suit}</span><span class="tc-suit">${t.card.suit}</span></div>`;
+  }).join('');
+
+  // Hand
+  const handEl = document.getElementById('hand');
+  handEl.innerHTML = hands[0].map((c, i) => {
+    const color = SUIT_COLOR[c.suit];
+    const disabled = currentPlayer !== 0 || !canPlay(c, 0);
+    return `<div class="hand-card ${color} ${disabled ? 'disabled' : ''}" onclick="humanPlay(${i})"><span>${c.label}${c.suit}</span><span class="hc-suit">${c.suit}</span></div>`;
+  }).join('');
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Hearts</h2><p>Stichspiel: Vermeide Herz-Karten (je 1 Punkt) und die Pik-Dame (13 Punkte).<br><br><b>Regeln:</b> Zu Beginn 3 Karten tauschen. Herz darf nicht ausgespielt werden, solange es nicht "gebrochen" wurde. Wer alle Strafpunkte sammelt, macht den Durchmarsch (0 statt 26 Punkte)!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

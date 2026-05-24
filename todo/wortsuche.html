@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wortsuche</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:flex-start;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px;align-items:center}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1.05rem;min-height:1.5em;text-align:center}
+.game{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.grid{display:inline-grid;gap:0}
+.cell{width:30px;height:30px;display:flex;justify-content:center;align-items:center;font-weight:bold;font-size:.85rem;cursor:pointer;border:1px solid transparent;border-radius:3px;transition:all .15s}
+.cell:hover{background:rgba(201,180,88,.2)}
+.cell.selecting{background:rgba(201,180,88,.4)}
+.cell.found{font-weight:bold}
+.wordlist{display:flex;flex-direction:column;gap:4px;min-width:120px}
+.wordlist-item{font-size:.9rem;color:#888;padding:2px 6px;border-radius:4px}
+.wordlist-item.found{color:#2ecc71;text-decoration:line-through}
+.controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-items:center}
+.controls label{color:#888;font-size:.85rem}
+.controls select{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 6px}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>WORTSUCHE</h1>
+<div class="controls">
+<label>Thema: <select id="sel-theme" onchange="newGame()">
+<option value="tiere">Tiere</option>
+<option value="essen">Essen</option>
+<option value="laender">Länder</option>
+<option value="sport">Sport</option>
+</select></label>
+<button class="btn" onclick="newGame()">Neues Rätsel</button>
+</div>
+<p id="msg">Finde alle versteckten Wörter!</p>
+<div class="game">
+<div class="grid" id="grid"></div>
+<div class="wordlist" id="wordlist"></div>
+</div>
+
+<script>
+const THEMES={
+  tiere:['HUND','KATZE','PFERD','MAUS','ADLER','FUCHS','WOLF','HASE','RABE','FISCH','BAER','EULE'],
+  essen:['BROT','MILCH','APFEL','KUCHEN','SALAT','SUPPE','PIZZA','NUDEL','REIS','WURST','TORTE','SAHNE'],
+  laender:['PERU','IRAN','CHINA','JAPAN','CHILE','KUBA','NEPAL','MALI','OMAN','TOGO','LAOS','NIGER'],
+  sport:['GOLF','YOGA','JUDO','POLO','RUDERN','BOXEN','LAUFEN','SURFEN','REITEN','RINGEN','TURNEN','SEGELN']
+};
+const COLORS=['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22','#1abc9c','#e91e63','#00bcd4','#ff9800','#8bc34a','#ff5722'];
+const DIRS=[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
+const N=12;
+let grid,words,foundWords,wordPositions,selecting,selStart,selCells;
+
+function newGame(){
+  const theme=document.getElementById('sel-theme').value;
+  const pool=[...THEMES[theme]].sort(()=>Math.random()-.5);
+  words=pool.slice(0,10);
+  grid=Array.from({length:N},()=>Array(N).fill(''));
+  wordPositions={};foundWords=new Set();
+
+  // Place words
+  for(const word of words){
+    let placed=false;
+    for(let attempt=0;attempt<200;attempt++){
+      const dir=DIRS[Math.floor(Math.random()*DIRS.length)];
+      const r=Math.floor(Math.random()*N);
+      const c=Math.floor(Math.random()*N);
+      if(canPlace(word,r,c,dir)){
+        placeWord(word,r,c,dir);
+        placed=true;break;
+      }
+    }
+    if(!placed)words=words.filter(w=>w!==word);
+  }
+
+  // Fill empty
+  const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!grid[r][c])grid[r][c]=alpha[Math.floor(Math.random()*26)];
+
+  selecting=false;selStart=null;selCells=[];
+  render();
+}
+
+function canPlace(word,r,c,dir){
+  for(let i=0;i<word.length;i++){
+    const nr=r+dir[0]*i,nc=c+dir[1]*i;
+    if(nr<0||nr>=N||nc<0||nc>=N)return false;
+    if(grid[nr][nc]&&grid[nr][nc]!==word[i])return false;
+  }
+  return true;
+}
+
+function placeWord(word,r,c,dir){
+  const cells=[];
+  for(let i=0;i<word.length;i++){
+    const nr=r+dir[0]*i,nc=c+dir[1]*i;
+    grid[nr][nc]=word[i];
+    cells.push([nr,nc]);
+  }
+  wordPositions[word]=cells;
+}
+
+function render(){
+  const gridDiv=document.getElementById('grid');
+  gridDiv.style.gridTemplateColumns=`repeat(${N},30px)`;
+  gridDiv.innerHTML='';
+  for(let r=0;r<N;r++){
+    for(let c=0;c<N;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.textContent=grid[r][c];
+      cell.dataset.r=r;cell.dataset.c=c;
+      // check if found
+      for(const[word,colorIdx]of Object.entries(foundColors)){
+        if(wordPositions[word]&&wordPositions[word].some(([wr,wc])=>wr===r&&wc===c)){
+          cell.classList.add('found');
+          cell.style.color=COLORS[colorIdx%COLORS.length];
+        }
+      }
+      if(selCells.some(([sr,sc])=>sr===r&&sc===c))cell.classList.add('selecting');
+      cell.onmousedown=()=>startSelect(r,c);
+      cell.onmouseenter=()=>moveSelect(r,c);
+      cell.onmouseup=()=>endSelect();
+      cell.ontouchstart=(e)=>{e.preventDefault();startSelect(r,c);};
+      gridDiv.appendChild(cell);
+    }
+  }
+  const wl=document.getElementById('wordlist');
+  wl.innerHTML='';
+  for(const w of words){
+    const el=document.createElement('div');
+    el.className='wordlist-item'+(foundWords.has(w)?' found':'');
+    el.textContent=w;
+    wl.appendChild(el);
+  }
+  if(foundWords.size===words.length){
+    document.getElementById('msg').textContent='Alle Wörter gefunden!';
+  }
+}
+
+let foundColors={};
+function startSelect(r,c){selecting=true;selStart=[r,c];selCells=[[r,c]];render();}
+function moveSelect(r,c){
+  if(!selecting)return;
+  const[sr,sc]=selStart;
+  const dr=Math.sign(r-sr),dc=Math.sign(c-sc);
+  if(dr===0&&dc===0){selCells=[[sr,sc]];render();return;}
+  selCells=[];
+  let cr=sr,cc=sc;
+  while(cr>=0&&cr<N&&cc>=0&&cc<N){
+    selCells.push([cr,cc]);
+    if(cr===r&&cc===c)break;
+    cr+=dr;cc+=dc;
+  }
+  render();
+}
+function endSelect(){
+  if(!selecting)return;
+  selecting=false;
+  const selected=selCells.map(([r,c])=>grid[r][c]).join('');
+  const reversed=[...selected].reverse().join('');
+  for(const w of words){
+    if(!foundWords.has(w)&&(selected===w||reversed===w)){
+      foundWords.add(w);
+      foundColors[w]=Object.keys(foundColors).length;
+    }
+  }
+  selCells=[];
+  render();
+}
+
+document.onmouseup=()=>{if(selecting)endSelect();};
+document.ontouchend=()=>{if(selecting)endSelect();};
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Wortsuche</h2><p>Finde die versteckten Wörter im Buchstabengitter. Wörter können horizontal, vertikal und diagonal versteckt sein.<br><br><b>Steuerung:</b> Klicke und ziehe über die Buchstaben, um ein Wort zu markieren.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

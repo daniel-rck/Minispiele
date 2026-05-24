@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wer wird Millionär</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.4rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1rem;min-height:1.4em;text-align:center}
+.question-box{background:#16213e;border:2px solid #c9b458;border-radius:12px;padding:16px 20px;text-align:center;max-width:500px;width:100%;font-size:1rem;min-height:60px;display:flex;align-items:center;justify-content:center}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:500px;width:100%}
+.answer{background:#16213e;border:2px solid #0f3460;border-radius:10px;padding:12px;cursor:pointer;transition:all .2s;text-align:center;font-size:.9rem}
+.answer:hover{border-color:#c9b458}
+.answer.correct{background:#1a4a2e;border-color:#2ecc71;color:#2ecc71}
+.answer.wrong{background:#4a1a1a;border-color:#e74c3c;color:#e74c3c}
+.answer.hidden{opacity:.3;pointer-events:none}
+.answer .letter{color:#c9b458;font-weight:bold;margin-right:6px}
+.pyramid{display:flex;flex-direction:column;gap:2px;min-width:160px}
+.level{padding:3px 10px;border-radius:4px;font-size:.7rem;display:flex;justify-content:space-between;background:#0f3460;color:#888}
+.level.current{background:#c9b458;color:#1a1a2e;font-weight:bold}
+.level.safe{color:#c9b458;font-weight:bold}
+.level.done{color:#2ecc71}
+.jokers{display:flex;gap:8px}
+.joker{padding:6px 12px;background:#16213e;border:1px solid #0f3460;border-radius:6px;cursor:pointer;font-size:.8rem;color:#c9b458;transition:all .15s}
+.joker:hover{border-color:#c9b458}
+.joker.used{opacity:.3;pointer-events:none;text-decoration:line-through}
+.game-row{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;justify-content:center}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>WER WIRD MILLIONÄR</h1>
+<p id="msg"></p>
+<div class="game-row">
+<div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:500px;width:100%">
+<div class="question-box" id="question"></div>
+<div class="answers" id="answers"></div>
+<div class="jokers" id="jokers"></div>
+</div>
+<div class="pyramid" id="pyramid"></div>
+</div>
+<button class="btn" id="btn-new" onclick="newGame()" style="display:none">Neues Spiel</button>
+
+<script>
+const PRIZES=[50,100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,500000,1000000];
+const SAFE=[0,4,9];// indices that are safe havens (50, 1000, 32000... mapped to 0-indexed)
+const QUESTIONS=[
+  // Easy (1-5)
+  {q:'Wie viele Beine hat eine Spinne?',a:['6','8','10','4'],c:1},
+  {q:'Welche Farbe hat ein Rubin?',a:['Blau','Grün','Rot','Gelb'],c:2},
+  {q:'Was ist die Hauptstadt von Frankreich?',a:['London','Madrid','Paris','Rom'],c:2},
+  {q:'Wie viele Tage hat ein Schaltjahr?',a:['364','365','366','367'],c:2},
+  {q:'Welches Tier macht "Muh"?',a:['Schaf','Kuh','Pferd','Schwein'],c:1},
+  {q:'Wie heißt der längste Fluss Europas?',a:['Donau','Rhein','Wolga','Elbe'],c:2},
+  {q:'Was ist H2O?',a:['Sauerstoff','Wasser','Salz','Zucker'],c:1},
+  {q:'Welcher Planet ist der Erde am nächsten?',a:['Mars','Jupiter','Venus','Saturn'],c:2},
+  {q:'Wie viele Bundesländer hat Deutschland?',a:['14','15','16','17'],c:2},
+  {q:'Welches Instrument hat 88 Tasten?',a:['Gitarre','Klavier','Orgel','Harfe'],c:1},
+  // Medium (6-10)
+  {q:'In welchem Jahr fiel die Berliner Mauer?',a:['1987','1988','1989','1990'],c:2},
+  {q:'Welches ist das größte Organ des Menschen?',a:['Leber','Lunge','Haut','Gehirn'],c:2},
+  {q:'Wie heißt die Währung Japans?',a:['Yuan','Won','Yen','Baht'],c:2},
+  {q:'Welcher Ozean ist der größte?',a:['Atlantik','Pazifik','Indischer','Arktischer'],c:1},
+  {q:'Wer malte die Mona Lisa?',a:['Michelangelo','Raphael','Da Vinci','Botticelli'],c:2},
+  {q:'Was ist die chemische Formel für Kochsalz?',a:['NaCl','KCl','CaCO3','NaOH'],c:0},
+  {q:'Welches Land hat die meisten Einwohner?',a:['USA','Indien','China','Indonesien'],c:2},
+  {q:'Wie viele Zähne hat ein Erwachsener normalerweise?',a:['28','30','32','34'],c:2},
+  {q:'Welches Tier kann sein Gewicht in Gold aufwiegen?',a:['Kolibri','Bienenkönigin','Ameise','Marienkäfer'],c:0},
+  {q:'Wann begann der Erste Weltkrieg?',a:['1912','1914','1916','1918'],c:1},
+  // Hard (11-15)
+  {q:'Welches Element hat das chemische Zeichen "Au"?',a:['Silber','Aluminium','Gold','Argon'],c:2},
+  {q:'Wie heißt die Hauptstadt von Australien?',a:['Sydney','Melbourne','Canberra','Brisbane'],c:2},
+  {q:'Wer schrieb "Die Verwandlung"?',a:['Thomas Mann','Franz Kafka','Hermann Hesse','Bertolt Brecht'],c:1},
+  {q:'Welcher Berg ist der höchste Europas?',a:['Mont Blanc','Matterhorn','Elbrus','Zugspitze'],c:2},
+  {q:'In welchem Jahr wurde Wikipedia gegründet?',a:['1999','2001','2003','2005'],c:1},
+];
+
+let currentLevel,jokers,gameOver,questions;
+
+function newGame(){
+  questions=[...QUESTIONS].sort(()=>Math.random()-.5);
+  currentLevel=0;
+  jokers={fifty:false,audience:false,phone:false};
+  gameOver=false;
+  document.getElementById('btn-new').style.display='none';
+  document.getElementById('msg').textContent='';
+  loadQuestion();
+}
+
+function loadQuestion(){
+  if(currentLevel>=15){
+    document.getElementById('msg').textContent='MILLIONÄR! Du hast alle 15 Fragen richtig beantwortet!';
+    endGame();return;
+  }
+  const q=questions[currentLevel];
+  document.getElementById('question').textContent=q.q;
+  renderAnswers(q);
+  renderPyramid();
+  renderJokers();
+}
+
+function renderAnswers(q){
+  const div=document.getElementById('answers');
+  div.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.a.forEach((a,i)=>{
+    const el=document.createElement('div');
+    el.className='answer';
+    el.dataset.idx=i;
+    el.innerHTML=`<span class="letter">${letters[i]}:</span> ${a}`;
+    el.onclick=()=>selectAnswer(i);
+    div.appendChild(el);
+  });
+}
+
+function selectAnswer(idx){
+  if(gameOver)return;
+  const q=questions[currentLevel];
+  const answers=document.querySelectorAll('.answer');
+  answers.forEach(a=>a.style.pointerEvents='none');
+
+  if(idx===q.c){
+    answers[idx].classList.add('correct');
+    setTimeout(()=>{
+      currentLevel++;
+      loadQuestion();
+    },1000);
+  } else {
+    answers[idx].classList.add('wrong');
+    answers[q.c].classList.add('correct');
+    const safeLevel=SAFE.filter(s=>s<currentLevel).pop();
+    const prize=safeLevel!==undefined?PRIZES[safeLevel]:0;
+    document.getElementById('msg').textContent=`Falsch! Du gehst mit ${prize.toLocaleString()} Punkten nach Hause.`;
+    endGame();
+  }
+}
+
+function endGame(){
+  gameOver=true;
+  document.getElementById('btn-new').style.display='';
+  renderPyramid();
+}
+
+function renderPyramid(){
+  const div=document.getElementById('pyramid');
+  div.innerHTML='';
+  for(let i=14;i>=0;i--){
+    const el=document.createElement('div');
+    const isSafe=SAFE.includes(i);
+    let cls='level';
+    if(i===currentLevel&&!gameOver)cls+=' current';
+    else if(i<currentLevel)cls+=' done';
+    if(isSafe)cls+=' safe';
+    el.className=cls;
+    el.innerHTML=`<span>${i+1}</span><span>${PRIZES[i].toLocaleString()}</span>`;
+    div.appendChild(el);
+  }
+}
+
+function renderJokers(){
+  const div=document.getElementById('jokers');
+  div.innerHTML='';
+  const j=[
+    {key:'fifty',label:'50:50',fn:useFifty},
+    {key:'audience',label:'Publikum',fn:useAudience},
+    {key:'phone',label:'Telefon',fn:usePhone},
+  ];
+  j.forEach(({key,label,fn})=>{
+    const el=document.createElement('div');
+    el.className='joker'+(jokers[key]?' used':'');
+    el.textContent=label;
+    if(!jokers[key])el.onclick=fn;
+    div.appendChild(el);
+  });
+}
+
+function useFifty(){
+  jokers.fifty=true;
+  const q=questions[currentLevel];
+  const wrong=q.a.map((_,i)=>i).filter(i=>i!==q.c).sort(()=>Math.random()-.5);
+  const hide=[wrong[0],wrong[1]];
+  document.querySelectorAll('.answer').forEach((el,i)=>{
+    if(hide.includes(i))el.classList.add('hidden');
+  });
+  renderJokers();
+}
+
+function useAudience(){
+  jokers.audience=true;
+  const q=questions[currentLevel];
+  const pcts=[5,5,5,5];
+  pcts[q.c]=60+Math.floor(Math.random()*25);
+  const rest=100-pcts[q.c];
+  const others=[0,1,2,3].filter(i=>i!==q.c);
+  pcts[others[0]]=Math.floor(rest*0.5);
+  pcts[others[1]]=Math.floor(rest*0.3);
+  pcts[others[2]]=rest-pcts[others[0]]-pcts[others[1]];
+  document.getElementById('msg').textContent=`Publikum: A:${pcts[0]}% B:${pcts[1]}% C:${pcts[2]}% D:${pcts[3]}%`;
+  renderJokers();
+}
+
+function usePhone(){
+  jokers.phone=true;
+  const q=questions[currentLevel];
+  const letters=['A','B','C','D'];
+  const sure=Math.random()<0.7;
+  const answer=sure?q.c:[0,1,2,3][Math.floor(Math.random()*4)];
+  document.getElementById('msg').textContent=`Telefonjoker: "Ich ${sure?'bin mir sicher':'glaube'}, es ist ${letters[answer]}."`;
+  renderJokers();
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Wer wird Millionär?</h2><p>Beantworte bis zu 15 Fragen mit steigendem Schwierigkeitsgrad. Jede richtige Antwort erhöht deinen Gewinn.<br><br><b>Joker:</b> 50:50 (zwei falsche Antworten entfernen), Publikumsjoker, Telefonjoker. Sicherheitsstufen bei 500 und 16.000!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

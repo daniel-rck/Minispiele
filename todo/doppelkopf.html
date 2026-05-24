@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doppelkopf</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:8px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:.95rem;min-height:1.4em;text-align:center;max-width:550px}
+.area{background:#16213e;border:1px solid #0f3460;border-radius:10px;padding:8px;width:100%;max-width:600px;text-align:center}
+.area h3{color:#c9b458;font-size:.75rem;margin-bottom:4px}
+.cards{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;min-height:56px}
+.card{width:44px;height:62px;border-radius:5px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:bold;font-size:.7rem;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.card:hover{transform:translateY(-4px)}
+.card-front{background:#f5f5f0}
+.card.red{color:#e74c3c}.card.black{color:#333}
+.card.playable{border-color:#c9b458}
+.opp-cards{display:flex;gap:2px;justify-content:center}
+.opp-card{width:20px;height:32px;background:#0f3460;border-radius:3px}
+.trick{display:flex;gap:6px;justify-content:center;min-height:64px;align-items:center}
+.score{font-size:.85rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>DOPPELKOPF</h1>
+<p id="msg">Doppelkopf — vereinfachte Version. Trumpf: alle Herzen, Karo-Damen, alle Buben.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;max-width:600px">
+<div class="area" style="flex:1;min-width:120px"><h3>KI 1 (<span id="o0-n">12</span>)</h3><div class="opp-cards" id="o0"></div></div>
+<div class="area" style="flex:1;min-width:120px"><h3>KI 2 (<span id="o1-n">12</span>)</h3><div class="opp-cards" id="o1"></div></div>
+<div class="area" style="flex:1;min-width:120px"><h3>KI 3 (<span id="o2-n">12</span>)</h3><div class="opp-cards" id="o2"></div></div>
+</div>
+<div class="area"><h3>Stich</h3><div class="trick" id="trick"></div></div>
+<div class="area"><h3>Deine Karten</h3><div class="cards" id="hand"></div></div>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+<p class="score">Deine Stichpunkte: <span class="val" id="pts">0</span></p>
+
+<script>
+const SUITS=['♣','♠','♥','♦'];
+const RANKS=['9','10','J','Q','K','A'];
+const PTS={9:0,10:10,J:2,Q:3,K:4,A:11};
+const isRed=s=>s==='♥'||s==='♦';
+
+// Trump: all Hearts, all Jacks, all Queens, Karo 10
+function isTrump(c){return c.suit==='♥'||c.rank==='J'||c.rank==='Q';}
+function trumpRank(c){
+  if(c.rank==='Q'){const o={'♣':8,'♠':7,'♥':6,'♦':5};return o[c.suit];}
+  if(c.rank==='J'){const o={'♣':4,'♠':3,'♥':2,'♦':1};return o[c.suit];}
+  if(c.suit==='♥'){const o={9:0,K:1,10:2,A:3};return o[c.rank]||0;}
+  return 0;
+}
+function suitRank(c){const o={9:0,K:1,10:2,A:3};return o[c.rank]||0;}
+
+let hands,trick,lead,stichCount,myPts,phase;
+
+function createDeck(){
+  const d=[];
+  // Double deck (simplified: each card appears twice)
+  for(let copy=0;copy<2;copy++)
+    for(const s of SUITS)for(const r of RANKS)d.push({suit:s,rank:r});
+  return d.sort(()=>Math.random()-.5);
+}
+
+function newGame(){
+  const deck=createDeck();
+  hands=[[],[],[],[]];
+  for(let i=0;i<12;i++)for(let p=0;p<4;p++)hands[p].push(deck.pop());
+  for(let p=0;p<4;p++)sortHand(p);
+  trick=[];lead=0;stichCount=0;myPts=0;phase='play';
+  document.getElementById('msg').textContent='Dein Zug — spiele eine Karte!';
+  render();
+}
+
+function sortHand(p){
+  hands[p].sort((a,b)=>{
+    const at=isTrump(a),bt=isTrump(b);
+    if(at&&!bt)return-1;if(!at&&bt)return 1;
+    if(at&&bt)return trumpRank(b)-trumpRank(a);
+    if(a.suit!==b.suit)return a.suit.localeCompare(b.suit);
+    return suitRank(b)-suitRank(a);
+  });
+}
+
+function canPlay(card,hand){
+  if(trick.length===0)return true;
+  const leadCard=trick[0].card;
+  if(isTrump(leadCard)){
+    if(hand.some(c=>isTrump(c)))return isTrump(card);
+    return true;
+  }
+  const ls=leadCard.suit;
+  if(hand.some(c=>!isTrump(c)&&c.suit===ls))return!isTrump(card)&&card.suit===ls;
+  return true;
+}
+
+function render(){
+  for(let o=0;o<3;o++){
+    document.getElementById(`o${o}-n`).textContent=hands[o+1].length;
+    const div=document.getElementById(`o${o}`);
+    div.innerHTML='';
+    for(let i=0;i<hands[o+1].length;i++){const c=document.createElement('div');c.className='opp-card';div.appendChild(c);}
+  }
+  const tDiv=document.getElementById('trick');
+  tDiv.innerHTML='';
+  for(const t of trick){
+    const el=document.createElement('div');
+    el.className='card card-front '+(isRed(t.card.suit)?'red':'black');
+    el.innerHTML=`<span>${t.card.rank}</span><span>${t.card.suit}</span>`;
+    el.style.cursor='default';
+    tDiv.appendChild(el);
+  }
+  const hDiv=document.getElementById('hand');
+  hDiv.innerHTML='';
+  hands[0].forEach((card,i)=>{
+    const playable=phase==='play'&&getCurrentPlayer()===0&&canPlay(card,hands[0]);
+    const el=document.createElement('div');
+    el.className='card card-front '+(isRed(card.suit)?'red':'black')+(playable?' playable':'');
+    el.innerHTML=`<span>${card.rank}</span><span>${card.suit}</span>`;
+    if(playable)el.onclick=()=>playCard(0,i);
+    hDiv.appendChild(el);
+  });
+  document.getElementById('pts').textContent=myPts;
+}
+
+function getCurrentPlayer(){return(lead+trick.length)%4;}
+
+function playCard(pIdx,cardIdx){
+  const card=hands[pIdx].splice(cardIdx,1)[0];
+  trick.push({player:pIdx,card});
+  render();
+  if(trick.length<4){
+    const next=getCurrentPlayer();
+    if(next!==0)setTimeout(()=>aiPlay(next),350);
+  } else {
+    setTimeout(resolveTrick,500);
+  }
+}
+
+function aiPlay(pIdx){
+  const hand=hands[pIdx];
+  const playable=hand.map((c,i)=>({c,i})).filter(({c})=>canPlay(c,hand));
+  const choice=playable[Math.floor(Math.random()*playable.length)];
+  playCard(pIdx,choice.i);
+}
+
+function beats(a,b){
+  // Does a beat b?
+  if(isTrump(a)&&!isTrump(b))return true;
+  if(!isTrump(a)&&isTrump(b))return false;
+  if(isTrump(a)&&isTrump(b))return trumpRank(a)>trumpRank(b);
+  if(a.suit===b.suit)return suitRank(a)>suitRank(b);
+  return false;
+}
+
+function resolveTrick(){
+  let winner=trick[0];
+  for(let i=1;i<trick.length;i++){
+    if(beats(trick[i].card,winner.card))winner=trick[i];
+  }
+  const pts=trick.reduce((a,t)=>a+PTS[t.card.rank],0);
+  if(winner.player===0)myPts+=pts;
+  stichCount++;
+  document.getElementById('msg').textContent=`${['Du','KI 1','KI 2','KI 3'][winner.player]} gewinnt (+${pts})`;
+  trick=[];lead=winner.player;
+  render();
+
+  if(stichCount>=12){
+    phase='done';
+    document.getElementById('msg').textContent=myPts>=60?
+      `Gewonnen! ${myPts} Punkte gesammelt!`:
+      `Verloren! Nur ${myPts} Punkte (60 nötig).`;
+    render();return;
+  }
+  if(lead!==0)setTimeout(()=>aiPlay(lead),400);
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Doppelkopf</h2><p>Stichspiel mit doppeltem Kartensatz. Die beiden Spieler mit den Kreuz-Damen bilden die <b>Re-Partei</b>, die anderen die <b>Kontra-Partei</b>.<br><br><b>Ziel:</b> Sammle mit deiner Partei mehr als die Hälfte der Punkte (121+). Trumpfreihenfolge beachten!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

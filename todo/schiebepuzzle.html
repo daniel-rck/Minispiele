@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schiebepuzzle</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 16px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 10px; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 16px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  .controls button.active { background: #c9b458; color: #1a1a2e; }
+  #info { display: flex; gap: 24px; font-size: 1rem; }
+  .val { color: #c9b458; font-weight: bold; }
+  #board { display: inline-grid; gap: 4px; background: #16213e; border: 2px solid #0f3460; border-radius: 12px; padding: 8px; }
+  .tile { display: flex; justify-content: center; align-items: center; border-radius: 8px; font-size: 1.4rem; font-weight: bold; cursor: pointer; transition: all 0.15s ease; }
+  .tile.num { background: #0f3460; color: #c9b458; border: 2px solid #1a4a8a; }
+  .tile.num:hover { background: #1a4a8a; transform: scale(1.03); }
+  .tile.num.correct { background: #1a5c3a; border-color: #2ecc71; color: #2ecc71; }
+  .tile.empty { background: transparent; cursor: default; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1.2rem; min-height: 1.5em; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>SCHIEBEPUZZLE</h1>
+<div class="controls">
+  <button id="btn3" onclick="startGame(3)">3x3</button>
+  <button id="btn4" onclick="startGame(4)" class="active">4x4</button>
+  <button id="btn5" onclick="startGame(5)">5x5</button>
+  <button onclick="startGame(currentSize)">Mischen</button>
+</div>
+<div id="info">
+  <span>Züge: <span class="val" id="moves">0</span></span>
+  <span>Zeit: <span class="val" id="timer">00:00</span></span>
+</div>
+<div id="board"></div>
+<p id="msg"></p>
+
+<script>
+let currentSize = 4;
+let tiles = [];
+let emptyIdx = 0;
+let moves = 0;
+let solved = false;
+let startTime = 0;
+let timerInterval = null;
+
+const TILE_SIZE = 70;
+
+function startGame(size) {
+  currentSize = size;
+  solved = false;
+  moves = 0;
+  document.getElementById('msg').textContent = '';
+  document.getElementById('moves').textContent = 0;
+  document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + size)?.classList.add('active');
+
+  // Create solved state
+  const n = size * size;
+  tiles = [];
+  for (let i = 1; i < n; i++) tiles.push(i);
+  tiles.push(0);
+  emptyIdx = n - 1;
+
+  // Shuffle with valid moves
+  const shuffleMoves = size * size * 20;
+  for (let i = 0; i < shuffleMoves; i++) {
+    const neighbors = getNeighbors(emptyIdx);
+    const pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+    tiles[emptyIdx] = tiles[pick];
+    tiles[pick] = 0;
+    emptyIdx = pick;
+  }
+
+  clearInterval(timerInterval);
+  startTime = Date.now();
+  timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+  render();
+}
+
+function getNeighbors(idx) {
+  const r = Math.floor(idx / currentSize);
+  const c = idx % currentSize;
+  const neighbors = [];
+  if (r > 0) neighbors.push(idx - currentSize);
+  if (r < currentSize - 1) neighbors.push(idx + currentSize);
+  if (c > 0) neighbors.push(idx - 1);
+  if (c < currentSize - 1) neighbors.push(idx + 1);
+  return neighbors;
+}
+
+function updateTimer() {
+  if (solved) return;
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const min = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const sec = String(elapsed % 60).padStart(2, '0');
+  document.getElementById('timer').textContent = `${min}:${sec}`;
+}
+
+function clickTile(idx) {
+  if (solved || tiles[idx] === 0) return;
+  const neighbors = getNeighbors(idx);
+  if (!neighbors.includes(emptyIdx)) return;
+
+  tiles[emptyIdx] = tiles[idx];
+  tiles[idx] = 0;
+  emptyIdx = idx;
+  moves++;
+  document.getElementById('moves').textContent = moves;
+  render();
+  checkWin();
+}
+
+function checkWin() {
+  const n = currentSize * currentSize;
+  for (let i = 0; i < n - 1; i++) {
+    if (tiles[i] !== i + 1) return;
+  }
+  solved = true;
+  clearInterval(timerInterval);
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  document.getElementById('msg').textContent = `Gelöst in ${moves} Zügen und ${elapsed} Sekunden!`;
+  render();
+}
+
+function render() {
+  const board = document.getElementById('board');
+  board.style.gridTemplateColumns = `repeat(${currentSize}, ${TILE_SIZE}px)`;
+  board.innerHTML = '';
+  const n = currentSize * currentSize;
+  for (let i = 0; i < n; i++) {
+    const div = document.createElement('div');
+    div.style.width = TILE_SIZE + 'px';
+    div.style.height = TILE_SIZE + 'px';
+    if (tiles[i] === 0) {
+      div.className = 'tile empty';
+    } else {
+      div.className = 'tile num';
+      div.textContent = tiles[i];
+      if (tiles[i] === i + 1) div.classList.add('correct');
+      div.onclick = () => clickTile(i);
+    }
+    board.appendChild(div);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (solved) return;
+  const er = Math.floor(emptyIdx / currentSize);
+  const ec = emptyIdx % currentSize;
+  let target = -1;
+  if ((e.key === 'ArrowUp' || e.key === 'w') && er < currentSize - 1) target = emptyIdx + currentSize;
+  if ((e.key === 'ArrowDown' || e.key === 's') && er > 0) target = emptyIdx - currentSize;
+  if ((e.key === 'ArrowLeft' || e.key === 'a') && ec < currentSize - 1) target = emptyIdx + 1;
+  if ((e.key === 'ArrowRight' || e.key === 'd') && ec > 0) target = emptyIdx - 1;
+  if (target >= 0) { e.preventDefault(); clickTile(target); }
+});
+
+startGame(4);
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Schiebepuzzle</h2><p>Verschiebe die nummerierten Kacheln in die richtige Reihenfolge, indem du Kacheln in das leere Feld schiebst.<br><br><b>Ziel:</b> Zahlen von 1 bis 15 sortieren, leeres Feld unten rechts.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

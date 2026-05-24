@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Würfelpoker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:12px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4;cursor:default}
+#msg{color:#c9b458;font-weight:bold;font-size:1.05rem;min-height:1.5em;text-align:center}
+.dice-area{display:flex;gap:12px;justify-content:center}
+.die{width:60px;height:60px;background:#f5f5f0;border-radius:10px;display:flex;justify-content:center;align-items:center;font-size:1.8rem;font-weight:bold;color:#1a1a2e;cursor:pointer;border:3px solid transparent;transition:all .2s}
+.die.held{border-color:#c9b458;background:#e8d78a}
+.die.ai{background:#0f3460;color:#c9b458;cursor:default}
+.player-area{background:#16213e;border:1px solid #0f3460;border-radius:10px;padding:12px;text-align:center;min-width:300px}
+.player-area h3{color:#c9b458;font-size:.85rem;margin-bottom:8px}
+.hand-name{font-size:1rem;font-weight:bold;color:#c9b458;min-height:1.4em}
+.score{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>WÜRFELPOKER</h1>
+<p id="msg">Würfle und halte die besten Würfel!</p>
+<div class="player-area"><h3>KI</h3><div class="dice-area" id="ai-dice"></div><p class="hand-name" id="ai-hand"></p></div>
+<div class="player-area"><h3>Du</h3><div class="dice-area" id="player-dice"></div><p class="hand-name" id="player-hand"></p></div>
+<div style="display:flex;gap:8px">
+<button class="btn" id="btn-roll" onclick="roll()">Würfeln (3 übrig)</button>
+<button class="btn" onclick="newRound()">Neue Runde</button>
+</div>
+<p class="score">Du: <span class="val" id="p-wins">0</span> | KI: <span class="val" id="ai-wins">0</span> | Unentschieden: <span class="val" id="draws">0</span></p>
+
+<script>
+const PIPS=['','⚀','⚁','⚂','⚃','⚄','⚅'];
+let pDice,aiDice,pHeld,rollsLeft,roundOver;
+let pWins=0,aiWins=0,draws=0;
+
+function newRound(){
+  pDice=[0,0,0,0,0];aiDice=[0,0,0,0,0];
+  pHeld=[false,false,false,false,false];
+  rollsLeft=3;roundOver=false;
+  document.getElementById('msg').textContent='Würfle und halte die besten Würfel!';
+  document.getElementById('ai-hand').textContent='';
+  document.getElementById('player-hand').textContent='';
+  render();
+}
+
+function roll(){
+  if(rollsLeft<=0||roundOver)return;
+  rollsLeft--;
+  for(let i=0;i<5;i++)if(!pHeld[i])pDice[i]=1+Math.floor(Math.random()*6);
+  document.getElementById('btn-roll').textContent=`Würfeln (${rollsLeft} übrig)`;
+  document.getElementById('btn-roll').disabled=rollsLeft===0;
+  document.getElementById('player-hand').textContent=evaluateHand(pDice).name;
+
+  if(rollsLeft===0){
+    // AI plays
+    aiPlay();
+    showResult();
+  }
+  render();
+}
+
+function aiPlay(){
+  // AI rolls 3 times with simple strategy
+  for(let turn=0;turn<3;turn++){
+    for(let i=0;i<5;i++)if(turn===0||!shouldHold(aiDice,i))aiDice[i]=1+Math.floor(Math.random()*6);
+  }
+}
+
+function shouldHold(dice,idx){
+  const counts={};
+  dice.forEach(d=>{counts[d]=(counts[d]||0)+1;});
+  const v=dice[idx];
+  return counts[v]>=2;// hold pairs and better
+}
+
+function evaluateHand(dice){
+  const sorted=[...dice].sort((a,b)=>a-b);
+  const counts={};
+  dice.forEach(d=>{counts[d]=(counts[d]||0)+1;});
+  const vals=Object.values(counts).sort((a,b)=>b-a);
+  const isStraight=sorted[4]-sorted[0]===4&&new Set(sorted).size===5;
+  const isStraightLow=sorted.join('')==='12345';
+  const isStraightHigh=sorted.join('')==='23456';
+
+  if(vals[0]===5)return{rank:7,name:'Fünfling!',val:sorted[4]};
+  if(vals[0]===4)return{rank:6,name:'Viererpasch',val:sorted[2]};
+  if(vals[0]===3&&vals[1]===2)return{rank:5,name:'Full House',val:sorted[2]};
+  if(isStraight||isStraightLow||isStraightHigh)return{rank:4,name:'Straße',val:sorted[4]};
+  if(vals[0]===3)return{rank:3,name:'Drilling',val:sorted[2]};
+  if(vals[0]===2&&vals[1]===2)return{rank:2,name:'Zwei Paare',val:sorted[4]};
+  if(vals[0]===2)return{rank:1,name:'Paar',val:sorted[4]};
+  return{rank:0,name:'Nichts',val:sorted[4]};
+}
+
+function showResult(){
+  roundOver=true;
+  const pH=evaluateHand(pDice);
+  const aiH=evaluateHand(aiDice);
+  document.getElementById('player-hand').textContent=pH.name;
+  document.getElementById('ai-hand').textContent=aiH.name;
+
+  if(pH.rank>aiH.rank||(pH.rank===aiH.rank&&pH.val>aiH.val)){
+    pWins++;document.getElementById('msg').textContent=`Du gewinnst! ${pH.name} schlägt ${aiH.name}`;
+  } else if(aiH.rank>pH.rank||(aiH.rank===pH.rank&&aiH.val>pH.val)){
+    aiWins++;document.getElementById('msg').textContent=`KI gewinnt! ${aiH.name} schlägt ${pH.name}`;
+  } else {
+    draws++;document.getElementById('msg').textContent=`Unentschieden! Beide: ${pH.name}`;
+  }
+  document.getElementById('p-wins').textContent=pWins;
+  document.getElementById('ai-wins').textContent=aiWins;
+  document.getElementById('draws').textContent=draws;
+  render();
+}
+
+function render(){
+  const pd=document.getElementById('player-dice');
+  pd.innerHTML='';
+  pDice.forEach((d,i)=>{
+    const el=document.createElement('div');
+    el.className='die'+(pHeld[i]?' held':'');
+    el.textContent=d?PIPS[d]:'-';
+    if(!roundOver&&rollsLeft<3){
+      el.onclick=()=>{pHeld[i]=!pHeld[i];render();};
+    }
+    pd.appendChild(el);
+  });
+
+  const ad=document.getElementById('ai-dice');
+  ad.innerHTML='';
+  aiDice.forEach(d=>{
+    const el=document.createElement('div');
+    el.className='die ai';
+    el.textContent=roundOver&&d?PIPS[d]:'?';
+    ad.appendChild(el);
+  });
+}
+
+newRound();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Würfelpoker</h2><p>Würfle 5 Würfel und versuche die beste Poker-Kombination zu erhalten. Du darfst bis zu 2 Mal neu würfeln und dabei beliebige Würfel halten.<br><br><b>Kombinationen:</b> Paar, Zwei Paare, Drilling, Full House, Kleine Straße, Große Straße, Poker (4 gleiche), Grande (5 gleiche).</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

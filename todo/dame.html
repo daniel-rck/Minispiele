@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dame</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif;
+    color: #e0e0e0; flex-direction: column; gap: 16px;
+    user-select: none;
+  }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #status {
+    font-size: 1.1rem; padding: 8px 24px; border-radius: 8px;
+    background: #16213e; border: 1px solid #0f3460;
+    min-height: 40px; display: flex; align-items: center;
+  }
+  #status.won { background: #1a5c1a; border-color: #3a3; font-weight: bold; }
+  #board-container { position: relative; }
+  #board {
+    display: grid; grid-template-columns: repeat(8, 68px); grid-template-rows: repeat(8, 68px);
+    border: 3px solid #c9b458; border-radius: 4px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .coords-rank {
+    position: absolute; left: -22px; font-size: 13px; color: #888;
+    display: flex; flex-direction: column; height: 100%; justify-content: space-around;
+    top: 0; padding: 22px 0;
+  }
+  .coords-file {
+    position: absolute; bottom: -22px; font-size: 13px; color: #888;
+    display: flex; width: 100%; justify-content: space-around; left: 0;
+  }
+  .square {
+    width: 68px; height: 68px; display: flex; justify-content: center; align-items: center;
+    cursor: pointer; position: relative; transition: background-color 0.15s;
+  }
+  .square.light { background: #e8dab2; }
+  .square.dark { background: #b58863; }
+  .square.selected { background: #7b61ff !important; }
+  .square.move-target::after {
+    content: ''; position: absolute; width: 22px; height: 22px;
+    background: rgba(123, 97, 255, 0.45); border-radius: 50%;
+  }
+  .square.capture-target { background: rgba(255, 80, 80, 0.35) !important; }
+  .square.last-from { background: rgba(201, 180, 88, 0.4) !important; }
+  .square.last-to { background: rgba(201, 180, 88, 0.55) !important; }
+  .square:hover { filter: brightness(1.1); }
+  .piece {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 3px solid rgba(0,0,0,0.3);
+    position: relative;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    transition: transform 0.1s;
+  }
+  .piece.white { background: radial-gradient(circle at 35% 35%, #fff, #ddd); }
+  .piece.black { background: radial-gradient(circle at 35% 35%, #555, #222); }
+  .piece.king::after {
+    content: '♛'; position: absolute; inset: 0;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 24px;
+  }
+  .piece.white.king::after { color: #c9b458; }
+  .piece.black.king::after { color: #c9b458; }
+  #captured {
+    display: flex; gap: 40px; font-size: 18px; min-height: 30px;
+  }
+  #controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  button {
+    padding: 8px 20px; border: 1px solid #c9b458; background: #16213e;
+    color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+  button:hover { background: #0f3460; }
+  button.active { background: #c9b458; color: #1a1a2e; font-weight: bold; }
+  select {
+    padding: 8px 12px; border: 1px solid #c9b458; background: #16213e;
+    color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
+    transition: background 0.2s; outline: none;
+  }
+  select:hover { background: #0f3460; }
+  #thinking {
+    font-size: 0.95rem; color: #c9b458; min-height: 24px;
+    letter-spacing: 1px; opacity: 0; transition: opacity 0.3s;
+  }
+  #thinking.visible { opacity: 1; }
+  a.back-link {
+    position: fixed; top: 16px; left: 16px;
+    color: #c9b458; text-decoration: none; font-size: 1.1rem;
+    padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px;
+    background: #16213e; transition: background 0.2s;
+  }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>DAME</h1>
+<div id="status">Weiss am Zug</div>
+<div id="captured">
+  <span id="captured-white"></span>
+  <span id="captured-black"></span>
+</div>
+<div id="board-container">
+  <div class="coords-rank"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>
+  <div id="board"></div>
+  <div class="coords-file"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>
+</div>
+<div id="thinking"></div>
+<div id="controls">
+  <button onclick="resetGame()">Neues Spiel</button>
+  <button onclick="undoMove()">Zug zurück</button>
+  <button id="btn-mode" onclick="toggleMode()">Gegen Computer</button>
+  <select id="difficulty" onchange="changeDifficulty(this.value)" style="display:none">
+    <option value="leicht">Leicht</option>
+    <option value="mittel" selected>Mittel</option>
+    <option value="schwer">Schwer</option>
+  </select>
+</div>
+
+<script>
+// W = white piece, WK = white king, B = black piece, BK = black king
+let board, turn, selected, legalMoves, history, lastMove, gameOver;
+let capturedWhite = 0, capturedBlack = 0;
+let vsComputer = false, aiThinking = false, aiDifficulty = 'mittel';
+const DEPTH = { leicht: 2, mittel: 4, schwer: 6 };
+
+function initialBoard() {
+  const b = Array.from({ length: 8 }, () => Array(8).fill(null));
+  for (let r = 0; r < 3; r++)
+    for (let c = 0; c < 8; c++)
+      if ((r + c) % 2 === 1) b[r][c] = 'B';
+  for (let r = 5; r < 8; r++)
+    for (let c = 0; c < 8; c++)
+      if ((r + c) % 2 === 1) b[r][c] = 'W';
+  return b;
+}
+
+function resetGame() {
+  board = initialBoard();
+  turn = 'W';
+  selected = null;
+  legalMoves = [];
+  history = [];
+  lastMove = null;
+  capturedWhite = 0;
+  capturedBlack = 0;
+  gameOver = false;
+  render();
+  updateStatus();
+}
+
+function colorOf(p) {
+  if (!p) return null;
+  return p[0]; // 'W' or 'B'
+}
+
+function isKing(p) { return p && p.length === 2; }
+
+function cloneBoard(b) { return b.map(r => [...r]); }
+
+function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+
+// Get all valid moves for a piece at (r, c)
+function getMovesForPiece(b, r, c) {
+  const piece = b[r][c];
+  if (!piece) return [];
+  const color = colorOf(piece);
+  const king = isKing(piece);
+  const moves = [];
+  const captures = [];
+
+  // Check captures (jumps)
+  getCaptures(b, r, c, color, king, [], [], captures);
+
+  if (captures.length > 0) return captures;
+
+  // Normal moves
+  const dirs = king ? [[-1,-1],[-1,1],[1,-1],[1,1]] :
+    color === 'W' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
+
+  for (const [dr, dc] of dirs) {
+    const nr = r + dr, nc = c + dc;
+    if (inBounds(nr, nc) && !b[nr][nc]) {
+      moves.push({ path: [[r,c],[nr,nc]], captured: [] });
+    }
+  }
+  return moves;
+}
+
+function getCaptures(b, r, c, color, king, path, captured, results) {
+  const dirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
+  let found = false;
+
+  for (const [dr, dc] of dirs) {
+    const mr = r + dr, mc = c + dc; // middle (enemy)
+    const lr = r + 2*dr, lc = c + 2*dc; // landing
+    if (!inBounds(lr, lc)) continue;
+    const mid = b[mr][mc];
+    if (mid && colorOf(mid) !== color && !captured.some(([cr,cc]) => cr === mr && cc === mc) && !b[lr][lc]) {
+      // Can also land on starting position if multi-jump
+      const newPath = [...path, [r,c]];
+      const newCaptured = [...captured, [mr, mc]];
+
+      // Temporarily update board for further jumps
+      const sim = cloneBoard(b);
+      sim[r][c] = null;
+      sim[mr][mc] = null;
+      sim[lr][lc] = b[r][c];
+
+      // Check for further captures
+      const before = results.length;
+      getCaptures(sim, lr, lc, color, king || (color === 'W' && lr === 0) || (color === 'B' && lr === 7), newPath, newCaptured, results);
+
+      if (results.length === before) {
+        // No further captures, this is a terminal move
+        results.push({ path: [...newPath, [lr, lc]], captured: newCaptured });
+      }
+      found = true;
+    }
+  }
+}
+
+function getAllMoves(b, color) {
+  let allMoves = [];
+  let hasCapture = false;
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (b[r][c] && colorOf(b[r][c]) === color) {
+        const moves = getMovesForPiece(b, r, c);
+        for (const m of moves) {
+          if (m.captured.length > 0) hasCapture = true;
+          allMoves.push(m);
+        }
+      }
+    }
+  }
+
+  // Mandatory capture: if any captures exist, only captures are allowed
+  if (hasCapture) {
+    allMoves = allMoves.filter(m => m.captured.length > 0);
+    // Prefer longest capture chain
+    const maxLen = Math.max(...allMoves.map(m => m.captured.length));
+    allMoves = allMoves.filter(m => m.captured.length === maxLen);
+  }
+
+  return allMoves;
+}
+
+function makeMove(move) {
+  history.push({
+    board: cloneBoard(board), turn, lastMove,
+    capturedWhite, capturedBlack
+  });
+
+  const path = move.path;
+  const start = path[0];
+  const end = path[path.length - 1];
+  const piece = board[start[0]][start[1]];
+
+  board[start[0]][start[1]] = null;
+
+  // Remove captured pieces
+  for (const [cr, cc] of move.captured) {
+    if (colorOf(board[cr][cc]) === 'W') capturedWhite++;
+    else capturedBlack++;
+    board[cr][cc] = null;
+  }
+
+  // Promote to king
+  let finalPiece = piece;
+  if (piece === 'W' && end[0] === 0) finalPiece = 'WK';
+  if (piece === 'B' && end[0] === 7) finalPiece = 'BK';
+  board[end[0]][end[1]] = finalPiece;
+
+  lastMove = { from: start, to: end };
+  turn = turn === 'W' ? 'B' : 'W';
+  selected = null;
+  legalMoves = [];
+  render();
+  updateStatus();
+
+  if (vsComputer && turn === 'B' && !gameOver) {
+    aiMove();
+  }
+}
+
+function undoMove() {
+  if (history.length === 0 || gameOver || aiThinking) return;
+  const steps = vsComputer && history.length >= 2 ? 2 : 1;
+  let state;
+  for (let i = 0; i < steps && history.length > 0; i++) {
+    state = history.pop();
+  }
+  board = state.board;
+  turn = state.turn;
+  lastMove = state.lastMove;
+  capturedWhite = state.capturedWhite;
+  capturedBlack = state.capturedBlack;
+  selected = null;
+  legalMoves = [];
+  render();
+  updateStatus();
+}
+
+function updateStatus() {
+  const status = document.getElementById('status');
+  const moves = getAllMoves(board, turn);
+  status.className = '';
+
+  if (moves.length === 0) {
+    gameOver = true;
+    const winner = turn === 'W' ? 'Schwarz' : 'Weiss';
+    status.textContent = `${winner} gewinnt!`;
+    status.className = 'won';
+  } else {
+    status.textContent = (turn === 'W' ? 'Weiss' : 'Schwarz') + ' am Zug';
+  }
+
+  // Captured display
+  document.getElementById('captured-white').textContent =
+    capturedBlack > 0 ? '⬤'.repeat(capturedBlack) : '';
+  document.getElementById('captured-black').textContent =
+    capturedWhite > 0 ? '⬤'.repeat(capturedWhite) : '';
+}
+
+function onSquareClick(r, c) {
+  if (gameOver || aiThinking) return;
+
+  if (selected) {
+    const move = legalMoves.find(m => {
+      const end = m.path[m.path.length - 1];
+      return end[0] === r && end[1] === c;
+    });
+    if (move) {
+      makeMove(move);
+      return;
+    }
+  }
+
+  if (board[r][c] && colorOf(board[r][c]) === turn) {
+    selected = [r, c];
+    const allMoves = getAllMoves(board, turn);
+    legalMoves = allMoves.filter(m => m.path[0][0] === r && m.path[0][1] === c);
+    render();
+  } else {
+    selected = null;
+    legalMoves = [];
+    render();
+  }
+}
+
+// --- AI ---
+function evaluateBoard(b) {
+  let score = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = b[r][c];
+      if (!p) continue;
+      const val = isKing(p) ? 5 : 1;
+      // Position bonus: center and advancement
+      const posBonus = isKing(p) ? 0 :
+        (colorOf(p) === 'B' ? r * 0.1 : (7 - r) * 0.1);
+      const centerBonus = (3.5 - Math.abs(c - 3.5)) * 0.05;
+      if (colorOf(p) === 'B') score -= val + posBonus + centerBonus;
+      else score += val + posBonus + centerBonus;
+    }
+  }
+  return score;
+}
+
+function minimaxDame(b, depth, alpha, beta, isMaximizing) {
+  const color = isMaximizing ? 'W' : 'B';
+  const moves = getAllMovesForBoard(b, color);
+
+  if (moves.length === 0) {
+    return isMaximizing ? -100 - depth : 100 + depth;
+  }
+  if (depth === 0) return evaluateBoard(b);
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const move of moves) {
+      const sim = applyMove(b, move);
+      const val = minimaxDame(sim, depth - 1, alpha, beta, false);
+      maxEval = Math.max(maxEval, val);
+      alpha = Math.max(alpha, val);
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const move of moves) {
+      const sim = applyMove(b, move);
+      const val = minimaxDame(sim, depth - 1, alpha, beta, true);
+      minEval = Math.min(minEval, val);
+      beta = Math.min(beta, val);
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+function getAllMovesForBoard(b, color) {
+  let allMoves = [];
+  let hasCapture = false;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (b[r][c] && colorOf(b[r][c]) === color) {
+        const piece = b[r][c];
+        const king = isKing(piece);
+        const captures = [];
+        getCaptures(b, r, c, color, king, [], [], captures);
+        if (captures.length > 0) {
+          hasCapture = true;
+          allMoves.push(...captures);
+        } else {
+          const dirs = king ? [[-1,-1],[-1,1],[1,-1],[1,1]] :
+            color === 'W' ? [[-1,-1],[-1,1]] : [[1,-1],[1,1]];
+          for (const [dr, dc] of dirs) {
+            const nr = r + dr, nc = c + dc;
+            if (inBounds(nr, nc) && !b[nr][nc]) {
+              allMoves.push({ path: [[r,c],[nr,nc]], captured: [] });
+            }
+          }
+        }
+      }
+    }
+  }
+  if (hasCapture) {
+    allMoves = allMoves.filter(m => m.captured.length > 0);
+    const maxLen = Math.max(...allMoves.map(m => m.captured.length));
+    allMoves = allMoves.filter(m => m.captured.length === maxLen);
+  }
+  return allMoves;
+}
+
+function applyMove(b, move) {
+  const sim = cloneBoard(b);
+  const start = move.path[0];
+  const end = move.path[move.path.length - 1];
+  const piece = sim[start[0]][start[1]];
+  sim[start[0]][start[1]] = null;
+  for (const [cr, cc] of move.captured) sim[cr][cc] = null;
+  let finalPiece = piece;
+  if (piece === 'W' && end[0] === 0) finalPiece = 'WK';
+  if (piece === 'B' && end[0] === 7) finalPiece = 'BK';
+  sim[end[0]][end[1]] = finalPiece;
+  return sim;
+}
+
+function aiMove() {
+  aiThinking = true;
+  const thinkingEl = document.getElementById('thinking');
+  thinkingEl.textContent = 'Computer denkt...';
+  thinkingEl.classList.add('visible');
+
+  setTimeout(() => {
+    const moves = getAllMovesForBoard(board, 'B');
+    if (moves.length === 0) { aiThinking = false; return; }
+
+    const depth = DEPTH[aiDifficulty];
+    let bestMove = moves[0];
+    let bestVal = Infinity;
+
+    for (const move of moves) {
+      const sim = applyMove(board, move);
+      const val = minimaxDame(sim, depth - 1, -Infinity, Infinity, true);
+      if (val < bestVal) {
+        bestVal = val;
+        bestMove = move;
+      }
+    }
+
+    thinkingEl.classList.remove('visible');
+    aiThinking = false;
+    makeMove(bestMove);
+  }, 50);
+}
+
+function toggleMode() {
+  vsComputer = !vsComputer;
+  const btn = document.getElementById('btn-mode');
+  btn.textContent = vsComputer ? '2 Spieler' : 'Gegen Computer';
+  btn.classList.toggle('active', vsComputer);
+  document.getElementById('difficulty').style.display = vsComputer ? '' : 'none';
+  resetGame();
+}
+
+function changeDifficulty(val) {
+  aiDifficulty = val;
+  resetGame();
+}
+
+// --- Rendering ---
+function render() {
+  const container = document.getElementById('board');
+  container.innerHTML = '';
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const sq = document.createElement('div');
+      const isLight = (r + c) % 2 === 0;
+      sq.className = `square ${isLight ? 'light' : 'dark'}`;
+
+      if (selected && selected[0] === r && selected[1] === c) {
+        sq.classList.add('selected');
+      }
+      if (lastMove) {
+        if (lastMove.from[0] === r && lastMove.from[1] === c) sq.classList.add('last-from');
+        if (lastMove.to[0] === r && lastMove.to[1] === c) sq.classList.add('last-to');
+      }
+
+      // Show move targets
+      const isTarget = legalMoves.some(m => {
+        const end = m.path[m.path.length - 1];
+        return end[0] === r && end[1] === c;
+      });
+      if (isTarget) {
+        const isCapture = legalMoves.some(m => {
+          const end = m.path[m.path.length - 1];
+          return end[0] === r && end[1] === c && m.captured.length > 0;
+        });
+        sq.classList.add(isCapture ? 'capture-target' : 'move-target');
+      }
+
+      // Piece
+      if (board[r][c]) {
+        const piece = document.createElement('div');
+        piece.className = `piece ${colorOf(board[r][c]) === 'W' ? 'white' : 'black'}`;
+        if (isKing(board[r][c])) piece.classList.add('king');
+        sq.appendChild(piece);
+      }
+
+      sq.onclick = () => onSquareClick(r, c);
+      container.appendChild(sq);
+    }
+  }
+}
+
+resetGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Dame</h2><p>Ziehe deine Steine diagonal vorwärts. Überspringe gegnerische Steine, um sie zu schlagen. <b>Schlagzwang</b> gilt!<br><br><b>Dame:</b> Erreicht ein Stein die gegnerische Grundlinie, wird er zur Dame und darf auch rückwärts ziehen.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

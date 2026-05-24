@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spielesammlung</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif;
+    color: #e0e0e0; flex-direction: column; gap: 40px; padding: 40px 20px;
+  }
+  h1 {
+    font-size: 2.2rem; letter-spacing: 4px; color: #c9b458;
+    text-shadow: 0 2px 12px rgba(201, 180, 88, 0.3);
+  }
+  .subtitle { color: #888; font-size: 1rem; margin-top: -28px; letter-spacing: 1px; }
+  .section-label {
+    font-size: 0.8rem; color: #c9b458; letter-spacing: 2px; text-transform: uppercase;
+    width: 100%; max-width: 1100px; padding: 0 4px; margin-bottom: -16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: #0f3460;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    width: 100%;
+  }
+  .card {
+    background: #16213e;
+    border: 2px solid #0f3460;
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201, 180, 88, 0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover::before { opacity: 1; }
+  .card:hover {
+    border-color: #c9b458;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(201, 180, 88, 0.15);
+  }
+  .card-icon {
+    font-size: 52px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  }
+  .card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #c9b458;
+    letter-spacing: 1px;
+  }
+  .card-desc {
+    font-size: 0.85rem;
+    color: #888;
+    line-height: 1.4;
+  }
+  .card-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: rgba(201, 180, 88, 0.15);
+    color: #c9b458;
+    letter-spacing: 0.5px;
+  }
+  .fav-btn {
+    position: absolute;
+    top: 10px; left: 10px;
+    font-size: 1.3rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.2s;
+    z-index: 2;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+  .card:hover .fav-btn { color: #888; }
+  .fav-btn:hover { color: #c9b458 !important; transform: scale(1.2); }
+  .fav-btn.active {
+    color: #c9b458;
+  }
+  .footer {
+    color: #444;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<h1>SPIELESAMMLUNG</h1>
+<p class="subtitle">Alle Spiele im Browser, kein Download nötig</p>
+
+<div id="fav-label" class="section-label" style="display:none;">Favoriten</div>
+<div id="fav-grid" class="grid" style="display:none;"></div>
+
+<div id="all-label" class="section-label" style="display:none;">Alle Spiele</div>
+<div id="all-grid" class="grid"></div>
+
+<p class="footer" id="footer">96 Spiele — komplett offline im Browser</p>
+
+<script>
+const GAMES = [
+  { href:'chess.html', icon:'♚', title:'Schach', badge:'KI-Gegner', desc:'Klassisches Schach mit Computer-Gegner in 5 Schwierigkeitsstufen' },
+  { href:'dame.html', icon:'⛀', title:'Dame', badge:'KI-Gegner', desc:'Brettspiel-Klassiker mit Schlagpflicht und Damen-Verwandlung' },
+  { href:'muehle.html', icon:'◎', title:'Mühle', badge:'KI-Gegner', desc:'Setzen, Ziehen, Springen — schliesse drei in einer Reihe' },
+  { href:'sudoku.html', icon:'9', title:'Sudoku', badge:'4 Level', desc:'Zahlenrätsel mit Notizen, Hinweisen und Timer' },
+  { href:'solitaer.html', icon:'♠', title:'Solitär', badge:'Klondike', desc:'Klassisches Klondike-Solitär mit Auto-Complete und Punkte' },
+  { href:'viergewinnt.html', icon:'🔴', title:'4 Gewinnt', badge:'KI-Gegner', desc:'Strategiespiel mit Vorschau und 3 Schwierigkeitsstufen' },
+  { href:'reversi.html', icon:'⚫', title:'Reversi', badge:'KI-Gegner', desc:'Othello — erobere das Brett durch geschicktes Einschliessen' },
+  { href:'minesweeper.html', icon:'💣', title:'Minesweeper', badge:'3 Level', desc:'Finde alle sicheren Felder ohne eine Mine auszulösen' },
+  { href:'2048.html', icon:'2048', title:'2048', badge:'Highscore', desc:'Schiebe Zahlen zusammen und erreiche die 2048-Kachel' },
+  { href:'memory.html', icon:'🃏', title:'Memory', badge:'2 Grössen', desc:'Finde alle Paare mit 3D-Flip-Animation und Bestzeit' },
+  { href:'blackjack.html', icon:'🂡', title:'Blackjack', badge:'Casino', desc:'21 — mit Chip-System, Verdoppeln und 6-Deck-Schuh' },
+  { href:'snake.html', icon:'🐍', title:'Snake', badge:'Arcade', desc:'Friss, wachse, überlebt — der Arcade-Klassiker' },
+  { href:'tetris.html', icon:'🟦', title:'Tetris', badge:'Arcade', desc:'Stapel die Blöcke mit Ghost-Piece und Level-System' },
+  { href:'backgammon.html', icon:'🎲', title:'Backgammon', badge:'KI-Gegner', desc:'Würfel und Strategie — das älteste Brettspiel der Welt' },
+  { href:'wordle.html', icon:'🔤', title:'Wörter-Raten', badge:'Deutsch', desc:'Errate das 5-Buchstaben-Wort in 6 Versuchen' },
+  { href:'mahjong.html', icon:'🀄', title:'Mahjong', badge:'Puzzle', desc:'Finde passende Paare in der Schildkröten-Pyramide' },
+  { href:'pacman.html', icon:'👾', title:'Pac-Man', badge:'Arcade', desc:'Friss Punkte, flieh vor Geistern — der Arcade-König' },
+  { href:'breakout.html', icon:'🧱', title:'Breakout', badge:'Arcade', desc:'Zerstöre Blöcke mit Ball und Schläger, sammle Power-Ups' },
+  { href:'pong.html', icon:'🏓', title:'Pong', badge:'KI-Gegner', desc:'Tischtennis-Klassiker gegen den Computer in 3 Stufen' },
+  { href:'space-invaders.html', icon:'👽', title:'Space Invaders', badge:'Arcade', desc:'Verteidige die Erde gegen Wellen von Aliens' },
+  { href:'flappy-bird.html', icon:'🐦', title:'Flappy Bird', badge:'Highscore', desc:'Flattere durch Röhren — wie weit kommst du?' },
+  { href:'nonogramm.html', icon:'🔲', title:'Nonogramm', badge:'3 Größen', desc:'Logikrätsel — male Bilder nach Zahlenhinweisen' },
+  { href:'sokoban.html', icon:'📦', title:'Sokoban', badge:'8 Level', desc:'Schiebe Kisten auf Zielfelder — knifflige Levels' },
+  { href:'lights-out.html', icon:'💡', title:'Lights Out', badge:'Puzzle', desc:'Schalte alle Lichter aus durch geschicktes Klicken' },
+  { href:'schiebepuzzle.html', icon:'🔢', title:'Schiebepuzzle', badge:'3 Größen', desc:'Bringe die Zahlen in die richtige Reihenfolge' },
+  { href:'kakuro.html', icon:'🔟', title:'Kakuro', badge:'3 Level', desc:'Zahlen-Kreuzworträtsel mit Summen-Hinweisen' },
+  { href:'freecell.html', icon:'♦', title:'Freecell', badge:'Karten', desc:'Solitär-Variante — alle Karten offen, reines Können' },
+  { href:'spider-solitaire.html', icon:'🕷', title:'Spider Solitaire', badge:'1-4 Farben', desc:'Sortiere Kartenreihen nach Farbe vom König zum Ass' },
+  { href:'hearts.html', icon:'♥', title:'Hearts', badge:'KI-Gegner', desc:'Stichspiel gegen 3 Computer — vermeide Herzen!' },
+  { href:'go.html', icon:'⚪', title:'Go', badge:'KI-Gegner', desc:'Uraltes Strategiespiel auf 9x9, 13x13 oder 19x19' },
+  { href:'schiffe-versenken.html', icon:'🚢', title:'Schiffe versenken', badge:'KI-Gegner', desc:'Finde und versenke die 5 gegnerischen Schiffe' },
+  { href:'tic-tac-toe.html', icon:'❌', title:'Tic-Tac-Toe', badge:'Minimax-KI', desc:'Drei in einer Reihe gegen eine unschlagbare KI' },
+  { href:'typing-test.html', icon:'⌨', title:'Typing Test', badge:'WPM', desc:'Teste deine Tippgeschwindigkeit in Wörtern pro Minute' },
+  { href:'simon-says.html', icon:'🟢', title:'Simon Says', badge:'Gedächtnis', desc:'Merke dir die Farbsequenz — wie weit schaffst du es?' },
+  { href:'whack-a-mole.html', icon:'🐹', title:'Whack-a-Mole', badge:'Reaktion', desc:'Erwische die Maulwürfe bevor sie verschwinden' },
+  { href:'hangman.html', icon:'🪢', title:'Galgenmännchen', badge:'Deutsch', desc:'Errate das deutsche Wort Buchstabe für Buchstabe' },
+  { href:'quiz.html', icon:'🧠', title:'Quiz', badge:'10 Fragen', desc:'Allgemeinwissen-Quiz mit verschiedenen Kategorien' },
+  { href:'labyrinth.html', icon:'🏰', title:'Labyrinth', badge:'Brettspiel', desc:'Verschiebe das Labyrinth und sammle alle Schätze' },
+  { href:'tsuro.html', icon:'🐲', title:'Tsuro', badge:'1-8 Spieler', desc:'Lege Wegplättchen und bleibe auf dem Brett' },
+  { href:'mensch-aergere-dich-nicht.html', icon:'🎯', title:'Mensch ärgere dich nicht', badge:'2-4 Spieler', desc:'Der deutsche Brettspiel-Klassiker — würfle, ziehe, wirf raus!' },
+  // Runde 2 — Brettspiel-Klassiker
+  { href:'kniffel.html', icon:'🎲', title:'Kniffel', badge:'Highscore', desc:'5 Würfel, 3 Würfe — sammle Kombinationen für die Bestpunktzahl' },
+  { href:'halma.html', icon:'⬡', title:'Halma', badge:'KI-Gegner', desc:'Springe mit deinen Figuren ins gegnerische Lager' },
+  { href:'risiko.html', icon:'🌍', title:'Risiko', badge:'KI-Gegner', desc:'Erobere alle Gebiete mit Würfelkämpfen und Strategie' },
+  { href:'kaesekästchen.html', icon:'▦', title:'Käsekästchen', badge:'KI-Gegner', desc:'Dots and Boxes — setze Linien und schließe Kästchen' },
+  { href:'mancala.html', icon:'🥥', title:'Mancala', badge:'KI-Gegner', desc:'Verteile Steine und sammle mehr als dein Gegner' },
+  // Runde 2 — Kartenspiele
+  { href:'schwimmen.html', icon:'🃏', title:'Schwimmen', badge:'3 Leben', desc:'Tausche Karten und komm möglichst nah an 31' },
+  { href:'mau-mau.html', icon:'🂠', title:'Mau-Mau', badge:'KI-Gegner', desc:'Lege passende Karten ab — Sonderkarten mischen das Spiel auf' },
+  { href:'poker.html', icon:'♠', title:'Poker', badge:'Texas Hold\'em', desc:'Bluffe und setze gegen 3 KI-Gegner um den Pot' },
+  { href:'skip-bo.html', icon:'🔢', title:'Skip-Bo', badge:'KI-Gegner', desc:'Baue deinen Spielerstapel schneller ab als die KI' },
+  // Runde 2 — Puzzle / Logik
+  { href:'mastermind.html', icon:'🔮', title:'Mastermind', badge:'Logik', desc:'Knacke den geheimen Farbcode in möglichst wenig Versuchen' },
+  { href:'tower-of-hanoi.html', icon:'🗼', title:'Türme von Hanoi', badge:'3-8 Scheiben', desc:'Verschiebe den Turm Scheibe für Scheibe zum Ziel' },
+  { href:'tangram.html', icon:'🔶', title:'Tangram', badge:'10 Vorlagen', desc:'Puzzle die 7 Teile zu Figuren zusammen' },
+  { href:'pipe-puzzle.html', icon:'🔧', title:'Rohre drehen', badge:'Puzzle', desc:'Drehe die Rohre bis alles verbunden ist' },
+  { href:'slitherlink.html', icon:'🔗', title:'Slitherlink', badge:'Logik', desc:'Ziehe eine Schleife die alle Zahlenregeln erfüllt' },
+  // Runde 2 — Arcade / Geschicklichkeit
+  { href:'asteroids.html', icon:'☄', title:'Asteroids', badge:'Arcade', desc:'Zerstöre Asteroiden mit deinem Raumschiff' },
+  { href:'doodle-jump.html', icon:'🦘', title:'Doodle Jump', badge:'Highscore', desc:'Hüpfe immer höher von Plattform zu Plattform' },
+  { href:'frogger.html', icon:'🐸', title:'Frogger', badge:'Arcade', desc:'Führe den Frosch sicher über Straße und Fluss' },
+  { href:'pinball.html', icon:'🎰', title:'Pinball', badge:'Highscore', desc:'Flipper mit Physik, Bumpern und Neon-Effekten' },
+  { href:'helicopter.html', icon:'🚁', title:'Helicopter', badge:'Highscore', desc:'Fliege durch die Höhle — wie weit schaffst du es?' },
+  // Runde 2 — Wort / Wissen
+  { href:'kreuzwortraetsel.html', icon:'✏', title:'Kreuzworträtsel', badge:'Deutsch', desc:'Klassisches Kreuzworträtsel mit deutschen Wörtern' },
+  { href:'wortsuche.html', icon:'🔍', title:'Wortsuche', badge:'4 Themen', desc:'Finde versteckte Wörter im Buchstabensalat' },
+  { href:'scrabble.html', icon:'🅰', title:'Scrabble', badge:'Solo', desc:'Lege Wörter aufs Brett und maximiere deine Punkte' },
+  { href:'vier-bilder.html', icon:'🖼', title:'4 Bilder 1 Wort', badge:'30 Rätsel', desc:'Welches Wort verbindet die 4 Emoji-Hinweise?' },
+  // Runde 2 — Strategie
+  { href:'hex.html', icon:'⬢', title:'Hex', badge:'KI-Gegner', desc:'Verbinde deine Seiten auf dem Sechseck-Brett' },
+  { href:'stratego.html', icon:'⚔', title:'Stratego', badge:'KI-Gegner', desc:'Verdeckte Figuren, Ränge und Taktik — finde die Flagge!' },
+  { href:'game-of-life.html', icon:'🧬', title:'Game of Life', badge:'Simulation', desc:'Conways Zellularautomat — zeichne Muster und beobachte' },
+  { href:'nim.html', icon:'🔥', title:'Nim', badge:'KI-Gegner', desc:'Nimm Streichhölzer — wer das letzte nimmt verliert!' },
+  // Runde 3 — Brettspiele
+  { href:'domino.html', icon:'🁡', title:'Domino', badge:'KI-Gegner', desc:'Lege Steine an — klassisches Domino gegen 2 KI-Gegner' },
+  { href:'leiterspiel.html', icon:'🪜', title:'Leiterspiel', badge:'2-4 Spieler', desc:'Würfle, klettere Leitern hoch und rutsche Schlangen runter' },
+  { href:'qwirkle.html', icon:'◆', title:'Qwirkle', badge:'KI-Gegner', desc:'Lege Reihen gleicher Farben oder Formen für Punkte' },
+  { href:'rush-hour.html', icon:'🚗', title:'Rush Hour', badge:'10 Level', desc:'Schiebe Autos aus dem Stau — knifflige Parkplatz-Puzzles' },
+  { href:'pentomino.html', icon:'🧩', title:'Pentomino', badge:'Puzzle', desc:'Füge 12 Teile passgenau in das Rechteck ein' },
+  // Runde 3 — Deutsche Kartenspiele
+  { href:'skat.html', icon:'🃏', title:'Skat', badge:'KI-Gegner', desc:'Der deutsche Kartenspiel-Klassiker — Stiche und Augen sammeln' },
+  { href:'doppelkopf.html', icon:'🂫', title:'Doppelkopf', badge:'KI-Gegner', desc:'Trumpf-Stichspiel mit doppeltem Blatt für 4 Spieler' },
+  { href:'romme.html', icon:'🂭', title:'Rommé', badge:'KI-Gegner', desc:'Sammle Sätze und Reihen — lege alle Karten ab' },
+  { href:'canasta.html', icon:'🃑', title:'Canasta', badge:'KI-Gegner', desc:'Sammle Meldungen und bilde Canastas für Bonuspunkte' },
+  // Runde 3 — Puzzle / Logik
+  { href:'futoshiki.html', icon:'≷', title:'Futoshiki', badge:'3 Größen', desc:'Zahlenrätsel mit Größer/Kleiner-Vergleichszeichen' },
+  { href:'binairo.html', icon:'01', title:'Binairo', badge:'3 Größen', desc:'Fülle das Gitter mit 0en und 1en nach strikten Regeln' },
+  { href:'hitori.html', icon:'■', title:'Hitori', badge:'Logik', desc:'Schwärze Zellen um Duplikate zu eliminieren' },
+  { href:'color-flood.html', icon:'🎨', title:'Color Flood', badge:'Puzzle', desc:'Färbe das ganze Brett in möglichst wenig Zügen ein' },
+  { href:'nurikabe.html', icon:'🌊', title:'Nurikabe', badge:'Logik', desc:'Inseln und Meer — trenne Zahleninseln mit zusammenhängendem Meer' },
+  // Runde 3 — Arcade / Casual
+  { href:'bubble-shooter.html', icon:'🫧', title:'Bubble Shooter', badge:'Highscore', desc:'Schieße farbige Blasen ab und bringe 3+ zum Platzen' },
+  { href:'match3.html', icon:'💎', title:'Match-3', badge:'30 Züge', desc:'Tausche Edelsteine für 3er-Reihen mit Kaskaden-Effekt' },
+  { href:'columns.html', icon:'🔮', title:'Columns', badge:'Arcade', desc:'Tetris-Variante mit Farbsäulen und Diagonal-Matches' },
+  { href:'idle-clicker.html', icon:'👆', title:'Idle Clicker', badge:'Upgrades', desc:'Klicke, kaufe Upgrades, werde zum Klick-Imperium' },
+  // Runde 3 — Casino / Glück
+  { href:'roulette.html', icon:'🎰', title:'Roulette', badge:'Casino', desc:'Setze auf Zahlen, Farben oder Gruppen — Rien ne va plus!' },
+  { href:'bingo.html', icon:'🅱', title:'Bingo', badge:'2 Karten', desc:'Markiere gezogene Zahlen und rufe BINGO!' },
+  { href:'slot-machine.html', icon:'🍒', title:'Slot Machine', badge:'Casino', desc:'Drehe die Walzen und jage den Jackpot' },
+  { href:'wuerfelpoker.html', icon:'🎲', title:'Würfelpoker', badge:'KI-Gegner', desc:'5 Würfel, 3 Versuche — bilde die beste Pokerhand' },
+  // Runde 3 — Wort / Wissen
+  { href:'connections.html', icon:'🔗', title:'Connections', badge:'5 Rätsel', desc:'Sortiere 16 Wörter in 4 zusammengehörige Gruppen' },
+  { href:'buchstabierbiene.html', icon:'🐝', title:'Buchstabierbiene', badge:'Wörter', desc:'Bilde Wörter aus 7 Buchstaben — der mittlere muss rein!' },
+  { href:'anagramm.html', icon:'🔀', title:'Anagramm', badge:'20 Rätsel', desc:'Ordne durcheinander gewürfelte Buchstaben zum Wort' },
+  { href:'wer-wird-millionaer.html', icon:'💰', title:'Wer wird Millionär', badge:'15 Fragen', desc:'Quiz mit 3 Jokern — schaffst du die Million?' },
+  // Runde 3 — Strategie / Simulation
+  { href:'tower-defense.html', icon:'🏰', title:'Tower Defense', badge:'10 Wellen', desc:'Baue Türme und verteidige gegen Gegnerwellen' },
+  { href:'minesweeper-hex.html', icon:'⬡', title:'Hex-Minesweeper', badge:'3 Level', desc:'Minesweeper auf Sechseck-Gitter mit 6 Nachbarn' },
+  { href:'conway-battle.html', icon:'⚔', title:'Conway Battle', badge:'2 Spieler', desc:'Platziere Zellen und lass sie im Game of Life kämpfen' },
+];
+
+function getFavorites() {
+  try { return JSON.parse(localStorage.getItem('spiele-favs') || '[]'); }
+  catch { return []; }
+}
+
+function setFavorites(favs) {
+  localStorage.setItem('spiele-favs', JSON.stringify(favs));
+}
+
+function toggleFav(href, e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const favs = getFavorites();
+  const idx = favs.indexOf(href);
+  if (idx >= 0) favs.splice(idx, 1);
+  else favs.push(href);
+  setFavorites(favs);
+  renderAll();
+}
+
+function createCard(game, isFav) {
+  const a = document.createElement('a');
+  a.href = game.href;
+  a.className = 'card';
+  a.innerHTML = `
+    <span class="card-badge">${game.badge}</span>
+    <div class="card-icon">${game.icon}</div>
+    <div class="card-title">${game.title}</div>
+    <div class="card-desc">${game.desc}</div>
+  `;
+  const btn = document.createElement('button');
+  btn.className = 'fav-btn' + (isFav ? ' active' : '');
+  btn.textContent = isFav ? '★' : '☆';
+  btn.title = isFav ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen';
+  btn.onclick = (e) => toggleFav(game.href, e);
+  a.appendChild(btn);
+  return a;
+}
+
+function renderAll() {
+  const favs = getFavorites();
+  const favGames = favs.map(href => GAMES.find(g => g.href === href)).filter(Boolean);
+  const hasFavs = favGames.length > 0;
+
+  const favLabel = document.getElementById('fav-label');
+  const favGrid = document.getElementById('fav-grid');
+  const allLabel = document.getElementById('all-label');
+  const allGrid = document.getElementById('all-grid');
+
+  favLabel.style.display = hasFavs ? 'flex' : 'none';
+  favGrid.style.display = hasFavs ? 'grid' : 'none';
+  allLabel.style.display = hasFavs ? 'flex' : 'none';
+
+  favGrid.innerHTML = '';
+  for (const g of favGames) {
+    favGrid.appendChild(createCard(g, true));
+  }
+
+  allGrid.innerHTML = '';
+  for (const g of GAMES) {
+    const isFav = favs.includes(g.href);
+    allGrid.appendChild(createCard(g, isFav));
+  }
+}
+
+renderAll();
+</script>
+</body>
+</html>

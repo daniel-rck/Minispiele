@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 14px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #status { font-size: 1.1rem; padding: 8px 24px; border-radius: 8px; background: #16213e; border: 1px solid #0f3460; display: flex; align-items: center; gap: 20px; }
+  #status.over { background: #5c1a1a; border-color: #a33; }
+  .score { color: #c9b458; font-weight: bold; }
+  canvas { border: 3px solid #c9b458; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); display: block; }
+  #overlay { position: absolute; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.7); border-radius: 4px; pointer-events: none; }
+  #overlay.hidden { display: none; }
+  #overlay span { color: #c9b458; font-size: 1.3rem; letter-spacing: 2px; }
+  #overlay .sub { font-size: 0.9rem; color: #888; letter-spacing: 0; }
+  .wrap { position: relative; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>SNAKE</h1>
+<div id="status">
+  <span>Punkte: <span class="score" id="score">0</span></span>
+  <span>Rekord: <span class="score" id="high">0</span></span>
+</div>
+<div class="wrap">
+  <canvas id="canvas" width="500" height="500"></canvas>
+  <div id="overlay">
+    <span>SNAKE</span>
+    <span class="sub">Leertaste oder Enter zum Starten</span>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const GRID = 25, CELL = canvas.width / GRID;
+let snake, dir, nextDir, food, score, highScore, gameLoop, alive, started, paused;
+
+highScore = parseInt(localStorage.getItem('snake-high') || '0');
+document.getElementById('high').textContent = highScore;
+
+function init() {
+  snake = [{ x: 12, y: 12 }, { x: 11, y: 12 }, { x: 10, y: 12 }];
+  dir = { x: 1, y: 0 }; nextDir = { ...dir };
+  score = 0; alive = true; started = false; paused = false;
+  placeFood();
+  document.getElementById('score').textContent = 0;
+  document.getElementById('status').className = '';
+  showOverlay(true);
+  draw();
+}
+
+function placeFood() {
+  let pos;
+  do { pos = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) }; }
+  while (snake.some(s => s.x === pos.x && s.y === pos.y));
+  food = pos;
+}
+
+function start() {
+  if (started && alive && !paused) return;
+  if (!alive) init();
+  started = true; paused = false;
+  showOverlay(false);
+  clearInterval(gameLoop);
+  const speed = Math.max(60, 140 - snake.length * 2);
+  gameLoop = setInterval(tick, speed);
+}
+
+function tick() {
+  if (!alive || paused) return;
+  dir = { ...nextDir };
+  const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+  if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID ||
+      snake.some(s => s.x === head.x && s.y === head.y)) {
+    alive = false;
+    clearInterval(gameLoop);
+    if (score > highScore) { highScore = score; localStorage.setItem('snake-high', highScore); document.getElementById('high').textContent = highScore; }
+    document.getElementById('status').className = 'over';
+    showOverlay(true, true);
+    draw(); return;
+  }
+
+  snake.unshift(head);
+  if (head.x === food.x && head.y === food.y) {
+    score++;
+    document.getElementById('score').textContent = score;
+    placeFood();
+    // Increase speed
+    clearInterval(gameLoop);
+    gameLoop = setInterval(tick, Math.max(60, 140 - snake.length * 2));
+  } else { snake.pop(); }
+  draw();
+}
+
+function draw() {
+  ctx.fillStyle = '#0d1528';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(201,180,88,0.04)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= GRID; i++) {
+    ctx.beginPath(); ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i * CELL); ctx.lineTo(canvas.width, i * CELL); ctx.stroke();
+  }
+
+  // Food
+  ctx.fillStyle = '#e74c3c';
+  ctx.shadowColor = '#e74c3c'; ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.arc((food.x + 0.5) * CELL, (food.y + 0.5) * CELL, CELL * 0.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Snake
+  snake.forEach((seg, i) => {
+    const t = i / snake.length;
+    if (i === 0) ctx.fillStyle = '#c9b458'; // head gold
+    else ctx.fillStyle = `hsl(${130 - t * 30}, ${70 - t * 20}%, ${45 - t * 15}%)`;
+    const pad = i === 0 ? 1 : 2;
+    ctx.fillRect(seg.x * CELL + pad, seg.y * CELL + pad, CELL - pad * 2, CELL - pad * 2);
+    if (i === 0) {
+      ctx.fillStyle = '#1a1a2e';
+      const ex = dir.x === 0 ? 3 : (dir.x > 0 ? 4 : -1);
+      const ey = dir.y === 0 ? 3 : (dir.y > 0 ? 4 : -1);
+      ctx.fillRect(seg.x * CELL + CELL/2 + ex - 2, seg.y * CELL + CELL/2 + ey - 2, 3, 3);
+      ctx.fillRect(seg.x * CELL + CELL/2 - ex - 1, seg.y * CELL + CELL/2 - ey - 1, 3, 3);
+    }
+  });
+}
+
+function showOverlay(show, dead) {
+  const o = document.getElementById('overlay');
+  o.style.width = canvas.width + 'px';
+  o.style.height = canvas.height + 'px';
+  if (show) {
+    o.classList.remove('hidden');
+    o.innerHTML = dead
+      ? `<span>GAME OVER</span><span class="sub">Punkte: ${score}</span><span class="sub">Leertaste zum Neustarten</span>`
+      : `<span>SNAKE</span><span class="sub">Leertaste oder Enter zum Starten</span>`;
+  } else { o.classList.add('hidden'); }
+}
+
+document.addEventListener('keydown', (e) => {
+  const key = e.key;
+  if (key === ' ' || key === 'Enter') { e.preventDefault(); start(); return; }
+  if (key === 'Escape' || key === 'p' || key === 'P') {
+    if (alive && started) { paused = !paused; if (!paused) start(); else showOverlay(true); }
+    return;
+  }
+  const map = { ArrowUp: [0,-1], ArrowDown: [0,1], ArrowLeft: [-1,0], ArrowRight: [1,0],
+    w: [0,-1], s: [0,1], a: [-1,0], d: [1,0], W: [0,-1], S: [0,1], A: [-1,0], D: [1,0] };
+  if (map[key]) {
+    const [nx, ny] = map[key];
+    if (nx !== -dir.x || ny !== -dir.y) { // Can't reverse
+      nextDir = { x: nx, y: ny };
+    }
+    e.preventDefault();
+  }
+});
+
+init();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Snake</h2><p>Steuere die Schlange und sammle Futter, um zu wachsen. Berühre weder die Wände noch deinen eigenen Körper!<br><br><b>Steuerung:</b> Pfeiltasten zum Lenken.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

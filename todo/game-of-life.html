@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game of Life</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:10px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn.active{background:#0f3460;border-color:#c9b458}
+canvas{border-radius:8px;cursor:crosshair}
+.controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center}
+.controls label{color:#888;font-size:.8rem}
+.controls select,.controls input[type=range]{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:4px;padding:2px 4px}
+#stats{font-size:.85rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>GAME OF LIFE</h1>
+<div class="controls">
+<button class="btn" id="btn-play" onclick="togglePlay()">Start</button>
+<button class="btn" onclick="step()">Schritt</button>
+<button class="btn" onclick="clearGrid()">Leeren</button>
+<button class="btn" onclick="randomize()">Zufall</button>
+<label>Speed: <input type="range" id="speed" min="1" max="30" value="10" style="width:80px"></label>
+<label>Vorlage: <select id="sel-pattern" onchange="loadPattern()">
+<option value="">-- Wählen --</option>
+<option value="glider">Glider</option>
+<option value="gun">Gleiter-Kanone</option>
+<option value="pulsar">Pulsar</option>
+<option value="spaceship">Spaceship</option>
+<option value="pentadecathlon">Pentadecathlon</option>
+<option value="rpentomino">R-Pentomino</option>
+<option value="acorn">Acorn</option>
+<option value="diehard">Diehard</option>
+<option value="blinker">Blinker</option>
+<option value="toad">Toad</option>
+<option value="beacon">Beacon</option>
+</select></label>
+<label><input type="checkbox" id="cb-wrap" checked> Wrap</label>
+</div>
+<canvas id="c"></canvas>
+<p id="stats">Generation: <span class="val" id="gen">0</span> | Zellen: <span class="val" id="pop">0</span></p>
+
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+let COLS=80,ROWS=50,CELL=10;
+let grid,nextGrid,generation=0,running=false,animId=null,lastTime=0;
+let isDrawing=false,drawVal=1;
+
+function resize(){
+  const maxW=Math.min(window.innerWidth-20,900);
+  const maxH=Math.min(window.innerHeight-200,600);
+  CELL=Math.max(6,Math.min(12,Math.floor(maxW/80)));
+  COLS=Math.floor(maxW/CELL);
+  ROWS=Math.floor(maxH/CELL);
+  canvas.width=COLS*CELL;
+  canvas.height=ROWS*CELL;
+}
+
+function createGrid(){return Array.from({length:ROWS},()=>new Uint8Array(COLS));}
+
+function init(){
+  resize();
+  grid=createGrid();
+  nextGrid=createGrid();
+  generation=0;
+  draw();
+}
+
+function draw(){
+  ctx.fillStyle='#1a1a2e';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // grid lines
+  ctx.strokeStyle='rgba(15,52,96,0.3)';
+  ctx.lineWidth=0.5;
+  for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*CELL,0);ctx.lineTo(x*CELL,ROWS*CELL);ctx.stroke();}
+  for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(COLS*CELL,y*CELL);ctx.stroke();}
+  // cells
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if(grid[r][c]){
+        const age=grid[r][c];
+        const brightness=Math.max(0.4,1-age*0.05);
+        const g=Math.floor(180*brightness);
+        const b2=Math.floor(88*brightness);
+        ctx.fillStyle=`rgb(${Math.floor(201*brightness)},${g},${b2})`;
+        ctx.fillRect(c*CELL+1,r*CELL+1,CELL-2,CELL-2);
+      }
+    }
+  }
+  document.getElementById('gen').textContent=generation;
+  let pop=0;for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)if(grid[r][c])pop++;
+  document.getElementById('pop').textContent=pop;
+}
+
+function countNeighbors(r,c){
+  const wrap=document.getElementById('cb-wrap').checked;
+  let count=0;
+  for(let dr=-1;dr<=1;dr++){
+    for(let dc=-1;dc<=1;dc++){
+      if(dr===0&&dc===0)continue;
+      let nr=r+dr,nc=c+dc;
+      if(wrap){nr=(nr+ROWS)%ROWS;nc=(nc+COLS)%COLS;}
+      else if(nr<0||nr>=ROWS||nc<0||nc>=COLS)continue;
+      if(grid[nr][nc])count++;
+    }
+  }
+  return count;
+}
+
+function step(){
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const n=countNeighbors(r,c);
+      if(grid[r][c]){
+        nextGrid[r][c]=n===2||n===3?Math.min(grid[r][c]+1,20):0;
+      } else {
+        nextGrid[r][c]=n===3?1:0;
+      }
+    }
+  }
+  [grid,nextGrid]=[nextGrid,grid];
+  generation++;
+  draw();
+}
+
+function togglePlay(){
+  running=!running;
+  document.getElementById('btn-play').textContent=running?'Stop':'Start';
+  document.getElementById('btn-play').classList.toggle('active',running);
+  if(running)loop();
+}
+
+function loop(){
+  if(!running)return;
+  const speed=parseInt(document.getElementById('speed').value);
+  const now=performance.now();
+  if(now-lastTime>1000/speed){
+    step();
+    lastTime=now;
+  }
+  animId=requestAnimationFrame(loop);
+}
+
+function clearGrid(){
+  running=false;
+  document.getElementById('btn-play').textContent='Start';
+  document.getElementById('btn-play').classList.remove('active');
+  grid=createGrid();generation=0;draw();
+}
+
+function randomize(){
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)grid[r][c]=Math.random()<0.3?1:0;
+  generation=0;draw();
+}
+
+const PATTERNS={
+  glider:[[0,1],[1,2],[2,0],[2,1],[2,2]],
+  gun:[[0,24],[1,22],[1,24],[2,12],[2,13],[2,20],[2,21],[2,34],[2,35],[3,11],[3,15],[3,20],[3,21],[3,34],[3,35],[4,0],[4,1],[4,10],[4,16],[4,20],[4,21],[5,0],[5,1],[5,10],[5,14],[5,16],[5,17],[5,22],[5,24],[6,10],[6,16],[6,24],[7,11],[7,15],[8,12],[8,13]],
+  pulsar:[[0,2],[0,3],[0,4],[0,8],[0,9],[0,10],[2,0],[2,5],[2,7],[2,12],[3,0],[3,5],[3,7],[3,12],[4,0],[4,5],[4,7],[4,12],[5,2],[5,3],[5,4],[5,8],[5,9],[5,10],[7,2],[7,3],[7,4],[7,8],[7,9],[7,10],[8,0],[8,5],[8,7],[8,12],[9,0],[9,5],[9,7],[9,12],[10,0],[10,5],[10,7],[10,12],[12,2],[12,3],[12,4],[12,8],[12,9],[12,10]],
+  spaceship:[[0,1],[0,4],[1,0],[2,0],[2,4],[3,0],[3,1],[3,2],[3,3]],
+  pentadecathlon:[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0]].map(([r,c])=>r===1||r===6?[r,-1]:[r,c]).concat([[1,1],[6,1]]),
+  rpentomino:[[0,1],[0,2],[1,0],[1,1],[2,1]],
+  acorn:[[0,1],[1,3],[2,0],[2,1],[2,4],[2,5],[2,6]],
+  diehard:[[0,6],[1,0],[1,1],[2,1],[2,5],[2,6],[2,7]],
+  blinker:[[0,0],[0,1],[0,2]],
+  toad:[[0,1],[0,2],[0,3],[1,0],[1,1],[1,2]],
+  beacon:[[0,0],[0,1],[1,0],[2,3],[3,2],[3,3]]
+};
+
+function loadPattern(){
+  const name=document.getElementById('sel-pattern').value;
+  if(!name)return;
+  clearGrid();
+  const pat=PATTERNS[name];
+  if(!pat)return;
+  const cr=Math.floor(ROWS/2),cc=Math.floor(COLS/2);
+  for(const[r,c]of pat){
+    const nr=cr+r,nc=cc+c;
+    if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS)grid[nr][nc]=1;
+  }
+  draw();
+  document.getElementById('sel-pattern').value='';
+}
+
+canvas.onmousedown=function(e){
+  if(running)return;
+  const rect=canvas.getBoundingClientRect();
+  const c=Math.floor((e.clientX-rect.left)/CELL);
+  const r=Math.floor((e.clientY-rect.top)/CELL);
+  if(r>=0&&r<ROWS&&c>=0&&c<COLS){
+    drawVal=grid[r][c]?0:1;
+    grid[r][c]=drawVal;
+    isDrawing=true;
+    draw();
+  }
+};
+canvas.onmousemove=function(e){
+  if(!isDrawing)return;
+  const rect=canvas.getBoundingClientRect();
+  const c=Math.floor((e.clientX-rect.left)/CELL);
+  const r=Math.floor((e.clientY-rect.top)/CELL);
+  if(r>=0&&r<ROWS&&c>=0&&c<COLS){grid[r][c]=drawVal;draw();}
+};
+canvas.onmouseup=()=>isDrawing=false;
+canvas.onmouseleave=()=>isDrawing=false;
+
+canvas.ontouchstart=function(e){
+  e.preventDefault();
+  const t=e.touches[0];
+  canvas.onmousedown({clientX:t.clientX,clientY:t.clientY});
+};
+canvas.ontouchmove=function(e){
+  e.preventDefault();
+  const t=e.touches[0];
+  canvas.onmousemove({clientX:t.clientX,clientY:t.clientY});
+};
+canvas.ontouchend=()=>isDrawing=false;
+
+window.onresize=()=>{resize();draw();};
+init();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Game of Life</h2><p>Conways Zellularer Automat. Klicke auf Zellen, um sie zu aktivieren/deaktivieren, dann starte die Simulation.<br><br><b>Regeln:</b> Lebende Zellen mit 2-3 Nachbarn überleben. Tote Zellen mit genau 3 Nachbarn werden geboren. Alles andere stirbt.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

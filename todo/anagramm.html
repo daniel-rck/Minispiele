@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anagramm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:14px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1.1rem;min-height:1.5em;text-align:center}
+.scrambled{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.letter{width:44px;height:50px;background:#16213e;border:2px solid #0f3460;border-radius:8px;display:flex;justify-content:center;align-items:center;font-size:1.5rem;font-weight:bold;cursor:pointer;transition:all .15s;color:#c9b458}
+.letter:hover{border-color:#c9b458;transform:translateY(-4px)}
+.letter.used{opacity:.3;pointer-events:none}
+.answer{display:flex;gap:6px;justify-content:center;min-height:54px;flex-wrap:wrap}
+.answer-slot{width:44px;height:50px;background:#0f3460;border-radius:8px;display:flex;justify-content:center;align-items:center;font-size:1.5rem;font-weight:bold;cursor:pointer;color:#c9b458;transition:all .15s}
+.answer-slot:hover{background:#16213e}
+.answer-slot.correct{background:#1a4a2e;border:2px solid #2ecc71;color:#2ecc71}
+.progress{font-size:.85rem;color:#888}
+.timer{font-size:1rem;color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>ANAGRAMM</h1>
+<p class="progress" id="progress">Rätsel 1/20 | Punkte: 0</p>
+<p class="timer" id="timer">30s</p>
+<p id="msg">Ordne die Buchstaben zum richtigen Wort!</p>
+<div class="scrambled" id="scrambled"></div>
+<div class="answer" id="answer"></div>
+<div style="display:flex;gap:8px">
+<button class="btn" onclick="clearAnswer()">Leeren</button>
+<button class="btn" onclick="useHint()">Hinweis</button>
+<button class="btn" onclick="skipWord()">Überspringen</button>
+</div>
+
+<script>
+const WORDS=['ABENTEUER','BIBLIOTHEK','COMPUTER','DACHBODEN','EISENBAHN','FAHRRAD','GEBURTSTAG','HANDSCHUH','JAHRESZEIT','KAFFEEMASCHINE','LEUCHTTURM','MONDSCHEIN','NACHTIGALL','PARKPLATZ','REGENBOGEN','SCHMETTERLING','TASCHENLAMPE','WASSERFALL','BLUMENWIESE','DONNERWETTER','FEUERWEHR','KINDERGARTEN','MARKTPLATZ','SONNENBLUME','WANDERSCHUHE','KRISTALLKLAR','SCHWARZWALD','ERDBEERE','GOLDFISCH','APFELBAUM','SCHOKOLADE','WEIHNACHTEN','SILVESTER','KARUSSELL','HUBSCHRAUBER','WOLKENKRATZER','THERMOMETER','DSCHUNGEL','ELEFANT','KROKODIL','PINGUIN','FLAMINGO','GIRAFFE','LEOPARD','PAPAGEI','DELPHIN','CHAMÄLEON','KOLIBRI','NASHORN','SCHILDKRÖTE'];
+
+let currentIdx,answer,usedLetters,scrambled,score,roundNum,timerVal,timerInterval,hintsUsed;
+
+function shuffle(arr){return[...arr].sort(()=>Math.random()-.5);}
+
+function newGame(){
+  const shuffled=shuffle(WORDS);
+  currentIdx=0;score=0;roundNum=1;
+  window.gameWords=shuffled.slice(0,20);
+  loadWord();
+}
+
+function loadWord(){
+  if(roundNum>20){
+    document.getElementById('msg').textContent=`Spiel vorbei! ${score} Punkte!`;
+    clearInterval(timerInterval);return;
+  }
+  const word=window.gameWords[roundNum-1];
+  scrambled=shuffle(word.split(''));
+  answer=Array(word.length).fill(null);usedLetters=new Set();hintsUsed=0;
+  timerVal=Math.max(15,10+word.length*3);
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timerVal--;
+    document.getElementById('timer').textContent=timerVal+'s';
+    if(timerVal<=0){clearInterval(timerInterval);skipWord();}
+  },1000);
+  document.getElementById('msg').textContent='Ordne die Buchstaben!';
+  document.getElementById('progress').textContent=`Rätsel ${roundNum}/20 | Punkte: ${score}`;
+  render();
+}
+
+function render(){
+  document.getElementById('timer').textContent=timerVal+'s';
+  const sDiv=document.getElementById('scrambled');
+  sDiv.innerHTML='';
+  scrambled.forEach((l,i)=>{
+    const el=document.createElement('div');
+    el.className='letter'+(usedLetters.has(i)?' used':'');
+    el.textContent=l;
+    el.onclick=()=>pickLetter(i);
+    sDiv.appendChild(el);
+  });
+  const aDiv=document.getElementById('answer');
+  aDiv.innerHTML='';
+  const word=window.gameWords[roundNum-1];
+  for(let i=0;i<word.length;i++){
+    const el=document.createElement('div');
+    el.className='answer-slot';
+    if(answer[i]){
+      el.textContent=answer[i].letter;
+      el.onclick=()=>removeLetter(i);
+    }
+    aDiv.appendChild(el);
+  }
+}
+
+function pickLetter(idx){
+  if(usedLetters.has(idx))return;
+  const word=window.gameWords[roundNum-1];
+  const pos=answer.findIndex((v,i)=>!v&&i<word.length);
+  if(pos===-1)return;
+  answer[pos]={letter:scrambled[idx],srcIdx:idx};
+  usedLetters.add(idx);
+  render();
+  if(answer.filter(Boolean).length===word.length)checkAnswer();
+}
+
+function removeLetter(pos){
+  if(!answer[pos])return;
+  usedLetters.delete(answer[pos].srcIdx);
+  answer[pos]=null;
+  render();
+}
+
+function clearAnswer(){
+  answer.forEach(a=>{if(a)usedLetters.delete(a.srcIdx);});
+  answer=Array(window.gameWords[roundNum-1].length).fill(null);render();
+}
+
+function checkAnswer(){
+  const word=window.gameWords[roundNum-1];
+  const guess=answer.map(a=>a.letter).join('');
+  if(guess===word){
+    const pts=Math.max(10,50-hintsUsed*15+timerVal);
+    score+=pts;
+    document.getElementById('msg').textContent=`Richtig! +${pts} Punkte`;
+    document.querySelectorAll('.answer-slot').forEach(s=>s.classList.add('correct'));
+    clearInterval(timerInterval);
+    setTimeout(()=>{roundNum++;loadWord();},1000);
+  } else {
+    document.getElementById('msg').textContent='Nicht korrekt — versuche es nochmal!';
+  }
+}
+
+function useHint(){
+  const word=window.gameWords[roundNum-1];
+  hintsUsed++;
+  for(let i=0;i<word.length;i++){
+    if(!answer[i]||answer[i].letter!==word[i]){
+      if(answer[i])usedLetters.delete(answer[i].srcIdx);
+      const needed=word[i];
+      const srcIdx=scrambled.findIndex((l,j)=>l===needed&&!usedLetters.has(j));
+      if(srcIdx>=0){answer[i]={letter:needed,srcIdx};usedLetters.add(srcIdx);}
+      break;
+    }
+  }
+  render();
+  if(answer.filter(Boolean).length===word.length)checkAnswer();
+}
+
+function skipWord(){
+  clearInterval(timerInterval);
+  document.getElementById('msg').textContent=`Das Wort war: ${window.gameWords[roundNum-1]}`;
+  setTimeout(()=>{roundNum++;loadWord();},1500);
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Anagramm</h2><p>Die Buchstaben eines Wortes sind durcheinander gewürfelt. Klicke die Buchstaben in der richtigen Reihenfolge an, um das Wort zu bilden.<br><br><b>Hinweis-Button:</b> Setzt den nächsten richtigen Buchstaben. Punkte hängen von Zeit und Hinweisen ab.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

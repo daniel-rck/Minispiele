@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mancala</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:14px;user-select:none;padding:60px 20px 20px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+#msg{color:#c9b458;font-weight:bold;font-size:1.1rem;min-height:1.5em;text-align:center}
+.board{display:flex;align-items:center;gap:0;background:#16213e;border:2px solid #0f3460;border-radius:20px;padding:16px}
+.store{width:70px;height:180px;background:#0f3460;border-radius:35px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:1.8rem;font-weight:bold;color:#c9b458}
+.store-label{font-size:.7rem;color:#888;margin-top:4px}
+.pits{display:flex;flex-direction:column;gap:10px;margin:0 12px}
+.pit-row{display:flex;gap:10px}
+.pit{width:60px;height:60px;background:#0f3460;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:1.3rem;font-weight:bold;cursor:pointer;transition:all .2s;border:2px solid transparent}
+.pit:hover:not(.disabled){border-color:#c9b458;transform:scale(1.1)}
+.pit.disabled{opacity:.5;cursor:default}
+.pit.highlight{border-color:#c9b458;box-shadow:0 0 12px rgba(201,180,88,.4)}
+.pit-label{font-size:.65rem;color:#888;text-align:center;display:flex;gap:10px}
+.pit-label span{width:60px}
+#info{font-size:.9rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>MANCALA</h1>
+<p id="msg">Klicke eine deiner Mulden (unten).</p>
+<div class="board">
+  <div class="store" id="store-ai"><span id="store-ai-val">0</span><span class="store-label">KI</span></div>
+  <div class="pits">
+    <div class="pit-label" id="labels-ai"></div>
+    <div class="pit-row" id="row-ai"></div>
+    <div class="pit-row" id="row-player"></div>
+    <div class="pit-label" id="labels-player"></div>
+  </div>
+  <div class="store" id="store-player"><span id="store-player-val">0</span><span class="store-label">Du</span></div>
+</div>
+<button class="btn" onclick="newGame()">Neues Spiel</button>
+<p id="info">Gewonnen: <span class="val" id="wins">0</span> | Verloren: <span class="val" id="losses">0</span></p>
+
+<script>
+// pits[0..5] = player, pits[6] = player store, pits[7..12] = AI, pits[13] = AI store
+let pits,playerTurn,gameOver;
+let wins=parseInt(localStorage.getItem('mancala-wins')||'0');
+let losses=parseInt(localStorage.getItem('mancala-losses')||'0');
+document.getElementById('wins').textContent=wins;
+document.getElementById('losses').textContent=losses;
+
+function newGame(){
+  pits=new Array(14).fill(4);
+  pits[6]=0;pits[13]=0;
+  playerTurn=true;gameOver=false;
+  document.getElementById('msg').textContent='Klicke eine deiner Mulden (unten).';
+  render();
+}
+
+function render(){
+  const rowP=document.getElementById('row-player');
+  const rowA=document.getElementById('row-ai');
+  const labP=document.getElementById('labels-player');
+  const labA=document.getElementById('labels-ai');
+  rowP.innerHTML='';rowA.innerHTML='';labP.innerHTML='';labA.innerHTML='';
+  // AI pits (12..7 right to left visually, displayed left to right as 12,11,10,9,8,7)
+  for(let i=12;i>=7;i--){
+    const pit=document.createElement('div');
+    pit.className='pit disabled';
+    pit.textContent=pits[i];
+    rowA.appendChild(pit);
+    const l=document.createElement('span');l.textContent=13-i;labA.appendChild(l);
+  }
+  // Player pits (0..5 left to right)
+  for(let i=0;i<6;i++){
+    const pit=document.createElement('div');
+    pit.className='pit'+((!playerTurn||gameOver||pits[i]===0)?' disabled':'');
+    pit.textContent=pits[i];
+    if(playerTurn&&!gameOver&&pits[i]>0){
+      pit.onclick=(()=>{const idx=i;return()=>makeMove(idx);})();
+    }
+    rowP.appendChild(pit);
+    const l=document.createElement('span');l.textContent=i+1;labP.appendChild(l);
+  }
+  document.getElementById('store-player-val').textContent=pits[6];
+  document.getElementById('store-ai-val').textContent=pits[13];
+}
+
+function makeMove(idx){
+  if(gameOver)return;
+  const isPlayer=idx<6;
+  const myStore=isPlayer?6:13;
+  const oppStore=isPlayer?13:6;
+  let stones=pits[idx];
+  pits[idx]=0;
+  let pos=idx;
+  while(stones>0){
+    pos=(pos+1)%14;
+    if(pos===oppStore)continue;
+    pits[pos]++;
+    stones--;
+  }
+  // capture
+  if(isPlayer&&pos>=0&&pos<6&&pits[pos]===1){
+    const opp=12-pos;
+    if(pits[opp]>0){pits[6]+=pits[opp]+1;pits[opp]=0;pits[pos]=0;}
+  }
+  if(!isPlayer&&pos>=7&&pos<13&&pits[pos]===1){
+    const opp=12-pos;
+    if(pits[opp]>0){pits[13]+=pits[opp]+1;pits[opp]=0;pits[pos]=0;}
+  }
+  // check game end
+  const pSum=pits.slice(0,6).reduce((a,b)=>a+b,0);
+  const aSum=pits.slice(7,13).reduce((a,b)=>a+b,0);
+  if(pSum===0||aSum===0){
+    pits[6]+=pSum;pits[13]+=aSum;
+    for(let i=0;i<6;i++)pits[i]=0;
+    for(let i=7;i<13;i++)pits[i]=0;
+    gameOver=true;
+    if(pits[6]>pits[13]){
+      document.getElementById('msg').textContent=`Gewonnen! ${pits[6]}:${pits[13]}`;
+      wins++;localStorage.setItem('mancala-wins',wins);document.getElementById('wins').textContent=wins;
+    } else if(pits[13]>pits[6]){
+      document.getElementById('msg').textContent=`Verloren! ${pits[6]}:${pits[13]}`;
+      losses++;localStorage.setItem('mancala-losses',losses);document.getElementById('losses').textContent=losses;
+    } else {
+      document.getElementById('msg').textContent=`Unentschieden! ${pits[6]}:${pits[13]}`;
+    }
+    render();return;
+  }
+  // extra turn if last stone in own store
+  if(isPlayer&&pos===6){
+    document.getElementById('msg').textContent='Nochmal! Letzter Stein im Kalaha.';
+    playerTurn=true;
+    render();return;
+  }
+  if(!isPlayer&&pos===13){
+    document.getElementById('msg').textContent='KI spielt nochmal...';
+    playerTurn=false;
+    render();
+    setTimeout(aiMove,500);return;
+  }
+  if(isPlayer){
+    playerTurn=false;
+    document.getElementById('msg').textContent='KI ist dran...';
+    render();
+    setTimeout(aiMove,500);
+  } else {
+    playerTurn=true;
+    document.getElementById('msg').textContent='Dein Zug.';
+    render();
+  }
+}
+
+function aiMove(){
+  if(gameOver)return;
+  // Greedy: pick move that maximizes score or gets extra turn
+  let bestIdx=-1,bestScore=-1;
+  for(let i=7;i<13;i++){
+    if(pits[i]===0)continue;
+    const backup=[...pits];
+    // simulate
+    let stones=pits[i];pits[i]=0;let pos=i;
+    while(stones>0){pos=(pos+1)%14;if(pos===6)continue;pits[pos]++;stones--;}
+    let score=pits[13]-backup[13];
+    if(pos===13)score+=5;// extra turn bonus
+    // capture
+    if(pos>=7&&pos<13&&pits[pos]===1){const opp=12-pos;if(backup[opp]>0)score+=backup[opp]+1;}
+    if(score>bestScore){bestScore=score;bestIdx=i;}
+    pits.splice(0,14,...backup);
+  }
+  if(bestIdx>=0)makeMove(bestIdx);
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Mancala</h2><p>Wähle eine deiner Mulden und verteile die Steine einzeln gegen den Uhrzeigersinn. Der letzte Stein in deiner großen Mulde (Mancala) = nochmal ziehen.<br><br><b>Ziel:</b> Sammle mehr Steine in deiner Mancala als der Gegner.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

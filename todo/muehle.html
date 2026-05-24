@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mühle</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif;
+    color: #e0e0e0; flex-direction: column; gap: 16px;
+    user-select: none;
+  }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #status {
+    font-size: 1.1rem; padding: 8px 24px; border-radius: 8px;
+    background: #16213e; border: 1px solid #0f3460;
+    min-height: 40px; display: flex; align-items: center;
+  }
+  #status.won { background: #1a5c1a; border-color: #3a3; font-weight: bold; }
+  #board-wrapper {
+    position: relative;
+    width: 420px; height: 420px;
+  }
+  canvas { border-radius: 8px; cursor: pointer; }
+  #info {
+    display: flex; gap: 30px; font-size: 1rem;
+  }
+  .player-info { display: flex; align-items: center; gap: 8px; }
+  .stone-indicator {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3);
+  }
+  .stone-indicator.white { background: radial-gradient(circle at 35% 35%, #fff, #ccc); }
+  .stone-indicator.black { background: radial-gradient(circle at 35% 35%, #555, #222); }
+  #controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  button {
+    padding: 8px 20px; border: 1px solid #c9b458; background: #16213e;
+    color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
+    transition: background 0.2s;
+  }
+  button:hover { background: #0f3460; }
+  button.active { background: #c9b458; color: #1a1a2e; font-weight: bold; }
+  select {
+    padding: 8px 12px; border: 1px solid #c9b458; background: #16213e;
+    color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem;
+    transition: background 0.2s; outline: none;
+  }
+  select:hover { background: #0f3460; }
+  #thinking {
+    font-size: 0.95rem; color: #c9b458; min-height: 24px;
+    letter-spacing: 1px; opacity: 0; transition: opacity 0.3s;
+  }
+  #thinking.visible { opacity: 1; }
+  a.back-link {
+    position: fixed; top: 16px; left: 16px;
+    color: #c9b458; text-decoration: none; font-size: 1.1rem;
+    padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px;
+    background: #16213e; transition: background 0.2s;
+  }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>MÜHLE</h1>
+<div id="status">Weiss setzt einen Stein</div>
+<div id="info">
+  <div class="player-info"><div class="stone-indicator white"></div><span id="white-info">Weiss: 9 Steine</span></div>
+  <div class="player-info"><div class="stone-indicator black"></div><span id="black-info">Schwarz: 9 Steine</span></div>
+</div>
+<div id="board-wrapper">
+  <canvas id="canvas" width="420" height="420"></canvas>
+</div>
+<div id="thinking"></div>
+<div id="controls">
+  <button onclick="resetGame()">Neues Spiel</button>
+  <button id="btn-mode" onclick="toggleMode()">Gegen Computer</button>
+  <select id="difficulty" onchange="changeDifficulty(this.value)" style="display:none">
+    <option value="leicht">Leicht</option>
+    <option value="mittel" selected>Mittel</option>
+    <option value="schwer">Schwer</option>
+  </select>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const SIZE = 420;
+const PAD = 40;
+const STEP = (SIZE - 2 * PAD) / 6;
+
+// 24 positions on the board: [ring (0-2), position (0-7)]
+// Mapped to pixel coordinates
+const POSITIONS = [];
+const POS_COORDS = {};
+
+// Ring layout: 0=outer, 1=middle, 2=inner
+// Positions 0-7 clockwise from top-left:
+//  0 - 1 - 2
+//  |       |
+//  7       3
+//  |       |
+//  6 - 5 - 4
+const REL = [
+  [0, 0], [3, 0], [6, 0],
+  [6, 3], [6, 6], [3, 6],
+  [0, 6], [0, 3]
+];
+
+for (let ring = 0; ring < 3; ring++) {
+  const offset = ring; // 0, 1, 2 steps inward
+  for (let pos = 0; pos < 8; pos++) {
+    const [rx, ry] = REL[pos];
+    const x = PAD + (offset + rx / 6 * (3 - offset) * 2) * STEP;
+    const y = PAD + (offset + ry / 6 * (3 - offset) * 2) * STEP;
+    // Recalculate properly
+    const id = ring * 8 + pos;
+    POSITIONS.push(id);
+  }
+}
+
+// Correct coordinate calculation
+function posToPixel(ring, pos) {
+  const ringSize = 3 - ring; // 3, 2, 1 (in STEP units from center)
+  const cx = SIZE / 2, cy = SIZE / 2;
+  const offsets = [
+    [-1, -1], [0, -1], [1, -1],
+    [1, 0], [1, 1], [0, 1],
+    [-1, 1], [-1, 0]
+  ];
+  const [ox, oy] = offsets[pos];
+  return {
+    x: cx + ox * ringSize * STEP,
+    y: cy + oy * ringSize * STEP
+  };
+}
+
+// Mills: all possible lines of three
+const MILLS = [
+  // Outer ring
+  [[0,0],[0,1],[0,2]], [[0,2],[0,3],[0,4]], [[0,4],[0,5],[0,6]], [[0,6],[0,7],[0,0]],
+  // Middle ring
+  [[1,0],[1,1],[1,2]], [[1,2],[1,3],[1,4]], [[1,4],[1,5],[1,6]], [[1,6],[1,7],[1,0]],
+  // Inner ring
+  [[2,0],[2,1],[2,2]], [[2,2],[2,3],[2,4]], [[2,4],[2,5],[2,6]], [[2,6],[2,7],[2,0]],
+  // Cross connections (only at midpoints: pos 1,3,5,7)
+  [[0,1],[1,1],[2,1]], [[0,3],[1,3],[2,3]], [[0,5],[1,5],[2,5]], [[0,7],[1,7],[2,7]]
+];
+
+// Adjacency: which positions connect
+function getNeighbors(ring, pos) {
+  const neighbors = [];
+  // Same ring: prev and next
+  neighbors.push([ring, (pos + 1) % 8]);
+  neighbors.push([ring, (pos + 7) % 8]);
+  // Cross-ring connections at midpoints (pos 1, 3, 5, 7)
+  if (pos % 2 === 1) {
+    if (ring > 0) neighbors.push([ring - 1, pos]);
+    if (ring < 2) neighbors.push([ring + 1, pos]);
+  }
+  return neighbors;
+}
+
+// Game state
+let boardState, turn, phase, selectedStone, gameOver;
+let whiteStonesLeft, blackStonesLeft; // stones to place
+let whiteOnBoard, blackOnBoard;
+let mustRemove; // true if current player must remove an opponent's stone
+let vsComputer = false, aiThinking = false, aiDifficulty = 'mittel';
+const AI_DEPTH = { leicht: 0, mittel: 2, schwer: 4 };
+let historyStack = [];
+
+function getCell(ring, pos) {
+  return boardState[ring][pos]; // null, 'W', 'B'
+}
+
+function setCell(ring, pos, val) {
+  boardState[ring][pos] = val;
+}
+
+function resetGame() {
+  boardState = [Array(8).fill(null), Array(8).fill(null), Array(8).fill(null)];
+  turn = 'W';
+  phase = 'place'; // 'place', 'move', 'fly'
+  selectedStone = null;
+  gameOver = false;
+  whiteStonesLeft = 9;
+  blackStonesLeft = 9;
+  whiteOnBoard = 0;
+  blackOnBoard = 0;
+  mustRemove = false;
+  historyStack = [];
+  render();
+  updateStatus();
+}
+
+function countOnBoard(color) {
+  let count = 0;
+  for (let r = 0; r < 3; r++)
+    for (let p = 0; p < 8; p++)
+      if (boardState[r][p] === color) count++;
+  return count;
+}
+
+function checkMill(ring, pos, color) {
+  return MILLS.some(mill =>
+    mill.some(([mr, mp]) => mr === ring && mp === pos) &&
+    mill.every(([mr, mp]) => boardState[mr][mp] === color)
+  );
+}
+
+function allInMill(color) {
+  for (let r = 0; r < 3; r++)
+    for (let p = 0; p < 8; p++)
+      if (boardState[r][p] === color && !checkMill(r, p, color)) return false;
+  return true;
+}
+
+function getPhase(color) {
+  const left = color === 'W' ? whiteStonesLeft : blackStonesLeft;
+  if (left > 0) return 'place';
+  const onBoard = countOnBoard(color);
+  if (onBoard === 3) return 'fly';
+  return 'move';
+}
+
+function canMove(color) {
+  const ph = getPhase(color);
+  if (ph === 'place') return true;
+  if (ph === 'fly') return countOnBoard(color) >= 3;
+  // Check if any piece can move
+  for (let r = 0; r < 3; r++) {
+    for (let p = 0; p < 8; p++) {
+      if (boardState[r][p] === color) {
+        const neighbors = getNeighbors(r, p);
+        if (neighbors.some(([nr, np]) => !boardState[nr][np])) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function handleClick(ring, pos) {
+  if (gameOver || aiThinking) return;
+
+  if (mustRemove) {
+    // Must remove an opponent's stone
+    const opponent = turn === 'W' ? 'B' : 'W';
+    if (boardState[ring][pos] !== opponent) return;
+    // Can't remove from mill unless all are in mills
+    if (checkMill(ring, pos, opponent) && !allInMill(opponent)) return;
+
+    setCell(ring, pos, null);
+    if (opponent === 'W') whiteOnBoard--;
+    else blackOnBoard--;
+    mustRemove = false;
+    turn = turn === 'W' ? 'B' : 'W';
+    selectedStone = null;
+
+    // Check win
+    const oppOnBoard = countOnBoard(turn === 'W' ? 'B' : 'W');
+    // We just switched turn, so check if the opponent (who just had a piece removed) has lost
+    // Actually, we need to check the player whose piece was removed
+    if (countOnBoard(opponent) < 3 && (opponent === 'W' ? whiteStonesLeft : blackStonesLeft) === 0) {
+      gameOver = true;
+      const winner = turn === 'W' ? 'B' : 'W'; // The one who removed
+      // Actually turn was already switched, so current turn's opponent won
+      // Let me reconsider: turn was switched to the opponent. The winner is the one who removed = previous turn
+      gameOver = true;
+    }
+
+    if (!gameOver && !canMove(turn)) {
+      gameOver = true;
+    }
+
+    render();
+    updateStatus();
+    if (!gameOver && vsComputer && turn === 'B') aiMove();
+    return;
+  }
+
+  const currentPhase = getPhase(turn);
+
+  if (currentPhase === 'place') {
+    if (boardState[ring][pos]) return;
+    setCell(ring, pos, turn);
+    if (turn === 'W') { whiteStonesLeft--; whiteOnBoard++; }
+    else { blackStonesLeft--; blackOnBoard++; }
+
+    if (checkMill(ring, pos, turn)) {
+      mustRemove = true;
+      render();
+      updateStatus();
+      if (vsComputer && turn === 'B') aiMove();
+      return;
+    }
+
+    turn = turn === 'W' ? 'B' : 'W';
+    if (!canMove(turn) && getPhase(turn) !== 'place') {
+      gameOver = true;
+    }
+    render();
+    updateStatus();
+    if (!gameOver && vsComputer && turn === 'B') aiMove();
+    return;
+  }
+
+  // Move or Fly phase
+  if (!selectedStone) {
+    if (boardState[ring][pos] !== turn) return;
+    selectedStone = [ring, pos];
+    render();
+    return;
+  }
+
+  // Destination
+  if (boardState[ring][pos]) {
+    // Select different own stone
+    if (boardState[ring][pos] === turn) {
+      selectedStone = [ring, pos];
+      render();
+      return;
+    }
+    return;
+  }
+
+  const [sr, sp] = selectedStone;
+  const isAdjacent = getNeighbors(sr, sp).some(([nr, np]) => nr === ring && np === pos);
+
+  if (currentPhase === 'move' && !isAdjacent) return;
+  // Fly: can go anywhere empty (already checked boardState[ring][pos] is null)
+
+  setCell(ring, pos, turn);
+  setCell(sr, sp, null);
+  selectedStone = null;
+
+  if (checkMill(ring, pos, turn)) {
+    mustRemove = true;
+    render();
+    updateStatus();
+    if (vsComputer && turn === 'B') aiMove();
+    return;
+  }
+
+  turn = turn === 'W' ? 'B' : 'W';
+  if (!canMove(turn)) {
+    gameOver = true;
+  }
+  render();
+  updateStatus();
+  if (!gameOver && vsComputer && turn === 'B') aiMove();
+}
+
+// --- AI ---
+function evaluateState() {
+  const wCount = countOnBoard('W');
+  const bCount = countOnBoard('B');
+  const wLeft = whiteStonesLeft;
+  const bLeft = blackStonesLeft;
+
+  if (bCount < 3 && bLeft === 0) return 1000;
+  if (wCount < 3 && wLeft === 0) return -1000;
+
+  let score = (wCount + wLeft) - (bCount + bLeft);
+  score *= 10;
+
+  // Mill count bonus
+  for (const mill of MILLS) {
+    const wInMill = mill.filter(([r,p]) => boardState[r][p] === 'W').length;
+    const bInMill = mill.filter(([r,p]) => boardState[r][p] === 'B').length;
+    if (wInMill === 3) score += 5;
+    if (bInMill === 3) score -= 5;
+    if (wInMill === 2 && mill.filter(([r,p]) => !boardState[r][p]).length === 1) score += 2;
+    if (bInMill === 2 && mill.filter(([r,p]) => !boardState[r][p]).length === 1) score -= 2;
+  }
+
+  // Mobility
+  let wMobility = 0, bMobility = 0;
+  for (let r = 0; r < 3; r++) {
+    for (let p = 0; p < 8; p++) {
+      if (boardState[r][p] === 'W') {
+        wMobility += getNeighbors(r, p).filter(([nr,np]) => !boardState[nr][np]).length;
+      } else if (boardState[r][p] === 'B') {
+        bMobility += getNeighbors(r, p).filter(([nr,np]) => !boardState[nr][np]).length;
+      }
+    }
+  }
+  score += (wMobility - bMobility) * 0.5;
+
+  return score;
+}
+
+function getAllAIMoves(color) {
+  const moves = [];
+  const ph = getPhase(color);
+  const opponent = color === 'W' ? 'B' : 'W';
+
+  if (ph === 'place') {
+    for (let r = 0; r < 3; r++)
+      for (let p = 0; p < 8; p++)
+        if (!boardState[r][p])
+          moves.push({ type: 'place', ring: r, pos: p });
+  } else {
+    for (let r = 0; r < 3; r++) {
+      for (let p = 0; p < 8; p++) {
+        if (boardState[r][p] !== color) continue;
+        const dests = ph === 'fly' ?
+          getAllEmpty() :
+          getNeighbors(r, p).filter(([nr,np]) => !boardState[nr][np]);
+        for (const [dr, dp] of dests) {
+          moves.push({ type: 'move', fromRing: r, fromPos: p, ring: dr, pos: dp });
+        }
+      }
+    }
+  }
+  return moves;
+}
+
+function getAllEmpty() {
+  const empty = [];
+  for (let r = 0; r < 3; r++)
+    for (let p = 0; p < 8; p++)
+      if (!boardState[r][p]) empty.push([r, p]);
+  return empty;
+}
+
+function getRemovable(color) {
+  const removable = [];
+  const allMill = allInMill(color);
+  for (let r = 0; r < 3; r++)
+    for (let p = 0; p < 8; p++)
+      if (boardState[r][p] === color && (allMill || !checkMill(r, p, color)))
+        removable.push([r, p]);
+  return removable;
+}
+
+function applyAIMove(move) {
+  if (move.type === 'place') {
+    setCell(move.ring, move.pos, turn === 'W' ? 'W' : 'B');
+  } else {
+    setCell(move.ring, move.pos, boardState[move.fromRing][move.fromPos]);
+    setCell(move.fromRing, move.fromPos, null);
+  }
+}
+
+function minimaxMuehle(depth, alpha, beta, isMaximizing, color) {
+  if (depth === 0) return evaluateState();
+
+  const moves = getAllAIMoves(color);
+  if (moves.length === 0) return isMaximizing ? -900 : 900;
+
+  const opponent = color === 'W' ? 'B' : 'W';
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const move of moves) {
+      // Save state
+      const saved = [boardState.map(r => [...r]), whiteStonesLeft, blackStonesLeft, whiteOnBoard, blackOnBoard];
+
+      // Apply move
+      if (move.type === 'place') {
+        setCell(move.ring, move.pos, color);
+        if (color === 'W') { whiteStonesLeft--; whiteOnBoard++; }
+        else { blackStonesLeft--; blackOnBoard++; }
+      } else {
+        setCell(move.ring, move.pos, boardState[move.fromRing][move.fromPos]);
+        setCell(move.fromRing, move.fromPos, null);
+      }
+
+      // Check mill -> remove best opponent piece
+      if (checkMill(move.ring, move.pos, color)) {
+        const removable = getRemovable(opponent);
+        let bestRemoveVal = -Infinity;
+        for (const [rr, rp] of removable) {
+          const removedPiece = boardState[rr][rp];
+          setCell(rr, rp, null);
+          if (opponent === 'W') whiteOnBoard--; else blackOnBoard--;
+          const val = minimaxMuehle(depth - 1, alpha, beta, false, opponent);
+          setCell(rr, rp, removedPiece);
+          if (opponent === 'W') whiteOnBoard++; else blackOnBoard++;
+          bestRemoveVal = Math.max(bestRemoveVal, val);
+        }
+        maxEval = Math.max(maxEval, bestRemoveVal);
+        alpha = Math.max(alpha, bestRemoveVal);
+      } else {
+        const val = minimaxMuehle(depth - 1, alpha, beta, false, opponent);
+        maxEval = Math.max(maxEval, val);
+        alpha = Math.max(alpha, val);
+      }
+
+      // Restore
+      boardState = saved[0]; whiteStonesLeft = saved[1]; blackStonesLeft = saved[2];
+      whiteOnBoard = saved[3]; blackOnBoard = saved[4];
+
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const move of moves) {
+      const saved = [boardState.map(r => [...r]), whiteStonesLeft, blackStonesLeft, whiteOnBoard, blackOnBoard];
+
+      if (move.type === 'place') {
+        setCell(move.ring, move.pos, color);
+        if (color === 'W') { whiteStonesLeft--; whiteOnBoard++; }
+        else { blackStonesLeft--; blackOnBoard++; }
+      } else {
+        setCell(move.ring, move.pos, boardState[move.fromRing][move.fromPos]);
+        setCell(move.fromRing, move.fromPos, null);
+      }
+
+      if (checkMill(move.ring, move.pos, color)) {
+        const removable = getRemovable(opponent);
+        let bestRemoveVal = Infinity;
+        for (const [rr, rp] of removable) {
+          const removedPiece = boardState[rr][rp];
+          setCell(rr, rp, null);
+          if (opponent === 'W') whiteOnBoard--; else blackOnBoard--;
+          const val = minimaxMuehle(depth - 1, alpha, beta, true, opponent);
+          setCell(rr, rp, removedPiece);
+          if (opponent === 'W') whiteOnBoard++; else blackOnBoard++;
+          bestRemoveVal = Math.min(bestRemoveVal, val);
+        }
+        minEval = Math.min(minEval, bestRemoveVal);
+        beta = Math.min(beta, bestRemoveVal);
+      } else {
+        const val = minimaxMuehle(depth - 1, alpha, beta, true, opponent);
+        minEval = Math.min(minEval, val);
+        beta = Math.min(beta, val);
+      }
+
+      boardState = saved[0]; whiteStonesLeft = saved[1]; blackStonesLeft = saved[2];
+      whiteOnBoard = saved[3]; blackOnBoard = saved[4];
+
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+function aiMove() {
+  if (gameOver || turn !== 'B') return;
+  aiThinking = true;
+  const thinkingEl = document.getElementById('thinking');
+  thinkingEl.textContent = 'Computer denkt...';
+  thinkingEl.classList.add('visible');
+
+  setTimeout(() => {
+    if (mustRemove) {
+      // AI must remove a white stone
+      const removable = getRemovable('W');
+      if (removable.length > 0) {
+        let bestRm;
+        if (AI_DEPTH[aiDifficulty] === 0) {
+          // Random removal on easy
+          bestRm = removable[Math.floor(Math.random() * removable.length)];
+        } else {
+          // Pick the one that hurts most (breaks a potential mill)
+          bestRm = removable[0];
+          let bestVal = Infinity;
+          for (const [rr, rp] of removable) {
+            const saved = boardState.map(r => [...r]);
+            setCell(rr, rp, null);
+            const val = evaluateState();
+            boardState = saved;
+            if (val < bestVal) { bestVal = val; bestRm = [rr, rp]; }
+          }
+        }
+        handleClick(bestRm[0], bestRm[1]);
+      }
+      thinkingEl.classList.remove('visible');
+      aiThinking = false;
+      return;
+    }
+
+    const moves = getAllAIMoves('B');
+    if (moves.length === 0) { aiThinking = false; thinkingEl.classList.remove('visible'); return; }
+
+    const depth = AI_DEPTH[aiDifficulty];
+    let bestMove = moves[0];
+    let bestVal = Infinity;
+
+    if (depth === 0) {
+      // Random with slight preference for mills
+      const millMoves = moves.filter(m => {
+        const saved = boardState.map(r => [...r]);
+        if (m.type === 'place') setCell(m.ring, m.pos, 'B');
+        else { setCell(m.ring, m.pos, 'B'); setCell(m.fromRing, m.fromPos, null); }
+        const isMill = checkMill(m.ring, m.pos, 'B');
+        boardState = saved;
+        return isMill;
+      });
+      // 40% chance to pick a mill move if available, otherwise random
+      if (millMoves.length > 0 && Math.random() < 0.4) {
+        bestMove = millMoves[Math.floor(Math.random() * millMoves.length)];
+      } else {
+        bestMove = moves[Math.floor(Math.random() * moves.length)];
+      }
+    } else {
+
+    for (const move of moves) {
+      const saved = [boardState.map(r => [...r]), whiteStonesLeft, blackStonesLeft, whiteOnBoard, blackOnBoard];
+
+      if (move.type === 'place') {
+        setCell(move.ring, move.pos, 'B');
+        blackStonesLeft--; blackOnBoard++;
+      } else {
+        setCell(move.ring, move.pos, 'B');
+        setCell(move.fromRing, move.fromPos, null);
+      }
+
+      let val;
+      if (checkMill(move.ring, move.pos, 'B')) {
+        const removable = getRemovable('W');
+        let bestRemoveVal = Infinity;
+        for (const [rr, rp] of removable) {
+          const piece = boardState[rr][rp];
+          setCell(rr, rp, null);
+          whiteOnBoard--;
+          const v = minimaxMuehle(depth - 1, -Infinity, Infinity, true, 'W');
+          setCell(rr, rp, piece);
+          whiteOnBoard++;
+          bestRemoveVal = Math.min(bestRemoveVal, v);
+        }
+        val = bestRemoveVal;
+      } else {
+        val = minimaxMuehle(depth - 1, -Infinity, Infinity, true, 'W');
+      }
+
+      boardState = saved[0]; whiteStonesLeft = saved[1]; blackStonesLeft = saved[2];
+      whiteOnBoard = saved[3]; blackOnBoard = saved[4];
+
+      if (val < bestVal) {
+        bestVal = val;
+        bestMove = move;
+      }
+    }
+    } // end depth > 0
+
+    thinkingEl.classList.remove('visible');
+    aiThinking = false;
+
+    // Execute the best move
+    if (bestMove.type === 'place') {
+      handleClick(bestMove.ring, bestMove.pos);
+    } else {
+      selectedStone = [bestMove.fromRing, bestMove.fromPos];
+      handleClick(bestMove.ring, bestMove.pos);
+    }
+  }, 50);
+}
+
+function toggleMode() {
+  vsComputer = !vsComputer;
+  const btn = document.getElementById('btn-mode');
+  btn.textContent = vsComputer ? '2 Spieler' : 'Gegen Computer';
+  btn.classList.toggle('active', vsComputer);
+  document.getElementById('difficulty').style.display = vsComputer ? '' : 'none';
+  resetGame();
+}
+
+function changeDifficulty(val) {
+  aiDifficulty = val;
+  resetGame();
+}
+
+function updateStatus() {
+  const status = document.getElementById('status');
+  status.className = '';
+  const name = turn === 'W' ? 'Weiss' : 'Schwarz';
+  const currentPhase = getPhase(turn);
+
+  if (gameOver) {
+    const winner = turn === 'W' ? 'Schwarz' : 'Weiss';
+    status.textContent = `${winner} gewinnt!`;
+    status.className = 'won';
+  } else if (mustRemove) {
+    status.textContent = `${name} entfernt einen gegnerischen Stein`;
+  } else if (currentPhase === 'place') {
+    status.textContent = `${name} setzt einen Stein`;
+  } else if (currentPhase === 'fly') {
+    status.textContent = `${name} springt (nur 3 Steine)`;
+  } else {
+    status.textContent = `${name} zieht`;
+  }
+
+  document.getElementById('white-info').textContent =
+    `Weiss: ${whiteStonesLeft > 0 ? whiteStonesLeft + ' zu setzen' : countOnBoard('W') + ' auf Brett'}`;
+  document.getElementById('black-info').textContent =
+    `Schwarz: ${blackStonesLeft > 0 ? blackStonesLeft + ' zu setzen' : countOnBoard('B') + ' auf Brett'}`;
+}
+
+// --- Rendering with Canvas ---
+function render() {
+  ctx.clearRect(0, 0, SIZE, SIZE);
+
+  // Background
+  ctx.fillStyle = '#16213e';
+  ctx.fillRect(0, 0, SIZE, SIZE);
+
+  // Draw board lines
+  ctx.strokeStyle = '#c9b458';
+  ctx.lineWidth = 2;
+
+  for (let ring = 0; ring < 3; ring++) {
+    const s = ringSize(ring);
+    const cx = SIZE / 2, cy = SIZE / 2;
+    ctx.strokeRect(cx - s, cy - s, s * 2, s * 2);
+  }
+
+  // Cross connections
+  for (const pos of [1, 3, 5, 7]) {
+    const outer = posToPixel(0, pos);
+    const inner = posToPixel(2, pos);
+    ctx.beginPath();
+    ctx.moveTo(outer.x, outer.y);
+    ctx.lineTo(inner.x, inner.y);
+    ctx.stroke();
+  }
+
+  // Draw positions and stones
+  for (let ring = 0; ring < 3; ring++) {
+    for (let pos = 0; pos < 8; pos++) {
+      const { x, y } = posToPixel(ring, pos);
+
+      // Position dot
+      ctx.fillStyle = '#c9b458';
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Highlight selected
+      if (selectedStone && selectedStone[0] === ring && selectedStone[1] === pos) {
+        ctx.strokeStyle = '#7b61ff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#c9b458';
+      }
+
+      // Show valid destinations
+      if (selectedStone && !boardState[ring][pos]) {
+        const [sr, sp] = selectedStone;
+        const currentPhase = getPhase(turn);
+        const isAdj = getNeighbors(sr, sp).some(([nr,np]) => nr === ring && np === pos);
+        if (currentPhase === 'fly' || isAdj) {
+          ctx.fillStyle = 'rgba(123, 97, 255, 0.4)';
+          ctx.beginPath();
+          ctx.arc(x, y, 12, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Removable highlight
+      if (mustRemove && boardState[ring][pos]) {
+        const opponent = turn === 'W' ? 'B' : 'W';
+        if (boardState[ring][pos] === opponent) {
+          const canRemove = !checkMill(ring, pos, opponent) || allInMill(opponent);
+          if (canRemove) {
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(x, y, 22, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.strokeStyle = '#c9b458';
+          }
+        }
+      }
+
+      // Stone
+      const cell = boardState[ring][pos];
+      if (cell) {
+        const grad = ctx.createRadialGradient(x - 4, y - 4, 2, x, y, 18);
+        if (cell === 'W') {
+          grad.addColorStop(0, '#fff');
+          grad.addColorStop(1, '#ccc');
+        } else {
+          grad.addColorStop(0, '#666');
+          grad.addColorStop(1, '#222');
+        }
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x, y, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.strokeStyle = '#c9b458';
+      }
+    }
+  }
+
+  // Show placeable positions during place phase
+  if (!mustRemove && !selectedStone && getPhase(turn) === 'place' && !gameOver) {
+    for (let ring = 0; ring < 3; ring++) {
+      for (let pos = 0; pos < 8; pos++) {
+        if (!boardState[ring][pos]) {
+          const { x, y } = posToPixel(ring, pos);
+          ctx.fillStyle = turn === 'W' ? 'rgba(255,255,255,0.15)' : 'rgba(100,100,100,0.15)';
+          ctx.beginPath();
+          ctx.arc(x, y, 14, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+}
+
+function ringSize(ring) {
+  return (3 - ring) * STEP;
+}
+
+// Click handler
+canvas.addEventListener('click', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  // Find closest position
+  let bestDist = Infinity, bestRing = -1, bestPos = -1;
+  for (let ring = 0; ring < 3; ring++) {
+    for (let pos = 0; pos < 8; pos++) {
+      const { x, y } = posToPixel(ring, pos);
+      const dist = Math.hypot(mx - x, my - y);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestRing = ring;
+        bestPos = pos;
+      }
+    }
+  }
+
+  if (bestDist < 28) {
+    handleClick(bestRing, bestPos);
+  }
+});
+
+resetGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Mühle</h2><p><b>Phase 1:</b> Abwechselnd Steine setzen. <b>Phase 2:</b> Steine auf benachbarte freie Plätze ziehen. <b>Phase 3 (nur 3 Steine):</b> Auf beliebige Plätze springen.<br><br><b>Mühle:</b> 3 eigene Steine in einer Reihe = einen gegnerischen Stein entfernen.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

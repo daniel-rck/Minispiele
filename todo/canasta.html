@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canasta</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{display:flex;justify-content:center;align-items:center;min-height:100vh;background:#1a1a2e;font-family:'Segoe UI',sans-serif;color:#e0e0e0;flex-direction:column;gap:8px;user-select:none;padding:60px 10px 10px}
+h1{font-size:1.6rem;letter-spacing:2px;color:#c9b458}
+a.back-link{position:fixed;top:16px;left:16px;color:#c9b458;text-decoration:none;font-size:1.1rem;padding:6px 14px;border:1px solid #c9b458;border-radius:6px;background:#16213e;transition:background .2s;z-index:100}
+a.back-link:hover{background:#0f3460}
+.btn{background:#16213e;color:#c9b458;border:1px solid #0f3460;border-radius:6px;padding:6px 16px;font-size:.9rem;cursor:pointer;transition:background .2s}
+.btn:hover{background:#0f3460}
+.btn:disabled{opacity:.4}
+#msg{color:#c9b458;font-weight:bold;font-size:.95rem;min-height:1.4em;text-align:center;max-width:550px}
+.area{background:#16213e;border:1px solid #0f3460;border-radius:10px;padding:8px;width:100%;max-width:620px;text-align:center}
+.area h3{color:#c9b458;font-size:.75rem;margin-bottom:4px}
+.cards{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;min-height:56px}
+.card{width:40px;height:58px;border-radius:4px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:bold;font-size:.65rem;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.card:hover{transform:translateY(-4px)}
+.card-front{background:#f5f5f0}
+.card.red{color:#e74c3c}.card.black{color:#333}
+.card.selected{border-color:#c9b458;transform:translateY(-6px)}
+.card.back{background:#0f3460;color:#c9b458;font-size:.9rem;cursor:pointer}
+.card.wild{color:#9b59b6}
+.melds-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.meld-group{background:#0f3460;border-radius:6px;padding:4px 8px;text-align:center;font-size:.7rem;min-width:50px}
+.meld-group .rank{font-size:1rem;font-weight:bold;color:#c9b458}
+.meld-group .count{color:#888}
+.meld-group.canasta{border:2px solid #c9b458}
+.opp-cards{display:flex;gap:2px;justify-content:center}
+.opp-card{width:18px;height:28px;background:#0f3460;border-radius:2px}
+.controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.score{font-size:.85rem;color:#888}.val{color:#c9b458;font-weight:bold}
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>CANASTA</h1>
+<p id="msg">Ziehe eine Karte und sammle Meldungen (3+ gleiche)!</p>
+<div class="area"><h3>KI (<span id="opp-n">11</span>)</h3><div class="opp-cards" id="opp-cards"></div></div>
+<div class="area"><h3>Meldungen — Du</h3><div class="melds-row" id="my-melds"></div></div>
+<div class="area"><h3>Meldungen — KI</h3><div class="melds-row" id="ai-melds"></div></div>
+<div class="area" style="display:flex;gap:12px;justify-content:center;align-items:center;padding:12px">
+<div class="card back" onclick="drawCard()">?<br><span style="font-size:.55rem" id="pile-n">80</span></div>
+<div id="discard-top"></div>
+</div>
+<div class="area"><h3>Deine Karten</h3><div class="cards" id="hand"></div></div>
+<div class="controls">
+<button class="btn" id="btn-meld" onclick="meldSelected()">Melden</button>
+<button class="btn" id="btn-discard" onclick="discardSelected()">Abwerfen</button>
+</div>
+<p class="score">Du: <span class="val" id="my-score">0</span> | KI: <span class="val" id="ai-score">0</span></p>
+
+<script>
+const SUITS=['♥','♦','♣','♠'];
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const PTS={A:20,2:20,3:5,4:5,5:5,6:5,7:5,8:10,9:10,10:10,J:10,Q:10,K:10,JK:50};
+const isRed=s=>s==='♥'||s==='♦';
+const isWild=c=>c.rank==='2'||c.rank==='JK';
+
+let drawPile,discardPile,hands,melds,selected,currentPlayer,hasDrawn,gameOver;
+
+function createDeck(){
+  const d=[];
+  for(let copy=0;copy<2;copy++){
+    for(const s of SUITS)for(const r of RANKS)d.push({suit:s,rank:r});
+    d.push({suit:'★',rank:'JK'});d.push({suit:'★',rank:'JK'});
+  }
+  return d.sort(()=>Math.random()-.5);
+}
+
+function newGame(){
+  drawPile=createDeck();
+  discardPile=[];
+  hands=[[],[]];melds=[[],[]];// melds[player] = [{rank, count, wilds}]
+  for(let i=0;i<11;i++){hands[0].push(drawPile.pop());hands[1].push(drawPile.pop());}
+  discardPile.push(drawPile.pop());
+  selected=new Set();currentPlayer=0;hasDrawn=false;gameOver=false;
+  sortH(0);sortH(1);
+  document.getElementById('msg').textContent='Ziehe eine Karte!';
+  render();
+}
+
+function sortH(p){hands[p].sort((a,b)=>{if(isWild(a)&&!isWild(b))return 1;if(!isWild(a)&&isWild(b))return-1;return RANKS.indexOf(a.rank)-RANKS.indexOf(b.rank);});}
+
+function render(){
+  document.getElementById('opp-n').textContent=hands[1].length;
+  const oDiv=document.getElementById('opp-cards');
+  oDiv.innerHTML='';
+  for(let i=0;i<hands[1].length;i++){const d=document.createElement('div');d.className='opp-card';oDiv.appendChild(d);}
+
+  renderMelds('my-melds',melds[0]);
+  renderMelds('ai-melds',melds[1]);
+
+  const dTop=document.getElementById('discard-top');
+  if(discardPile.length>0){
+    const c=discardPile[discardPile.length-1];
+    dTop.innerHTML=makeCardHTML(c);
+  } else dTop.innerHTML='';
+
+  document.getElementById('pile-n').textContent=drawPile.length;
+
+  const hDiv=document.getElementById('hand');
+  hDiv.innerHTML='';
+  hands[0].forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className='card card-front '+(isWild(c)?'wild':isRed(c.suit)?'red':'black')+(selected.has(i)?' selected':'');
+    el.innerHTML=`<span>${c.rank}</span><span>${c.suit}</span>`;
+    el.onclick=()=>{if(selected.has(i))selected.delete(i);else selected.add(i);render();};
+    hDiv.appendChild(el);
+  });
+
+  document.getElementById('btn-meld').disabled=selected.size<3||!hasDrawn||gameOver;
+  document.getElementById('btn-discard').disabled=selected.size!==1||!hasDrawn||gameOver;
+
+  // Scores
+  document.getElementById('my-score').textContent=calcScore(0);
+  document.getElementById('ai-score').textContent=calcScore(1);
+}
+
+function makeCardHTML(c){
+  return`<div class="card card-front ${isWild(c)?'wild':isRed(c.suit)?'red':'black'}" style="cursor:pointer"><span>${c.rank}</span><span>${c.suit}</span></div>`;
+}
+
+function renderMelds(id,playerMelds){
+  const div=document.getElementById(id);
+  div.innerHTML='';
+  for(const m of playerMelds){
+    const el=document.createElement('div');
+    el.className='meld-group'+(m.count>=7?' canasta':'');
+    el.innerHTML=`<div class="rank">${m.rank}</div><div class="count">${m.count}x${m.wilds?' (+'+m.wilds+'W)':''}</div>`;
+    div.appendChild(el);
+  }
+}
+
+function calcScore(p){
+  let s=0;
+  for(const m of melds[p]){
+    s+=m.count*(PTS[m.rank]||10);
+    if(m.count>=7)s+=m.count>=7&&m.wilds===0?500:300;// canasta bonus
+  }
+  return s;
+}
+
+function drawCard(){
+  if(currentPlayer!==0||hasDrawn||gameOver)return;
+  if(drawPile.length===0){gameOver=true;endGame();return;}
+  hands[0].push(drawPile.pop());
+  hasDrawn=true;sortH(0);selected.clear();
+  document.getElementById('msg').textContent='Melde Karten oder wirf ab.';
+  render();
+}
+
+function meldSelected(){
+  const cards=[...selected].map(i=>hands[0][i]);
+  const naturals=cards.filter(c=>!isWild(c));
+  const wilds=cards.filter(c=>isWild(c));
+  if(naturals.length<2||wilds.length>naturals.length){
+    document.getElementById('msg').textContent='Ungültig! Min. 2 natürliche Karten, Wilds <= Naturals.';return;
+  }
+  if(!naturals.every(c=>c.rank===naturals[0].rank)){
+    document.getElementById('msg').textContent='Alle natürlichen Karten müssen gleichen Rang haben!';return;
+  }
+  const rank=naturals[0].rank;
+  const existing=melds[0].find(m=>m.rank===rank);
+  if(existing){existing.count+=cards.length;existing.wilds+=wilds.length;}
+  else melds[0].push({rank,count:cards.length,wilds:wilds.length});
+  const indices=[...selected].sort((a,b)=>b-a);
+  for(const i of indices)hands[0].splice(i,1);
+  selected.clear();
+  if(hands[0].length===0){endGame();return;}
+  sortH(0);render();
+}
+
+function discardSelected(){
+  const idx=[...selected][0];
+  discardPile.push(hands[0].splice(idx,1)[0]);
+  selected.clear();hasDrawn=false;
+  if(hands[0].length===0){endGame();return;}
+  currentPlayer=1;
+  document.getElementById('msg').textContent='KI ist dran...';
+  render();
+  setTimeout(aiTurn,500);
+}
+
+function aiTurn(){
+  if(gameOver)return;
+  if(drawPile.length===0){endGame();return;}
+  hands[1].push(drawPile.pop());
+  sortH(1);
+  // Try to meld groups of 3+
+  const counts={};
+  hands[1].forEach((c,i)=>{if(!isWild(c)){if(!counts[c.rank])counts[c.rank]=[];counts[c.rank].push(i);}});
+  for(const[rank,indices]of Object.entries(counts)){
+    if(indices.length>=3){
+      const existing=melds[1].find(m=>m.rank===rank);
+      if(existing)existing.count+=indices.length;
+      else melds[1].push({rank,count:indices.length,wilds:0});
+      for(const i of indices.sort((a,b)=>b-a))hands[1].splice(i,1);
+      if(hands[1].length===0){endGame();return;}
+      break;
+    }
+  }
+  // Discard
+  if(hands[1].length>0){
+    discardPile.push(hands[1].pop());
+  }
+  if(hands[1].length===0){endGame();return;}
+  currentPlayer=0;hasDrawn=false;
+  document.getElementById('msg').textContent='Dein Zug — ziehe eine Karte.';
+  render();
+}
+
+function endGame(){
+  gameOver=true;
+  const s0=calcScore(0),s1=calcScore(1);
+  document.getElementById('msg').textContent=s0>=s1?`Gewonnen! ${s0} vs ${s1} Punkte!`:`KI gewinnt! ${s1} vs ${s0} Punkte.`;
+  render();
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Canasta</h2><p>Sammle Sätze von mindestens <b>3 gleichen Karten</b> und lege sie aus. Ein Canasta besteht aus 7 gleichen Karten.<br><br><b>Spielablauf:</b> Ziehe vom Stapel oder Ablagestapel, lege Sätze aus, wirf am Ende eine Karte ab. Joker und 2en sind Wildcards.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

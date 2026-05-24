@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pac-Man</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 14px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #status { font-size: 1rem; padding: 8px 24px; border-radius: 8px; background: #16213e; border: 1px solid #0f3460; display: flex; align-items: center; gap: 20px; }
+  .val { color: #c9b458; font-weight: bold; }
+  canvas { border: 3px solid #c9b458; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); display: block; }
+  .wrap { position: relative; }
+  #overlay { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.75); border-radius: 4px; }
+  #overlay.hidden { display: none; }
+  #overlay span { color: #c9b458; font-size: 1.4rem; letter-spacing: 2px; font-weight: bold; }
+  #overlay .sub { font-size: 0.9rem; color: #888; letter-spacing: 0; font-weight: normal; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>PAC-MAN</h1>
+<div id="status">
+  <span>Punkte: <span class="val" id="score">0</span></span>
+  <span>Level: <span class="val" id="level">1</span></span>
+  <span>Leben: <span class="val" id="lives">3</span></span>
+  <span>Rekord: <span class="val" id="high">0</span></span>
+</div>
+<div class="wrap">
+  <canvas id="canvas" width="540" height="600"></canvas>
+  <div id="overlay">
+    <span>PAC-MAN</span>
+    <span class="sub">Leertaste oder Enter zum Starten</span>
+    <span class="sub">Pfeiltasten oder WASD zum Steuern</span>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const COLS = 27, ROWS = 30, CELL = 20;
+canvas.width = COLS * CELL;
+canvas.height = ROWS * CELL;
+
+// 0=empty, 1=wall, 2=dot, 3=power pellet, 4=ghost house
+const MAP_TEMPLATE = [
+  "111111111111111111111111111",
+  "122222222222122222222222221",
+  "121111121111121111121111121",
+  "131111121111121111121111131",
+  "121111121111121111121111121",
+  "122222222222222222222222221",
+  "121111121121111112112111121",
+  "121111121122222221122111121",
+  "122222122111141111221222221",
+  "111111121114444441121111111",
+  "000001121140000004121000000",
+  "000001121100000000121000000",
+  "111111121100000000121111111",
+  "000000220004000400220000000",
+  "111111121100000000121111111",
+  "000001121100000000121000000",
+  "000001121140000004121000000",
+  "111111121111111111121111111",
+  "122222222222122222222222221",
+  "121111121112122111211111121",
+  "132211222222222222222112231",
+  "111211121121111112112112111",
+  "111211121121111112112112111",
+  "122222122122222222122222221",
+  "121111111111121111111111121",
+  "121111111111121111111111121",
+  "122222222222222222222222221",
+  "121111121111121111121111121",
+  "131111121111121111121111131",
+  "111111111111111111111111111",
+];
+
+let map, dots, totalDots, score, lives, level, highScore;
+let pacman, ghosts, powerTimer, gameState, mouthAngle, mouthDir;
+let ghostFlash;
+
+highScore = parseInt(localStorage.getItem('pacman-high') || '0');
+document.getElementById('high').textContent = highScore;
+
+const GHOST_COLORS = ['#ff0000', '#ffb8ff', '#00ffff', '#ffb852'];
+
+function buildMap() {
+  map = [];
+  dots = 0;
+  for (let r = 0; r < ROWS; r++) {
+    map[r] = [];
+    const row = r < MAP_TEMPLATE.length ? MAP_TEMPLATE[r] : '111111111111111111111111111';
+    for (let c = 0; c < COLS; c++) {
+      const ch = c < row.length ? parseInt(row[c]) : 1;
+      map[r][c] = ch;
+      if (ch === 2 || ch === 3) dots++;
+    }
+  }
+  totalDots = dots;
+}
+
+function initGame() {
+  buildMap();
+  score = 0; lives = 3; level = 1;
+  updateUI();
+  initPositions();
+  powerTimer = 0; ghostFlash = 0;
+  mouthAngle = 0.25; mouthDir = 1;
+  gameState = 'ready';
+  showOverlay(true, 'PAC-MAN', 'Leertaste oder Enter zum Starten');
+}
+
+function initPositions() {
+  pacman = { x: 13, y: 23, dx: 0, dy: 0, nextDx: 0, nextDy: 0, moveProgress: 0 };
+  ghosts = [
+    { x: 12, y: 11, dx: 0, dy: -1, color: 0, mode: 'scatter', scared: false, home: true, homeTimer: 0 },
+    { x: 13, y: 11, dx: 0, dy: -1, color: 1, mode: 'scatter', scared: false, home: true, homeTimer: 60 },
+    { x: 14, y: 11, dx: 0, dy: -1, color: 2, mode: 'scatter', scared: false, home: true, homeTimer: 120 },
+    { x: 13, y: 13, dx: 0, dy: -1, color: 3, mode: 'scatter', scared: false, home: false, homeTimer: 0 },
+  ];
+}
+
+function showOverlay(show, title, sub) {
+  const el = document.getElementById('overlay');
+  if (show) {
+    el.classList.remove('hidden');
+    el.innerHTML = `<span>${title}</span><span class="sub">${sub}</span>`;
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+function updateUI() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('level').textContent = level;
+  document.getElementById('lives').textContent = lives;
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('pacman-high', highScore);
+    document.getElementById('high').textContent = highScore;
+  }
+}
+
+function isWall(c, r) {
+  if (r < 0 || r >= ROWS) return true;
+  // Wrap tunnel
+  if (c < 0 || c >= COLS) return false;
+  return map[r][c] === 1;
+}
+
+function canMove(c, r) {
+  if (r < 0 || r >= ROWS) return false;
+  if (c < 0) return true; // tunnel
+  if (c >= COLS) return true; // tunnel
+  return map[r][c] !== 1;
+}
+
+function wrapX(x) {
+  if (x < 0) return COLS - 1;
+  if (x >= COLS) return 0;
+  return x;
+}
+
+function getDirections(x, y, excludeDx, excludeDy) {
+  const dirs = [{dx:0,dy:-1},{dx:0,dy:1},{dx:-1,dy:0},{dx:1,dy:0}];
+  return dirs.filter(d => {
+    if (d.dx === excludeDx && d.dy === excludeDy) return false;
+    return canMove(wrapX(x + d.dx), y + d.dy) && map[y + d.dy] !== undefined && map[y + d.dy][wrapX(x + d.dx)] !== 4;
+  });
+}
+
+function moveGhost(g) {
+  if (g.home) {
+    if (g.homeTimer > 0) { g.homeTimer--; return; }
+    g.y = 9; g.x = 13; g.home = false; g.dy = -1; g.dx = 0;
+    return;
+  }
+
+  const nx = wrapX(g.x + g.dx);
+  const ny = g.y + g.dy;
+
+  if (!canMove(nx, ny) || map[ny]?.[nx] === 4) {
+    // Pick new direction
+    const opts = getDirections(g.x, g.y, -g.dx, -g.dy);
+    if (opts.length > 0) {
+      let chosen;
+      if (g.scared) {
+        chosen = opts[Math.floor(Math.random() * opts.length)];
+      } else {
+        // Target based on ghost type
+        let tx, ty;
+        if (g.color === 0) { tx = pacman.x; ty = pacman.y; }
+        else if (g.color === 1) { tx = pacman.x + pacman.dx * 4; ty = pacman.y + pacman.dy * 4; }
+        else if (g.color === 2) { tx = pacman.x + pacman.dx * 2; ty = pacman.y + pacman.dy * 2; }
+        else { tx = 1; ty = 1; } // scatter
+
+        let bestDist = Infinity;
+        chosen = opts[0];
+        for (const o of opts) {
+          const dx = wrapX(g.x + o.dx) - tx;
+          const dy = (g.y + o.dy) - ty;
+          const dist = dx * dx + dy * dy;
+          if (dist < bestDist) { bestDist = dist; chosen = o; }
+        }
+      }
+      g.dx = chosen.dx; g.dy = chosen.dy;
+    } else {
+      g.dx = -g.dx; g.dy = -g.dy;
+    }
+  }
+
+  g.x = wrapX(g.x + g.dx);
+  g.y = g.y + g.dy;
+}
+
+let ghostEatCombo = 0;
+let tickCount = 0;
+
+const PACMAN_MOVE_DELAY = 6; // Pac-Man moves every N frames (lower = faster)
+let pacMoveTimer = 0;
+
+function tick() {
+  if (gameState !== 'playing') return;
+  tickCount++;
+
+  // Animate mouth
+  mouthAngle += 0.04 * mouthDir;
+  if (mouthAngle > 0.3) mouthDir = -1;
+  if (mouthAngle < 0.02) mouthDir = 1;
+
+  // Buffer direction input immediately (so key presses aren't lost between move frames)
+  const wantX = wrapX(pacman.x + pacman.nextDx);
+  const wantY = pacman.y + pacman.nextDy;
+  if (canMove(wantX, wantY) && (pacman.nextDx !== 0 || pacman.nextDy !== 0)) {
+    pacman.dx = pacman.nextDx;
+    pacman.dy = pacman.nextDy;
+  }
+
+  // Only move Pac-Man every N frames
+  pacMoveTimer++;
+  if (pacMoveTimer < PACMAN_MOVE_DELAY) { /* skip movement, still draw */ }
+  else {
+    pacMoveTimer = 0;
+    const moveX = wrapX(pacman.x + pacman.dx);
+    const moveY = pacman.y + pacman.dy;
+    if (canMove(moveX, moveY)) {
+      pacman.x = moveX;
+      pacman.y = moveY;
+    }
+  }
+
+  // Eat dots
+  const cell = map[pacman.y]?.[pacman.x];
+  if (cell === 2) {
+    map[pacman.y][pacman.x] = 0;
+    score += 10;
+    dots--;
+    updateUI();
+  } else if (cell === 3) {
+    map[pacman.y][pacman.x] = 0;
+    score += 50;
+    dots--;
+    powerTimer = 300 - level * 20;
+    ghostEatCombo = 0;
+    ghosts.forEach(g => { if (!g.home) g.scared = true; });
+    updateUI();
+  }
+
+  // Power timer
+  if (powerTimer > 0) {
+    powerTimer--;
+    ghostFlash = powerTimer < 80 ? (Math.floor(powerTimer / 8) % 2) : 0;
+    if (powerTimer === 0) {
+      ghosts.forEach(g => g.scared = false);
+    }
+  }
+
+  // Move ghosts (slightly slower than Pac-Man)
+  const ghostDelay = PACMAN_MOVE_DELAY + 2 - Math.min(level, 2);
+  if (tickCount % ghostDelay === 0) {
+    ghosts.forEach(g => moveGhost(g));
+  }
+
+  // Check collisions
+  for (const g of ghosts) {
+    if (g.home) continue;
+    if (g.x === pacman.x && g.y === pacman.y) {
+      if (g.scared) {
+        ghostEatCombo++;
+        score += 200 * ghostEatCombo;
+        g.home = true;
+        g.scared = false;
+        g.homeTimer = 60;
+        g.x = 13; g.y = 11;
+        updateUI();
+      } else {
+        lives--;
+        updateUI();
+        if (lives <= 0) {
+          gameState = 'gameover';
+          showOverlay(true, 'GAME OVER', `${score} Punkte — Leertaste für neues Spiel`);
+          return;
+        }
+        initPositions();
+        powerTimer = 0;
+        gameState = 'ready';
+        showOverlay(true, `Leben: ${lives}`, 'Leertaste zum Weiterspielen');
+        return;
+      }
+    }
+  }
+
+  // Level complete
+  if (dots === 0) {
+    level++;
+    buildMap();
+    initPositions();
+    powerTimer = 0;
+    updateUI();
+    gameState = 'ready';
+    showOverlay(true, `Level ${level}`, 'Leertaste zum Weiterspielen');
+  }
+}
+
+function draw() {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw map
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = map[r][c];
+      const x = c * CELL, y = r * CELL;
+      if (cell === 1) {
+        ctx.fillStyle = '#0f3460';
+        ctx.fillRect(x, y, CELL, CELL);
+        // Inner border
+        ctx.fillStyle = '#16213e';
+        ctx.fillRect(x + 2, y + 2, CELL - 4, CELL - 4);
+      } else if (cell === 2) {
+        ctx.fillStyle = '#c9b458';
+        ctx.beginPath();
+        ctx.arc(x + CELL / 2, y + CELL / 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (cell === 3) {
+        ctx.fillStyle = '#c9b458';
+        ctx.beginPath();
+        ctx.arc(x + CELL / 2, y + CELL / 2, 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  // Draw pacman
+  const px = pacman.x * CELL + CELL / 2;
+  const py = pacman.y * CELL + CELL / 2;
+  let angle = 0;
+  if (pacman.dx === 1) angle = 0;
+  else if (pacman.dx === -1) angle = Math.PI;
+  else if (pacman.dy === -1) angle = -Math.PI / 2;
+  else if (pacman.dy === 1) angle = Math.PI / 2;
+
+  ctx.fillStyle = '#ffe033';
+  ctx.beginPath();
+  ctx.arc(px, py, CELL / 2 - 1, angle + mouthAngle, angle + Math.PI * 2 - mouthAngle);
+  ctx.lineTo(px, py);
+  ctx.fill();
+
+  // Draw ghosts
+  ghosts.forEach(g => {
+    if (g.home && g.homeTimer > 0) return;
+    const gx = g.x * CELL + CELL / 2;
+    const gy = g.y * CELL + CELL / 2;
+    const r = CELL / 2 - 1;
+
+    if (g.scared) {
+      ctx.fillStyle = ghostFlash ? '#fff' : '#2233ff';
+    } else {
+      ctx.fillStyle = GHOST_COLORS[g.color];
+    }
+
+    // Ghost body
+    ctx.beginPath();
+    ctx.arc(gx, gy - 2, r, Math.PI, 0);
+    ctx.lineTo(gx + r, gy + r);
+    // Wavy bottom
+    const wave = 3;
+    for (let i = 0; i < 3; i++) {
+      const wx1 = gx + r - (i * 2 + 1) * r / 3;
+      const wx2 = gx + r - (i * 2 + 2) * r / 3;
+      ctx.quadraticCurveTo(wx1, gy + r - wave, wx2, gy + r);
+    }
+    ctx.fill();
+
+    // Eyes
+    const eyeOffX = g.dx * 2;
+    const eyeOffY = g.dy * 2;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(gx - 4, gy - 3, 3.5, 0, Math.PI * 2);
+    ctx.arc(gx + 4, gy - 3, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    if (!g.scared) {
+      ctx.fillStyle = '#222';
+      ctx.beginPath();
+      ctx.arc(gx - 4 + eyeOffX, gy - 3 + eyeOffY, 1.8, 0, Math.PI * 2);
+      ctx.arc(gx + 4 + eyeOffX, gy - 3 + eyeOffY, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+function gameLoop() {
+  tick();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { pacman.nextDx = -1; pacman.nextDy = 0; e.preventDefault(); }
+  if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { pacman.nextDx = 1; pacman.nextDy = 0; e.preventDefault(); }
+  if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { pacman.nextDx = 0; pacman.nextDy = -1; e.preventDefault(); }
+  if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { pacman.nextDx = 0; pacman.nextDy = 1; e.preventDefault(); }
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    if (gameState === 'gameover') initGame();
+    else if (gameState === 'ready') {
+      gameState = 'playing';
+      showOverlay(false);
+    }
+  }
+});
+
+// Touch support
+let touchStartX, touchStartY;
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  if (gameState === 'gameover') initGame();
+  else if (gameState === 'ready') { gameState = 'playing'; showOverlay(false); }
+});
+canvas.addEventListener('touchend', e => {
+  if (!touchStartX) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    pacman.nextDx = dx > 0 ? 1 : -1; pacman.nextDy = 0;
+  } else {
+    pacman.nextDy = dy > 0 ? 1 : -1; pacman.nextDx = 0;
+  }
+});
+
+initGame();
+gameLoop();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Pac-Man</h2><p>Friss alle Punkte im Labyrinth und weiche den Geistern aus. <b>Power-Pellets</b> (große Punkte) machen die Geister kurzzeitig verletzlich.<br><br><b>Steuerung:</b> Pfeiltasten zum Steuern.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freecell</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; align-items: center; gap: 10px; padding: 50px 10px 20px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .top-row { display: flex; gap: 8px; justify-content: center; }
+  .top-slot { width: 70px; height: 95px; border: 2px solid #0f3460; border-radius: 6px; background: #16213e; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #444; }
+  .top-slot.free { border-style: dashed; }
+  .top-slot.foundation { border-color: #c9b45840; }
+  .top-slot .card-in-slot { position: absolute; }
+  .separator { width: 16px; }
+  .tableau { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+  .column { width: 70px; min-height: 95px; position: relative; }
+  .card { width: 70px; height: 95px; border-radius: 6px; border: 2px solid #333; position: absolute; display: flex; flex-direction: column; justify-content: flex-start; padding: 4px 6px; font-weight: bold; cursor: pointer; transition: box-shadow 0.15s; font-size: 0.85rem; line-height: 1.1; }
+  .card:hover { box-shadow: 0 0 10px rgba(201,180,88,0.4); }
+  .card.red { color: #e74c3c; background: #f8f0e8; border-color: #d9c9b8; }
+  .card.black { color: #222; background: #f8f0e8; border-color: #d9c9b8; }
+  .card.selected { box-shadow: 0 0 14px rgba(201,180,88,0.7); border-color: #c9b458; transform: translateX(4px); }
+  .card .suit { font-size: 1.4rem; text-align: center; margin-top: 8px; }
+  .controls { display: flex; gap: 10px; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1.1rem; min-height: 1.5em; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>FREECELL</h1>
+<div class="controls">
+  <button onclick="newGame()">Neues Spiel</button>
+  <button onclick="undoMove()">Rückgängig</button>
+</div>
+<div id="game"></div>
+<p id="msg"></p>
+
+<script>
+const SUITS = ['♠','♥','♦','♣'];
+const SUIT_COLORS = { '♠':'black','♣':'black','♥':'red','♦':'red' };
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+let freeCells = [null, null, null, null];
+let foundations = [0, 0, 0, 0]; // count per suit
+let columns = [];
+let selected = null; // {type:'col'|'free', col, idx}
+let history = [];
+let won = false;
+
+function createDeck() {
+  const deck = [];
+  for (let s = 0; s < 4; s++) {
+    for (let r = 0; r < 13; r++) {
+      deck.push({ suit: SUITS[s], rank: r, label: RANKS[r] });
+    }
+  }
+  return deck;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function newGame() {
+  won = false;
+  selected = null;
+  history = [];
+  freeCells = [null, null, null, null];
+  foundations = [0, 0, 0, 0];
+  columns = Array.from({ length: 8 }, () => []);
+  document.getElementById('msg').textContent = '';
+
+  const deck = shuffle(createDeck());
+  for (let i = 0; i < 52; i++) {
+    columns[i % 8].push(deck[i]);
+  }
+  render();
+}
+
+function cardColor(card) { return SUIT_COLORS[card.suit]; }
+function suitIndex(card) { return SUITS.indexOf(card.suit); }
+
+function canStackOnTableau(card, target) {
+  if (!target) return true; // empty column
+  return cardColor(card) !== cardColor(target) && card.rank === target.rank - 1;
+}
+
+function canMoveToFoundation(card) {
+  const si = suitIndex(card);
+  return card.rank === foundations[si];
+}
+
+function getValidSequence(colIdx, fromIdx) {
+  // Returns cards from fromIdx to end if they form a valid descending alternating-color sequence
+  const cards = columns[colIdx];
+  if (fromIdx >= cards.length) return null;
+  for (let i = fromIdx; i < cards.length - 1; i++) {
+    if (cardColor(cards[i]) === cardColor(cards[i + 1]) || cards[i].rank !== cards[i + 1].rank + 1) return null;
+  }
+  return cards.slice(fromIdx);
+}
+
+function maxMovableCards(targetIsEmpty) {
+  const emptyCells = freeCells.filter(c => c === null).length;
+  // Empty columns (excluding the target if it's empty)
+  let emptyCols = columns.filter(c => c.length === 0).length;
+  if (targetIsEmpty) emptyCols = Math.max(0, emptyCols - 1);
+  return (1 + emptyCells) * Math.pow(2, emptyCols);
+}
+
+function saveState() {
+  history.push({
+    freeCells: freeCells.map(c => c ? { ...c } : null),
+    foundations: [...foundations],
+    columns: columns.map(col => col.map(c => ({ ...c }))),
+  });
+  if (history.length > 100) history.shift();
+}
+
+function undoMove() {
+  if (history.length === 0 || won) return;
+  const state = history.pop();
+  freeCells = state.freeCells;
+  foundations = state.foundations;
+  columns = state.columns;
+  selected = null;
+  render();
+}
+
+function tryAutoFoundation() {
+  let moved = true;
+  while (moved) {
+    moved = false;
+    // From columns
+    for (const col of columns) {
+      if (col.length === 0) continue;
+      const card = col[col.length - 1];
+      if (canMoveToFoundation(card)) {
+        const minOther = Math.min(...foundations.filter((_, i) => SUIT_COLORS[SUITS[i]] !== cardColor(card)));
+        if (card.rank <= minOther + 1) {
+          saveState();
+          foundations[suitIndex(card)]++;
+          col.pop();
+          moved = true;
+        }
+      }
+    }
+    // From free cells
+    for (let i = 0; i < 4; i++) {
+      if (!freeCells[i]) continue;
+      const card = freeCells[i];
+      if (canMoveToFoundation(card)) {
+        const minOther = Math.min(...foundations.filter((_, fi) => SUIT_COLORS[SUITS[fi]] !== cardColor(card)));
+        if (card.rank <= minOther + 1) {
+          saveState();
+          foundations[suitIndex(card)]++;
+          freeCells[i] = null;
+          moved = true;
+        }
+      }
+    }
+  }
+  if (foundations.every(f => f === 13)) {
+    won = true;
+    document.getElementById('msg').textContent = 'Gewonnen!';
+  }
+}
+
+function handleClick(type, col, idx) {
+  if (won) return;
+
+  if (type === 'foundation') {
+    // Try move selected to foundation (only single cards)
+    if (selected) {
+      let card;
+      const isSingleCard = selected.type === 'free' ||
+        (selected.type === 'col' && selected.idx === columns[selected.col].length - 1);
+      if (isSingleCard) {
+        if (selected.type === 'col') card = columns[selected.col][columns[selected.col].length - 1];
+        else card = freeCells[selected.col];
+        if (card && canMoveToFoundation(card)) {
+          saveState();
+          foundations[suitIndex(card)]++;
+          if (selected.type === 'col') columns[selected.col].pop();
+          else freeCells[selected.col] = null;
+          selected = null;
+          tryAutoFoundation();
+          render();
+          return;
+        }
+      }
+    }
+    selected = null;
+    render();
+    return;
+  }
+
+  if (type === 'free') {
+    if (selected) {
+      if (selected.type === 'free' && selected.col === col) { selected = null; render(); return; }
+      // Move single card to free cell
+      if (!freeCells[col]) {
+        let card;
+        if (selected.type === 'col') {
+          // Only the bottom card of a selected sequence can go to a free cell
+          const seqLen = columns[selected.col].length - selected.idx;
+          if (seqLen > 1) { selected = null; render(); return; }
+          card = columns[selected.col][columns[selected.col].length - 1];
+          saveState();
+          columns[selected.col].pop();
+        } else {
+          card = freeCells[selected.col];
+          saveState();
+          freeCells[selected.col] = null;
+        }
+        freeCells[col] = card;
+        selected = null;
+        tryAutoFoundation();
+        render();
+        return;
+      }
+      selected = null;
+      render();
+      return;
+    }
+    if (freeCells[col]) {
+      selected = { type: 'free', col };
+      render();
+    }
+    return;
+  }
+
+  // Column click
+  if (selected) {
+    if (selected.type === 'col' && selected.col === col) { selected = null; render(); return; }
+    const targetCol = columns[col];
+    const target = targetCol.length > 0 ? targetCol[targetCol.length - 1] : null;
+
+    if (selected.type === 'col') {
+      // Multi-card move from column
+      const seq = getValidSequence(selected.col, selected.idx);
+      if (!seq) { selected = null; render(); return; }
+      const topCard = seq[0];
+
+      if (canStackOnTableau(topCard, target)) {
+        const targetEmpty = targetCol.length === 0;
+        const maxMove = maxMovableCards(targetEmpty);
+        if (seq.length > maxMove) {
+          document.getElementById('msg').textContent = `Nur ${maxMove} Karten möglich (mehr freie Zellen/Spalten nötig)`;
+          selected = null;
+          render();
+          return;
+        }
+        saveState();
+        const moved = columns[selected.col].splice(selected.idx);
+        targetCol.push(...moved);
+        selected = null;
+        tryAutoFoundation();
+        render();
+        return;
+      }
+    } else {
+      // From free cell
+      const card = freeCells[selected.col];
+      if (card && canStackOnTableau(card, target)) {
+        saveState();
+        freeCells[selected.col] = null;
+        targetCol.push(card);
+        selected = null;
+        tryAutoFoundation();
+        render();
+        return;
+      }
+    }
+
+    selected = null;
+    // Re-select clicked card/sequence
+    if (columns[col].length > 0) {
+      const clickIdx = idx !== undefined ? idx : columns[col].length - 1;
+      if (getValidSequence(col, clickIdx)) {
+        selected = { type: 'col', col, idx: clickIdx };
+      }
+    }
+    render();
+    return;
+  }
+
+  // Select from column — allow selecting any card that starts a valid sequence
+  // Clicking the last card auto-selects the longest valid sequence
+  if (columns[col].length > 0) {
+    let clickIdx = idx !== undefined ? idx : columns[col].length - 1;
+    if (clickIdx === columns[col].length - 1) {
+      // Find topmost card of valid sequence
+      while (clickIdx > 0 && getValidSequence(col, clickIdx - 1)) {
+        clickIdx--;
+      }
+    }
+    if (getValidSequence(col, clickIdx)) {
+      selected = { type: 'col', col, idx: clickIdx };
+    }
+    render();
+  }
+}
+
+function render() {
+  const game = document.getElementById('game');
+  let html = '<div class="top-row">';
+
+  // Free cells
+  for (let i = 0; i < 4; i++) {
+    const isSelected = selected && selected.type === 'free' && selected.col === i;
+    html += `<div class="top-slot free" onclick="handleClick('free',${i})" style="position:relative;">`;
+    if (freeCells[i]) {
+      const c = freeCells[i];
+      const color = cardColor(c);
+      html += `<div class="card ${color} ${isSelected ? 'selected' : ''}" style="position:relative;top:0;left:0;cursor:pointer;"><span>${c.label}${c.suit}</span><span class="suit">${c.suit}</span></div>`;
+    } else {
+      html += 'Frei';
+    }
+    html += '</div>';
+  }
+
+  html += '<div class="separator"></div>';
+
+  // Foundations
+  for (let i = 0; i < 4; i++) {
+    html += `<div class="top-slot foundation" onclick="handleClick('foundation',${i})">`;
+    if (foundations[i] > 0) {
+      const r = foundations[i] - 1;
+      const c = { suit: SUITS[i], rank: r, label: RANKS[r] };
+      const color = cardColor(c);
+      html += `<div class="card ${color}" style="position:relative;top:0;left:0;cursor:default;"><span>${c.label}${c.suit}</span><span class="suit">${c.suit}</span></div>`;
+    } else {
+      html += SUITS[i];
+    }
+    html += '</div>';
+  }
+
+  html += '</div><div class="tableau">';
+
+  // Columns
+  for (let col = 0; col < 8; col++) {
+    html += `<div class="column" style="height:${Math.max(95, 95 + (columns[col].length - 1) * 25)}px;" onclick="handleClick('col',${col})">`;
+    for (let j = 0; j < columns[col].length; j++) {
+      const c = columns[col][j];
+      const color = cardColor(c);
+      const isSelected = selected && selected.type === 'col' && selected.col === col && j >= selected.idx;
+      html += `<div class="card ${color} ${isSelected ? 'selected' : ''}" style="top:${j * 25}px;left:0;z-index:${j};" onclick="event.stopPropagation();handleClick('col',${col},${j})"><span>${c.label}${c.suit}</span><span class="suit">${c.suit}</span></div>`;
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  game.innerHTML = html;
+}
+
+// Double-click to auto-move to foundation
+document.addEventListener('dblclick', e => {
+  if (won) return;
+  const cardEl = e.target.closest('.card');
+  if (!cardEl) return;
+  // Find which card was double-clicked and try to move to foundation
+  if (selected) {
+    let card;
+    if (selected.type === 'col') card = columns[selected.col][columns[selected.col].length - 1];
+    else card = freeCells[selected.col];
+    if (card && canMoveToFoundation(card)) {
+      saveState();
+      foundations[suitIndex(card)]++;
+      if (selected.type === 'col') columns[selected.col].pop();
+      else freeCells[selected.col] = null;
+      selected = null;
+      tryAutoFoundation();
+      render();
+    }
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'z') undoMove();
+  if (e.key === 'n') newGame();
+});
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>FreeCell</h2><p>Sortiere alle Karten auf die 4 Ablagestapel (oben rechts) nach Farbe aufsteigend (Ass bis König).<br><br><b>Regeln:</b> Auf dem Spielfeld absteigend in wechselnder Farbe anlegen. Die 4 freien Zellen (oben links) dienen als Zwischenlager.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wörter-Raten</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 12px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #message { min-height: 28px; font-size: 1rem; font-weight: bold; }
+  #board { display: grid; grid-template-rows: repeat(6, 58px); gap: 6px; }
+  .row { display: grid; grid-template-columns: repeat(5, 58px); gap: 6px; }
+  .tile {
+    width: 58px; height: 58px; display: flex; justify-content: center; align-items: center;
+    font-size: 1.8rem; font-weight: bold; border: 2px solid #3a3a3c;
+    text-transform: uppercase; border-radius: 4px; transition: transform 0.3s;
+  }
+  .tile.filled { border-color: #565656; }
+  .tile.correct { background: #538d4e; border-color: #538d4e; color: #fff; }
+  .tile.present { background: #b59f3b; border-color: #b59f3b; color: #fff; }
+  .tile.absent { background: #3a3a3c; border-color: #3a3a3c; color: #fff; }
+  .tile.flip { animation: flip 0.5s ease; }
+  @keyframes flip { 0% { transform: scaleY(1); } 50% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+  .tile.shake { animation: shake 0.3s; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  #keyboard { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  .kb-row { display: flex; gap: 4px; }
+  .key {
+    min-width: 36px; height: 48px; border-radius: 4px; border: none;
+    background: #818384; color: #fff; font-size: 0.85rem; font-weight: bold;
+    cursor: pointer; display: flex; justify-content: center; align-items: center;
+    padding: 0 8px; transition: background 0.2s; text-transform: uppercase;
+  }
+  .key:hover { filter: brightness(1.2); }
+  .key.wide { min-width: 56px; font-size: 0.75rem; }
+  .key.correct { background: #538d4e; }
+  .key.present { background: #b59f3b; }
+  .key.absent { background: #3a3a3c; }
+  #controls { display: flex; gap: 12px; }
+  button { padding: 8px 20px; border: 1px solid #c9b458; background: #16213e; color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+  button:hover { background: #0f3460; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>WÖRTER-RATEN</h1>
+<div id="message"></div>
+<div id="board"></div>
+<div id="keyboard"></div>
+<div id="controls">
+  <button onclick="newGame()">Neues Wort</button>
+</div>
+
+<script>
+const WORDS = [
+  'ABEND','ADLER','ALLEM','ALLES','ALTER','AMPEL','ANGST','APFEL','ARBEI','ASCHE',
+  'AUTOS','BACKE','BAUEN','BAUCH','BERGE','BIRNE','BLATT','BLICK','BLUME','BODEN',
+  'BREIT','BRIEF','BRUST','BUCHT','DAMPF','DAUER','DECKE','DICHT','DRANG','DRUCK',
+  'DUNST','DURST','EBENE','ECKER','EICHE','EIFER','EINES','ENGEL','ERNTE','ERNST',
+  'FARBE','FEDER','FELD','FEST','FEUER','FISCH','FLACH','FLORA','FLUGS','FLUSS',
+  'FORST','FRAGE','FRAUD','FREMD','FROHE','FUCHS','GABEL','GANZE','GEIST','GENIE',
+  'GERNE','GLANZ','GLAS','GLEIS','GRIFF','GRUBE','GRUND','GUNST','GUTEN','HAFEN',
+  'HALBE','HARFE','HAUBE','HAUPT','HEIDE','HILFE','HONIG','HUNDE','IDEEN','INDEM',
+  'INSEL','JAGEN','JUBEL','KAMPF','KARTE','KATZE','KETTE','KISTE','KLAGE','KLANG',
+  'KLEID','KLEIN','KLOTZ','KNABE','KNALL','KNOPF','KOHLE','KRAFT','KRANZ','KREBS',
+  'KREIS','KREUZ','KRONE','KUNST','LAGER','LAMPE','LANGE','LATTE','LEBER','LEDER',
+  'LEINE','LESEN','LICHT','LIEBE','LIEST','LILIE','LINDE','LINKS','LISTE','LUNGE',
+  'MACHT','MAPPE','MARKT','MASSE','MAUER','MEILE','MEINT','MENGE','MILCH','MITTE',
+  'MORAL','MOTIV','MUSIK','NACHT','NADEL','NAMEN','NARBE','NATUR','NEBEL','NEBEN',
+  'NERVE','NEUEN','NICHT','NIMMT','NISSE','NOTEN','OBERE','OFFEN','OHREN','ONKEL',
+  'OPFER','ORDEN','PAKET','PALME','PASTE','PFAHL','PFAND','PFEIL','PFERD','PHONE',
+  'PLAGE','PLATZ','PODEX','POSTE','PUNKT','QUALM','QUELL','RACHE','RAMPE','RASEN',
+  'RAUCH','RECHT','REGAL','REGEN','REISE','RENTE','RINDE','RUHIG','RUNDE','SACHE',
+  'SALON','SALUT','SAMEN','SAUNA','SCHAF','STAMM','STEIL','STERN','STEIG','STICH',
+  'STIRN','STOCK','STOLZ','STORM','STUFE','STUHL','STURM','SUCHE','TAFEL','TASSE',
+  'TAUBE','TIERE','TISCH','TRAUM','TREUE','TROTZ','TRUHE','TRUNK','TUERR','TULPE',
+  'UMBAU','UMSSO','UNTEN','VATER','VERSE','VIELE','VOGEL','VOLKS','WAAGE','WACHE',
+  'WAGEN','WANGE','WARTE','WEGEN','WEISS','WELLE','WIEGE','WIESE','WILLE','WOCHE',
+  'WOLKE','WURST','ZANGE','ZAUNE','ZEILE','ZWECK','ZWEIT'
+];
+
+const VALID = new Set(WORDS);
+let target, guesses, currentRow, currentCol, gameOver, keyStates;
+
+function newGame() {
+  target = WORDS[Math.floor(Math.random() * WORDS.length)];
+  guesses = Array.from({ length: 6 }, () => Array(5).fill(''));
+  currentRow = 0; currentCol = 0; gameOver = false;
+  keyStates = {};
+  document.getElementById('message').textContent = '';
+  renderBoard(); renderKeyboard();
+}
+
+function submitGuess() {
+  if (gameOver) return;
+  const guess = guesses[currentRow].join('');
+  if (guess.length < 5) { shakeRow(); showMsg('Zu kurz!'); return; }
+  // Allow all 5-letter inputs (simplified validation)
+  evaluateGuess(guess);
+}
+
+function evaluateGuess(guess) {
+  const result = Array(5).fill('absent');
+  const targetArr = target.split('');
+  const guessArr = guess.split('');
+
+  // First pass: correct positions
+  for (let i = 0; i < 5; i++) {
+    if (guessArr[i] === targetArr[i]) {
+      result[i] = 'correct';
+      targetArr[i] = null; guessArr[i] = null;
+    }
+  }
+  // Second pass: present but wrong position
+  for (let i = 0; i < 5; i++) {
+    if (guessArr[i] === null) continue;
+    const idx = targetArr.indexOf(guessArr[i]);
+    if (idx !== -1) { result[i] = 'present'; targetArr[idx] = null; }
+  }
+
+  // Animate with delays
+  const tiles = document.querySelectorAll(`.row:nth-child(${currentRow + 1}) .tile`);
+  result.forEach((r, i) => {
+    setTimeout(() => {
+      tiles[i].classList.add('flip');
+      setTimeout(() => {
+        tiles[i].classList.add(r);
+        // Update keyboard
+        const letter = guess[i];
+        if (!keyStates[letter] || priority(r) > priority(keyStates[letter])) {
+          keyStates[letter] = r;
+        }
+        if (i === 4) renderKeyboard();
+      }, 250);
+    }, i * 200);
+  });
+
+  setTimeout(() => {
+    if (guess === target) {
+      gameOver = true;
+      const msgs = ['Genial!', 'Fantastisch!', 'Sehr gut!', 'Gut!', 'Knapp!', 'Geschafft!'];
+      showMsg(msgs[currentRow]);
+    } else if (currentRow === 5) {
+      gameOver = true;
+      showMsg(`Das Wort war: ${target}`);
+    }
+    currentRow++; currentCol = 0;
+  }, 5 * 200 + 300);
+}
+
+function priority(state) {
+  return { absent: 1, present: 2, correct: 3 }[state] || 0;
+}
+
+function addLetter(letter) {
+  if (gameOver || currentCol >= 5) return;
+  guesses[currentRow][currentCol] = letter;
+  currentCol++;
+  renderBoard();
+}
+
+function removeLetter() {
+  if (gameOver || currentCol <= 0) return;
+  currentCol--;
+  guesses[currentRow][currentCol] = '';
+  renderBoard();
+}
+
+function shakeRow() {
+  const tiles = document.querySelectorAll(`.row:nth-child(${currentRow + 1}) .tile`);
+  tiles.forEach(t => { t.classList.add('shake'); setTimeout(() => t.classList.remove('shake'), 400); });
+}
+
+function showMsg(text) { document.getElementById('message').textContent = text; }
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let r = 0; r < 6; r++) {
+    const row = document.createElement('div');
+    row.className = 'row';
+    for (let c = 0; c < 5; c++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      if (guesses[r][c]) { tile.textContent = guesses[r][c]; tile.classList.add('filled'); }
+      row.appendChild(tile);
+    }
+    board.appendChild(row);
+  }
+}
+
+function renderKeyboard() {
+  const layout = [
+    ['Q','W','E','R','T','Z','U','I','O','P'],
+    ['A','S','D','F','G','H','J','K','L'],
+    ['ENTER','Y','X','C','V','B','N','M','⌫']
+  ];
+  const kb = document.getElementById('keyboard');
+  kb.innerHTML = '';
+  for (const row of layout) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'kb-row';
+    for (const key of row) {
+      const btn = document.createElement('button');
+      btn.className = 'key';
+      if (key === 'ENTER' || key === '⌫') btn.classList.add('wide');
+      if (keyStates[key]) btn.classList.add(keyStates[key]);
+      btn.textContent = key;
+      btn.addEventListener('click', () => {
+        if (key === 'ENTER') submitGuess();
+        else if (key === '⌫') removeLetter();
+        else addLetter(key);
+      });
+      rowEl.appendChild(btn);
+    }
+    kb.appendChild(rowEl);
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey) return;
+  if (e.key === 'Enter') submitGuess();
+  else if (e.key === 'Backspace') removeLetter();
+  else if (/^[a-zA-ZäöüÄÖÜß]$/.test(e.key)) addLetter(e.key.toUpperCase());
+});
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Wordle</h2><p>Errate das 5-Buchstaben-Wort in 6 Versuchen.<br><br><b>Farben:</b> <span style="color:#2ecc71">Grün</span> = richtiger Buchstabe, richtige Position. <span style="color:#c9b458">Gelb</span> = richtiger Buchstabe, falsche Position. <span style="color:#888">Grau</span> = Buchstabe nicht im Wort.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

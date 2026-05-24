@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 14px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 10px; align-items: center; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 6px 14px; font-size: 0.9rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  .controls select { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 4px 10px; font-size: 0.9rem; }
+  #info { font-size: 1rem; padding: 8px 20px; background: #16213e; border: 1px solid #0f3460; border-radius: 8px; display: flex; gap: 20px; }
+  .val { color: #c9b458; font-weight: bold; }
+  canvas { border: 3px solid #c9b458; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); cursor: pointer; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1.1rem; min-height: 1.5em; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+  .sub { color: #555; font-size: 0.75rem; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>GO</h1>
+<div class="controls">
+  <select id="boardSize" onchange="newGame()">
+    <option value="9" selected>9x9</option>
+    <option value="13">13x13</option>
+    <option value="19">19x19</option>
+  </select>
+  <button onclick="newGame()">Neues Spiel</button>
+  <button onclick="pass()">Passen</button>
+  <button onclick="undoMove()">Rückgängig</button>
+</div>
+<div id="info">
+  <span>Schwarz: <span class="val" id="capB">0</span> gefangen</span>
+  <span>Weiß: <span class="val" id="capW">0</span> gefangen</span>
+  <span>Am Zug: <span class="val" id="turn">Schwarz</span></span>
+</div>
+<canvas id="canvas"></canvas>
+<p id="msg"></p>
+<p class="sub">Schwarz (Du) vs. Weiß (KI) — Klicke auf eine Kreuzung</p>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let SIZE = 9;
+let CELL, MARGIN;
+let board, currentPlayer, captures, history, passCount, gameOver, lastMove;
+
+function newGame() {
+  SIZE = parseInt(document.getElementById('boardSize').value);
+  CELL = SIZE <= 9 ? 44 : SIZE <= 13 ? 34 : 26;
+  MARGIN = 30;
+  canvas.width = (SIZE - 1) * CELL + MARGIN * 2;
+  canvas.height = (SIZE - 1) * CELL + MARGIN * 2;
+
+  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(0)); // 0=empty, 1=black, 2=white
+  currentPlayer = 1;
+  captures = { 1: 0, 2: 0 };
+  history = [];
+  passCount = 0;
+  gameOver = false;
+  lastMove = null;
+  document.getElementById('msg').textContent = '';
+  updateUI();
+  draw();
+}
+
+function updateUI() {
+  document.getElementById('capB').textContent = captures[1];
+  document.getElementById('capW').textContent = captures[2];
+  document.getElementById('turn').textContent = currentPlayer === 1 ? 'Schwarz' : 'Weiß';
+}
+
+function getGroup(x, y, color) {
+  const visited = new Set();
+  const group = [];
+  let liberties = 0;
+  const stack = [[x, y]];
+  while (stack.length > 0) {
+    const [cx, cy] = stack.pop();
+    const key = `${cx},${cy}`;
+    if (visited.has(key)) continue;
+    if (cx < 0 || cx >= SIZE || cy < 0 || cy >= SIZE) continue;
+    if (board[cy][cx] === 0) { liberties++; continue; }
+    if (board[cy][cx] !== color) continue;
+    visited.add(key);
+    group.push([cx, cy]);
+    stack.push([cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]);
+  }
+  return { group, liberties };
+}
+
+function removeGroup(group) {
+  for (const [x, y] of group) board[y][x] = 0;
+}
+
+function cloneBoard() { return board.map(r => [...r]); }
+
+function isValidMove(x, y, color) {
+  if (board[y][x] !== 0) return false;
+
+  const saved = cloneBoard();
+  board[y][x] = color;
+  const opp = color === 1 ? 2 : 1;
+  let captured = 0;
+
+  // Check captures
+  for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+    const nx = x + dx, ny = y + dy;
+    if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && board[ny][nx] === opp) {
+      const { group, liberties } = getGroup(nx, ny, opp);
+      if (liberties === 0) captured += group.length;
+    }
+  }
+
+  // Check self-capture (suicide)
+  if (captured === 0) {
+    const { liberties } = getGroup(x, y, color);
+    if (liberties === 0) { board.splice(0, board.length, ...saved); return false; }
+  }
+
+  board.splice(0, board.length, ...saved);
+  return true;
+}
+
+function placeStone(x, y, color) {
+  history.push({ board: cloneBoard(), captures: { ...captures }, passCount, lastMove });
+  board[y][x] = color;
+  const opp = color === 1 ? 2 : 1;
+
+  // First collect all opponent groups with 0 liberties, then remove them
+  // (avoids order-dependent capture where removing one group frees liberties for another)
+  const toRemove = [];
+  const checked = new Set();
+  for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+    const nx = x + dx, ny = y + dy;
+    if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && board[ny][nx] === opp) {
+      const key = `${nx},${ny}`;
+      if (checked.has(key)) continue;
+      const { group, liberties } = getGroup(nx, ny, opp);
+      group.forEach(([gx, gy]) => checked.add(`${gx},${gy}`));
+      if (liberties === 0) toRemove.push(group);
+    }
+  }
+
+  for (const group of toRemove) {
+    captures[color] += group.length;
+    removeGroup(group);
+  }
+
+  // If no captures were made, check for self-capture (suicide) and undo
+  if (toRemove.length === 0) {
+    const { liberties } = getGroup(x, y, color);
+    if (liberties === 0) {
+      // Suicide — restore board state
+      const prev = history.pop();
+      board.splice(0, board.length, ...prev.board);
+      captures = prev.captures;
+      passCount = prev.passCount;
+      lastMove = prev.lastMove;
+      return false;
+    }
+  }
+
+  lastMove = { x, y };
+  passCount = 0;
+  return true;
+}
+
+function pass() {
+  if (gameOver) return;
+  history.push({ board: cloneBoard(), captures: { ...captures }, passCount, lastMove });
+  passCount++;
+  lastMove = null;
+
+  if (passCount >= 2) {
+    endGame();
+    return;
+  }
+
+  currentPlayer = currentPlayer === 1 ? 2 : 1;
+  updateUI();
+  draw();
+  if (currentPlayer === 2) setTimeout(aiMove, 300);
+}
+
+function undoMove() {
+  if (history.length === 0 || gameOver) return;
+  // Undo AI + player move
+  if (history.length >= 2 && currentPlayer === 1) {
+    history.pop(); // AI move
+    const s = history.pop(); // Player move
+    board = s.board; captures = s.captures; passCount = s.passCount; lastMove = s.lastMove;
+    currentPlayer = 1;
+  } else {
+    const s = history.pop();
+    board = s.board; captures = s.captures; passCount = s.passCount; lastMove = s.lastMove;
+    currentPlayer = currentPlayer === 1 ? 2 : 1;
+  }
+  updateUI();
+  draw();
+}
+
+function endGame() {
+  gameOver = true;
+  // Simple scoring: captured + territory (flood fill)
+  const territory = [0, 0, 0];
+  const visited = Array.from({ length: SIZE }, () => Array(SIZE).fill(false));
+
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      if (board[y][x] !== 0 || visited[y][x]) continue;
+      const region = [];
+      let borders = new Set();
+      const stack = [[x, y]];
+      while (stack.length) {
+        const [cx, cy] = stack.pop();
+        if (cx < 0 || cx >= SIZE || cy < 0 || cy >= SIZE) continue;
+        if (visited[cy][cx]) continue;
+        if (board[cy][cx] !== 0) { borders.add(board[cy][cx]); continue; }
+        visited[cy][cx] = true;
+        region.push([cx, cy]);
+        stack.push([cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]);
+      }
+      if (borders.size === 1) {
+        const owner = [...borders][0];
+        territory[owner] += region.length;
+      }
+    }
+  }
+
+  const blackScore = captures[1] + territory[1];
+  const whiteScore = captures[2] + territory[2] + 6.5; // Komi
+
+  const winner = blackScore > whiteScore ? 'Schwarz' : 'Weiß';
+  document.getElementById('msg').textContent = `Spiel beendet — ${winner} gewinnt! (Schwarz: ${blackScore}, Weiß: ${whiteScore.toFixed(1)})`;
+}
+
+function aiMove() {
+  if (gameOver || currentPlayer !== 2) return;
+
+  // Simple AI: capture > extend > random
+  const moves = [];
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      if (!isValidMove(x, y, 2)) continue;
+      let score = 0;
+
+      // Check if captures
+      const saved = cloneBoard();
+      board[y][x] = 2;
+      for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && board[ny][nx] === 1) {
+          const { group, liberties } = getGroup(nx, ny, 1);
+          if (liberties === 0) score += group.length * 10;
+        }
+      }
+      board.splice(0, board.length, ...saved);
+
+      // Prefer near existing stones
+      for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && board[ny][nx] === 2) score += 2;
+      }
+
+      // Avoid edges slightly
+      if (x > 0 && x < SIZE - 1 && y > 0 && y < SIZE - 1) score += 1;
+
+      score += Math.random() * 2;
+      moves.push({ x, y, score });
+    }
+  }
+
+  if (moves.length === 0) { pass(); return; }
+
+  moves.sort((a, b) => b.score - a.score);
+  const best = moves[0];
+  placeStone(best.x, best.y, 2);
+  currentPlayer = 1;
+  updateUI();
+  draw();
+}
+
+function draw() {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Board background
+  ctx.fillStyle = '#2a2a4e';
+  ctx.fillRect(MARGIN - CELL / 2, MARGIN - CELL / 2, (SIZE - 1) * CELL + CELL, (SIZE - 1) * CELL + CELL);
+
+  // Grid lines
+  ctx.strokeStyle = '#555';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < SIZE; i++) {
+    ctx.beginPath();
+    ctx.moveTo(MARGIN + i * CELL, MARGIN);
+    ctx.lineTo(MARGIN + i * CELL, MARGIN + (SIZE - 1) * CELL);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(MARGIN, MARGIN + i * CELL);
+    ctx.lineTo(MARGIN + (SIZE - 1) * CELL, MARGIN + i * CELL);
+    ctx.stroke();
+  }
+
+  // Star points
+  const starPoints = SIZE === 9 ? [[2,2],[6,2],[4,4],[2,6],[6,6]] :
+                     SIZE === 13 ? [[3,3],[9,3],[6,6],[3,9],[9,9]] :
+                     [[3,3],[9,3],[15,3],[3,9],[9,9],[15,9],[3,15],[9,15],[15,15]];
+  ctx.fillStyle = '#888';
+  for (const [sx, sy] of starPoints) {
+    if (sx < SIZE && sy < SIZE) {
+      ctx.beginPath();
+      ctx.arc(MARGIN + sx * CELL, MARGIN + sy * CELL, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Stones
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      if (board[y][x] === 0) continue;
+      const px = MARGIN + x * CELL;
+      const py = MARGIN + y * CELL;
+      const r = CELL / 2 - 2;
+
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      if (board[y][x] === 1) {
+        ctx.fillStyle = '#111';
+        ctx.fill();
+        ctx.strokeStyle = '#333';
+      } else {
+        ctx.fillStyle = '#eee';
+        ctx.fill();
+        ctx.strokeStyle = '#ccc';
+      }
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Last move marker
+      if (lastMove && lastMove.x === x && lastMove.y === y) {
+        ctx.fillStyle = board[y][x] === 1 ? '#c9b458' : '#e74c3c';
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+canvas.addEventListener('click', e => {
+  if (gameOver || currentPlayer !== 1) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+  const x = Math.round((mx - MARGIN) / CELL);
+  const y = Math.round((my - MARGIN) / CELL);
+
+  if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) return;
+  if (!isValidMove(x, y, 1)) return;
+
+  placeStone(x, y, 1);
+  currentPlayer = 2;
+  updateUI();
+  draw();
+
+  setTimeout(aiMove, 300);
+});
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Go</h2><p>Setze abwechselnd Steine auf die Kreuzungen des Bretts. Umschließe gegnerische Steine, um sie zu fangen. Umschließe Gebiet, um Punkte zu sammeln.<br><br><b>Ko-Regel:</b> Ein Zug darf nicht die vorherige Stellung exakt wiederherstellen.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

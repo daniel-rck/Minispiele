@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4 Gewinnt</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif;
+    color: #e0e0e0; flex-direction: column; gap: 16px; user-select: none;
+  }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  #status {
+    font-size: 1.1rem; padding: 8px 24px; border-radius: 8px;
+    background: #16213e; border: 1px solid #0f3460; min-height: 40px;
+    display: flex; align-items: center;
+  }
+  #status.won { background: #1a5c1a; border-color: #3a3; font-weight: bold; }
+  #board {
+    display: grid; grid-template-columns: repeat(7, 72px); grid-template-rows: repeat(6, 72px);
+    gap: 6px; padding: 12px; background: #0f3460; border-radius: 12px;
+    border: 3px solid #c9b458; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .cell {
+    width: 72px; height: 72px; border-radius: 50%; background: #1a1a2e;
+    cursor: pointer; transition: all 0.15s; position: relative;
+  }
+  .cell:hover { background: #222244; }
+  .cell.red { background: radial-gradient(circle at 35% 35%, #ff6b6b, #c0392b); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.3); }
+  .cell.yellow { background: radial-gradient(circle at 35% 35%, #ffe66d, #c9b458); box-shadow: inset 0 -3px 6px rgba(0,0,0,0.3); }
+  .cell.win { animation: pulse 0.6s ease infinite alternate; }
+  @keyframes pulse { to { transform: scale(1.1); filter: brightness(1.3); } }
+  .cell.preview { opacity: 0.35; }
+  #controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  button { padding: 8px 20px; border: 1px solid #c9b458; background: #16213e; color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; }
+  button:hover { background: #0f3460; }
+  button.active { background: #c9b458; color: #1a1a2e; font-weight: bold; }
+  select { padding: 8px 12px; border: 1px solid #c9b458; background: #16213e; color: #c9b458; border-radius: 6px; cursor: pointer; font-size: 0.95rem; outline: none; }
+  #thinking { font-size: 0.95rem; color: #c9b458; min-height: 24px; letter-spacing: 1px; opacity: 0; transition: opacity 0.3s; }
+  #thinking.visible { opacity: 1; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">← Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>4 GEWINNT</h1>
+<div id="status">Rot am Zug</div>
+<div id="board"></div>
+<div id="thinking"></div>
+<div id="controls">
+  <button onclick="resetGame()">Neues Spiel</button>
+  <button id="btn-mode" onclick="toggleMode()">Gegen Computer</button>
+  <select id="difficulty" onchange="changeDifficulty(this.value)" style="display:none">
+    <option value="leicht">Leicht</option>
+    <option value="mittel" selected>Mittel</option>
+    <option value="schwer">Schwer</option>
+  </select>
+</div>
+
+<script>
+const ROWS = 6, COLS = 7;
+let board, turn, gameOver, winCells, hoverCol;
+let vsComputer = false, aiThinking = false, aiDifficulty = 'mittel';
+const DEPTH = { leicht: 2, mittel: 5, schwer: 7 };
+
+function resetGame() {
+  board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  turn = 1; // 1=red, 2=yellow
+  gameOver = false; winCells = []; hoverCol = -1;
+  aiThinking = false;
+  document.getElementById('status').className = '';
+  render(); updateStatus();
+}
+
+function getRow(col) {
+  for (let r = ROWS - 1; r >= 0; r--) if (board[r][col] === 0) return r;
+  return -1;
+}
+
+function dropPiece(col) {
+  if (gameOver || aiThinking) return;
+  const row = getRow(col);
+  if (row === -1) return;
+  board[row][col] = turn;
+  const win = checkWin(board, row, col);
+  if (win) { winCells = win; gameOver = true; }
+  else if (board[0].every((_, c) => getRow(c) === -1)) { gameOver = true; }
+  else { turn = turn === 1 ? 2 : 1; }
+  render(); updateStatus();
+  if (!gameOver && vsComputer && turn === 2) aiMove();
+}
+
+function checkWin(b, r, c) {
+  const p = b[r][c]; if (!p) return null;
+  const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+  for (const [dr, dc] of dirs) {
+    const cells = [[r, c]];
+    for (let d = -1; d <= 1; d += 2) {
+      for (let i = 1; i < 4; i++) {
+        const nr = r + dr * i * d, nc = c + dc * i * d;
+        if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || b[nr][nc] !== p) break;
+        cells.push([nr, nc]);
+      }
+    }
+    if (cells.length >= 4) return cells;
+  }
+  return null;
+}
+
+function checkWinFull(b) {
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
+      if (b[r][c] && checkWin(b, r, c)) return b[r][c];
+  return 0;
+}
+
+function updateStatus() {
+  const s = document.getElementById('status');
+  if (gameOver) {
+    if (winCells.length > 0) {
+      s.textContent = (turn === 1 ? 'Rot' : 'Gelb') + ' gewinnt!';
+      s.className = 'won';
+    } else { s.textContent = 'Unentschieden!'; s.className = 'won'; }
+  } else {
+    s.textContent = (turn === 1 ? 'Rot' : 'Gelb') + ' am Zug';
+    s.className = '';
+  }
+}
+
+// --- AI ---
+function evaluate(b) {
+  let score = 0;
+  const scoreWindow = (cells) => {
+    let p1 = 0, p2 = 0, empty = 0;
+    for (const v of cells) { if (v === 1) p1++; else if (v === 2) p2++; else empty++; }
+    if (p2 === 4) return -10000;
+    if (p1 === 4) return 10000;
+    if (p2 === 3 && empty === 1) return -50;
+    if (p1 === 3 && empty === 1) return 50;
+    if (p2 === 2 && empty === 2) return -5;
+    if (p1 === 2 && empty === 2) return 5;
+    return 0;
+  };
+  // Center preference
+  for (let r = 0; r < ROWS; r++) if (b[r][3] === 2) score -= 3; else if (b[r][3] === 1) score += 3;
+  // All windows of 4
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS - 3; c++)
+      score += scoreWindow([b[r][c], b[r][c+1], b[r][c+2], b[r][c+3]]);
+  for (let r = 0; r < ROWS - 3; r++)
+    for (let c = 0; c < COLS; c++)
+      score += scoreWindow([b[r][c], b[r+1][c], b[r+2][c], b[r+3][c]]);
+  for (let r = 0; r < ROWS - 3; r++)
+    for (let c = 0; c < COLS - 3; c++)
+      score += scoreWindow([b[r][c], b[r+1][c+1], b[r+2][c+2], b[r+3][c+3]]);
+  for (let r = 3; r < ROWS; r++)
+    for (let c = 0; c < COLS - 3; c++)
+      score += scoreWindow([b[r][c], b[r-1][c+1], b[r-2][c+2], b[r-3][c+3]]);
+  return score;
+}
+
+function minimax(b, depth, alpha, beta, maximizing) {
+  const w = checkWinFull(b);
+  if (w === 1) return 100000 + depth;
+  if (w === 2) return -100000 - depth;
+  const full = b[0].every((_, c) => { for (let r = ROWS-1; r >= 0; r--) { if (b[r][c] === 0) return false; } return true; });
+  if (full || depth === 0) return evaluate(b);
+  const order = [3,2,4,1,5,0,6];
+  if (maximizing) {
+    let max = -Infinity;
+    for (const c of order) {
+      let row = -1;
+      for (let r = ROWS-1; r >= 0; r--) if (b[r][c] === 0) { row = r; break; }
+      if (row === -1) continue;
+      b[row][c] = 1;
+      const val = minimax(b, depth - 1, alpha, beta, false);
+      b[row][c] = 0;
+      max = Math.max(max, val); alpha = Math.max(alpha, val);
+      if (beta <= alpha) break;
+    }
+    return max;
+  } else {
+    let min = Infinity;
+    for (const c of order) {
+      let row = -1;
+      for (let r = ROWS-1; r >= 0; r--) if (b[r][c] === 0) { row = r; break; }
+      if (row === -1) continue;
+      b[row][c] = 2;
+      const val = minimax(b, depth - 1, alpha, beta, true);
+      b[row][c] = 0;
+      min = Math.min(min, val); beta = Math.min(beta, val);
+      if (beta <= alpha) break;
+    }
+    return min;
+  }
+}
+
+function aiMove() {
+  aiThinking = true;
+  document.getElementById('thinking').textContent = 'Computer denkt...';
+  document.getElementById('thinking').classList.add('visible');
+  setTimeout(() => {
+    const depth = DEPTH[aiDifficulty];
+    const order = [3,2,4,1,5,0,6];
+    let bestCol = -1, bestVal = Infinity;
+    for (const c of order) {
+      const row = getRow(c);
+      if (row === -1) continue;
+      board[row][c] = 2;
+      const val = minimax(board, depth - 1, -Infinity, Infinity, true);
+      board[row][c] = 0;
+      const fuzzed = aiDifficulty === 'leicht' ? val + (Math.random() - 0.5) * 200 : val;
+      if (fuzzed < bestVal) { bestVal = fuzzed; bestCol = c; }
+    }
+    document.getElementById('thinking').classList.remove('visible');
+    aiThinking = false;
+    if (bestCol >= 0) dropPiece(bestCol);
+  }, 50);
+}
+
+function toggleMode() {
+  vsComputer = !vsComputer;
+  const btn = document.getElementById('btn-mode');
+  btn.textContent = vsComputer ? '2 Spieler' : 'Gegen Computer';
+  btn.classList.toggle('active', vsComputer);
+  document.getElementById('difficulty').style.display = vsComputer ? '' : 'none';
+  resetGame();
+}
+function changeDifficulty(v) { aiDifficulty = v; resetGame(); }
+
+function render() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      if (board[r][c] === 1) cell.classList.add('red');
+      else if (board[r][c] === 2) cell.classList.add('yellow');
+      else if (!gameOver && hoverCol === c) {
+        const previewRow = getRow(c);
+        if (previewRow === r) {
+          cell.classList.add(turn === 1 ? 'red' : 'yellow', 'preview');
+        }
+      }
+      if (winCells.some(([wr, wc]) => wr === r && wc === c)) cell.classList.add('win');
+      cell.addEventListener('click', () => dropPiece(c));
+      cell.addEventListener('mouseenter', () => {
+        if (hoverCol !== c) { hoverCol = c; render(); }
+      });
+      boardEl.appendChild(cell);
+    }
+  }
+  boardEl.addEventListener('mouseleave', () => {
+    if (hoverCol !== -1) { hoverCol = -1; render(); }
+  });
+}
+
+resetGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Vier gewinnt</h2><p>Wirf abwechselnd Spielsteine in die Spalten. Die Steine fallen nach unten. Wer zuerst <b>4 Steine in einer Reihe</b> hat (horizontal, vertikal oder diagonal), gewinnt.<br><br><b>Steuerung:</b> Klicke auf eine Spalte, um deinen Stein einzuwerfen.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

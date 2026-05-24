@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Das verrückte Labyrinth</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; align-items: center; gap: 10px; padding: 50px 10px 20px; user-select: none; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 5px 12px; font-size: 0.85rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  #info { font-size: 0.9rem; padding: 6px 16px; background: #16213e; border: 1px solid #0f3460; border-radius: 8px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .val { color: #c9b458; font-weight: bold; }
+  .phase-label { color: #e67e22; font-weight: bold; }
+  #game-area { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+  canvas { border: 3px solid #c9b458; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); cursor: pointer; }
+  #spare-area { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  #spare-area canvas { border: 2px solid #0f3460; width: 60px; height: 60px; }
+  .rotate-btn { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
+  .rotate-btn:hover { background: #0f3460; }
+  #spare-label { color: #888; font-size: 0.75rem; }
+  .arrow-btn { position: absolute; background: #c9b458; color: #1a1a2e; border: none; border-radius: 4px; width: 22px; height: 22px; cursor: pointer; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; }
+  .arrow-btn:hover { background: #ddd09a; }
+  .board-wrap { position: relative; display: inline-block; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1rem; min-height: 1.3em; text-align: center; }
+  #target-display { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+  #target-icon { font-size: 1.5rem; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+  .sub { color: #555; font-size: 0.7rem; text-align: center; max-width: 500px; }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>DAS VERRÜCKTE LABYRINTH</h1>
+<div class="controls">
+  <button onclick="newGame()">Neues Spiel</button>
+</div>
+<div id="info">
+  <span>Phase: <span class="phase-label" id="phase">Schieben</span></span>
+  <span>Schätze: <span class="val" id="treasures">0</span>/<span id="totalTreasures">12</span></span>
+  <span id="target-display">Ziel: <span id="target-icon"></span> <span id="target-name"></span></span>
+</div>
+<p id="msg">Schiebe das Ersatzteil in eine Reihe oder Spalte, dann bewege dich zum Schatz</p>
+<div id="game-area">
+  <div id="spare-area">
+    <span id="spare-label">Ersatzteil</span>
+    <canvas id="spare-canvas" width="60" height="60"></canvas>
+    <div style="display:flex;gap:6px;">
+      <button class="rotate-btn" onclick="rotateSpare(-1)">↶</button>
+      <button class="rotate-btn" onclick="rotateSpare(1)">↷</button>
+    </div>
+  </div>
+  <div class="board-wrap" id="board-wrap">
+    <canvas id="canvas"></canvas>
+  </div>
+</div>
+<p class="sub">Klicke auf die Pfeile am Rand um zu schieben. Dann klicke auf ein erreichbares Feld um dich zu bewegen.</p>
+
+<script>
+const GRID = 7;
+const CELL = 64;
+const MARGIN = 28;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = GRID * CELL + MARGIN * 2;
+canvas.height = GRID * CELL + MARGIN * 2;
+
+const spareCanvas = document.getElementById('spare-canvas');
+const spareCtx = spareCanvas.getContext('2d');
+spareCanvas.width = 60;
+spareCanvas.height = 60;
+
+// Tile types: paths open in directions [top, right, bottom, left]
+// T=straight, L=corner, X=T-junction
+const TILE_SHAPES = {
+  straight: [1,0,1,0],
+  corner: [1,1,0,0],
+  tjunction: [1,1,0,1],
+};
+
+const TREASURES = [
+  { icon: '💎', name: 'Diamant' },
+  { icon: '👑', name: 'Krone' },
+  { icon: '🗡', name: 'Schwert' },
+  { icon: '📕', name: 'Buch' },
+  { icon: '🔮', name: 'Kristallkugel' },
+  { icon: '🏆', name: 'Pokal' },
+  { icon: '🗝', name: 'Schlüssel' },
+  { icon: '🦉', name: 'Eule' },
+  { icon: '🕯', name: 'Kerze' },
+  { icon: '💰', name: 'Goldtruhe' },
+  { icon: '🧪', name: 'Trank' },
+  { icon: '🎭', name: 'Maske' },
+  { icon: '🪙', name: 'Münze' },
+  { icon: '⚗', name: 'Alchemie' },
+  { icon: '🦇', name: 'Fledermaus' },
+  { icon: '🕸', name: 'Spinnennetz' },
+  { icon: '🐉', name: 'Drache' },
+  { icon: '🧲', name: 'Magnet' },
+  { icon: '🔔', name: 'Glocke' },
+  { icon: '⭐', name: 'Stern' },
+  { icon: '🌙', name: 'Mond' },
+  { icon: '🍷', name: 'Kelch' },
+  { icon: '🦂', name: 'Skorpion' },
+  { icon: '🏺', name: 'Vase' },
+];
+
+let board = []; // GRID x GRID tiles
+let spareTile;
+let playerPos;
+let treasureCards = [];
+let currentTreasureIdx = 0;
+let phase = 'slide'; // 'slide' or 'move'
+let reachable = new Set();
+let lastSlide = null; // {type:'row'|'col', idx, dir} to block reverse
+let arrowButtons = [];
+
+function makeTile(shape, rotation, treasure) {
+  const base = [...TILE_SHAPES[shape]];
+  const paths = rotatePaths(base, rotation);
+  return { shape, paths, treasure: treasure || null };
+}
+
+function rotatePaths(paths, times) {
+  const p = [...paths];
+  for (let i = 0; i < ((times % 4) + 4) % 4; i++) {
+    const last = p.pop();
+    p.unshift(last);
+  }
+  return p;
+}
+
+function rotateTile(tile, dir) {
+  if (dir > 0) {
+    const last = tile.paths.pop();
+    tile.paths.unshift(last);
+  } else {
+    const first = tile.paths.shift();
+    tile.paths.push(first);
+  }
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function newGame() {
+  phase = 'slide';
+  lastSlide = null;
+  currentTreasureIdx = 0;
+
+  // Fixed corner tiles (T-junctions pointing inward)
+  board = Array.from({ length: GRID }, () => Array(GRID).fill(null));
+
+  // Fixed tiles at even positions
+  const fixedPositions = [];
+  for (let r = 0; r < GRID; r += 2) {
+    for (let c = 0; c < GRID; c += 2) {
+      fixedPositions.push({ r, c });
+    }
+  }
+
+  // Corners
+  board[0][0] = makeTile('corner', 2);
+  board[0][6] = makeTile('corner', 3);
+  board[6][0] = makeTile('corner', 1);
+  board[6][6] = makeTile('corner', 0);
+
+  // Fixed T-junctions on edges and inside
+  const fixedTs = [
+    [0,2,3],[0,4,3],[2,0,2],[4,0,2],[2,6,0],[4,6,0],[6,2,1],[6,4,1],
+    [2,2,3],[2,4,0],[4,2,2],[4,4,1]
+  ];
+
+  // Assign treasures to fixed positions
+  const allTreasures = shuffle([...TREASURES]);
+  let tIdx = 0;
+
+  for (const [r, c, rot] of fixedTs) {
+    board[r][c] = makeTile('tjunction', rot, allTreasures[tIdx++]);
+  }
+
+  // Movable tiles: fill remaining positions
+  const movableTiles = [];
+  // Create pool: 13 straights, 9 corners, 6 T-junctions
+  for (let i = 0; i < 13; i++) movableTiles.push(makeTile('straight', Math.floor(Math.random() * 4)));
+  for (let i = 0; i < 9; i++) movableTiles.push(makeTile('corner', Math.floor(Math.random() * 4)));
+  for (let i = 0; i < 6; i++) movableTiles.push(makeTile('tjunction', Math.floor(Math.random() * 4), allTreasures[tIdx++]));
+
+  shuffle(movableTiles);
+
+  let mIdx = 0;
+  for (let r = 0; r < GRID; r++) {
+    for (let c = 0; c < GRID; c++) {
+      if (!board[r][c]) {
+        if (mIdx < movableTiles.length) {
+          board[r][c] = movableTiles[mIdx++];
+        } else {
+          board[r][c] = makeTile('straight', Math.floor(Math.random() * 4));
+        }
+      }
+    }
+  }
+
+  // Spare tile
+  if (mIdx < movableTiles.length) {
+    spareTile = movableTiles[mIdx];
+  } else {
+    spareTile = makeTile('corner', 0, allTreasures[tIdx++] || null);
+  }
+
+  // Treasure cards for player (12 random)
+  const allBoardTreasures = [];
+  for (let r = 0; r < GRID; r++) {
+    for (let c = 0; c < GRID; c++) {
+      if (board[r][c].treasure) allBoardTreasures.push(board[r][c].treasure);
+    }
+  }
+  if (spareTile.treasure) allBoardTreasures.push(spareTile.treasure);
+  treasureCards = shuffle(allBoardTreasures).slice(0, 12);
+  currentTreasureIdx = 0;
+
+  playerPos = { r: 0, c: 0 };
+
+  updateUI();
+  render();
+  createArrowButtons();
+}
+
+function updateUI() {
+  document.getElementById('phase').textContent = phase === 'slide' ? 'Schieben' : 'Bewegen';
+  document.getElementById('treasures').textContent = currentTreasureIdx;
+  document.getElementById('totalTreasures').textContent = treasureCards.length;
+
+  if (currentTreasureIdx < treasureCards.length) {
+    const t = treasureCards[currentTreasureIdx];
+    document.getElementById('target-icon').textContent = t.icon;
+    document.getElementById('target-name').textContent = t.name;
+  } else {
+    document.getElementById('target-icon').textContent = '🏠';
+    document.getElementById('target-name').textContent = 'Zurück zum Start!';
+  }
+
+  if (currentTreasureIdx >= treasureCards.length && playerPos.r === 0 && playerPos.c === 0) {
+    document.getElementById('msg').textContent = 'Gewonnen! Alle Schätze gesammelt!';
+  } else {
+    document.getElementById('msg').textContent = phase === 'slide'
+      ? 'Klicke einen Pfeil am Rand um eine Reihe/Spalte zu verschieben'
+      : 'Klicke auf ein erreichbares Feld (helle Felder) um dich zu bewegen';
+  }
+}
+
+function rotateSpare(dir) {
+  if (phase !== 'slide') return;
+  rotateTile(spareTile, dir);
+  renderSpare();
+}
+
+function slideRow(row, dir) {
+  // dir: 1 = push from left (slide right), -1 = push from right (slide left)
+  const oldSpare = spareTile;
+  if (dir === 1) {
+    spareTile = board[row][GRID - 1];
+    for (let c = GRID - 1; c > 0; c--) board[row][c] = board[row][c - 1];
+    board[row][0] = oldSpare;
+    // Move player if on this row
+    if (playerPos.r === row) {
+      playerPos.c = (playerPos.c + 1) % GRID;
+    }
+  } else {
+    spareTile = board[row][0];
+    for (let c = 0; c < GRID - 1; c++) board[row][c] = board[row][c + 1];
+    board[row][GRID - 1] = oldSpare;
+    if (playerPos.r === row) {
+      playerPos.c = (playerPos.c - 1 + GRID) % GRID;
+    }
+  }
+}
+
+function slideCol(col, dir) {
+  // dir: 1 = push from top (slide down), -1 = push from bottom (slide up)
+  const oldSpare = spareTile;
+  if (dir === 1) {
+    spareTile = board[GRID - 1][col];
+    for (let r = GRID - 1; r > 0; r--) board[r][col] = board[r - 1][col];
+    board[0][col] = oldSpare;
+    if (playerPos.c === col) {
+      playerPos.r = (playerPos.r + 1) % GRID;
+    }
+  } else {
+    spareTile = board[0][col];
+    for (let r = 0; r < GRID - 1; r++) board[r][col] = board[r + 1][col];
+    board[GRID - 1][col] = oldSpare;
+    if (playerPos.c === col) {
+      playerPos.r = (playerPos.r - 1 + GRID) % GRID;
+    }
+  }
+}
+
+function doSlide(type, idx, dir) {
+  // Block reverse of last slide
+  if (lastSlide && lastSlide.type === type && lastSlide.idx === idx && lastSlide.dir === -dir) return;
+
+  if (type === 'row') slideRow(idx, dir);
+  else slideCol(idx, dir);
+
+  lastSlide = { type, idx, dir };
+  phase = 'move';
+  computeReachable();
+  updateUI();
+  render();
+  renderSpare();
+  createArrowButtons();
+}
+
+function computeReachable() {
+  reachable = new Set();
+  const key = (r, c) => `${r},${c}`;
+  const stack = [{ r: playerPos.r, c: playerPos.c }];
+  reachable.add(key(playerPos.r, playerPos.c));
+
+  // Directions: top=0, right=1, bottom=2, left=3
+  const DR = [-1, 0, 1, 0];
+  const DC = [0, 1, 0, -1];
+  const OPP = [2, 3, 0, 1];
+
+  while (stack.length > 0) {
+    const { r, c } = stack.pop();
+    const tile = board[r][c];
+    for (let d = 0; d < 4; d++) {
+      if (!tile.paths[d]) continue; // no path this direction
+      const nr = r + DR[d];
+      const nc = c + DC[d];
+      if (nr < 0 || nr >= GRID || nc < 0 || nc >= GRID) continue;
+      const neighbor = board[nr][nc];
+      if (!neighbor.paths[OPP[d]]) continue; // neighbor doesn't connect back
+      const k = key(nr, nc);
+      if (reachable.has(k)) continue;
+      reachable.add(k);
+      stack.push({ r: nr, c: nc });
+    }
+  }
+}
+
+function handleBoardClick(e) {
+  if (phase !== 'move') return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width) - MARGIN;
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height) - MARGIN;
+  const c = Math.floor(mx / CELL);
+  const r = Math.floor(my / CELL);
+  if (r < 0 || r >= GRID || c < 0 || c >= GRID) return;
+
+  if (!reachable.has(`${r},${c}`)) return;
+
+  playerPos = { r, c };
+
+  // Check treasure
+  const tile = board[r][c];
+  if (tile.treasure && currentTreasureIdx < treasureCards.length) {
+    if (tile.treasure.icon === treasureCards[currentTreasureIdx].icon) {
+      currentTreasureIdx++;
+    }
+  }
+
+  // Check win
+  if (currentTreasureIdx >= treasureCards.length && r === 0 && c === 0) {
+    phase = 'won';
+    updateUI();
+    render();
+    return;
+  }
+
+  phase = 'slide';
+  reachable = new Set();
+  updateUI();
+  render();
+  createArrowButtons();
+}
+
+canvas.addEventListener('click', handleBoardClick);
+
+function drawTile(context, x, y, size, tile, highlight) {
+  const s = size;
+  const wallColor = '#0a0a1e';
+  const pathColor = highlight ? '#2a3a5e' : '#1e2a4e';
+  const wallW = s * 0.2;
+
+  // Background
+  context.fillStyle = wallColor;
+  context.fillRect(x, y, s, s);
+
+  // Center
+  const cx = x + s * 0.2, cy = y + s * 0.2, cw = s * 0.6;
+  context.fillStyle = pathColor;
+  context.fillRect(cx, cy, cw, cw);
+
+  // Paths
+  if (tile.paths[0]) { // top
+    context.fillRect(cx, y, cw, s * 0.2);
+  }
+  if (tile.paths[1]) { // right
+    context.fillRect(cx + cw, cy, s * 0.2, cw);
+  }
+  if (tile.paths[2]) { // bottom
+    context.fillRect(cx, cy + cw, cw, s * 0.2);
+  }
+  if (tile.paths[3]) { // left
+    context.fillRect(x, cy, s * 0.2, cw);
+  }
+
+  // Border
+  context.strokeStyle = '#0f346040';
+  context.lineWidth = 1;
+  context.strokeRect(x, y, s, s);
+
+  // Treasure
+  if (tile.treasure) {
+    context.font = `${s * 0.35}px serif`;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(tile.treasure.icon, x + s / 2, y + s / 2);
+  }
+}
+
+function render() {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let r = 0; r < GRID; r++) {
+    for (let c = 0; c < GRID; c++) {
+      const x = MARGIN + c * CELL;
+      const y = MARGIN + r * CELL;
+      const isReachable = reachable.has(`${r},${c}`);
+      drawTile(ctx, x, y, CELL, board[r][c], isReachable);
+    }
+  }
+
+  // Player
+  const px = MARGIN + playerPos.c * CELL + CELL / 2;
+  const py = MARGIN + playerPos.r * CELL + CELL / 2;
+  ctx.fillStyle = '#c9b458';
+  ctx.shadowColor = '#c9b458';
+  ctx.shadowBlur = 8;
+  ctx.beginPath();
+  ctx.arc(px, py, CELL * 0.22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.font = `bold ${CELL * 0.2}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('P', px, py);
+
+  // Highlight current target tile
+  if (currentTreasureIdx < treasureCards.length) {
+    const target = treasureCards[currentTreasureIdx];
+    for (let r = 0; r < GRID; r++) {
+      for (let c = 0; c < GRID; c++) {
+        if (board[r][c].treasure && board[r][c].treasure.icon === target.icon) {
+          const tx = MARGIN + c * CELL;
+          const ty = MARGIN + r * CELL;
+          ctx.strokeStyle = '#c9b458';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 4]);
+          ctx.strokeRect(tx + 2, ty + 2, CELL - 4, CELL - 4);
+          ctx.setLineDash([]);
+        }
+      }
+    }
+  }
+
+  renderSpare();
+}
+
+function renderSpare() {
+  spareCtx.fillStyle = '#1a1a2e';
+  spareCtx.fillRect(0, 0, 60, 60);
+  drawTile(spareCtx, 0, 0, 60, spareTile, false);
+}
+
+function createArrowButtons() {
+  // Remove existing
+  arrowButtons.forEach(b => b.remove());
+  arrowButtons = [];
+
+  if (phase !== 'slide') return;
+
+  const wrap = document.getElementById('board-wrap');
+  const slidableRows = [1, 3, 5]; // Only odd rows/cols are slidable
+  const slidableCols = [1, 3, 5];
+
+  for (const row of slidableRows) {
+    // Left arrow (push right)
+    const rev1 = lastSlide && lastSlide.type === 'row' && lastSlide.idx === row && lastSlide.dir === -1;
+    if (!rev1) {
+      const btn = document.createElement('button');
+      btn.className = 'arrow-btn';
+      btn.textContent = '→';
+      btn.style.left = (MARGIN - 24) + 'px';
+      btn.style.top = (MARGIN + row * CELL + CELL / 2 - 11) + 'px';
+      btn.onclick = () => doSlide('row', row, 1);
+      wrap.appendChild(btn);
+      arrowButtons.push(btn);
+    }
+
+    // Right arrow (push left)
+    const rev2 = lastSlide && lastSlide.type === 'row' && lastSlide.idx === row && lastSlide.dir === 1;
+    if (!rev2) {
+      const btn = document.createElement('button');
+      btn.className = 'arrow-btn';
+      btn.textContent = '←';
+      btn.style.left = (MARGIN + GRID * CELL + 2) + 'px';
+      btn.style.top = (MARGIN + row * CELL + CELL / 2 - 11) + 'px';
+      btn.onclick = () => doSlide('row', row, -1);
+      wrap.appendChild(btn);
+      arrowButtons.push(btn);
+    }
+  }
+
+  for (const col of slidableCols) {
+    // Top arrow (push down)
+    const rev1 = lastSlide && lastSlide.type === 'col' && lastSlide.idx === col && lastSlide.dir === -1;
+    if (!rev1) {
+      const btn = document.createElement('button');
+      btn.className = 'arrow-btn';
+      btn.textContent = '↓';
+      btn.style.top = (MARGIN - 24) + 'px';
+      btn.style.left = (MARGIN + col * CELL + CELL / 2 - 11) + 'px';
+      btn.onclick = () => doSlide('col', col, 1);
+      wrap.appendChild(btn);
+      arrowButtons.push(btn);
+    }
+
+    // Bottom arrow (push up)
+    const rev2 = lastSlide && lastSlide.type === 'col' && lastSlide.idx === col && lastSlide.dir === 1;
+    if (!rev2) {
+      const btn = document.createElement('button');
+      btn.className = 'arrow-btn';
+      btn.textContent = '↑';
+      btn.style.top = (MARGIN + GRID * CELL + 2) + 'px';
+      btn.style.left = (MARGIN + col * CELL + CELL / 2 - 11) + 'px';
+      btn.onclick = () => doSlide('col', col, -1);
+      wrap.appendChild(btn);
+      arrowButtons.push(btn);
+    }
+  }
+}
+
+newGame();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Labyrinth</h2><p>Finde den Weg durch das Labyrinth vom Start zum Ziel.<br><br><b>Steuerung:</b> Pfeiltasten oder Wischen zum Bewegen.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

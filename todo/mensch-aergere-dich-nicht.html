@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mensch ärgere dich nicht</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 12px; user-select: none; padding: 50px 10px 20px; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 5px 12px; font-size: 0.85rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  .controls select { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 4px 10px; font-size: 0.85rem; }
+  .controls label { color: #888; font-size: 0.85rem; }
+  #info { font-size: 0.9rem; padding: 6px 16px; background: #16213e; border: 1px solid #0f3460; border-radius: 8px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; align-items: center; }
+  .val { color: #c9b458; font-weight: bold; }
+  canvas { border: 3px solid #c9b458; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); cursor: pointer; }
+  #dice-area { display: flex; gap: 12px; align-items: center; }
+  #dice-btn { background: #c9b458; color: #1a1a2e; border: none; border-radius: 8px; padding: 10px 24px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.15s; }
+  #dice-btn:hover { background: #ddd09a; transform: scale(1.05); }
+  #dice-btn:disabled { background: #333; color: #666; cursor: not-allowed; transform: none; }
+  #dice-display { font-size: 2.5rem; min-width: 50px; text-align: center; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1rem; min-height: 1.3em; text-align: center; max-width: 500px; }
+  .player-legend { display: flex; gap: 16px; font-size: 0.85rem; flex-wrap: wrap; justify-content: center; }
+  .player-legend .entry { display: flex; align-items: center; gap: 5px; }
+  .player-legend .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+  .player-legend .active { font-weight: bold; color: #c9b458; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+  .sub { color: #555; font-size: 0.7rem; text-align: center; max-width: 500px; }
+  #color-setup { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .color-options { display: flex; gap: 10px; }
+  .color-pick { width: 44px; height: 44px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #000; }
+  .color-pick:hover { transform: scale(1.15); }
+  .color-pick.selected { border-color: #fff; box-shadow: 0 0 14px rgba(255,255,255,0.4); }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>MENSCH ÄRGERE DICH NICHT</h1>
+<div class="controls">
+  <label>Spieler:</label>
+  <select id="playerCount">
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4" selected>4</option>
+  </select>
+  <button onclick="startSetup()">Neues Spiel</button>
+</div>
+<div id="color-setup" style="display:none;">
+  <span style="color:#888;font-size:0.9rem;">Wähle deine Farbe:</span>
+  <div class="color-options" id="color-options"></div>
+</div>
+<div id="info" style="display:none;">
+  <span>Am Zug: <span class="val" id="turn">Gelb</span></span>
+  <span>Wurf: <span class="val" id="dice-val">-</span></span>
+</div>
+<p id="msg"></p>
+<canvas id="canvas" width="520" height="520"></canvas>
+<div id="dice-area" style="display:none;">
+  <button id="dice-btn" onclick="rollDice()">Würfeln</button>
+  <div id="dice-display"></div>
+</div>
+<div class="player-legend" id="legend"></div>
+<div id="dice-log" style="max-width:500px;width:100%;max-height:80px;overflow-y:auto;font-size:0.7rem;color:#555;background:#16213e;border:1px solid #0f3460;border-radius:6px;padding:6px 10px;display:none;"></div>
+<p class="sub">Klicke nach dem Würfeln auf eine deiner Figuren um sie zu bewegen. Bei einer 6 darfst du nochmal.</p>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const SIZE = 520;
+
+// Colors
+const COLORS = ['#f1c40f', '#2ecc71', '#e74c3c', '#3498db'];
+const COLOR_NAMES = ['Gelb', 'Grün', 'Rot', 'Blau'];
+const COLOR_LIGHT = ['#fef9e7', '#eafaf1', '#fdedec', '#ebf5fb'];
+const COLOR_DARK = ['#b7950b', '#1a9c54', '#b03a2e', '#2471a3'];
+
+// Board layout: 40 main fields in a loop
+// Each field has an {x, y} coordinate on the 11x11 grid
+// The board path goes clockwise starting from yellow's start
+const BOARD_PATH = [
+  // Bottom-center going up (yellow start area)
+  {r:4,c:0},{r:4,c:1},{r:4,c:2},{r:4,c:3},{r:4,c:4},
+  // Up
+  {r:3,c:4},{r:2,c:4},{r:1,c:4},{r:0,c:4},
+  // Right along top
+  {r:0,c:5},
+  // Down
+  {r:0,c:6},
+  // Green path going down
+  {r:1,c:6},{r:2,c:6},{r:3,c:6},{r:4,c:6},
+  // Right
+  {r:4,c:7},{r:4,c:8},{r:4,c:9},{r:4,c:10},
+  // Down
+  {r:5,c:10},
+  // Left
+  {r:6,c:10},
+  // Red path going left
+  {r:6,c:9},{r:6,c:8},{r:6,c:7},{r:6,c:6},
+  // Down
+  {r:7,c:6},{r:8,c:6},{r:9,c:6},{r:10,c:6},
+  // Left
+  {r:10,c:5},
+  // Up
+  {r:10,c:4},
+  // Blue path going up
+  {r:9,c:4},{r:8,c:4},{r:7,c:4},{r:6,c:4},
+  // Left
+  {r:6,c:3},{r:6,c:2},{r:6,c:1},{r:6,c:0},
+  // Up
+  {r:5,c:0},
+];
+
+// Start field index on the main path for each player
+const START_IDX = [0, 10, 20, 30];
+
+// Home (goal) fields for each player (4 each), listed from entry to end
+const HOME_FIELDS = [
+  [{r:5,c:1},{r:5,c:2},{r:5,c:3},{r:5,c:4}],   // Yellow: row 5, cols 1-4
+  [{r:1,c:5},{r:2,c:5},{r:3,c:5},{r:4,c:5}],   // Green: rows 1-4, col 5
+  [{r:5,c:9},{r:5,c:8},{r:5,c:7},{r:5,c:6}],   // Red: row 5, cols 9-6
+  [{r:9,c:5},{r:8,c:5},{r:7,c:5},{r:6,c:5}],   // Blue: rows 9-6, col 5
+];
+
+// Base (waiting) positions for each player
+const BASE_POS = [
+  [{r:0,c:0},{r:0,c:1},{r:1,c:0},{r:1,c:1}],     // Yellow: top-left
+  [{r:0,c:9},{r:0,c:10},{r:1,c:9},{r:1,c:10}],    // Green: top-right
+  [{r:9,c:9},{r:9,c:10},{r:10,c:9},{r:10,c:10}],  // Red: bottom-right
+  [{r:9,c:0},{r:9,c:1},{r:10,c:0},{r:10,c:1}],    // Blue: bottom-left
+];
+
+// Entry index: the field on the main path where a piece enters (=START_IDX)
+// Home entry: after completing the loop, piece enters home. This happens when
+// a piece at position (START_IDX - 1 + 40) % 40 would pass START_IDX.
+
+let numPlayers = 4;
+let humanColorIdx = 0; // which of the 4 board positions the human plays
+let players; // [{pieces: [{state:'base'|'board'|'home', pos:number}], ...}]
+let currentPlayer = 0;
+let diceValue = 0;
+let phase = 'roll'; // 'roll', 'move', 'ai', 'gameover', 'setup'
+let movablePieces = [];
+let consecutiveSixes = 0;
+let gameOver = false;
+
+function gridToPixel(r, c) {
+  const cellSize = SIZE / 11;
+  return { x: c * cellSize + cellSize / 2, y: r * cellSize + cellSize / 2 };
+}
+
+function startSetup() {
+  numPlayers = parseInt(document.getElementById('playerCount').value);
+  phase = 'setup';
+  gameOver = false;
+  players = [];
+
+  document.getElementById('color-setup').style.display = 'flex';
+  document.getElementById('info').style.display = 'none';
+  document.getElementById('dice-area').style.display = 'none';
+  document.getElementById('msg').textContent = 'Wähle deine Farbe';
+
+  const opts = document.getElementById('color-options');
+  opts.innerHTML = '';
+  // Always show all 4 colors (they represent board positions)
+  for (let i = 0; i < 4; i++) {
+    const div = document.createElement('div');
+    div.className = 'color-pick' + (i === 0 ? ' selected' : '');
+    div.style.background = COLORS[i];
+    div.textContent = COLOR_NAMES[i];
+    div.onclick = () => {
+      document.querySelectorAll('.color-pick').forEach(s => s.classList.remove('selected'));
+      div.classList.add('selected');
+      humanColorIdx = i;
+    };
+    opts.appendChild(div);
+  }
+  humanColorIdx = 0;
+
+  // Render empty board as preview
+  renderEmptyBoard();
+
+  // Start game on click
+  const startBtn = document.createElement('button');
+  startBtn.textContent = 'Spiel starten';
+  startBtn.style.cssText = 'background:#c9b458;color:#1a1a2e;border:none;border-radius:8px;padding:8px 20px;font-size:0.9rem;font-weight:bold;cursor:pointer;margin-top:4px;';
+  startBtn.onclick = () => newGame();
+  // Remove old start button if exists
+  const oldBtn = document.getElementById('setup-start-btn');
+  if (oldBtn) oldBtn.remove();
+  startBtn.id = 'setup-start-btn';
+  opts.parentElement.appendChild(startBtn);
+}
+
+function renderEmptyBoard() {
+  const cell = SIZE / 11;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, SIZE, SIZE);
+
+  // Base areas
+  for (let pi = 0; pi < 4; pi++) {
+    for (const bp of BASE_POS[pi]) {
+      const { x, y } = gridToPixel(bp.r, bp.c);
+      ctx.fillStyle = COLOR_LIGHT[pi];
+      ctx.beginPath();
+      ctx.arc(x, y, cell * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = COLOR_DARK[pi];
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+  // Home fields
+  for (let pi = 0; pi < 4; pi++) {
+    for (const hf of HOME_FIELDS[pi]) {
+      const { x, y } = gridToPixel(hf.r, hf.c);
+      ctx.fillStyle = COLOR_LIGHT[pi];
+      ctx.beginPath();
+      ctx.arc(x, y, cell * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = COLOR_DARK[pi];
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+  // Main path
+  for (let i = 0; i < 40; i++) {
+    const field = BOARD_PATH[i];
+    const { x, y } = gridToPixel(field.r, field.c);
+    let isStart = -1;
+    for (let pi = 0; pi < 4; pi++) {
+      if (START_IDX[pi] === i) isStart = pi;
+    }
+    ctx.fillStyle = isStart >= 0 ? COLOR_LIGHT[isStart] : '#2a2a4e';
+    ctx.beginPath();
+    ctx.arc(x, y, cell * 0.38, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = isStart >= 0 ? COLOR_DARK[isStart] : '#444';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+  // Center
+  const cx = SIZE / 2, cy = SIZE / 2, hs = cell * 0.8;
+  ctx.fillStyle = '#16213e';
+  ctx.fillRect(cx - hs, cy - hs, hs * 2, hs * 2);
+  ctx.strokeStyle = '#0f3460';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cx - hs, cy - hs, hs * 2, hs * 2);
+  for (let pi = 0; pi < 4; pi++) {
+    ctx.fillStyle = COLORS[pi] + '40';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    if (pi === 0) { ctx.lineTo(cx - hs, cy - hs); ctx.lineTo(cx - hs, cy + hs); }      // Yellow: LEFT
+    else if (pi === 1) { ctx.lineTo(cx - hs, cy - hs); ctx.lineTo(cx + hs, cy - hs); } // Green: TOP
+    else if (pi === 2) { ctx.lineTo(cx + hs, cy - hs); ctx.lineTo(cx + hs, cy + hs); } // Red: RIGHT
+    else { ctx.lineTo(cx - hs, cy + hs); ctx.lineTo(cx + hs, cy + hs); }               // Blue: BOTTOM
+    ctx.fill();
+  }
+}
+
+function newGame() {
+  document.getElementById('color-setup').style.display = 'none';
+  const oldBtn = document.getElementById('setup-start-btn');
+  if (oldBtn) oldBtn.remove();
+  document.getElementById('info').style.display = 'flex';
+  document.getElementById('dice-area').style.display = 'flex';
+  const diceLog = document.getElementById('dice-log');
+  diceLog.innerHTML = '';
+  diceLog.style.display = 'none';
+
+  // Determine which board slots are active
+  // Always use all 4 slots, but only numPlayers are active
+  // Human plays at humanColorIdx, AIs fill the rest
+  const activeSlots = [];
+  activeSlots.push(humanColorIdx);
+  // Add AI slots: prefer the "opposite" and "adjacent" positions for balance
+  const order = [0, 1, 2, 3].filter(i => i !== humanColorIdx);
+  // For 2 players: pick the opposite corner
+  if (numPlayers >= 2) {
+    const opposite = (humanColorIdx + 2) % 4;
+    activeSlots.push(opposite);
+    const remaining = order.filter(i => i !== opposite);
+    if (numPlayers >= 3) activeSlots.push(remaining[0]);
+    if (numPlayers >= 4) activeSlots.push(remaining[1]);
+  }
+
+  players = [];
+  for (let i = 0; i < 4; i++) {
+    const isActive = activeSlots.includes(i);
+    players.push({
+      pieces: [
+        { state: 'base', pos: 0 },
+        { state: 'base', pos: 1 },
+        { state: 'base', pos: 2 },
+        { state: 'base', pos: 3 },
+      ],
+      isHuman: i === humanColorIdx,
+      active: isActive,
+    });
+  }
+
+  // Start with the human player
+  currentPlayer = humanColorIdx;
+  diceValue = 0;
+  phase = 'roll';
+  movablePieces = [];
+  consecutiveSixes = 0;
+  gameOver = false;
+  document.getElementById('dice-val').textContent = '-';
+  document.getElementById('dice-display').textContent = '';
+  updateUI();
+  render();
+}
+
+function updateUI() {
+  document.getElementById('turn').textContent = COLOR_NAMES[currentPlayer];
+  document.getElementById('turn').style.color = COLORS[currentPlayer];
+  document.getElementById('dice-btn').disabled = phase !== 'roll' || !players[currentPlayer].isHuman;
+
+  const legend = document.getElementById('legend');
+  legend.innerHTML = players.filter(p => p.active).map((p, _, arr) => {
+    const i = players.indexOf(p);
+    const homeCount = p.pieces.filter(pc => pc.state === 'home' && pc.pos === 3).length;
+    const isCurrent = i === currentPlayer && !gameOver;
+    return `<span class="entry ${isCurrent ? 'active' : ''}"><span class="dot" style="background:${COLORS[i]}"></span> ${COLOR_NAMES[i]}${p.isHuman ? ' (Du)' : ''} — ${homeCount}/4 im Ziel</span>`;
+  }).join('');
+
+  if (gameOver) {
+    document.getElementById('msg').textContent = `${COLOR_NAMES[currentPlayer]} hat gewonnen!`;
+  } else if (phase === 'roll') {
+    document.getElementById('msg').textContent = players[currentPlayer].isHuman
+      ? 'Würfle!'
+      : `${COLOR_NAMES[currentPlayer]} ist dran...`;
+  } else if (phase === 'move') {
+    document.getElementById('msg').textContent = movablePieces.length > 0
+      ? 'Klicke auf eine markierte Figur um sie zu bewegen'
+      : 'Kein Zug möglich.';
+  }
+}
+
+function diceIcon(val) {
+  return ['', '\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685'][val] || '';
+}
+
+function logDice(playerIdx, value, action) {
+  const log = document.getElementById('dice-log');
+  log.style.display = 'block';
+  const entry = document.createElement('div');
+  entry.style.color = COLORS[playerIdx];
+  entry.textContent = `${COLOR_NAMES[playerIdx]}: ${diceIcon(value)} ${value}${action ? ' — ' + action : ''}`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+function rollDice() {
+  if (phase !== 'roll') return;
+  diceValue = Math.floor(Math.random() * 6) + 1;
+  document.getElementById('dice-val').textContent = diceValue;
+  document.getElementById('dice-display').textContent = diceIcon(diceValue);
+
+  // Check for triple six
+  if (diceValue === 6) {
+    consecutiveSixes++;
+    if (consecutiveSixes >= 3) {
+      document.getElementById('msg').textContent = 'Dreimal 6 — Runde verloren!';
+      logDice(currentPlayer, diceValue, 'Dreimal 6! Runde verloren');
+      consecutiveSixes = 0;
+      setTimeout(() => nextPlayer(), 1000);
+      return;
+    }
+  } else {
+    consecutiveSixes = 0;
+  }
+
+  findMovablePieces();
+
+  if (movablePieces.length === 0) {
+    phase = 'move';
+    updateUI();
+    render();
+    // If all in base and no 6: can try up to 3 times
+    const allInBase = players[currentPlayer].pieces.every(p => p.state === 'base');
+    if (allInBase && diceValue !== 6) {
+      // Allow up to 3 rolls when all in base
+      if (!players[currentPlayer]._baseRolls) players[currentPlayer]._baseRolls = 0;
+      players[currentPlayer]._baseRolls++;
+      if (players[currentPlayer]._baseRolls < 3) {
+        phase = 'roll';
+        document.getElementById('msg').textContent = `Kein Zug möglich. Nochmal würfeln (${players[currentPlayer]._baseRolls}/3)`;
+        updateUI();
+        if (!players[currentPlayer].isHuman) setTimeout(() => aiTurn(), 600);
+        return;
+      }
+    }
+    players[currentPlayer]._baseRolls = 0;
+    logDice(currentPlayer, diceValue, 'kein Zug möglich');
+    setTimeout(() => nextPlayer(), 800);
+    return;
+  }
+
+  players[currentPlayer]._baseRolls = 0;
+  phase = 'move';
+  updateUI();
+  render();
+
+  if (!players[currentPlayer].isHuman) {
+    setTimeout(() => aiMove(), 600);
+  }
+}
+
+function findMovablePieces() {
+  movablePieces = [];
+  const p = players[currentPlayer];
+
+  // Must move out of base if possible when rolling 6
+  if (diceValue === 6) {
+    const basePiece = p.pieces.findIndex(pc => pc.state === 'base');
+    if (basePiece >= 0) {
+      // Check if start field is free (or occupied by opponent)
+      const startField = START_IDX[currentPlayer];
+      const occupant = getOccupant(startField, currentPlayer);
+      if (!occupant || occupant.playerIdx !== currentPlayer) {
+        // Must bring piece out
+        movablePieces = [basePiece];
+        return;
+      }
+    }
+  }
+
+  for (let i = 0; i < 4; i++) {
+    const pc = p.pieces[i];
+    if (pc.state === 'base') {
+      if (diceValue === 6) {
+        const startField = START_IDX[currentPlayer];
+        const occupant = getOccupant(startField, currentPlayer);
+        if (!occupant || occupant.playerIdx !== currentPlayer) {
+          movablePieces.push(i);
+        }
+      }
+    } else if (pc.state === 'board') {
+      if (canMoveOnBoard(currentPlayer, i, diceValue)) {
+        movablePieces.push(i);
+      }
+    } else if (pc.state === 'home') {
+      if (canMoveInHome(currentPlayer, i, diceValue)) {
+        movablePieces.push(i);
+      }
+    }
+  }
+}
+
+function getBoardPosition(playerIdx, piece) {
+  // Returns the absolute index on the 40-field path
+  return piece.pos;
+}
+
+function getOccupant(absPos, excludePlayer) {
+  for (let pi = 0; pi < players.length; pi++) {
+    if (pi === excludePlayer) continue;
+    for (let fi = 0; fi < 4; fi++) {
+      if (players[pi].pieces[fi].state === 'board' && players[pi].pieces[fi].pos === absPos) {
+        return { playerIdx: pi, pieceIdx: fi };
+      }
+    }
+  }
+  // Check own pieces too
+  for (let fi = 0; fi < 4; fi++) {
+    if (players[excludePlayer].pieces[fi].state === 'board' && players[excludePlayer].pieces[fi].pos === absPos) {
+      return { playerIdx: excludePlayer, pieceIdx: fi };
+    }
+  }
+  return null;
+}
+
+function getOwnOccupantOnBoard(playerIdx, absPos, excludePiece) {
+  for (let fi = 0; fi < 4; fi++) {
+    if (fi === excludePiece) continue;
+    if (players[playerIdx].pieces[fi].state === 'board' && players[playerIdx].pieces[fi].pos === absPos) {
+      return fi;
+    }
+  }
+  return -1;
+}
+
+function getOwnOccupantInHome(playerIdx, homePos, excludePiece) {
+  for (let fi = 0; fi < 4; fi++) {
+    if (fi === excludePiece) continue;
+    if (players[playerIdx].pieces[fi].state === 'home' && players[playerIdx].pieces[fi].pos === homePos) {
+      return fi;
+    }
+  }
+  return -1;
+}
+
+// How many steps from a piece's current pos until it reaches its home entry
+function stepsToHome(playerIdx, absPos) {
+  // Home entry is at (START_IDX[playerIdx] - 1 + 40) % 40
+  // going forward from absPos
+  const homeEntry = (START_IDX[playerIdx] + 39) % 40;
+  if (absPos <= homeEntry) return homeEntry - absPos;
+  return 40 - absPos + homeEntry;
+}
+
+function canMoveOnBoard(playerIdx, pieceIdx, steps) {
+  const pc = players[playerIdx].pieces[pieceIdx];
+  const currentAbs = pc.pos;
+  const sth = stepsToHome(playerIdx, currentAbs);
+
+  if (steps <= sth) {
+    // Stays on board
+    const newAbs = (currentAbs + steps) % 40;
+    // Can't land on own piece
+    if (getOwnOccupantOnBoard(playerIdx, newAbs, pieceIdx) >= 0) return false;
+    return true;
+  } else {
+    // Enters home
+    const homePos = steps - sth - 1; // 0-based home position
+    if (homePos >= 4) return false; // overshoot
+    if (getOwnOccupantInHome(playerIdx, homePos, pieceIdx) >= 0) return false;
+    // Check that intermediate home fields are not blocked
+    for (let h = 0; h < homePos; h++) {
+      if (getOwnOccupantInHome(playerIdx, h, pieceIdx) >= 0) return false;
+    }
+    return true;
+  }
+}
+
+function canMoveInHome(playerIdx, pieceIdx, steps) {
+  const pc = players[playerIdx].pieces[pieceIdx];
+  const newHomePos = pc.pos + steps;
+  if (newHomePos >= 4) return false;
+  // Check no blocker in between or at destination
+  for (let h = pc.pos + 1; h <= newHomePos; h++) {
+    if (getOwnOccupantInHome(playerIdx, h, pieceIdx) >= 0) return false;
+  }
+  return true;
+}
+
+function movePiece(pieceIdx) {
+  if (phase !== 'move' || !movablePieces.includes(pieceIdx)) return;
+
+  const p = players[currentPlayer];
+  const pc = p.pieces[pieceIdx];
+
+  if (pc.state === 'base') {
+    const startField = START_IDX[currentPlayer];
+    const kicked = whoIsAt(startField, currentPlayer);
+    kickAt(startField);
+    pc.state = 'board';
+    pc.pos = startField;
+    logDice(currentPlayer, diceValue, kicked ? `raus aus Basis, wirft ${COLOR_NAMES[kicked.pi]} raus!` : 'raus aus Basis');
+  } else if (pc.state === 'board') {
+    const sth = stepsToHome(currentPlayer, pc.pos);
+    if (diceValue <= sth) {
+      const newAbs = (pc.pos + diceValue) % 40;
+      const kicked = whoIsAt(newAbs, currentPlayer);
+      kickAt(newAbs);
+      pc.pos = newAbs;
+      logDice(currentPlayer, diceValue, kicked ? `wirft ${COLOR_NAMES[kicked.pi]} raus!` : `${diceValue} Felder vor`);
+    } else {
+      const homePos = diceValue - sth - 1;
+      pc.state = 'home';
+      pc.pos = homePos;
+      logDice(currentPlayer, diceValue, 'ins Ziel!');
+    }
+  } else if (pc.state === 'home') {
+    pc.pos += diceValue;
+    logDice(currentPlayer, diceValue, 'im Ziel weiter');
+  }
+
+  // Check win
+  if (p.pieces.every(pc2 => pc2.state === 'home')) {
+    gameOver = true;
+    phase = 'gameover';
+    updateUI();
+    render();
+    return;
+  }
+
+  // 6 = roll again
+  if (diceValue === 6) {
+    phase = 'roll';
+    updateUI();
+    render();
+    if (!players[currentPlayer].isHuman) setTimeout(() => aiTurn(), 600);
+  } else {
+    nextPlayer();
+  }
+}
+
+function whoIsAt(absPos, excludePlayer) {
+  for (let pi = 0; pi < players.length; pi++) {
+    if (pi === excludePlayer || !players[pi].active) continue;
+    for (let fi = 0; fi < 4; fi++) {
+      if (players[pi].pieces[fi].state === 'board' && players[pi].pieces[fi].pos === absPos) {
+        return { pi, fi };
+      }
+    }
+  }
+  return null;
+}
+
+function kickAt(absPos) {
+  for (let pi = 0; pi < players.length; pi++) {
+    if (pi === currentPlayer) continue;
+    for (let fi = 0; fi < 4; fi++) {
+      if (players[pi].pieces[fi].state === 'board' && players[pi].pieces[fi].pos === absPos) {
+        players[pi].pieces[fi].state = 'base';
+        players[pi].pieces[fi].pos = fi;
+      }
+    }
+  }
+}
+
+function nextPlayer() {
+  const anyoneLeft = players.some(p => p.active && !p.pieces.every(pc => pc.state === 'home'));
+  if (!anyoneLeft) return;
+  do {
+    currentPlayer = (currentPlayer + 1) % 4;
+  } while (!players[currentPlayer].active || players[currentPlayer].pieces.every(pc => pc.state === 'home'));
+
+  phase = 'roll';
+  diceValue = 0;
+  consecutiveSixes = 0;
+  movablePieces = [];
+  document.getElementById('dice-val').textContent = '-';
+  document.getElementById('dice-display').textContent = '';
+  updateUI();
+  render();
+
+  if (!players[currentPlayer].isHuman) {
+    setTimeout(() => aiTurn(), 700);
+  }
+}
+
+function aiTurn() {
+  if (gameOver || players[currentPlayer].isHuman) return;
+  if (phase === 'roll') {
+    rollDice();
+  }
+}
+
+function aiMove() {
+  if (gameOver || movablePieces.length === 0) return;
+  // Random: pick any movable piece at random
+  const pick = movablePieces[Math.floor(Math.random() * movablePieces.length)];
+  movePiece(pick);
+}
+
+// Canvas click
+canvas.addEventListener('click', e => {
+  if (phase !== 'move' || !players[currentPlayer].isHuman) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (SIZE / rect.width);
+  const my = (e.clientY - rect.top) * (SIZE / rect.height);
+
+  // Find which piece was clicked
+  const p = players[currentPlayer];
+  for (const pi of movablePieces) {
+    const pc = p.pieces[pi];
+    const pos = getPiecePixel(currentPlayer, pi);
+    const dx = mx - pos.x, dy = my - pos.y;
+    if (dx * dx + dy * dy < 20 * 20) {
+      movePiece(pi);
+      return;
+    }
+  }
+});
+
+function getPiecePixel(playerIdx, pieceIdx) {
+  const pc = players[playerIdx].pieces[pieceIdx];
+  if (pc.state === 'base') {
+    const bp = BASE_POS[playerIdx][pc.pos];
+    return gridToPixel(bp.r, bp.c);
+  } else if (pc.state === 'board') {
+    const field = BOARD_PATH[pc.pos];
+    return gridToPixel(field.r, field.c);
+  } else {
+    const hf = HOME_FIELDS[playerIdx][pc.pos];
+    return gridToPixel(hf.r, hf.c);
+  }
+}
+
+// ── Rendering ───────────────────────────────────
+
+function render() {
+  const cell = SIZE / 11;
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, SIZE, SIZE);
+
+  // Draw base areas (always draw all 4 for the board pattern)
+  for (let pi = 0; pi < 4; pi++) {
+    for (const bp of BASE_POS[pi]) {
+      const { x, y } = gridToPixel(bp.r, bp.c);
+      ctx.fillStyle = COLOR_LIGHT[pi];
+      ctx.beginPath();
+      ctx.arc(x, y, cell * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = COLOR_DARK[pi];
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  // Draw home fields
+  for (let pi = 0; pi < 4; pi++) {
+    for (const hf of HOME_FIELDS[pi]) {
+      const { x, y } = gridToPixel(hf.r, hf.c);
+      ctx.fillStyle = COLOR_LIGHT[pi];
+      ctx.beginPath();
+      ctx.arc(x, y, cell * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = COLOR_DARK[pi];
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  // Draw main path
+  for (let i = 0; i < 40; i++) {
+    const field = BOARD_PATH[i];
+    const { x, y } = gridToPixel(field.r, field.c);
+
+    // Check if this is a start field
+    let isStart = -1;
+    for (let pi = 0; pi < 4; pi++) {
+      if (START_IDX[pi] === i) isStart = pi;
+    }
+
+    ctx.fillStyle = isStart >= 0 ? COLOR_LIGHT[isStart] : '#2a2a4e';
+    ctx.beginPath();
+    ctx.arc(x, y, cell * 0.38, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = isStart >= 0 ? COLOR_DARK[isStart] : '#444';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  // Draw pieces (only active players)
+  for (let pi = 0; pi < 4; pi++) {
+    if (!players[pi] || !players[pi].active) continue;
+    for (let fi = 0; fi < 4; fi++) {
+      const pos = getPiecePixel(pi, fi);
+      const isMovable = pi === currentPlayer && movablePieces.includes(fi) && phase === 'move';
+
+      // Shadow for movable
+      if (isMovable) {
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 12;
+      }
+
+      ctx.fillStyle = COLORS[pi];
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, cell * 0.28, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = COLOR_DARK[pi];
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Inner highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.beginPath();
+      ctx.arc(pos.x - 3, pos.y - 3, cell * 0.12, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+
+      // Pulsing ring for movable
+      if (isMovable) {
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, cell * 0.36, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  }
+
+  // Center decoration
+  ctx.fillStyle = '#16213e';
+  ctx.fillRect(SIZE / 2 - cell * 0.8, SIZE / 2 - cell * 0.8, cell * 1.6, cell * 1.6);
+  ctx.strokeStyle = '#0f3460';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(SIZE / 2 - cell * 0.8, SIZE / 2 - cell * 0.8, cell * 1.6, cell * 1.6);
+  // Diagonal colored triangles in center
+  const cx = SIZE / 2, cy = SIZE / 2, hs = cell * 0.8;
+  for (let pi = 0; pi < 4; pi++) {
+    ctx.fillStyle = COLORS[pi] + '40';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    if (pi === 0) { ctx.lineTo(cx - hs, cy - hs); ctx.lineTo(cx - hs, cy + hs); }      // Yellow: LEFT
+    else if (pi === 1) { ctx.lineTo(cx - hs, cy - hs); ctx.lineTo(cx + hs, cy - hs); } // Green: TOP
+    else if (pi === 2) { ctx.lineTo(cx + hs, cy - hs); ctx.lineTo(cx + hs, cy + hs); } // Red: RIGHT
+    else { ctx.lineTo(cx - hs, cy + hs); ctx.lineTo(cx + hs, cy + hs); }               // Blue: BOTTOM
+    ctx.fill();
+  }
+}
+
+startSetup();
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Mensch ärgere Dich nicht</h2><p>Würfle und bringe deine 4 Spielfiguren vom Start ins Ziel. Mit einer <b>6</b> darfst du eine Figur einsetzen und nochmal würfeln.<br><br><b>Schlagen:</b> Landest du auf einem gegnerischen Stein, muss er zurück in den Startbereich.</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>

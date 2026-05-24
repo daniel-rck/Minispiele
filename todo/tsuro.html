@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tsuro</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; flex-direction: column; gap: 12px; user-select: none; padding: 50px 10px 20px; }
+  h1 { font-size: 1.6rem; letter-spacing: 2px; color: #c9b458; }
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .controls button { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 5px 12px; font-size: 0.85rem; cursor: pointer; }
+  .controls button:hover { background: #0f3460; }
+  .controls select { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 6px; padding: 4px 10px; font-size: 0.85rem; }
+  .controls label { color: #888; font-size: 0.85rem; }
+  #info { font-size: 0.9rem; padding: 6px 16px; background: #16213e; border: 1px solid #0f3460; border-radius: 8px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .val { color: #c9b458; font-weight: bold; }
+  canvas { border: 3px solid #c9b458; border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); cursor: pointer; }
+  #hand-area { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
+  #hand-area canvas { border: 2px solid #0f3460; border-radius: 4px; cursor: pointer; transition: border-color 0.15s; }
+  #hand-area canvas:hover { border-color: #c9b458; }
+  #hand-area canvas.selected { border-color: #c9b458; box-shadow: 0 0 10px rgba(201,180,88,0.5); }
+  .rotate-btn { background: #16213e; color: #c9b458; border: 1px solid #0f3460; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
+  .rotate-btn:hover { background: #0f3460; }
+  #msg { color: #c9b458; font-weight: bold; font-size: 1rem; min-height: 1.3em; text-align: center; }
+  .player-legend { display: flex; gap: 14px; font-size: 0.8rem; flex-wrap: wrap; justify-content: center; }
+  .player-legend .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+  .player-legend .eliminated { text-decoration: line-through; opacity: 0.4; }
+  a.back-link { position: fixed; top: 16px; left: 16px; color: #c9b458; text-decoration: none; font-size: 1.1rem; padding: 6px 14px; border: 1px solid #c9b458; border-radius: 6px; background: #16213e; transition: background 0.2s; z-index: 100; }
+  a.back-link:hover { background: #0f3460; }
+  .sub { color: #555; font-size: 0.7rem; text-align: center; max-width: 500px; }
+  /* Setup: color picker */
+  #setup-area { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .color-picker { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .color-swatch { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.15s; }
+  .color-swatch:hover { transform: scale(1.15); }
+  .color-swatch.selected { border-color: #fff; box-shadow: 0 0 12px rgba(255,255,255,0.4); }
+
+.info-btn{position:fixed;top:16px;right:16px;color:#c9b458;font-size:1.3rem;width:36px;height:36px;border:1px solid #c9b458;border-radius:50%;background:#16213e;cursor:pointer;display:flex;justify-content:center;align-items:center;transition:background .2s;z-index:100;font-weight:bold;line-height:1}
+.info-btn:hover{background:#0f3460}
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center}
+.info-modal-overlay.open{display:flex}
+.info-modal{background:#16213e;border:1px solid #c9b458;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;color:#e0e0e0;position:relative;max-height:80vh;overflow-y:auto;line-height:1.6;font-size:.9rem}
+.info-modal h2{color:#c9b458;font-size:1.2rem;margin-bottom:12px}
+.info-modal-close{position:absolute;top:10px;right:14px;background:none;border:none;color:#888;font-size:1.3rem;cursor:pointer;line-height:1}
+.info-modal-close:hover{color:#c9b458}
+</style>
+</head>
+<body>
+<a class="back-link" href="spiele.html">&larr; Zurück</a>
+<button class="info-btn" title="Anleitung">?</button>
+<h1>TSURO</h1>
+<div class="controls">
+  <label>Spieler:</label>
+  <select id="playerCount">
+    <option value="1">1 (Solo)</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4" selected>4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+  </select>
+  <button onclick="startSetup()">Neues Spiel</button>
+</div>
+<div id="setup-area" style="display:none;">
+  <span style="color:#888;font-size:0.9rem;">Wähle deine Farbe:</span>
+  <div class="color-picker" id="color-picker"></div>
+</div>
+<div id="info" style="display:none;">
+  <span>Am Zug: <span class="val" id="turn">Du</span></span>
+  <span>Runde: <span class="val" id="round">1</span></span>
+  <span id="alive-info">Spieler übrig: <span class="val" id="alive">4</span></span>
+  <span id="tiles-left-info" style="display:none;">Plättchen übrig: <span class="val" id="tiles-left">0</span></span>
+</div>
+<p id="msg"></p>
+<canvas id="canvas"></canvas>
+<div id="hand-area" style="display:none;">
+  <span style="color:#888;font-size:0.8rem;">Deine Hand:</span>
+  <div id="hand-cards" style="display:flex;gap:6px;"></div>
+  <button class="rotate-btn" onclick="rotateSelected()">↷</button>
+</div>
+<div class="player-legend" id="legend"></div>
+<p class="sub" id="sub-text">Lege Plättchen und folge deinem Pfad. Bleib auf dem Brett!</p>
+
+<script>
+const GRID = 6;
+const CELL = 72;
+const PAD = 20;
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = GRID * CELL + PAD * 2;
+canvas.height = GRID * CELL + PAD * 2;
+
+const TILE_PATTERNS = [
+  [[0,5],[1,4],[2,7],[3,6]],
+  [[0,1],[2,3],[4,5],[6,7]],
+  [[0,3],[1,2],[4,7],[5,6]],
+  [[0,7],[1,6],[2,5],[3,4]],
+  [[0,1],[2,7],[3,6],[4,5]],
+  [[0,5],[1,2],[3,4],[6,7]],
+  [[0,3],[1,6],[2,5],[4,7]],
+  [[0,7],[1,2],[3,4],[5,6]],
+  [[0,5],[1,6],[2,7],[3,4]],
+  [[0,1],[2,5],[3,6],[4,7]],
+  [[0,3],[1,4],[2,7],[5,6]],
+  [[0,7],[1,4],[2,3],[5,6]],
+  [[0,5],[1,4],[2,3],[6,7]],
+  [[0,3],[1,2],[4,5],[6,7]],
+  [[0,7],[1,6],[2,3],[4,5]],
+  [[0,1],[2,7],[3,4],[5,6]],
+  [[0,3],[1,6],[2,7],[4,5]],
+  [[0,5],[1,2],[3,6],[4,7]],
+  [[0,7],[1,4],[2,5],[3,6]],
+  [[0,1],[2,5],[3,4],[6,7]],
+  [[0,3],[1,4],[2,5],[6,7]],
+  [[0,7],[1,2],[3,6],[4,5]],
+  [[0,5],[1,6],[2,3],[4,7]],
+  [[0,1],[2,3],[4,7],[5,6]],
+  [[0,3],[1,2],[4,7],[5,6]],
+  [[0,7],[1,6],[2,5],[3,4]],
+  [[0,5],[1,4],[2,7],[3,6]],
+  [[0,1],[2,7],[3,6],[4,5]],
+  [[0,3],[1,6],[2,5],[4,7]],
+  [[0,7],[1,4],[2,3],[5,6]],
+  [[0,5],[1,2],[3,4],[6,7]],
+  [[0,3],[1,2],[4,5],[6,7]],
+  [[0,7],[1,2],[3,4],[5,6]],
+  [[0,1],[2,5],[3,6],[4,7]],
+  [[0,7],[1,6],[2,3],[4,5]],
+];
+
+const ALL_COLORS = [
+  { color: '#c9b458', name: 'Gold' },
+  { color: '#e74c3c', name: 'Rot' },
+  { color: '#3498db', name: 'Blau' },
+  { color: '#2ecc71', name: 'Grün' },
+  { color: '#e67e22', name: 'Orange' },
+  { color: '#9b59b6', name: 'Lila' },
+  { color: '#1abc9c', name: 'Türkis' },
+  { color: '#f39c12', name: 'Amber' },
+];
+
+// All possible start positions around the board edge (every port on every edge cell)
+const ALL_START_POSITIONS = [];
+function buildStartPositions() {
+  // Top edge: ports 0, 1 (entering from top)
+  for (let c = 0; c < GRID; c++) {
+    ALL_START_POSITIONS.push({ r: 0, c, port: 0 });
+    ALL_START_POSITIONS.push({ r: 0, c, port: 1 });
+  }
+  // Right edge: ports 2, 3
+  for (let r = 0; r < GRID; r++) {
+    ALL_START_POSITIONS.push({ r, c: GRID - 1, port: 2 });
+    ALL_START_POSITIONS.push({ r, c: GRID - 1, port: 3 });
+  }
+  // Bottom edge: ports 4, 5
+  for (let c = 0; c < GRID; c++) {
+    ALL_START_POSITIONS.push({ r: GRID - 1, c, port: 4 });
+    ALL_START_POSITIONS.push({ r: GRID - 1, c, port: 5 });
+  }
+  // Left edge: ports 6, 7
+  for (let r = 0; r < GRID; r++) {
+    ALL_START_POSITIONS.push({ r, c: 0, port: 6 });
+    ALL_START_POSITIONS.push({ r, c: 0, port: 7 });
+  }
+}
+buildStartPositions();
+
+let boardTiles;
+let deck;
+let players;
+let currentPlayer;
+let roundNum;
+let selectedHandIdx;
+let gameOver;
+let numPlayers;
+let soloMode;
+let soloTilesPlaced;
+
+// Setup state
+let phase = 'idle'; // 'idle', 'pick-color', 'pick-position', 'playing'
+let chosenColor = 0;
+let usedPositions = []; // positions taken by any player
+let hoveredPos = null;
+
+function rotatePaths(paths) {
+  return paths.map(pair => pair.map(p => (p + 2) % 8));
+}
+
+function makeTile(patternIdx) {
+  return { paths: TILE_PATTERNS[patternIdx].map(p => [...p]), patternIdx };
+}
+
+function rotateTileOnce(tile) {
+  tile.paths = rotatePaths(tile.paths);
+}
+
+function portToEdge(port) {
+  if (port < 2) return 'top';
+  if (port < 4) return 'right';
+  if (port < 6) return 'bottom';
+  return 'left';
+}
+
+function oppositePort(port) {
+  // Port pairs that face each other across cell edges (same physical position):
+  // 0(top-left) <-> 5(bottom-left), 1(top-right) <-> 4(bottom-right)
+  // 2(right-top) <-> 7(left-top), 3(right-bottom) <-> 6(left-bottom)
+  return [5, 4, 7, 6, 1, 0, 3, 2][port];
+}
+
+function neighborCell(r, c, port) {
+  const edge = portToEdge(port);
+  if (edge === 'top') return { r: r - 1, c, port: oppositePort(port) };
+  if (edge === 'right') return { r, c: c + 1, port: oppositePort(port) };
+  if (edge === 'bottom') return { r: r + 1, c, port: oppositePort(port) };
+  return { r, c: c - 1, port: oppositePort(port) };
+}
+
+function getConnection(tile, port) {
+  for (const [a, b] of tile.paths) {
+    if (a === port) return b;
+    if (b === port) return a;
+  }
+  return -1;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── Setup Flow ──────────────────────────────────
+
+function startSetup() {
+  numPlayers = parseInt(document.getElementById('playerCount').value);
+  soloMode = numPlayers === 1;
+
+  // Show color picker
+  phase = 'pick-color';
+  document.getElementById('setup-area').style.display = 'flex';
+  document.getElementById('info').style.display = 'none';
+  document.getElementById('hand-area').style.display = 'none';
+  document.getElementById('legend').innerHTML = '';
+  document.getElementById('msg').textContent = 'Wähle deine Farbe';
+  document.getElementById('sub-text').textContent = '';
+
+  const picker = document.getElementById('color-picker');
+  picker.innerHTML = '';
+  ALL_COLORS.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'color-swatch' + (i === 0 ? ' selected' : '');
+    div.style.background = c.color;
+    div.title = c.name;
+    div.onclick = () => {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+      div.classList.add('selected');
+      chosenColor = i;
+    };
+    picker.appendChild(div);
+  });
+  chosenColor = 0;
+
+  // Prepare empty board for position picking
+  boardTiles = Array.from({ length: GRID }, () => Array(GRID).fill(null));
+  usedPositions = [];
+  players = [];
+  renderSetupBoard();
+}
+
+function confirmColor() {
+  phase = 'pick-position';
+  document.getElementById('setup-area').style.display = 'none';
+  document.getElementById('msg').textContent = 'Klicke auf einen Punkt am Brettrand um deine Startposition zu wählen';
+  renderSetupBoard();
+}
+
+// Render board with available start positions as dots
+function renderSetupBoard() {
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid cells
+  for (let r = 0; r < GRID; r++) {
+    for (let c = 0; c < GRID; c++) {
+      const x = PAD + c * CELL;
+      const y = PAD + r * CELL;
+      ctx.fillStyle = '#0f1a30';
+      ctx.fillRect(x, y, CELL, CELL);
+      ctx.strokeStyle = '#0f346060';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, CELL, CELL);
+    }
+  }
+
+  if (phase === 'pick-position') {
+    // Draw available positions as small circles on the edge
+    for (const sp of ALL_START_POSITIONS) {
+      if (usedPositions.some(u => u.r === sp.r && u.c === sp.c && u.port === sp.port)) continue;
+      const pp = portPos(sp.port, PAD + sp.c * CELL, PAD + sp.r * CELL, CELL);
+      const isHovered = hoveredPos && hoveredPos.r === sp.r && hoveredPos.c === sp.c && hoveredPos.port === sp.port;
+
+      ctx.fillStyle = isHovered ? ALL_COLORS[chosenColor].color : '#ffffff30';
+      ctx.beginPath();
+      ctx.arc(pp.x, pp.y, isHovered ? 7 : 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Draw already placed players
+  for (let i = 0; i < players.length; i++) {
+    const p = players[i];
+    drawPlayerToken(p.r, p.c, p.port, p.colorIdx, p.isHuman);
+  }
+}
+
+function drawPlayerToken(r, c, port, colorIdx, isHuman) {
+  const cx = PAD + c * CELL;
+  const cy = PAD + r * CELL;
+  const pp = portPos(port, cx, cy, CELL);
+  const centerX = cx + CELL / 2;
+  const centerY = cy + CELL / 2;
+  const px = pp.x + (centerX - pp.x) * 0.3;
+  const py = pp.y + (centerY - pp.y) * 0.3;
+
+  ctx.fillStyle = ALL_COLORS[colorIdx].color;
+  ctx.shadowColor = ALL_COLORS[colorIdx].color;
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.arc(px, py, 8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = '#1a1a2e';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(isHuman ? 'P' : 'K', px, py);
+}
+
+function findNearestStartPos(mx, my) {
+  let best = null;
+  let bestDist = 20; // max click distance in pixels
+  for (const sp of ALL_START_POSITIONS) {
+    if (usedPositions.some(u => u.r === sp.r && u.c === sp.c && u.port === sp.port)) continue;
+    const pp = portPos(sp.port, PAD + sp.c * CELL, PAD + sp.r * CELL, CELL);
+    const d = Math.sqrt((pp.x - mx) ** 2 + (pp.y - my) ** 2);
+    if (d < bestDist) { bestDist = d; best = sp; }
+  }
+  return best;
+}
+
+function pickPosition(sp) {
+  // Human player placed
+  usedPositions.push(sp);
+  players.push({
+    r: sp.r, c: sp.c, port: sp.port,
+    alive: true, hand: [], isHuman: true, colorIdx: chosenColor,
+  });
+
+  // Now place AI players randomly
+  const aiCount = numPlayers - 1;
+  const availableColors = [];
+  for (let i = 0; i < ALL_COLORS.length; i++) {
+    if (i !== chosenColor) availableColors.push(i);
+  }
+  shuffle(availableColors);
+
+  const availablePositions = ALL_START_POSITIONS.filter(sp2 =>
+    !usedPositions.some(u => u.r === sp2.r && u.c === sp2.c && u.port === sp2.port)
+  );
+  shuffle(availablePositions);
+
+  for (let i = 0; i < aiCount && i < availablePositions.length; i++) {
+    const aiSp = availablePositions[i];
+    usedPositions.push(aiSp);
+    players.push({
+      r: aiSp.r, c: aiSp.c, port: aiSp.port,
+      alive: true, hand: [], isHuman: false, colorIdx: availableColors[i % availableColors.length],
+    });
+  }
+
+  // Start the actual game
+  startGame();
+}
+
+function startGame() {
+  phase = 'playing';
+  soloTilesPlaced = 0;
+  gameOver = false;
+  roundNum = 1;
+  selectedHandIdx = 0;
+  hoveredPos = null;
+
+  // Create deck
+  const indices = [];
+  for (let i = 0; i < TILE_PATTERNS.length; i++) {
+    indices.push(i, i);
+  }
+  shuffle(indices);
+  deck = indices.map(i => makeTile(i));
+
+  // Deal 3 tiles to each
+  for (const p of players) {
+    p.hand = [];
+    for (let i = 0; i < 3; i++) {
+      if (deck.length > 0) p.hand.push(deck.pop());
+    }
+  }
+
+  // Human always plays first
+  currentPlayer = 0;
+
+  // UI
+  document.getElementById('setup-area').style.display = 'none';
+  document.getElementById('info').style.display = 'flex';
+  document.getElementById('hand-area').style.display = 'flex';
+  document.getElementById('alive-info').style.display = soloMode ? 'none' : '';
+  document.getElementById('tiles-left-info').style.display = soloMode ? '' : 'none';
+  document.getElementById('sub-text').textContent = 'Lege Plättchen und folge deinem Pfad. Bleib auf dem Brett!';
+
+  updateUI();
+  render();
+  renderHand();
+}
+
+// ── Game Logic ──────────────────────────────────
+
+function playerName(idx) {
+  if (players[idx].isHuman) return 'Du';
+  return ALL_COLORS[players[idx].colorIdx].name;
+}
+
+function updateUI() {
+  document.getElementById('turn').textContent = playerName(currentPlayer);
+  document.getElementById('turn').style.color = ALL_COLORS[players[currentPlayer].colorIdx].color;
+  document.getElementById('round').textContent = roundNum;
+  document.getElementById('alive').textContent = players.filter(p => p.alive).length;
+
+  if (soloMode) {
+    document.getElementById('tiles-left').textContent = deck.length + (players[0].alive ? players[0].hand.length : 0);
+  }
+
+  const legend = document.getElementById('legend');
+  legend.innerHTML = players.map((p, i) => {
+    const name = playerName(i);
+    return `<span class="${!p.alive ? 'eliminated' : ''}"><span class="dot" style="background:${ALL_COLORS[p.colorIdx].color}"></span> ${name}${!p.alive ? ' (raus)' : ''}</span>`;
+  }).join('');
+
+  if (gameOver) {
+    if (soloMode) {
+      if (players[0].alive) {
+        document.getElementById('msg').textContent = `Gewonnen! Alle ${soloTilesPlaced} Plättchen überlebt!`;
+      } else {
+        document.getElementById('msg').textContent = `${soloTilesPlaced} Plättchen platziert bevor du rausgeflogen bist.`;
+      }
+    } else {
+      const aliveList = players.filter(p => p.alive);
+      if (aliveList.length === 1) {
+        const winnerIdx = players.indexOf(aliveList[0]);
+        document.getElementById('msg').textContent = `${playerName(winnerIdx)} gewinnt!`;
+      } else if (aliveList.length === 0) {
+        document.getElementById('msg').textContent = 'Unentschieden — alle gleichzeitig ausgeschieden!';
+      }
+    }
+  } else {
+    if (players[currentPlayer].isHuman) {
+      document.getElementById('msg').textContent = soloMode
+        ? 'Wähle ein Plättchen, drehe es und klicke auf das markierte Feld'
+        : 'Wähle ein Plättchen und klicke auf das Feld vor dir';
+    } else {
+      document.getElementById('msg').textContent = `${playerName(currentPlayer)} denkt nach...`;
+    }
+  }
+}
+
+function getPlacementCell(player) {
+  const n = neighborCell(player.r, player.c, player.port);
+  if (player.r >= 0 && player.r < GRID && player.c >= 0 && player.c < GRID && !boardTiles[player.r][player.c]) {
+    return { r: player.r, c: player.c };
+  }
+  if (n.r >= 0 && n.r < GRID && n.c >= 0 && n.c < GRID && !boardTiles[n.r][n.c]) {
+    return { r: n.r, c: n.c };
+  }
+  return null;
+}
+
+function followPath(r, c, port) {
+  let cr = r, cc = c, cp = port;
+  let steps = 0;
+  while (steps < 100) {
+    if (cr < 0 || cr >= GRID || cc < 0 || cc >= GRID) return { r: cr, c: cc, port: cp, offBoard: true };
+    const tile = boardTiles[cr][cc];
+    if (!tile) return { r: cr, c: cc, port: cp, offBoard: false };
+    const exitPort = getConnection(tile, cp);
+    if (exitPort < 0) return { r: cr, c: cc, port: cp, offBoard: false };
+    const next = neighborCell(cr, cc, exitPort);
+    cr = next.r;
+    cc = next.c;
+    cp = next.port;
+    steps++;
+  }
+  return { r: cr, c: cc, port: cp, offBoard: true };
+}
+
+function placeTile(player, tile) {
+  const cell = getPlacementCell(player);
+  if (!cell) return false;
+
+  boardTiles[cell.r][cell.c] = tile;
+  soloTilesPlaced++;
+
+  for (const p of players) {
+    if (!p.alive) continue;
+    const result = followPath(p.r, p.c, p.port);
+    p.r = result.r;
+    p.c = result.c;
+    p.port = result.port;
+    if (result.offBoard || p.r < 0 || p.r >= GRID || p.c < 0 || p.c >= GRID) {
+      p.alive = false;
+    }
+  }
+
+  for (let i = 0; i < players.length; i++) {
+    for (let j = i + 1; j < players.length; j++) {
+      if (players[i].alive && players[j].alive &&
+          players[i].r === players[j].r && players[i].c === players[j].c) {
+        players[i].alive = false;
+        players[j].alive = false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function nextTurn() {
+  const aliveCount = players.filter(p => p.alive).length;
+
+  if (soloMode) {
+    if (!players[0].alive) { gameOver = true; updateUI(); render(); return; }
+    if (deck.length > 0) players[0].hand.push(deck.pop());
+    if (players[0].hand.length === 0) { gameOver = true; updateUI(); render(); return; }
+    roundNum++;
+    updateUI();
+    render();
+    renderHand();
+    return;
+  }
+
+  if (aliveCount <= 1 || gameOver) { gameOver = true; updateUI(); render(); return; }
+
+  if (deck.length > 0 && players[currentPlayer].alive) {
+    players[currentPlayer].hand.push(deck.pop());
+  }
+
+  let startFrom = currentPlayer;
+  do {
+    currentPlayer = (currentPlayer + 1) % players.length;
+  } while (!players[currentPlayer].alive && currentPlayer !== startFrom);
+
+  if (currentPlayer === 0) roundNum++;
+
+  updateUI();
+  render();
+  renderHand();
+
+  if (players[currentPlayer].alive && !players[currentPlayer].isHuman) {
+    setTimeout(aiTurn, 600);
+  }
+}
+
+function aiTurn() {
+  if (gameOver || !players[currentPlayer].alive) return;
+  const p = players[currentPlayer];
+  if (p.hand.length === 0) { nextTurn(); return; }
+
+  let bestTile = null;
+  let bestIdx = -1;
+
+  for (let i = 0; i < p.hand.length; i++) {
+    for (let rot = 0; rot < 4; rot++) {
+      const tile = { paths: p.hand[i].paths.map(pair => [...pair]) };
+      for (let r = 0; r < rot; r++) tile.paths = rotatePaths(tile.paths);
+
+      const cell = getPlacementCell(p);
+      if (!cell) continue;
+      const savedBoard = boardTiles[cell.r][cell.c];
+      const savedPlayers = players.map(pl => ({ ...pl }));
+      boardTiles[cell.r][cell.c] = tile;
+
+      const result = followPath(p.r, p.c, p.port);
+      const survives = !result.offBoard && result.r >= 0 && result.r < GRID && result.c >= 0 && result.c < GRID;
+
+      boardTiles[cell.r][cell.c] = savedBoard;
+      players.forEach((pl, idx) => {
+        pl.r = savedPlayers[idx].r;
+        pl.c = savedPlayers[idx].c;
+        pl.port = savedPlayers[idx].port;
+        pl.alive = savedPlayers[idx].alive;
+      });
+
+      if (survives) { bestTile = { paths: tile.paths }; bestIdx = i; break; }
+    }
+    if (bestTile) break;
+  }
+
+  if (!bestTile && p.hand.length > 0) { bestIdx = 0; bestTile = p.hand[0]; }
+
+  if (bestIdx >= 0) {
+    p.hand.splice(bestIdx, 1);
+    placeTile(p, bestTile);
+  }
+
+  render();
+  nextTurn();
+}
+
+function humanPlaceTile() {
+  if (gameOver || phase !== 'playing') return;
+  const humanIdx = players.findIndex(p => p.isHuman && p.alive);
+  if (humanIdx < 0 || currentPlayer !== humanIdx) return;
+  const p = players[humanIdx];
+  if (selectedHandIdx < 0 || selectedHandIdx >= p.hand.length) return;
+
+  const tile = p.hand.splice(selectedHandIdx, 1)[0];
+  placeTile(p, tile);
+  selectedHandIdx = Math.min(selectedHandIdx, Math.max(0, p.hand.length - 1));
+
+  render();
+  renderHand();
+  nextTurn();
+}
+
+// ── Canvas Events ───────────────────────────────
+
+canvas.addEventListener('click', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+
+  if (phase === 'pick-color') {
+    confirmColor();
+    return;
+  }
+
+  if (phase === 'pick-position') {
+    const sp = findNearestStartPos(mx, my);
+    if (sp) pickPosition(sp);
+    return;
+  }
+
+  if (phase === 'playing') {
+    if (gameOver) return;
+    const humanIdx = players.findIndex(p => p.isHuman && p.alive);
+    if (humanIdx < 0 || currentPlayer !== humanIdx) return;
+
+    const c = Math.floor((mx - PAD) / CELL);
+    const r = Math.floor((my - PAD) / CELL);
+    if (r < 0 || r >= GRID || c < 0 || c >= GRID) return;
+
+    const cell = getPlacementCell(players[humanIdx]);
+    if (cell && cell.r === r && cell.c === c) {
+      humanPlaceTile();
+    }
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (phase !== 'pick-position') return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  const sp = findNearestStartPos(mx, my);
+  const changed = (!sp && hoveredPos) || (sp && !hoveredPos) ||
+    (sp && hoveredPos && (sp.r !== hoveredPos.r || sp.c !== hoveredPos.c || sp.port !== hoveredPos.port));
+  if (changed) {
+    hoveredPos = sp;
+    renderSetupBoard();
+  }
+});
+
+// ── Rendering (game phase) ──────────────────────
+
+function rotateSelected() {
+  if (phase !== 'playing') return;
+  const humanIdx = players.findIndex(p => p.isHuman && p.alive);
+  if (humanIdx < 0 || currentPlayer !== humanIdx) return;
+  const p = players[humanIdx];
+  if (selectedHandIdx >= 0 && selectedHandIdx < p.hand.length) {
+    rotateTileOnce(p.hand[selectedHandIdx]);
+    renderHand();
+  }
+}
+
+function renderHand() {
+  const container = document.getElementById('hand-cards');
+  container.innerHTML = '';
+  const humanIdx = players.findIndex(p => p.isHuman);
+  if (humanIdx < 0 || !players[humanIdx].alive) return;
+  const hand = players[humanIdx].hand;
+
+  hand.forEach((tile, idx) => {
+    const c = document.createElement('canvas');
+    c.width = 60;
+    c.height = 60;
+    c.className = idx === selectedHandIdx ? 'selected' : '';
+    c.onclick = () => { selectedHandIdx = idx; renderHand(); };
+    drawTilePreview(c.getContext('2d'), tile, 60);
+    container.appendChild(c);
+  });
+}
+
+function drawTilePreview(context, tile, size) {
+  context.fillStyle = '#0f1a30';
+  context.fillRect(0, 0, size, size);
+  drawTilePaths(context, 0, 0, size, tile);
+}
+
+function portPos(port, x, y, size) {
+  const third = size / 3;
+  switch (port) {
+    case 0: return { x: x + third, y };
+    case 1: return { x: x + 2 * third, y };
+    case 2: return { x: x + size, y: y + third };
+    case 3: return { x: x + size, y: y + 2 * third };
+    case 4: return { x: x + 2 * third, y: y + size };
+    case 5: return { x: x + third, y: y + size };
+    case 6: return { x, y: y + 2 * third };
+    case 7: return { x, y: y + third };
+  }
+}
+
+function drawTilePaths(context, x, y, size, tile) {
+  context.strokeStyle = '#c9b45880';
+  context.lineWidth = 2;
+  for (const [a, b] of tile.paths) {
+    const pa = portPos(a, x, y, size);
+    const pb = portPos(b, x, y, size);
+    const cx1 = x + size / 2;
+    const cy1 = y + size / 2;
+    context.beginPath();
+    context.moveTo(pa.x, pa.y);
+    context.quadraticCurveTo(cx1, cy1, pb.x, pb.y);
+    context.stroke();
+  }
+}
+
+function render() {
+  if (phase !== 'playing') return;
+
+  ctx.fillStyle = '#1a1a2e';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let r = 0; r < GRID; r++) {
+    for (let c = 0; c < GRID; c++) {
+      const x = PAD + c * CELL;
+      const y = PAD + r * CELL;
+      ctx.fillStyle = '#0f1a30';
+      ctx.fillRect(x, y, CELL, CELL);
+      ctx.strokeStyle = '#0f346060';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, CELL, CELL);
+      if (boardTiles[r][c]) {
+        drawTilePaths(ctx, x, y, CELL, boardTiles[r][c]);
+      }
+    }
+  }
+
+  // Highlight placement cell
+  if (!gameOver) {
+    const humanIdx = players.findIndex(p => p.isHuman && p.alive);
+    if (humanIdx >= 0 && currentPlayer === humanIdx) {
+      const cell = getPlacementCell(players[humanIdx]);
+      if (cell) {
+        ctx.strokeStyle = ALL_COLORS[players[humanIdx].colorIdx].color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(PAD + cell.c * CELL + 2, PAD + cell.r * CELL + 2, CELL - 4, CELL - 4);
+        ctx.setLineDash([]);
+      }
+    }
+  }
+
+  // Draw players
+  for (let i = players.length - 1; i >= 0; i--) {
+    const p = players[i];
+    if (!p.alive) continue;
+    if (p.r < 0 || p.r >= GRID || p.c < 0 || p.c >= GRID) continue;
+    drawPlayerToken(p.r, p.c, p.port, p.colorIdx, p.isHuman);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (phase === 'pick-color') { confirmColor(); return; }
+  if (phase !== 'playing') return;
+  if (e.key === 'r' || e.key === 'R') rotateSelected();
+  if (e.key === '1') { selectedHandIdx = 0; renderHand(); }
+  if (e.key === '2') { selectedHandIdx = 1; renderHand(); }
+  if (e.key === '3') { selectedHandIdx = 2; renderHand(); }
+});
+
+// Initial render
+renderSetupBoard();
+document.getElementById('msg').textContent = 'Klicke "Neues Spiel" um zu starten';
+</script>
+
+<div class="info-modal-overlay"><div class="info-modal"><button class="info-modal-close">&times;</button><h2>Tsuro</h2><p>Lege Pfadkarten auf das Brett und folge dem entstehenden Weg. Führe deine Spielfigur, ohne das Brett zu verlassen oder in einen anderen Spieler zu laufen.<br><br><b>Ziel:</b> Sei der letzte Spieler auf dem Brett!</p></div></div>
+<script>
+document.querySelector('.info-btn').onclick=()=>document.querySelector('.info-modal-overlay').classList.add('open');
+document.querySelector('.info-modal-close').onclick=()=>document.querySelector('.info-modal-overlay').classList.remove('open');
+document.querySelector('.info-modal-overlay').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('open');};</script>
+</body>
+</html>
