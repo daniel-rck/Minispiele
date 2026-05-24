@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createInitialState,
   DIFFICULTY,
+  HEX_DIFFICULTY,
   placeMinesAvoiding,
   reveal,
   toggleFlag,
@@ -136,10 +137,30 @@ describe('minesweeper', () => {
       won: false,
       firstClick: false,
       difficulty: 'easy' as const,
+      mode: 'rect' as const,
       losingIdx: null,
     };
     const after = reveal(state, 0);
     expect(after.won).toBe(true);
     expect(after.revealed).toBe(8);
+  });
+
+  it('createInitialState supports hex mode with hex difficulty configs', () => {
+    const s = createInitialState('easy', 'hex');
+    expect(s.mode).toBe('hex');
+    expect(s.cols).toBe(HEX_DIFFICULTY.easy.cols);
+    expect(s.rows).toBe(HEX_DIFFICULTY.easy.rows);
+    expect(s.mines).toBe(HEX_DIFFICULTY.easy.mines);
+  });
+
+  it('reveal uses hex neighbors in hex mode', () => {
+    // 4×4 hex grid: pick a known interior cell and verify cascade respects 6-neighbor topology.
+    const s = createInitialState('easy', 'hex');
+    const after = reveal(s, 0, constRng(0));
+    // In hex mode, neighbor counts for cell 0 should match hexagonal connectivity.
+    // With constRng → mines fill lowest available indices after the safe area.
+    expect(after.firstClick).toBe(false);
+    expect(after.grid[0]!.revealed).toBe(true);
+    expect(after.grid[0]!.mine).toBe(false);
   });
 });

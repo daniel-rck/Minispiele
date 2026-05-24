@@ -52,7 +52,6 @@ export const ROUTES = {
   kniffel: '/kniffel',
   crossword: '/crossword',
   match3: '/match3',
-  minesweeperHex: '/minesweeper-hex',
   nurikabe: '/nurikabe',
   pentomino: '/pentomino',
   pipePuzzle: '/pipe-puzzle',

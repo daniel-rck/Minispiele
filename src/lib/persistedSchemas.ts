@@ -85,6 +85,9 @@ export const SimonBestSchema = z.number().int().nonnegative();
 
 export const MinesDifficultySchema = z.enum(['easy', 'medium', 'hard']);
 
+export const MinesModeSchema = z.enum(['rect', 'hex']);
+export type MinesMode = z.infer<typeof MinesModeSchema>;
+
 export const MinesEntrySchema = z.object({
   seconds: z.number().int().nonnegative(),
   at: z.number().int().nonnegative(),
@@ -283,9 +286,6 @@ export type HitoriSize = z.infer<typeof HitoriSizeSchema>;
 export const KniffelBestSchema = z.number().int().nonnegative();
 
 export const Match3BestSchema = z.number().int().nonnegative();
-
-export const MinesweeperHexDifficultySchema = z.enum(['easy', 'medium', 'hard']);
-export type MinesweeperHexDifficulty = z.infer<typeof MinesweeperHexDifficultySchema>;
 
 export const NurikabeSizeSchema = z.union([z.literal(5), z.literal(7), z.literal(9)]);
 export type NurikabeSize = z.infer<typeof NurikabeSizeSchema>;

@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import {
+  configFor,
   createInitialState,
-  DIFFICULTY,
+  type MineDifficulty,
   type MinesweeperState,
   reveal,
   toggleFlag,
@@ -14,6 +15,8 @@ import {
   MinesDifficultySchema,
   type MinesEntry,
   MinesHighscoresSchema,
+  type MinesMode,
+  MinesModeSchema,
 } from '../lib/persistedSchemas';
 import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration, useGameTimer } from '../lib/useGameTimer';
@@ -36,30 +39,73 @@ const NUMBER_COLOR: Readonly<Record<number, string>> = {
   8: 'text-slate-600 dark:text-slate-400',
 };
 
-const difficultyLabels: Record<MinesDifficulty, string> = {
-  easy: `Leicht (${DIFFICULTY.easy.cols}×${DIFFICULTY.easy.rows}, ${DIFFICULTY.easy.mines})`,
-  medium: `Mittel (${DIFFICULTY.medium.cols}×${DIFFICULTY.medium.rows}, ${DIFFICULTY.medium.mines})`,
-  hard: `Schwer (${DIFFICULTY.hard.cols}×${DIFFICULTY.hard.rows}, ${DIFFICULTY.hard.mines})`,
+const HEX_NUMBER_FILL: Readonly<Record<number, string>> = {
+  1: '#2563eb',
+  2: '#059669',
+  3: '#dc2626',
+  4: '#4338ca',
+  5: '#b45309',
+  6: '#0891b2',
+  7: '#0f172a',
+  8: '#475569',
 };
+
+function labelFor(mode: MinesMode, difficulty: MineDifficulty): string {
+  const cfg = configFor(mode, difficulty);
+  const base = difficulty === 'easy' ? 'Leicht' : difficulty === 'medium' ? 'Mittel' : 'Schwer';
+  return `${base} (${cfg.cols}×${cfg.rows}, ${cfg.mines})`;
+}
 
 function isBetterMines(candidate: MinesEntry, existing: MinesEntry | null): boolean {
   if (!existing) return true;
   return candidate.seconds < existing.seconds;
 }
 
+const HEX_R = 18;
+const HEX_W = HEX_R * Math.sqrt(3);
+const HEX_PAD = 6;
+
+function hexCenter(r: number, c: number): { x: number; y: number } {
+  return {
+    x: HEX_PAD + HEX_W / 2 + c * HEX_W + (r % 2) * (HEX_W / 2),
+    y: HEX_PAD + HEX_R + r * HEX_R * 1.5,
+  };
+}
+
+function hexPoints(cx: number, cy: number): string {
+  const pts: string[] = [];
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI / 6 + (i * Math.PI) / 3;
+    const x = cx + (HEX_R - 0.5) * Math.cos(angle);
+    const y = cy + (HEX_R - 0.5) * Math.sin(angle);
+    pts.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+  }
+  return pts.join(' ');
+}
+
 export default function MinesweeperGame() {
+  const [mode, setMode] = useLocalStorage<MinesMode>(
+    STORAGE_KEYS.MINES_MODE,
+    MinesModeSchema,
+    'rect',
+  );
   const [difficulty, setDifficulty] = useLocalStorage<MinesDifficulty>(
     STORAGE_KEYS.MINES_DIFFICULTY,
     MinesDifficultySchema,
     'easy',
   );
-  const [highscores, setHighscores] = useLocalStorage(
+  const [rectHighscores, setRectHighscores] = useLocalStorage(
     STORAGE_KEYS.MINES_HIGHSCORES,
     MinesHighscoresSchema,
     EMPTY_MINES_HIGHSCORES,
   );
+  const [hexHighscores, setHexHighscores] = useLocalStorage(
+    STORAGE_KEYS.MINES_HIGHSCORES_HEX,
+    MinesHighscoresSchema,
+    EMPTY_MINES_HIGHSCORES,
+  );
 
-  const [state, setState] = useState<MinesweeperState>(() => createInitialState(difficulty));
+  const [state, setState] = useState<MinesweeperState>(() => createInitialState(difficulty, mode));
   const [flagMode, setFlagMode] = useState(false);
   const [winOpen, setWinOpen] = useState(false);
   const [lostOpen, setLostOpen] = useState(false);
@@ -73,6 +119,18 @@ export default function MinesweeperGame() {
   const prevLostRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
+
+  const highscores = state.mode === 'hex' ? hexHighscores : rectHighscores;
+  const setHighscores = state.mode === 'hex' ? setHexHighscores : setRectHighscores;
+
+  const difficultyLabels = useMemo<Record<MinesDifficulty, string>>(
+    () => ({
+      easy: labelFor(state.mode, 'easy'),
+      medium: labelFor(state.mode, 'medium'),
+      hard: labelFor(state.mode, 'hard'),
+    }),
+    [state.mode],
+  );
 
   useEffect(() => {
     if (state.firstClick) return;
@@ -110,7 +168,7 @@ export default function MinesweeperGame() {
   }, [state.lost, timer, vibrate, sfx]);
 
   const restart = useCallback(
-    (nextDifficulty: MinesDifficulty = difficulty) => {
+    (nextDifficulty: MinesDifficulty = difficulty, nextMode: MinesMode = mode) => {
       timer.reset();
       prevWonRef.current = false;
       prevLostRef.current = false;
@@ -118,15 +176,21 @@ export default function MinesweeperGame() {
       setWinOpen(false);
       setLostOpen(false);
       setFlagMode(false);
-      setState(createInitialState(nextDifficulty));
+      setState(createInitialState(nextDifficulty, nextMode));
     },
-    [difficulty, timer],
+    [difficulty, mode, timer],
   );
 
   const onDifficultyChange = (next: MinesDifficulty) => {
     if (next === difficulty) return;
     setDifficulty(next);
-    restart(next);
+    restart(next, mode);
+  };
+
+  const onModeChange = (next: MinesMode) => {
+    if (next === mode) return;
+    setMode(next);
+    restart(difficulty, next);
   };
 
   const handleCellAction = useCallback(
@@ -186,9 +250,40 @@ export default function MinesweeperGame() {
   const minesRemaining = state.mines - state.flagged;
   const best = highscores[state.difficulty];
 
+  const hexViewBox = useMemo(() => {
+    if (state.mode !== 'hex') return null;
+    const width = HEX_PAD * 2 + state.cols * HEX_W + HEX_W / 2;
+    const height = HEX_PAD * 2 + (state.rows - 1) * HEX_R * 1.5 + HEX_R * 2;
+    return { width, height };
+  }, [state.mode, state.cols, state.rows]);
+
   return (
     <div className="flex flex-col gap-3 pb-24">
       <AriaLive message={announcement} />
+
+      <div className="flex flex-wrap items-center gap-2">
+        <div
+          role="group"
+          aria-label="Spielmodus"
+          className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-900"
+        >
+          {(['rect', 'hex'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => onModeChange(m)}
+              aria-pressed={mode === m}
+              className={`min-h-11 rounded-md px-3 text-sm font-medium transition-colors ${
+                mode === m
+                  ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                  : 'text-slate-700 dark:text-slate-200'
+              }`}
+            >
+              {m === 'rect' ? 'Rechteck' : 'Hex'}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <DifficultySelector<MinesDifficulty>
@@ -213,64 +308,170 @@ export default function MinesweeperGame() {
         ]}
       />
 
-      <div className="mx-auto w-full max-w-md overflow-x-auto sm:max-w-lg">
-        <div
-          className="grid gap-[2px] rounded-lg bg-slate-300 p-[2px] dark:bg-slate-700"
-          style={{ gridTemplateColumns: `repeat(${state.cols}, minmax(20px, 1fr))` }}
-        >
-          {state.grid.map((cell, idx) => {
-            const revealed = cell.revealed;
-            const showMine = cell.mine && (state.lost || cell.revealed);
-            const isLosingMine = state.losingIdx === idx;
-            const wrongFlag = state.lost && cell.flagged && !cell.mine;
-            const cellLabel = cell.flagged
-              ? `Zelle ${idx + 1}, geflaggt`
-              : revealed
-                ? cell.mine
-                  ? `Zelle ${idx + 1}, Mine`
-                  : cell.adjacent === 0
-                    ? `Zelle ${idx + 1}, leer`
-                    : `Zelle ${idx + 1}, ${cell.adjacent}`
-                : `Zelle ${idx + 1}, verdeckt`;
+      {state.mode === 'rect' ? (
+        <div className="mx-auto w-full max-w-md overflow-x-auto sm:max-w-lg">
+          <div
+            className="grid gap-[2px] rounded-lg bg-slate-300 p-[2px] dark:bg-slate-700"
+            style={{ gridTemplateColumns: `repeat(${state.cols}, minmax(20px, 1fr))` }}
+          >
+            {state.grid.map((cell, idx) => {
+              const revealed = cell.revealed;
+              const showMine = cell.mine && (state.lost || cell.revealed);
+              const isLosingMine = state.losingIdx === idx;
+              const wrongFlag = state.lost && cell.flagged && !cell.mine;
+              const cellLabel = cell.flagged
+                ? `Zelle ${idx + 1}, geflaggt`
+                : revealed
+                  ? cell.mine
+                    ? `Zelle ${idx + 1}, Mine`
+                    : cell.adjacent === 0
+                      ? `Zelle ${idx + 1}, leer`
+                      : `Zelle ${idx + 1}, ${cell.adjacent}`
+                  : `Zelle ${idx + 1}, verdeckt`;
 
-            return (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => onCellClick(idx)}
-                onPointerDown={() => onPointerDown(idx)}
-                onPointerUp={cancelLongPress}
-                onPointerLeave={cancelLongPress}
-                onPointerCancel={cancelLongPress}
-                onContextMenu={(e) => onContextMenu(e, idx)}
-                aria-label={cellLabel}
-                disabled={state.lost || state.won}
-                className={`aspect-square touch-manipulation select-none text-xs font-bold sm:text-sm ${
-                  revealed
-                    ? showMine
-                      ? isLosingMine
-                        ? 'bg-red-500 text-white'
-                        : 'bg-red-300 text-red-900 dark:bg-red-900 dark:text-red-100'
-                      : 'bg-slate-100 dark:bg-slate-800'
-                    : 'bg-slate-200 hover:bg-slate-100 active:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600'
-                } ${wrongFlag ? 'ring-2 ring-red-500 ring-inset' : ''}`}
-              >
-                {revealed ? (
-                  cell.mine ? (
-                    <span aria-hidden>💣</span>
-                  ) : cell.adjacent > 0 ? (
-                    <span aria-hidden className={NUMBER_COLOR[cell.adjacent] ?? ''}>
-                      {cell.adjacent}
-                    </span>
-                  ) : null
-                ) : cell.flagged ? (
-                  <span aria-hidden>🚩</span>
-                ) : null}
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => onCellClick(idx)}
+                  onPointerDown={() => onPointerDown(idx)}
+                  onPointerUp={cancelLongPress}
+                  onPointerLeave={cancelLongPress}
+                  onPointerCancel={cancelLongPress}
+                  onContextMenu={(e) => onContextMenu(e, idx)}
+                  aria-label={cellLabel}
+                  disabled={state.lost || state.won}
+                  className={`aspect-square touch-manipulation select-none text-xs font-bold sm:text-sm ${
+                    revealed
+                      ? showMine
+                        ? isLosingMine
+                          ? 'bg-red-500 text-white'
+                          : 'bg-red-300 text-red-900 dark:bg-red-900 dark:text-red-100'
+                        : 'bg-slate-100 dark:bg-slate-800'
+                      : 'bg-slate-200 hover:bg-slate-100 active:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600'
+                  } ${wrongFlag ? 'ring-2 ring-red-500 ring-inset' : ''}`}
+                >
+                  {revealed ? (
+                    cell.mine ? (
+                      <span aria-hidden>💣</span>
+                    ) : cell.adjacent > 0 ? (
+                      <span aria-hidden className={NUMBER_COLOR[cell.adjacent] ?? ''}>
+                        {cell.adjacent}
+                      </span>
+                    ) : null
+                  ) : cell.flagged ? (
+                    <span aria-hidden>🚩</span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      ) : (
+        hexViewBox && (
+          <div className="mx-auto w-full max-w-md overflow-x-auto sm:max-w-lg">
+            <svg
+              viewBox={`0 0 ${hexViewBox.width} ${hexViewBox.height}`}
+              aria-label="Hex-Minensucher Spielfeld"
+              className="block h-auto w-full rounded-lg bg-slate-300 dark:bg-slate-700"
+            >
+              <title>Sechseck-Gitter — jede Zelle hat bis zu 6 Nachbarn</title>
+              {state.grid.map((cell, idx) => {
+                const r = Math.floor(idx / state.cols);
+                const c = idx % state.cols;
+                const { x, y } = hexCenter(r, c);
+                const revealed = cell.revealed;
+                const showMine = cell.mine && (state.lost || cell.revealed);
+                const isLosingMine = state.losingIdx === idx;
+                const wrongFlag = state.lost && cell.flagged && !cell.mine;
+                const cellLabel = cell.flagged
+                  ? `Zelle ${idx + 1}, geflaggt`
+                  : revealed
+                    ? cell.mine
+                      ? `Zelle ${idx + 1}, Mine`
+                      : cell.adjacent === 0
+                        ? `Zelle ${idx + 1}, leer`
+                        : `Zelle ${idx + 1}, ${cell.adjacent}`
+                    : `Zelle ${idx + 1}, verdeckt`;
+
+                let fill = '#cbd5e1';
+                if (revealed) {
+                  if (showMine) {
+                    fill = isLosingMine ? '#ef4444' : '#fca5a5';
+                  } else {
+                    fill = '#f1f5f9';
+                  }
+                }
+                const strokeColor = wrongFlag ? '#ef4444' : 'rgba(15,23,42,0.25)';
+                const strokeWidth = wrongFlag ? 2 : 1;
+
+                return (
+                  <g
+                    key={idx}
+                    role="button"
+                    aria-label={cellLabel}
+                    aria-disabled={state.lost || state.won || undefined}
+                    tabIndex={state.lost || state.won ? -1 : 0}
+                    onClick={() => onCellClick(idx)}
+                    onPointerDown={() => onPointerDown(idx)}
+                    onPointerUp={cancelLongPress}
+                    onPointerLeave={cancelLongPress}
+                    onPointerCancel={cancelLongPress}
+                    onContextMenu={(e) => onContextMenu(e, idx)}
+                    style={{
+                      cursor: state.lost || state.won ? 'default' : 'pointer',
+                      touchAction: 'manipulation',
+                    }}
+                  >
+                    <polygon
+                      points={hexPoints(x, y)}
+                      fill={fill}
+                      stroke={strokeColor}
+                      strokeWidth={strokeWidth}
+                    />
+                    {revealed && cell.mine ? (
+                      <text
+                        x={x}
+                        y={y}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={HEX_R * 0.9}
+                        aria-hidden="true"
+                      >
+                        💣
+                      </text>
+                    ) : revealed && cell.adjacent > 0 ? (
+                      <text
+                        x={x}
+                        y={y}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={HEX_R * 0.85}
+                        fontWeight={700}
+                        fill={HEX_NUMBER_FILL[cell.adjacent] ?? '#0f172a'}
+                        aria-hidden="true"
+                      >
+                        {cell.adjacent}
+                      </text>
+                    ) : cell.flagged ? (
+                      <text
+                        x={x}
+                        y={y}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={HEX_R * 0.9}
+                        aria-hidden="true"
+                      >
+                        🚩
+                      </text>
+                    ) : null}
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        )
+      )}
 
       <GameFooter>
         <button

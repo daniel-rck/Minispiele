@@ -100,7 +100,8 @@ const GAME_INPUTS: GameCardInput[] = [
   {
     to: '/minesweeper',
     title: 'Minensucher',
-    description: 'Decke Felder auf, ohne eine Mine zu treffen. Drei Schwierigkeitsstufen.',
+    description:
+      'Decke Felder auf, ohne eine Mine zu treffen. Wahlweise Rechteck- oder Hex-Gitter.',
     preview: '/games/minesweeper-preview.svg',
     previewAlt: 'Vorschau: ein Raster mit aufgedeckten Zahlen, Flaggen und einer sichtbaren Mine',
     category: 'logik',
@@ -460,14 +461,6 @@ const GAME_INPUTS: GameCardInput[] = [
     description: 'Tausche bunte Edelsteine zu Dreierreihen mit Kaskaden-Effekt. 30 Züge.',
     preview: '/games/match3-preview.svg',
     previewAlt: 'Vorschau: ein 8×8-Gitter mit bunten Kugeln, drei in einer Reihe',
-    category: 'logik',
-  },
-  {
-    to: '/minesweeper-hex',
-    title: 'Hex-Minensucher',
-    description: 'Minesweeper auf Sechseck-Gitter — jede Zelle hat bis zu 6 Nachbarn.',
-    preview: '/games/minesweeper-hex-preview.svg',
-    previewAlt: 'Vorschau: ein Wabenfeld aus sechseckigen Zellen mit Zahlen und Flaggen',
     category: 'logik',
   },
   {

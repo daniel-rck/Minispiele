@@ -50,7 +50,6 @@ const games: { path: string; title: RegExp }[] = [
   { path: '/kniffel', title: /Kniffel/i },
   { path: '/crossword', title: /Kreuzworträtsel/i },
   { path: '/match3', title: /Match-3/i },
-  { path: '/minesweeper-hex', title: /Hex-Minensucher/i },
   { path: '/nurikabe', title: /Nurikabe/i },
   { path: '/pentomino', title: /Pentomino/i },
   { path: '/pipe-puzzle', title: /Rohre drehen/i },
