@@ -7,7 +7,6 @@ import BinairoGame from './BinairoGame';
 import BlocksGame from './BlocksGame';
 import BreakoutGame from './BreakoutGame';
 import BubblesGame from './BubblesGame';
-import ColumnsGame from './ColumnsGame';
 import ConnectionsGame from './ConnectionsGame';
 import ConwayBattleGame from './ConwayBattleGame';
 import CrosswordGame from './CrosswordGame';
@@ -22,7 +21,6 @@ import GfrettGame from './GfrettGame';
 import HalmaGame from './HalmaGame';
 import HangmanGame from './HangmanGame';
 import HanoiGame from './HanoiGame';
-import HelicopterGame from './HelicopterGame';
 import HitoriGame from './HitoriGame';
 import HyperfokusGame from './HyperfokusGame';
 import KakuroGame from './KakuroGame';
@@ -103,7 +101,6 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['BlocksGame', () => <BlocksGame />],
   ['BreakoutGame', () => <BreakoutGame />],
   ['BubblesGame', () => <BubblesGame />],
-  ['ColumnsGame', () => <ColumnsGame />],
   ['ConnectionsGame', () => <ConnectionsGame />],
   ['ConwayBattleGame', () => <ConwayBattleGame />],
   ['CrosswordGame', () => <CrosswordGame />],
@@ -118,7 +115,6 @@ const cases: Array<[string, () => React.ReactElement]> = [
   ['HalmaGame', () => <HalmaGame />],
   ['HangmanGame', () => <HangmanGame />],
   ['HanoiGame', () => <HanoiGame />],
-  ['HelicopterGame', () => <HelicopterGame />],
   ['HitoriGame', () => <HitoriGame />],
   ['KakuroGame', () => <KakuroGame />],
   ['KniffelGame', () => <KniffelGame />],

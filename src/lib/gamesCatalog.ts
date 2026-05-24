@@ -326,15 +326,6 @@ const GAME_INPUTS: GameCardInput[] = [
     category: 'werkzeuge',
   },
   {
-    to: '/idle-clicker',
-    title: 'Klick-Imperium',
-    description:
-      'Idle-Clicker mit sieben Upgrade-Stufen und Prestige-Multiplikator ab 10K Punkten.',
-    preview: '/games/idle-clicker-preview.svg',
-    previewAlt: 'Vorschau: ein goldener Klick-Button mit aufsteigenden Zahlen im Hintergrund',
-    category: 'gehirntraining',
-  },
-  {
     to: '/leiterspiel',
     title: 'Leiterspiel',
     description:
@@ -366,14 +357,6 @@ const GAME_INPUTS: GameCardInput[] = [
     preview: '/games/binairo-preview.svg',
     previewAlt: 'Vorschau: ein 8×8-Gitter mit blauen 0en und roten 1en',
     category: 'logik',
-  },
-  {
-    to: '/columns',
-    title: 'Columns',
-    description: 'Fallende Dreierstäbe — bilde Dreierreihen waagrecht, senkrecht oder diagonal.',
-    preview: '/games/columns-preview.svg',
-    previewAlt: 'Vorschau: ein schmales Spielfeld mit fallenden farbigen Steinkolumnen',
-    category: 'action',
   },
   {
     to: '/connections',
@@ -438,14 +421,6 @@ const GAME_INPUTS: GameCardInput[] = [
     preview: '/games/halma-preview.svg',
     previewAlt: 'Vorschau: ein 10×10-Brett mit blauen und roten Steinen in den Ecken',
     category: 'logik',
-  },
-  {
-    to: '/helicopter',
-    title: 'Helicopter',
-    description: 'Fliege den Hubschrauber durch die Höhle — halte gedrückt zum Steigen.',
-    preview: '/games/helicopter-preview.svg',
-    previewAlt: 'Vorschau: ein gelber Helikopter zwischen Felswänden mit Hindernissen',
-    category: 'action',
   },
   {
     to: '/hitori',

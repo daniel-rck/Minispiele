@@ -251,15 +251,6 @@ export const BingoBestSchema = NullableNonNegInt;
 
 export const SlotMachineBestSchema = z.number().int().nonnegative();
 
-export const IdleClickerSaveSchema = z.object({
-  version: z.literal(1),
-  points: z.number().nonnegative(),
-  totalEarned: z.number().nonnegative(),
-  multiplier: z.number().int().nonnegative().max(1000),
-  upgradeCounts: z.array(z.number().int().nonnegative()).max(32),
-});
-export type IdleClickerSave = z.infer<typeof IdleClickerSaveSchema>;
-
 export const LadderBestSchema = NullableNonNegInt;
 
 export const TicTacToeDifficultySchema = z.enum(['easy', 'medium', 'hard']);
@@ -277,8 +268,6 @@ export const AsteroidsBestSchema = z.number().int().nonnegative();
 export const BinairoSizeSchema = z.union([z.literal(6), z.literal(8), z.literal(10)]);
 export type BinairoSize = z.infer<typeof BinairoSizeSchema>;
 
-export const ColumnsBestSchema = z.number().int().nonnegative();
-
 export const DoodleJumpBestSchema = z.number().int().nonnegative();
 
 export const FlappyBirdBestSchema = z.number().int().nonnegative();
@@ -287,8 +276,6 @@ export const FroggerBestSchema = z.number().int().nonnegative();
 
 export const FutoshikiSizeSchema = z.union([z.literal(4), z.literal(5), z.literal(6)]);
 export type FutoshikiSize = z.infer<typeof FutoshikiSizeSchema>;
-
-export const HelicopterBestSchema = z.number().int().nonnegative();
 
 export const HitoriSizeSchema = z.union([z.literal(5), z.literal(6), z.literal(7)]);
 export type HitoriSize = z.infer<typeof HitoriSizeSchema>;
