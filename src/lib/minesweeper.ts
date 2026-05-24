@@ -122,7 +122,7 @@ function hexNeighbors(idx: number, cols: number, rows: number): number[] {
   return result;
 }
 
-function neighborIndices(
+export function neighborIndices(
   idx: number,
   cols: number,
   rows: number,

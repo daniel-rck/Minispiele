@@ -240,6 +240,17 @@ export default function MinesweeperGame() {
     handleCellAction(idx, true);
   };
 
+  const onCellKeyDown = (e: React.KeyboardEvent, idx: number) => {
+    if (state.lost || state.won) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCellAction(idx, flagMode);
+    } else if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      handleCellAction(idx, true);
+    }
+  };
+
   useEffect(
     () => () => {
       if (longPressRef.current !== null) window.clearTimeout(longPressRef.current);
@@ -418,6 +429,8 @@ export default function MinesweeperGame() {
                     onPointerLeave={cancelLongPress}
                     onPointerCancel={cancelLongPress}
                     onContextMenu={(e) => onContextMenu(e, idx)}
+                    onKeyDown={(e) => onCellKeyDown(e, idx)}
+                    className="focus:outline-none focus-visible:[outline:2px_solid_#2563eb]"
                     style={{
                       cursor: state.lost || state.won ? 'default' : 'pointer',
                       touchAction: 'manipulation',
