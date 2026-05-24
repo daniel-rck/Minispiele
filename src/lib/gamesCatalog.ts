@@ -498,7 +498,7 @@ const GAME_INPUTS: GameCardInput[] = [
   {
     to: '/quiz',
     title: 'Quiz',
-    description: '10 Fragen aus gemischten Kategorien (Geografie, Geschichte, Wissenschaft, …).',
+    description: 'Klassisch (10 Fragen) oder Millionär (15 Fragen mit Joker und Gewinnpyramide).',
     preview: '/games/quiz-preview.svg',
     previewAlt: 'Vorschau: eine Frage mit vier Multiple-Choice-Antworten',
     category: 'gehirntraining',
@@ -550,14 +550,6 @@ const GAME_INPUTS: GameCardInput[] = [
     preview: '/games/viergewinnt-preview.svg',
     previewAlt: 'Vorschau: ein 6×7-Brett mit roten und gelben Spielsteinen',
     category: 'logik',
-  },
-  {
-    to: '/wer-wird-millionaer',
-    title: 'Wer wird Millionär',
-    description: '15 Fragen, 3 Joker (50:50, Publikum, Telefon), Sicherheitsstufen.',
-    preview: '/games/wer-wird-millionaer-preview.svg',
-    previewAlt: 'Vorschau: eine Frage mit Multiple-Choice-Antworten und einer Gewinnpyramide',
-    category: 'gehirntraining',
   },
   {
     to: '/whack-a-mole',

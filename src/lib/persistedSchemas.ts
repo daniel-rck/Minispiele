@@ -298,6 +298,9 @@ export type PongDifficulty = z.infer<typeof PongDifficultySchema>;
 
 export const QuizBestSchema = z.number().int().nonnegative();
 
+export const QuizModeSchema = z.enum(['classic', 'millionaire']);
+export type QuizMode = z.infer<typeof QuizModeSchema>;
+
 export const RouletteBalanceSchema = z.number().int().nonnegative();
 
 export const SlitherlinkSizeSchema = z.union([z.literal(4), z.literal(5), z.literal(6)]);

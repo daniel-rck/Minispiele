@@ -63,7 +63,6 @@ export const ROUTES = {
   typingTest: '/typing-test',
   vierBilder: '/vier-bilder',
   viergewinnt: '/viergewinnt',
-  millionaer: '/wer-wird-millionaer',
   whackAMole: '/whack-a-mole',
   wuerfelpoker: '/wuerfelpoker',
 } as const;
