@@ -7,6 +7,7 @@ import { useSettings } from '../lib/useSettings';
 import ErrorBoundary from './ErrorBoundary';
 import OfflineIndicator from './OfflineIndicator';
 import SettingsSheet from './SettingsSheet';
+import UpdateBanner from './UpdateBanner';
 import IconButton from './ui/IconButton';
 import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from './ui/icons';
 
@@ -30,6 +31,7 @@ export default function AppShellRoute() {
       <a href="#main" className="skip-link">
         Zum Inhalt springen
       </a>
+      <UpdateBanner />
       <AppHeader
         title={BRAND_NAME}
         logo={

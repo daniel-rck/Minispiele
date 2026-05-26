@@ -1,5 +1,7 @@
 import { useVibration } from '../hooks/useVibration';
+import { APP_BUILD_DATE, APP_GIT_SHA, formatBuildDate } from '../lib/appVersion';
 import type { Theme } from '../lib/crossGameSchemas';
+import { usePwaUpdate } from '../lib/usePwaUpdate';
 import { useSettings } from '../lib/useSettings';
 import { MonitorIcon, MoonIcon, SunIcon } from './ui/icons';
 import Sheet from './ui/Sheet';
@@ -19,6 +21,7 @@ const THEME_OPTIONS: { value: Theme; label: string; Icon: typeof SunIcon }[] = [
 export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
   const { settings, setTheme, setSound, setVibration } = useSettings();
   const { isSupported: hapticsSupported } = useVibration();
+  const { needRefresh, checking, applyUpdate, checkForUpdate } = usePwaUpdate();
 
   return (
     <Sheet open={open} onClose={onClose} title="Einstellungen">
@@ -78,6 +81,41 @@ export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
       <p className="mt-6 text-xs text-surface-500 dark:text-surface-400">
         Alle Einstellungen werden nur lokal in deinem Browser gespeichert.
       </p>
+
+      <fieldset className="mt-6 border-t border-surface-200 pt-5 dark:border-surface-800">
+        <legend className="mb-3 text-sm font-bold text-surface-600 dark:text-surface-300">
+          Über diese App
+        </legend>
+        <dl className="space-y-1 text-sm text-surface-700 dark:text-surface-200">
+          <div className="flex justify-between gap-3">
+            <dt className="text-surface-500 dark:text-surface-400">Build</dt>
+            <dd className="font-mono text-right">{APP_GIT_SHA}</dd>
+          </div>
+          <div className="flex justify-between gap-3">
+            <dt className="text-surface-500 dark:text-surface-400">Datum</dt>
+            <dd className="text-right">{formatBuildDate(APP_BUILD_DATE)}</dd>
+          </div>
+        </dl>
+        <div className="mt-3 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              if (needRefresh) {
+                void applyUpdate();
+              } else {
+                void checkForUpdate();
+              }
+            }}
+            disabled={checking}
+            className="inline-flex min-h-10 items-center rounded-xl bg-surface-100 px-4 text-sm font-bold text-surface-800 hover:bg-surface-200 disabled:opacity-50 dark:bg-surface-800 dark:text-surface-100 dark:hover:bg-surface-700"
+          >
+            {needRefresh ? 'Jetzt neu laden' : checking ? 'Prüfe …' : 'Auf Updates prüfen'}
+          </button>
+          <span className="text-xs text-surface-500 dark:text-surface-400" aria-live="polite">
+            {needRefresh ? 'Neue Version verfügbar.' : 'App ist aktuell.'}
+          </span>
+        </div>
+      </fieldset>
     </Sheet>
   );
 }
