@@ -7,15 +7,13 @@ declare const self: ServiceWorkerGlobalScope;
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(self.skipWaiting());
-});
-
 self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// Optional: cross-tab + client → SW messages.
+// New SWs enter `waiting` and stay there until the UI prompts the user
+// to reload. The client then posts `SKIP_WAITING` so the new SW activates,
+// and the page reloads via the `controllerchange` event.
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();

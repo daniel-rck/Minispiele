@@ -5,6 +5,7 @@ import './index.css';
 import ErrorBoundary from './components/ErrorBoundary';
 import { setAudioSetting } from './lib/audioSettings';
 import { router } from './lib/router';
+import { PwaUpdateProvider } from './lib/usePwaUpdate';
 import { SettingsProvider, useSettings } from './lib/useSettings';
 
 // Bridges the React SettingsProvider's sound flag into the module-level singleton
@@ -21,8 +22,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary label="root">
       <SettingsProvider>
-        <AudioSettingsBridge />
-        <RouterProvider router={router} />
+        <PwaUpdateProvider>
+          <AudioSettingsBridge />
+          <RouterProvider router={router} />
+        </PwaUpdateProvider>
       </SettingsProvider>
     </ErrorBoundary>
   </StrictMode>,

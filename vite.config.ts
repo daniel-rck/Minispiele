@@ -1,10 +1,24 @@
+import { execSync } from 'node:child_process';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const gitSha = (() => {
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim();
+  } catch {
+    return 'dev';
+  }
+})();
+const buildDate = new Date().toISOString();
+
 export default defineConfig({
+  define: {
+    __APP_GIT_SHA__: JSON.stringify(gitSha),
+    __APP_BUILD_DATE__: JSON.stringify(buildDate),
+  },
   plugins: [
     react({
       babel: {
@@ -16,11 +30,11 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src/sw',
       filename: 'index.ts',
-      injectRegister: 'auto',
+      injectRegister: false,
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,webp,woff2}'],
       },
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       devOptions: { enabled: false, type: 'module' },
       includeAssets: ['logo.svg', 'logo-maskable.svg'],
       manifest: {
