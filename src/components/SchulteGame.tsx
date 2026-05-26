@@ -2,23 +2,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { SchulteBestSchema, SchulteSizeSchema } from '../lib/persistedSchemas';
+import {
+  createInitialState,
+  pressNumber,
+  SCHULTE_SIZES,
+  type SchulteSize,
+  type SchulteState,
+} from '../lib/schulte';
 import { useGameSfx } from '../lib/useGameSfx';
 import { formatDuration } from '../lib/useGameTimer';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
-
-const SIZES = [3, 4, 5, 6, 7] as const;
-type Size = (typeof SIZES)[number];
-
-function shuffled(n: number): number[] {
-  const arr = Array.from({ length: n }, (_, i) => i + 1);
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
-  }
-  return arr;
-}
 
 export default function SchulteGame() {
   const [size, setSize] = useLocalStorage<number>(STORAGE_KEYS.SCHULTE_SIZE, SchulteSizeSchema, 5);
@@ -27,8 +22,7 @@ export default function SchulteGame() {
     SchulteBestSchema,
     {},
   );
-  const [board, setBoard] = useState<number[]>(() => shuffled(size * size));
-  const [next, setNext] = useState(1);
+  const [game, setGame] = useState<SchulteState>(() => createInitialState(size));
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [finishedSec, setFinishedSec] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
@@ -37,7 +31,9 @@ export default function SchulteGame() {
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
 
-  const total = size * size;
+  const board = game.board;
+  const next = game.next;
+  const total = game.total;
 
   useEffect(() => {
     if (startedAt === null || finishedSec !== null) return;
@@ -48,9 +44,8 @@ export default function SchulteGame() {
   }, [startedAt, finishedSec]);
 
   const reset = useCallback(
-    (s: Size = size as Size) => {
-      setBoard(shuffled(s * s));
-      setNext(1);
+    (s: SchulteSize = size as SchulteSize) => {
+      setGame(createInitialState(s));
       setStartedAt(null);
       setFinishedSec(null);
       setTick(0);
@@ -58,10 +53,9 @@ export default function SchulteGame() {
     [size],
   );
 
-  const changeSize = (s: Size) => {
+  const changeSize = (s: SchulteSize) => {
     setSize(s);
-    setBoard(shuffled(s * s));
-    setNext(1);
+    setGame(createInitialState(s));
     setStartedAt(null);
     setFinishedSec(null);
     setTick(0);
@@ -75,9 +69,11 @@ export default function SchulteGame() {
       return;
     }
     vibrate(15);
-    if (startedAt === null) setStartedAt(performance.now());
-    if (value === total) {
-      const start = startedAt ?? performance.now();
+    const start = startedAt ?? performance.now();
+    if (startedAt === null) setStartedAt(start);
+    const nextGame = pressNumber(game, value);
+    setGame(nextGame);
+    if (nextGame.done) {
       const sec = Math.max(1, Math.round((performance.now() - start) / 1000));
       setFinishedSec(sec);
       const key = String(size);
@@ -87,8 +83,6 @@ export default function SchulteGame() {
       }
       setAnnounce(`Fertig in ${sec} Sekunden`);
       sfx.win();
-    } else {
-      setNext(value + 1);
     }
   };
 
@@ -110,10 +104,10 @@ export default function SchulteGame() {
           <span className="text-slate-600 dark:text-slate-300">Größe:</span>
           <select
             value={size}
-            onChange={(e) => changeSize(Number(e.target.value) as Size)}
+            onChange={(e) => changeSize(Number(e.target.value) as SchulteSize)}
             className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
           >
-            {SIZES.map((s) => (
+            {SCHULTE_SIZES.map((s) => (
               <option key={s} value={s}>
                 {s}×{s}
               </option>
@@ -143,7 +137,7 @@ export default function SchulteGame() {
       <div
         className="grid w-full max-w-md gap-1 rounded-2xl bg-slate-200 p-1 dark:bg-slate-800"
         style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
-        role="grid"
+        role="group"
         aria-label={`Schulte-Tabelle ${size} mal ${size}`}
       >
         {board.map((value, i) => {

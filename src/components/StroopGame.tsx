@@ -2,51 +2,27 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { StroopBestSchema } from '../lib/persistedSchemas';
+import { nextChallenge, STROOP_COLORS, STROOP_ROUND_SECONDS, scoreAnswer } from '../lib/stroop';
 import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
 
-interface ColorDef {
-  key: string;
-  label: string;
-  textClass: string;
-  bgClass: string;
-}
-
-const COLORS: ColorDef[] = [
-  { key: 'red', label: 'Rot', textClass: 'text-red-500', bgClass: 'bg-red-500' },
-  { key: 'green', label: 'Grün', textClass: 'text-emerald-500', bgClass: 'bg-emerald-500' },
-  { key: 'blue', label: 'Blau', textClass: 'text-sky-500', bgClass: 'bg-sky-500' },
-  { key: 'yellow', label: 'Gelb', textClass: 'text-amber-500', bgClass: 'bg-amber-500' },
-];
-
-const ROUND_SECONDS = 30;
-
-interface Challenge {
-  word: ColorDef;
-  ink: ColorDef;
-}
-
-function nextChallenge(prev?: Challenge): Challenge {
-  for (let i = 0; i < 50; i++) {
-    const word = COLORS[Math.floor(Math.random() * COLORS.length)]!;
-    const ink = COLORS[Math.floor(Math.random() * COLORS.length)]!;
-    if (word.key === ink.key) continue;
-    if (prev && prev.word.key === word.key && prev.ink.key === ink.key) continue;
-    return { word, ink };
-  }
-  return { word: COLORS[0]!, ink: COLORS[1]! };
-}
+const COLOR_STYLES: Record<string, { textClass: string; bgClass: string }> = {
+  red: { textClass: 'text-red-500', bgClass: 'bg-red-500' },
+  green: { textClass: 'text-emerald-500', bgClass: 'bg-emerald-500' },
+  blue: { textClass: 'text-sky-500', bgClass: 'bg-sky-500' },
+  yellow: { textClass: 'text-amber-500', bgClass: 'bg-amber-500' },
+};
 
 type Phase = 'idle' | 'playing' | 'done';
 
 export default function StroopGame() {
   const [phase, setPhase] = useState<Phase>('idle');
-  const [challenge, setChallenge] = useState<Challenge>(() => nextChallenge());
+  const [challenge, setChallenge] = useState(() => nextChallenge());
   const [score, setScore] = useState(0);
   const [wrong, setWrong] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
+  const [timeLeft, setTimeLeft] = useState(STROOP_ROUND_SECONDS);
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.STROOP_BEST, StroopBestSchema, 0);
   const [announce, setAnnounce] = useState('');
   const tickRef = useRef<number | null>(null);
@@ -75,7 +51,7 @@ export default function StroopGame() {
   const startRound = useCallback(() => {
     setScore(0);
     setWrong(0);
-    setTimeLeft(ROUND_SECONDS);
+    setTimeLeft(STROOP_ROUND_SECONDS);
     setChallenge(nextChallenge());
     setPhase('playing');
     setAnnounce('Spiel gestartet');
@@ -84,7 +60,7 @@ export default function StroopGame() {
   const handleAnswer = useCallback(
     (colorKey: string) => {
       if (phase !== 'playing') return;
-      const correct = colorKey === challenge.ink.key;
+      const correct = scoreAnswer(challenge, colorKey) === 'correct';
       if (correct) {
         setScore((s) => s + 1);
         vibrate(15);
@@ -123,7 +99,7 @@ export default function StroopGame() {
         {phase === 'playing' && (
           <span
             aria-label={`Wort ${challenge.word.label}, Farbe ${challenge.ink.label}`}
-            className={`text-5xl font-extrabold uppercase tracking-wide ${challenge.ink.textClass}`}
+            className={`text-5xl font-extrabold uppercase tracking-wide ${COLOR_STYLES[challenge.ink.key]?.textClass ?? ''}`}
           >
             {challenge.word.label}
           </span>
@@ -146,14 +122,14 @@ export default function StroopGame() {
         role="group"
         aria-label="Farb-Antworten"
       >
-        {COLORS.map((c) => (
+        {STROOP_COLORS.map((c) => (
           <button
             key={c.key}
             type="button"
             onClick={() => handleAnswer(c.key)}
             disabled={phase !== 'playing'}
             aria-label={c.label}
-            className={`min-h-14 rounded-xl text-base font-semibold text-white shadow-sm disabled:opacity-50 ${c.bgClass}`}
+            className={`min-h-14 rounded-xl text-base font-semibold text-white shadow-sm disabled:opacity-50 ${COLOR_STYLES[c.key]?.bgClass ?? ''}`}
           >
             {c.label}
           </button>

@@ -1,5 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
+import {
+  BLOCKS_COLORS as COLORS,
+  BLOCKS_COLS as COLS,
+  cellsOf,
+  clearLines,
+  emptyBoard,
+  fits,
+  fullRowIndices,
+  intervalForLevel,
+  merge,
+  PIECES,
+  type Piece,
+  BLOCKS_ROWS as ROWS,
+  randomType,
+  spawnPiece,
+  tryRotate,
+} from '../lib/blocks';
 import { STORAGE_KEYS } from '../lib/constants';
 import { BlocksBestSchema } from '../lib/persistedSchemas';
 import { useGameSfx } from '../lib/useGameSfx';
@@ -7,177 +24,6 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
 import Sheet from './ui/Sheet';
-
-const COLS = 10;
-const ROWS = 18;
-const COLORS = ['', '#22c55e', '#3b82f6', '#a855f7', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
-
-// pieces as rotation arrays of (col, row) offsets, color index 1..7
-const PIECES: { color: number; rotations: [number, number][][] }[] = [
-  // I
-  {
-    color: 6,
-    rotations: [
-      [
-        [0, 1],
-        [1, 1],
-        [2, 1],
-        [3, 1],
-      ],
-      [
-        [2, 0],
-        [2, 1],
-        [2, 2],
-        [2, 3],
-      ],
-    ],
-  },
-  // O
-  {
-    color: 4,
-    rotations: [
-      [
-        [1, 0],
-        [2, 0],
-        [1, 1],
-        [2, 1],
-      ],
-    ],
-  },
-  // T
-  {
-    color: 3,
-    rotations: [
-      [
-        [1, 0],
-        [0, 1],
-        [1, 1],
-        [2, 1],
-      ],
-      [
-        [1, 0],
-        [1, 1],
-        [2, 1],
-        [1, 2],
-      ],
-      [
-        [0, 1],
-        [1, 1],
-        [2, 1],
-        [1, 2],
-      ],
-      [
-        [1, 0],
-        [0, 1],
-        [1, 1],
-        [1, 2],
-      ],
-    ],
-  },
-  // S
-  {
-    color: 1,
-    rotations: [
-      [
-        [1, 0],
-        [2, 0],
-        [0, 1],
-        [1, 1],
-      ],
-      [
-        [1, 0],
-        [1, 1],
-        [2, 1],
-        [2, 2],
-      ],
-    ],
-  },
-  // Z
-  {
-    color: 5,
-    rotations: [
-      [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [2, 1],
-      ],
-      [
-        [2, 0],
-        [1, 1],
-        [2, 1],
-        [1, 2],
-      ],
-    ],
-  },
-  // L
-  {
-    color: 4,
-    rotations: [
-      [
-        [2, 0],
-        [0, 1],
-        [1, 1],
-        [2, 1],
-      ],
-      [
-        [1, 0],
-        [1, 1],
-        [1, 2],
-        [2, 2],
-      ],
-      [
-        [0, 1],
-        [1, 1],
-        [2, 1],
-        [0, 2],
-      ],
-      [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [1, 2],
-      ],
-    ],
-  },
-  // J
-  {
-    color: 2,
-    rotations: [
-      [
-        [0, 0],
-        [0, 1],
-        [1, 1],
-        [2, 1],
-      ],
-      [
-        [1, 0],
-        [2, 0],
-        [1, 1],
-        [1, 2],
-      ],
-      [
-        [0, 1],
-        [1, 1],
-        [2, 1],
-        [2, 2],
-      ],
-      [
-        [1, 0],
-        [1, 1],
-        [0, 2],
-        [1, 2],
-      ],
-    ],
-  },
-];
-
-interface Piece {
-  type: number;
-  rot: number;
-  x: number;
-  y: number;
-}
 
 interface GameState {
   board: number[];
@@ -188,76 +34,6 @@ interface GameState {
   lines: number;
   status: 'idle' | 'playing' | 'over';
   flashingRows: number[];
-}
-
-// SRS-style wall-kick offsets tried in order when a basic rotation does not fit.
-const WALL_KICKS: number[] = [0, -1, 1, -2, 2];
-
-function fullRowIndices(board: number[]): number[] {
-  const rows: number[] = [];
-  for (let r = 0; r < ROWS; r++) {
-    let full = true;
-    for (let c = 0; c < COLS; c++) {
-      if (board[r * COLS + c] === 0) {
-        full = false;
-        break;
-      }
-    }
-    if (full) rows.push(r);
-  }
-  return rows;
-}
-
-function emptyBoard(): number[] {
-  return new Array(COLS * ROWS).fill(0);
-}
-
-function randomType(): number {
-  return Math.floor(Math.random() * PIECES.length);
-}
-
-function spawnPiece(type?: number): Piece {
-  const t = type ?? randomType();
-  return { type: t, rot: 0, x: 3, y: 0 };
-}
-
-function cellsOf(piece: Piece): [number, number][] {
-  const def = PIECES[piece.type]!;
-  const rot = def.rotations[piece.rot % def.rotations.length]!;
-  return rot.map(([dx, dy]) => [piece.x + dx, piece.y + dy]);
-}
-
-function fits(board: number[], piece: Piece): boolean {
-  for (const [x, y] of cellsOf(piece)) {
-    if (x < 0 || x >= COLS || y >= ROWS) return false;
-    if (y >= 0 && board[y * COLS + x] !== 0) return false;
-  }
-  return true;
-}
-
-function merge(board: number[], piece: Piece): number[] {
-  const next = board.slice();
-  const def = PIECES[piece.type]!;
-  for (const [x, y] of cellsOf(piece)) {
-    if (y >= 0 && y < ROWS && x >= 0 && x < COLS) next[y * COLS + x] = def.color;
-  }
-  return next;
-}
-
-function clearLines(board: number[]): { board: number[]; cleared: number } {
-  const kept: number[] = [];
-  let cleared = 0;
-  for (let r = 0; r < ROWS; r++) {
-    const row = board.slice(r * COLS, (r + 1) * COLS);
-    if (row.every((v) => v !== 0)) cleared++;
-    else kept.push(...row);
-  }
-  const empties = new Array(cleared * COLS).fill(0);
-  return { board: [...empties, ...kept], cleared };
-}
-
-function intervalForLevel(level: number): number {
-  return Math.max(120, 700 - level * 60);
 }
 
 export default function BlocksGame() {
@@ -397,14 +173,8 @@ export default function BlocksGame() {
   const rotate = useCallback(() => {
     setState((s) => {
       if (!s.piece || s.status !== 'playing') return s;
-      const rotated: Piece = { ...s.piece, rot: s.piece.rot + 1 };
-      for (const kick of WALL_KICKS) {
-        const candidate: Piece = { ...rotated, x: rotated.x + kick };
-        if (fits(s.board, candidate)) {
-          return { ...s, piece: candidate };
-        }
-      }
-      return s;
+      const candidate = tryRotate(s.board, s.piece);
+      return candidate ? { ...s, piece: candidate } : s;
     });
   }, []);
 
