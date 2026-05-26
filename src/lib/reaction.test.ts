@@ -15,8 +15,7 @@ describe('reaction', () => {
     expect(pickWaitDelay(undefined, undefined, seededRng([0]))).toBe(REACTION_MIN_WAIT_MS);
   });
 
-  it('pickWaitDelay returns just below the maximum on rng=1', () => {
-    // rng yields exactly 1 → result equals MAX (inclusive in this implementation)
+  it('pickWaitDelay returns exactly the maximum on rng=1', () => {
     expect(pickWaitDelay(undefined, undefined, seededRng([1]))).toBe(REACTION_MAX_WAIT_MS);
   });
 
