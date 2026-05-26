@@ -1,6 +1,23 @@
 import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
 import { useVibration } from '../hooks/useVibration';
+import {
+  buildInitial,
+  BUBBLES_CELL as CELL,
+  type Cell,
+  BUBBLES_COLORS as COLORS,
+  BUBBLES_COLS as COLS,
+  cellCenter,
+  dropFloating,
+  BUBBLES_FIELD_H as FIELD_H,
+  BUBBLES_FIELD_W as FIELD_W,
+  findGroup,
+  neighbors,
+  BUBBLES_RADIUS as RADIUS,
+  BUBBLES_ROWS as ROWS,
+  randomColor,
+  type BubblesState as State,
+} from '../lib/bubbles';
 import { STORAGE_KEYS } from '../lib/constants';
 import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
 import { BubblesBestSchema } from '../lib/persistedSchemas';
@@ -10,27 +27,7 @@ import AriaLive from './AriaLive';
 import Button from './ui/Button';
 import Sheet from './ui/Sheet';
 
-const ROWS = 9;
-const COLS = 8;
-const COLOR_COUNT = 5;
-const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7'];
-
-// Logical coordinate system: 100 wide, ROWS+1 tall in same proportion as render box.
-const FIELD_W = 100;
-const FIELD_H = (100 / COLS) * (ROWS + 1);
-const CELL = FIELD_W / COLS;
-const RADIUS = CELL * 0.45;
 const FLIGHT_SPEED = 0.55; // units of CELL per ms — gives a ~150ms flight at typical distance
-
-type Cell = number; // -1 = empty, 0..4 = color
-
-interface State {
-  grid: Cell[];
-  nextColor: number;
-  upcoming: number;
-  score: number;
-  done: boolean;
-}
 
 interface Flight {
   x: number;
@@ -38,97 +35,6 @@ interface Flight {
   vx: number;
   vy: number;
   color: number;
-}
-
-function randomColor(): number {
-  return Math.floor(Math.random() * COLOR_COUNT);
-}
-
-function buildInitial(): State {
-  const grid: Cell[] = new Array(ROWS * COLS).fill(-1);
-  for (let r = 0; r < 4; r++) {
-    for (let c = 0; c < COLS; c++) {
-      grid[r * COLS + c] = randomColor();
-    }
-  }
-  return { grid, nextColor: randomColor(), upcoming: randomColor(), score: 0, done: false };
-}
-
-function neighbors(idx: number): number[] {
-  const r = Math.floor(idx / COLS);
-  const c = idx % COLS;
-  const odd = r % 2 === 1;
-  const candidates: [number, number][] = [
-    [r, c - 1],
-    [r, c + 1],
-    [r - 1, c],
-    [r - 1, c + (odd ? 1 : -1)],
-    [r + 1, c],
-    [r + 1, c + (odd ? 1 : -1)],
-  ];
-  return candidates
-    .filter(([nr, nc]) => nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS)
-    .map(([nr, nc]) => nr * COLS + nc);
-}
-
-function findGroup(grid: Cell[], idx: number): number[] {
-  const color = grid[idx];
-  if (color === undefined || color < 0) return [];
-  const visited = new Set<number>([idx]);
-  const stack = [idx];
-  while (stack.length) {
-    const cur = stack.pop()!;
-    for (const n of neighbors(cur)) {
-      if (visited.has(n)) continue;
-      if (grid[n] === color) {
-        visited.add(n);
-        stack.push(n);
-      }
-    }
-  }
-  return [...visited];
-}
-
-function dropFloating(grid: Cell[]): { grid: Cell[]; removed: number; removedIdx: number[] } {
-  const anchored = new Set<number>();
-  const stack: number[] = [];
-  for (let c = 0; c < COLS; c++) {
-    if (grid[c] !== -1) {
-      anchored.add(c);
-      stack.push(c);
-    }
-  }
-  while (stack.length) {
-    const cur = stack.pop()!;
-    for (const n of neighbors(cur)) {
-      if (anchored.has(n)) continue;
-      if (grid[n] !== -1) {
-        anchored.add(n);
-        stack.push(n);
-      }
-    }
-  }
-  let removed = 0;
-  const removedIdx: number[] = [];
-  const next = grid.slice();
-  for (let i = 0; i < grid.length; i++) {
-    if (grid[i] !== -1 && !anchored.has(i)) {
-      next[i] = -1;
-      removed++;
-      removedIdx.push(i);
-    }
-  }
-  return { grid: next, removed, removedIdx };
-}
-
-function cellCenter(idx: number): { x: number; y: number } {
-  const r = Math.floor(idx / COLS);
-  const c = idx % COLS;
-  const offsetX = r % 2 === 1 ? 0.5 : 0;
-  return {
-    x: (c + offsetX + 0.5) * CELL,
-    y: (r + 0.5) * CELL,
-  };
 }
 
 const START_X = FIELD_W / 2;
