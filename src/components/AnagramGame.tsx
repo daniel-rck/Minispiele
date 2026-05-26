@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
+import { type AnagramTile, scrambleLetters, verifyGuess } from '../lib/anagram';
 import { STORAGE_KEYS } from '../lib/constants';
 import { pickRandomHangmanWord } from '../lib/hangmanWords';
 import { AnagramBestSchema } from '../lib/persistedSchemas';
@@ -8,24 +9,7 @@ import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
 
-interface Tile {
-  id: number;
-  letter: string;
-  placed: boolean;
-}
-
-function scrambleLetters(word: string): Tile[] {
-  const letters = word.split('');
-  for (let i = letters.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [letters[i], letters[j]] = [letters[j]!, letters[i]!];
-  }
-  // ensure not equal to original
-  if (letters.join('') === word && word.length > 1) {
-    [letters[0], letters[1]] = [letters[1]!, letters[0]!];
-  }
-  return letters.map((l, idx) => ({ id: idx, letter: l, placed: false }));
-}
+type Tile = AnagramTile;
 
 export default function AnagramGame() {
   const [word, setWord] = useState<string>(() => pickRandomHangmanWord());
@@ -86,8 +70,7 @@ export default function AnagramGame() {
 
   const submit = useCallback(() => {
     if (slots.some((s) => s === null)) return;
-    const guess = slots.map((s) => s!.letter).join('');
-    if (guess === word) {
+    if (verifyGuess(slots, word)) {
       setFeedback('correct');
       setAnnounce(`Richtig: ${word}`);
       vibrate([40, 30, 60]);
@@ -155,6 +138,7 @@ export default function AnagramGame() {
           ) : (
             <span
               key={i}
+              role="img"
               aria-label="leerer Slot"
               className="inline-block h-12 w-9 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700"
             />

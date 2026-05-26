@@ -2,14 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { ReactionBestSchema } from '../lib/persistedSchemas';
+import { computeBest, pickWaitDelay } from '../lib/reaction';
 import { useGameSfx } from '../lib/useGameSfx';
 import { useLocalStorage } from '../lib/useLocalStorage';
 import AriaLive from './AriaLive';
 
 type Phase = 'idle' | 'waiting' | 'ready' | 'tooEarly' | 'done';
-
-const MIN_WAIT_MS = 1200;
-const MAX_WAIT_MS = 3800;
 
 export default function ReactionGame() {
   const [phase, setPhase] = useState<Phase>('idle');
@@ -43,7 +41,7 @@ export default function ReactionGame() {
     clearPending();
     setReactionMs(null);
     setPhase('waiting');
-    const delay = MIN_WAIT_MS + Math.random() * (MAX_WAIT_MS - MIN_WAIT_MS);
+    const delay = pickWaitDelay();
     timeoutRef.current = window.setTimeout(() => {
       readyAtRef.current = performance.now();
       setPhase('ready');
@@ -70,7 +68,8 @@ export default function ReactionGame() {
       setReactionMs(ms);
       setPhase('done');
       setAnnounce(`${ms} Millisekunden`);
-      if (best === null || ms < best) setBest(ms);
+      const newBest = computeBest(ms, best);
+      if (newBest !== null) setBest(newBest);
       vibrate(30);
       sfx.win();
     }
