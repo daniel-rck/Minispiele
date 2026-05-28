@@ -31,14 +31,8 @@ export default function GameStats({ items, className = '' }: GameStatsProps) {
           <div key={key} className={align}>
             {stat.label && <dt className="inline">{stat.label}: </dt>}
             <dd className="inline font-semibold tabular-nums">
-              {stat.valueAriaLabel ? (
-                <>
-                  <span aria-hidden="true">{stat.value}</span>
-                  <span className="sr-only">{stat.valueAriaLabel}</span>
-                </>
-              ) : (
-                stat.value
-              )}
+              {stat.valueAriaLabel && <span className="sr-only">{stat.valueAriaLabel}: </span>}
+              {stat.value}
             </dd>
           </div>
         );
