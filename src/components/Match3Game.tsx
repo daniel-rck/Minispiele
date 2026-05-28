@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { Match3BestSchema } from '../lib/persistedSchemas';
@@ -92,7 +92,17 @@ export default function Match3Game() {
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
 
+  // Ausstehende Kaskaden-Timeouts, damit sie bei Unmount/Restart aufgeräumt
+  // werden (sonst setState nach Unmount + Leak).
+  const timeoutsRef = useRef<number[]>([]);
+  const clearTimeouts = useCallback(() => {
+    for (const id of timeoutsRef.current) window.clearTimeout(id);
+    timeoutsRef.current = [];
+  }, []);
+  useEffect(() => clearTimeouts, [clearTimeouts]);
+
   const restart = useCallback(() => {
+    clearTimeouts();
     setGrid(randomGrid());
     setScore(0);
     setMoves(MOVES);
@@ -100,7 +110,7 @@ export default function Match3Game() {
     setSelected(null);
     setAnimating(false);
     setAnnouncement('Tippe zwei benachbarte Steine zum Tauschen.');
-  }, []);
+  }, [clearTimeouts]);
 
   const cascade = useCallback(
     (working: Grid, accumulatedScore: number) => {
@@ -111,7 +121,7 @@ export default function Match3Game() {
         setGrid(working.map((r) => [...r]));
         sfx.clear();
         vibrate(20);
-        setTimeout(() => cascade(working, ns), 200);
+        timeoutsRef.current.push(window.setTimeout(() => cascade(working, ns), 200));
       } else {
         setAnimating(false);
         setMoves((m) => {
@@ -157,7 +167,7 @@ export default function Match3Game() {
           setSelected(null);
           setGrid(next);
           sfx.match();
-          setTimeout(() => cascade(next, score), 100);
+          timeoutsRef.current.push(window.setTimeout(() => cascade(next, score), 100));
         } else {
           sfx.error();
           setSelected(null);

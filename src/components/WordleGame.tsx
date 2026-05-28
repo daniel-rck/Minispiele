@@ -195,15 +195,15 @@ export default function WordleGame() {
 
       <div
         className={`mx-auto flex w-full max-w-xs flex-col gap-1 sm:max-w-sm ${shake ? 'wordle-shake' : ''}`}
-        role="grid"
+        role="group"
         aria-label={`Wordle-Versuche ${state.guesses.length} von ${MAX_GUESSES}`}
       >
         {rows.map((row, ri) => (
-          <div key={ri} role="row" className="grid grid-cols-5 gap-1">
+          <div key={ri} className="grid grid-cols-5 gap-1">
             {row.letters.map((ch, ci) => (
               <div
                 key={ci}
-                role="gridcell"
+                role="img"
                 aria-label={
                   row.statuses[ci]
                     ? `${ch}, ${

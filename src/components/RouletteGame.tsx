@@ -134,6 +134,7 @@ export default function RouletteGame() {
               className={`text-4xl font-extrabold ${
                 result === 0 ? 'text-emerald-400' : isRed(result) ? 'text-rose-400' : 'text-white'
               }`}
+              role="img"
               aria-label={`Ergebnis ${result} ${result === 0 ? 'Grün' : isRed(result) ? 'Rot' : 'Schwarz'}`}
             >
               {result}

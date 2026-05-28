@@ -181,11 +181,6 @@ export default function TangramGame() {
   );
 
   useEffect(() => {
-    // Reset internal layout when puzzle changes via the dropdown handler is sufficient,
-    // but also reset rotation-on-mount to keep dev/test consistent.
-  }, [puzzle]);
-
-  useEffect(() => {
     if (showSolution) sfx.pop();
   }, [showSolution, sfx]);
 

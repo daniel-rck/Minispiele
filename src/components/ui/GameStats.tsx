@@ -30,7 +30,8 @@ export default function GameStats({ items, className = '' }: GameStatsProps) {
         return (
           <div key={key} className={align}>
             {stat.label && <dt className="inline">{stat.label}: </dt>}
-            <dd className="inline font-semibold tabular-nums" aria-label={stat.valueAriaLabel}>
+            <dd className="inline font-semibold tabular-nums">
+              {stat.valueAriaLabel && <span className="sr-only">{stat.valueAriaLabel}: </span>}
               {stat.value}
             </dd>
           </div>

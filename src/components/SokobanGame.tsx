@@ -208,6 +208,7 @@ export default function SokobanGame() {
               <div
                 key={idx}
                 className={`flex aspect-square min-w-[26px] items-center justify-center text-base sm:text-xl ${cls}`}
+                role="img"
                 aria-label={
                   wall ? 'Wand' : player ? 'Spieler' : box ? 'Kiste' : target ? 'Ziel' : 'Boden'
                 }

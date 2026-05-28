@@ -20,8 +20,12 @@ export default function AnagramGame() {
   const [feedback, setFeedback] = useState<'none' | 'correct' | 'wrong'>('none');
   const [announce, setAnnounce] = useState('');
   const submittedRef = useRef(false);
+  const feedbackTimeoutRef = useRef<number | undefined>(undefined);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
+
+  // Feedback-Reset-Timeout bei Unmount aufräumen (sonst setState nach Unmount).
+  useEffect(() => () => window.clearTimeout(feedbackTimeoutRef.current), []);
 
   const newRound = useCallback(() => {
     const next = pickRandomHangmanWord();
@@ -87,7 +91,8 @@ export default function AnagramGame() {
       vibrate([80, 60, 80]);
       sfx.error();
       setStreak(0);
-      window.setTimeout(() => setFeedback('none'), 1000);
+      window.clearTimeout(feedbackTimeoutRef.current);
+      feedbackTimeoutRef.current = window.setTimeout(() => setFeedback('none'), 1000);
     }
   }, [slots, word, best, setBest, vibrate, sfx]);
 

@@ -98,6 +98,7 @@ export default function StroopGame() {
         )}
         {phase === 'playing' && (
           <span
+            role="img"
             aria-label={`Wort ${challenge.word.label}, Farbe ${challenge.ink.label}`}
             className={`text-5xl font-extrabold uppercase tracking-wide ${COLOR_STYLES[challenge.ink.key]?.textClass ?? ''}`}
           >

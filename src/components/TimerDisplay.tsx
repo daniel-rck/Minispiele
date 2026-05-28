@@ -13,7 +13,7 @@ export default function TimerDisplay({ mode, ms, animate = true }: Props) {
   if (mode === 'continuous') {
     const hundredths = formatHundredths(ms);
     return (
-      <span className="tabular-nums" aria-label={`${hundredths} verbleibend`}>
+      <span className="tabular-nums" role="img" aria-label={`${hundredths} verbleibend`}>
         {hundredths}
       </span>
     );
@@ -24,6 +24,7 @@ export default function TimerDisplay({ mode, ms, animate = true }: Props) {
     <span
       className="inline-flex items-baseline tabular-nums"
       style={{ perspective: '600px' }}
+      role="img"
       aria-label={`${text} verbleibend`}
     >
       {text.split('').map((ch, idx) =>

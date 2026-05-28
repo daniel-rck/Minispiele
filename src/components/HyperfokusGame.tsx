@@ -136,6 +136,7 @@ export default function HyperfokusGame() {
   const themeDef = THEMES[theme];
 
   // Offline income on mount.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: bewusst nur beim Mount — Offline-Einkommen und initiales Event-Scheduling dürfen nicht erneut laufen
   useEffect(() => {
     const now = Date.now();
     const gain = Math.floor(computeOfflineIncome(saveRef.current, now));
@@ -149,7 +150,6 @@ export default function HyperfokusGame() {
     lastSavedAtRef.current = now;
     // Initial event scheduling
     scheduleNextEvent();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Stamp `lastSavedAt` only on tab hide / page unload. `useLocalStorage` already
@@ -253,6 +253,7 @@ export default function HyperfokusGame() {
   }, [setSave]);
 
   // Event lifecycle (end-check).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: bewusst nur an activeEvent gebunden — scheduleNextEvent als Dep würde das laufende Event-Timeout neu starten
   useEffect(() => {
     if (!activeEvent) return;
     const ms = Math.max(0, activeEvent.endsAt - Date.now());
@@ -261,7 +262,6 @@ export default function HyperfokusGame() {
       scheduleNextEvent();
     }, ms);
     return () => window.clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeEvent]);
 
   // Force-refresh display every 250ms while event is active (timer bar).
@@ -621,6 +621,7 @@ export default function HyperfokusGame() {
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-col">
             <div
+              role="img"
               aria-label={`${formatNumber(Math.floor(scoreDisplay))} Coins`}
               className="text-3xl font-extrabold tabular-nums sm:text-4xl"
             >
@@ -634,6 +635,7 @@ export default function HyperfokusGame() {
             {save.prestigeCrystals > 0 && (
               <div
                 className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-xs backdrop-blur"
+                role="img"
                 aria-label={`${save.prestigeCrystals} Aurora-Kristalle`}
               >
                 <span aria-hidden>✦</span>
