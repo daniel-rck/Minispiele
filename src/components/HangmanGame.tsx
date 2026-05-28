@@ -179,6 +179,7 @@ export default function HangmanGame() {
               className={`inline-flex h-10 w-7 items-end justify-center border-b-2 text-2xl font-bold uppercase ${
                 shown ? 'border-slate-500 text-slate-900 dark:text-slate-100' : 'border-slate-400'
               } ${!shown ? 'text-transparent' : ''}`}
+              role="img"
               aria-label={shown ? ch : 'verborgen'}
             >
               {shown ? ch : '_'}

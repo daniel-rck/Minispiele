@@ -205,7 +205,7 @@ export default function TypingTestGame() {
 
   useEffect(() => {
     restart();
-  }, [duration, restart]);
+  }, [restart]);
 
   useEffect(() => {
     if (!running || finished) return;
@@ -315,6 +315,7 @@ export default function TypingTestGame() {
 
       <div
         className="min-h-24 w-full max-w-2xl rounded-lg bg-slate-900 p-4 font-mono text-base leading-relaxed dark:bg-slate-950"
+        role="img"
         aria-label="Tipp-Text"
       >
         {Array.from(text.slice(visibleStart, visibleEnd)).map((ch, i) => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameSfx } from '../lib/useGameSfx';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -245,7 +245,9 @@ export default function GameOfLifeGame() {
     });
   }, []);
 
-  const population = useMemo(() => countPopulation(gridRef.current), [generation]);
+  // Recomputed each render; the grid lives in a ref, so the `generation` bump that
+  // triggers the render is what keeps this value fresh. countPopulation is cheap.
+  const population = countPopulation(gridRef.current);
 
   return (
     <div className="flex flex-col items-center gap-3 pb-4">

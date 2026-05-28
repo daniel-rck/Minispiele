@@ -188,6 +188,7 @@ function DieFace({
           backgroundColor: die.color,
           animationDuration: rolling ? `${rollDurationMs}ms` : undefined,
         }}
+        role="img"
         aria-label={`Würfel ${die.type}: ${die.value}`}
       >
         {die.type === 'd6' ? (

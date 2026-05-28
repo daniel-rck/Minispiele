@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { type WuerfelpokerScores, WuerfelpokerScoresSchema } from '../lib/persistedSchemas';
@@ -73,53 +73,47 @@ export default function WuerfelpokerGame() {
     vibrate(15);
     sfx.pop();
     setPDice((d) => d.map((v, i) => (held[i] ? v : 1 + Math.floor(Math.random() * 6))));
-    setRollsLeft((r) => {
-      const next = r - 1;
-      if (next === 0) {
-        // AI plays
-        const next0 = [0, 0, 0, 0, 0].map(() => 1 + Math.floor(Math.random() * 6));
-        const aiTurn1 = [...next0];
-        for (let i = 0; i < 5; i++) {
-          if (!shouldHold(aiTurn1, i)) aiTurn1[i] = 1 + Math.floor(Math.random() * 6);
-        }
-        const aiTurn2 = [...aiTurn1];
-        for (let i = 0; i < 5; i++) {
-          if (!shouldHold(aiTurn2, i)) aiTurn2[i] = 1 + Math.floor(Math.random() * 6);
-        }
-        setAiDice(aiTurn2);
-        setTimeout(() => {
-          setPDice((pd) => {
-            const aiHand = evaluateHand(aiTurn2);
-            const pHand = evaluateHand(pd);
-            setOver(true);
-            if (
-              pHand.rank > aiHand.rank ||
-              (pHand.rank === aiHand.rank && pHand.val > aiHand.val)
-            ) {
-              setScores((s) => ({ ...s, you: s.you + 1 }));
-              setAnnouncement(`Du gewinnst: ${pHand.name} schlägt ${aiHand.name}.`);
-              sfx.win();
-              vibrate([60, 40, 120]);
-            } else if (
-              aiHand.rank > pHand.rank ||
-              (aiHand.rank === pHand.rank && aiHand.val > pHand.val)
-            ) {
-              setScores((s) => ({ ...s, ai: s.ai + 1 }));
-              setAnnouncement(`KI gewinnt: ${aiHand.name} schlägt ${pHand.name}.`);
-              sfx.lose();
-              vibrate([120, 60, 80]);
-            } else {
-              setScores((s) => ({ ...s, draws: s.draws + 1 }));
-              setAnnouncement(`Unentschieden — beide ${pHand.name}.`);
-              sfx.match();
-            }
-            return pd;
-          });
-        }, 50);
+    setRollsLeft((r) => r - 1);
+  }, [rollsLeft, over, held, sfx, vibrate]);
+
+  // Runden-Auflösung: sobald keine Würfe mehr übrig sind, spielt die KI und das
+  // Ergebnis wird ausgewertet. Bewusst als Effect mit Cleanup statt verschachtelt
+  // im setRollsLeft-Updater — Updater müssen pur sein (StrictMode ruft sie doppelt
+  // auf), sonst würde der Score doppelt gezählt und der Timeout leakte.
+  useEffect(() => {
+    if (rollsLeft !== 0 || over) return;
+    const aiTurn = [0, 0, 0, 0, 0].map(() => 1 + Math.floor(Math.random() * 6));
+    for (let pass = 0; pass < 2; pass++) {
+      for (let i = 0; i < 5; i++) {
+        if (!shouldHold(aiTurn, i)) aiTurn[i] = 1 + Math.floor(Math.random() * 6);
       }
-      return next;
-    });
-  }, [rollsLeft, over, held, setScores, sfx, vibrate]);
+    }
+    setAiDice(aiTurn);
+    const id = window.setTimeout(() => {
+      const aiHand = evaluateHand(aiTurn);
+      const pHand = evaluateHand(pDice);
+      setOver(true);
+      if (pHand.rank > aiHand.rank || (pHand.rank === aiHand.rank && pHand.val > aiHand.val)) {
+        setScores((s) => ({ ...s, you: s.you + 1 }));
+        setAnnouncement(`Du gewinnst: ${pHand.name} schlägt ${aiHand.name}.`);
+        sfx.win();
+        vibrate([60, 40, 120]);
+      } else if (
+        aiHand.rank > pHand.rank ||
+        (aiHand.rank === pHand.rank && aiHand.val > pHand.val)
+      ) {
+        setScores((s) => ({ ...s, ai: s.ai + 1 }));
+        setAnnouncement(`KI gewinnt: ${aiHand.name} schlägt ${pHand.name}.`);
+        sfx.lose();
+        vibrate([120, 60, 80]);
+      } else {
+        setScores((s) => ({ ...s, draws: s.draws + 1 }));
+        setAnnouncement(`Unentschieden — beide ${pHand.name}.`);
+        sfx.match();
+      }
+    }, 50);
+    return () => window.clearTimeout(id);
+  }, [rollsLeft, over, pDice, setScores, sfx, vibrate]);
 
   const toggleHold = useCallback(
     (i: number) => {
@@ -155,6 +149,7 @@ export default function WuerfelpokerGame() {
           {aiDice.map((d, i) => (
             <div
               key={i}
+              role="img"
               aria-label={`KI-Würfel ${i + 1}${over ? `: ${d}` : ': verdeckt'}`}
               className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-700 text-2xl text-amber-200"
             >

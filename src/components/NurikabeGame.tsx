@@ -233,6 +233,7 @@ export default function NurikabeGame() {
               return (
                 <div
                   key={key}
+                  role="img"
                   aria-label={`Insel-Hinweis ${clue} bei ${r + 1},${c + 1}`}
                   className="flex aspect-square items-center justify-center rounded-md bg-amber-300 text-base font-bold text-slate-900"
                 >

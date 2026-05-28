@@ -156,6 +156,7 @@ export default function HanoiGame() {
                       key={`${diskSize}-${i}`}
                       className={`h-5 rounded-md ${color}`}
                       style={{ width: `${widthPct}%` }}
+                      role="img"
                       aria-label={`Scheibe Größe ${diskSize}`}
                     />
                   );

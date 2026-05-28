@@ -192,6 +192,7 @@ export default function TwentyFortyEightGame() {
               <div
                 key={i}
                 className={`flex aspect-square items-center justify-center rounded-xl font-bold tabular-nums transition ${tileClass(v)} ${fontSizeClass(v)}`}
+                role="img"
                 aria-label={v === 0 ? `Feld ${i + 1} leer` : `Feld ${i + 1}: ${v}`}
               >
                 {v === 0 ? '' : v}

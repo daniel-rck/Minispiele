@@ -286,6 +286,7 @@ export default function BlocksGame() {
         </div>
         <div
           className="flex flex-col items-center rounded-lg bg-slate-100 px-2 py-1 dark:bg-slate-800"
+          role="img"
           aria-label="Nächster Block"
         >
           <span className="mb-1 text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">

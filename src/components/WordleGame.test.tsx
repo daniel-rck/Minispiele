@@ -10,8 +10,8 @@ beforeEach(() => {
 describe('WordleGame', () => {
   it('renders six rows of five empty cells and a keyboard', () => {
     render(<WordleGame />);
-    // 6 * 5 = 30 grid cells expected
-    expect(screen.getAllByRole('gridcell')).toHaveLength(30);
+    // 6 * 5 = 30 cells expected (each cell is an image with its letter/status as label)
+    expect(screen.getAllByRole('img')).toHaveLength(30);
     // Keyboard letter A is rendered (case-insensitive aria-label)
     expect(screen.getByRole('button', { name: /Buchstabe A/i })).toBeInTheDocument();
   });
@@ -21,7 +21,7 @@ describe('WordleGame', () => {
     render(<WordleGame />);
     await user.click(screen.getByRole('button', { name: /Buchstabe A/i }));
     // The first row's first cell should now contain 'A' as accessible name
-    const cells = screen.getAllByRole('gridcell');
+    const cells = screen.getAllByRole('img');
     expect(cells[0]?.textContent).toContain('A');
   });
 

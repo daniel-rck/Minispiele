@@ -122,6 +122,7 @@ export default function KakuroGame() {
               return (
                 <div
                   key={`${r}-${c}`}
+                  role="img"
                   aria-label={`Hinweis ${cell.d ? `runter ${cell.d}` : ''} ${cell.r ? `rechts ${cell.r}` : ''}`.trim()}
                   className="relative flex aspect-square flex-col items-stretch justify-between bg-slate-800 text-[10px] font-bold text-amber-300"
                 >

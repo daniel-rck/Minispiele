@@ -144,16 +144,16 @@ export default function MastermindGame() {
 
       <div
         className="flex w-full max-w-md flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
-        role="grid"
+        role="group"
         aria-label="Mastermind-Versuche"
       >
         {rows.map((row, i) => (
-          <div key={i} className="flex items-center gap-2" role="row">
+          <div key={i} className="flex items-center gap-2">
             <div className="flex flex-1 gap-1.5">
               {row.pegs.map((p, j) => (
                 <div
                   key={j}
-                  role="gridcell"
+                  role="img"
                   aria-label={p === null ? 'leer' : COLOR_NAMES[p]}
                   className={`h-7 w-7 rounded-full border ${
                     p === null
@@ -244,6 +244,7 @@ export default function MastermindGame() {
             {state.code.map((c, i) => (
               <span
                 key={i}
+                role="img"
                 aria-label={COLOR_NAMES[c]}
                 className={`h-8 w-8 rounded-full border ${COLOR_CLASSES[c]}`}
               />
