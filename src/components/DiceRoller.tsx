@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useVibration } from '../hooks/useVibration';
 import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
 import {
   buildPreset,
@@ -118,17 +119,6 @@ function persistDice(dice: readonly Die[]): void {
   }
 }
 
-function vibrate(pattern: number | number[]): void {
-  if (typeof navigator === 'undefined') return;
-  if (typeof navigator.vibrate === 'function') {
-    try {
-      navigator.vibrate(pattern);
-    } catch {
-      /* no-op */
-    }
-  }
-}
-
 function buildHistoryEntry(dice: readonly Die[], modifier: number): DiceHistoryEntry {
   return {
     id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -236,6 +226,7 @@ export default function DiceRoller() {
     [],
   );
   const [lastAnnouncement, setLastAnnouncement] = useState('');
+  const { vibrate } = useVibration();
 
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
   const settleTimeoutRef = useRef<number | null>(null);
@@ -351,7 +342,7 @@ export default function DiceRoller() {
       if (mode !== 'normal') setMode('normal');
       return next;
     });
-  }, [animateRoll, mode, recordHistory]);
+  }, [animateRoll, mode, recordHistory, vibrate]);
 
   const handleRollOne = useCallback(
     (id: string) => {
@@ -370,7 +361,7 @@ export default function DiceRoller() {
         return next;
       });
     },
-    [animateRoll, mode, recordHistory],
+    [animateRoll, mode, recordHistory, vibrate],
   );
 
   const handleToggleHold = useCallback((id: string) => {

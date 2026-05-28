@@ -5,7 +5,7 @@
 <h1 align="center">Minispiele</h1>
 
 <p align="center">
-  <strong>31 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.</strong>
+  <strong>65 Browser-Minispiele. Lokal, ohne Account, ohne Tracking.</strong>
 </p>
 
 <p align="center">
@@ -20,10 +20,10 @@
   <br>
   <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square"></a>
   <a href="https://www.typescriptlang.org"><img alt="TypeScript 5.7" src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white&style=flat-square"></a>
-  <a href="https://vitejs.dev"><img alt="Vite 7" src="https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white&style=flat-square"></a>
+  <a href="https://vitejs.dev"><img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white&style=flat-square"></a>
   <a href="https://tailwindcss.com"><img alt="Tailwind 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square"></a>
   <img alt="PWA ready" src="https://img.shields.io/badge/PWA-ready-5A0FC8?logo=pwa&logoColor=white&style=flat-square">
-  <a href="https://prettier.io"><img alt="Code style: Prettier" src="https://img.shields.io/badge/code_style-prettier-F7B93E?logo=prettier&logoColor=white&style=flat-square"></a>
+  <a href="https://biomejs.dev"><img alt="Code style: Biome" src="https://img.shields.io/badge/code_style-biome-60A5FA?logo=biome&logoColor=white&style=flat-square"></a>
 </p>
 
 ---
@@ -34,7 +34,7 @@ Sammlung kleiner Browser-Minispiele als Progressive Web App. Alles läuft im Bro
 
 ## Spiele
 
-31 Spiele in sechs Kategorien — **Logik & Denksport** (14) · **Wort & Sprache** (4) · **Action & Arcade** (4) · **Gehirntraining** (6) · **Karten** (1) · **Werkzeuge** (2). Vollständige Liste in [`GAMES.md`](./GAMES.md). Quelle der Wahrheit ist [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts).
+65 Spiele in sechs Kategorien — **Logik & Denksport** (31) · **Wort & Sprache** (8) · **Action & Arcade** (9) · **Gehirntraining** (10) · **Karten** (2) · **Werkzeuge** (5). Vollständige Liste in [`GAMES.md`](./GAMES.md). Quelle der Wahrheit ist [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts).
 
 ## Quickstart
 

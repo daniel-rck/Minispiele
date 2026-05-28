@@ -53,6 +53,22 @@ describe('useAnimationFrame', () => {
     expect(cb).toHaveBeenLastCalledWith(20);
   });
 
+  it('clamps a large delta (e.g. after the tab was hidden) to 100ms', () => {
+    const cb = vi.fn();
+    renderHook(() => useAnimationFrame(cb, true));
+
+    // Simulate the tab being hidden for 30s: requestAnimationFrame would only
+    // fire again on return, reporting one huge gap.
+    const id = [...callbacks.keys()][0]!;
+    const frame = callbacks.get(id)!;
+    callbacks.delete(id);
+    now += 30_000;
+    frame(now);
+
+    expect(cb).toHaveBeenCalledTimes(1);
+    expect(cb).toHaveBeenLastCalledWith(100);
+  });
+
   it('does not schedule when inactive', () => {
     const cb = vi.fn();
     renderHook(() => useAnimationFrame(cb, false));
