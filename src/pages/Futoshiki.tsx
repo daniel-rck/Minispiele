@@ -6,6 +6,7 @@ export default function Futoshiki() {
     <GameLayout
       title="Futoshiki"
       description="Latein-Quadrat mit Vergleichszeichen — fülle das Gitter mit 1 bis N."
+      fit="scroll"
     >
       <FutoshikiGame />
     </GameLayout>

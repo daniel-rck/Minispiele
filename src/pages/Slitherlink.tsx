@@ -6,6 +6,7 @@ export default function Slitherlink() {
     <GameLayout
       title="Slitherlink"
       description="Zeichne eine geschlossene Schleife so, dass alle Zahlenhinweise erfüllt sind."
+      fit="scroll"
     >
       <SlitherlinkGame />
     </GameLayout>

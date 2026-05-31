@@ -66,7 +66,7 @@ export default function BingoGame() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-4 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-col items-center gap-1">
@@ -76,7 +76,7 @@ export default function BingoGame() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-stretch justify-center gap-4">
+      <div className="flex min-h-0 w-full flex-1 flex-wrap items-stretch justify-center gap-4 overflow-y-auto">
         {state.cards.map((card, ci) => (
           <CardView
             key={`card-${ci}`}

@@ -6,6 +6,7 @@ export default function SpellingBee() {
     <GameLayout
       title="Buchstabierbiene"
       description="Bilde Wörter aus sieben Buchstaben — der mittlere muss in jedem Wort vorkommen. Pangrams geben Bonuspunkte."
+      fit="scroll"
     >
       <SpellingBeeGame />
     </GameLayout>

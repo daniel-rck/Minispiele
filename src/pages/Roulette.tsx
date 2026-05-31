@@ -6,6 +6,7 @@ export default function Roulette() {
     <GameLayout
       title="Roulette"
       description="Casino-Roulette. Setze auf Zahlen, Farben oder Gruppen — Rien ne va plus!"
+      fit="scroll"
     >
       <RouletteGame />
     </GameLayout>
