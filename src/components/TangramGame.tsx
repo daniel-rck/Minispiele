@@ -1,4 +1,5 @@
 import {
+  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
@@ -193,7 +194,7 @@ export default function TangramGame() {
   const SOLUTION_OFFSET_Y = 90;
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -220,67 +221,71 @@ export default function TangramGame() {
         </label>
       </div>
 
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-          className="h-auto w-full touch-none select-none"
-          style={{ aspectRatio: `${VIEW_W} / ${VIEW_H}` }}
-          role="application"
-          aria-label="Tangram-Spielfläche"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
+      <div className="fit-area w-full">
+        <div
+          className="relative fit-box max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
+          style={{ '--fit-ar': VIEW_W / VIEW_H } as CSSProperties}
         >
-          <path
-            d={puzzlePathD}
-            fill="rgba(148, 163, 184, 0.18)"
-            stroke="rgba(148, 163, 184, 0.55)"
-            strokeWidth={2}
-          />
-          {showSolution &&
-            PIECE_DEFS.map((def) => (
-              <path
-                key={`sol-${def.id}`}
-                d={
-                  def.points
-                    .map(
-                      ([x, y], i) =>
-                        `${i === 0 ? 'M' : 'L'} ${SOLUTION_OFFSET_X + x} ${SOLUTION_OFFSET_Y + y}`,
-                    )
-                    .join(' ') + ' Z'
-                }
-                fill={def.color}
-                opacity={0.35}
-                stroke="white"
-                strokeWidth={1}
-              />
-            ))}
-          {order.map((id) => {
-            const def = PIECE_DEFS[id]!;
-            const state = pieces.find((p) => p.id === id);
-            if (!state) return null;
-            const points = rotatedPiece(def, state)
-              .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`)
-              .join(' ');
-            return (
-              <polygon
-                key={id}
-                points={points}
-                fill={def.color}
-                stroke="#0f172a"
-                strokeWidth={1.5}
-                opacity={0.92}
-              >
-                <title>{def.name}</title>
-              </polygon>
-            );
-          })}
-        </svg>
-        <p className="absolute right-3 top-3 rounded bg-white/80 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800/80 dark:text-slate-200">
-          {puzzle.name}
-        </p>
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+            className="h-full w-full touch-none select-none"
+            role="application"
+            aria-label="Tangram-Spielfläche"
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+          >
+            <path
+              d={puzzlePathD}
+              fill="rgba(148, 163, 184, 0.18)"
+              stroke="rgba(148, 163, 184, 0.55)"
+              strokeWidth={2}
+            />
+            {showSolution &&
+              PIECE_DEFS.map((def) => (
+                <path
+                  key={`sol-${def.id}`}
+                  d={
+                    def.points
+                      .map(
+                        ([x, y], i) =>
+                          `${i === 0 ? 'M' : 'L'} ${SOLUTION_OFFSET_X + x} ${SOLUTION_OFFSET_Y + y}`,
+                      )
+                      .join(' ') + ' Z'
+                  }
+                  fill={def.color}
+                  opacity={0.35}
+                  stroke="white"
+                  strokeWidth={1}
+                />
+              ))}
+            {order.map((id) => {
+              const def = PIECE_DEFS[id]!;
+              const state = pieces.find((p) => p.id === id);
+              if (!state) return null;
+              const points = rotatedPiece(def, state)
+                .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`)
+                .join(' ');
+              return (
+                <polygon
+                  key={id}
+                  points={points}
+                  fill={def.color}
+                  stroke="#0f172a"
+                  strokeWidth={1.5}
+                  opacity={0.92}
+                >
+                  <title>{def.name}</title>
+                </polygon>
+              );
+            })}
+          </svg>
+          <p className="absolute right-3 top-3 rounded bg-white/80 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800/80 dark:text-slate-200">
+            {puzzle.name}
+          </p>
+        </div>
       </div>
 
       <p className="max-w-md text-center text-xs text-slate-500">

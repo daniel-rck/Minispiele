@@ -125,7 +125,7 @@ export default function FlowGame() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -160,46 +160,48 @@ export default function FlowGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-md select-none gap-1 rounded-2xl bg-slate-900 p-2 touch-none dark:bg-slate-950"
-        style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
-        onPointerUp={endDraw}
-        onPointerLeave={endDraw}
-        role="grid"
-        aria-label="Verbinden-Spielfeld"
-      >
-        {cells.map((c) => (
-          <button
-            key={c.idx}
-            type="button"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              startCell(c.idx);
-            }}
-            onPointerEnter={() => enterCell(c.idx)}
-            aria-label={
-              c.isEndpoint
-                ? `Endpunkt Farbe ${(c.endpointColor ?? 0) + 1}`
-                : c.pathColor !== null
-                  ? `Weg Farbe ${c.pathColor + 1}`
-                  : 'Leere Zelle'
-            }
-            className="relative flex aspect-square items-center justify-center rounded-md bg-slate-800 transition-colors"
-          >
-            {c.isEndpoint && (
-              <span
-                className="block h-3/5 w-3/5 rounded-full"
-                style={{ background: colorHex(c.endpointColor!) }}
-              />
-            )}
-            {!c.isEndpoint && c.pathColor !== null && (
-              <span
-                className="block h-1/2 w-1/2 rounded-sm opacity-70"
-                style={{ background: colorHex(c.pathColor) }}
-              />
-            )}
-          </button>
-        ))}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-md select-none gap-1 rounded-2xl bg-slate-900 p-2 touch-none dark:bg-slate-950"
+          style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
+          onPointerUp={endDraw}
+          onPointerLeave={endDraw}
+          role="grid"
+          aria-label="Verbinden-Spielfeld"
+        >
+          {cells.map((c) => (
+            <button
+              key={c.idx}
+              type="button"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                startCell(c.idx);
+              }}
+              onPointerEnter={() => enterCell(c.idx)}
+              aria-label={
+                c.isEndpoint
+                  ? `Endpunkt Farbe ${(c.endpointColor ?? 0) + 1}`
+                  : c.pathColor !== null
+                    ? `Weg Farbe ${c.pathColor + 1}`
+                    : 'Leere Zelle'
+              }
+              className="relative flex aspect-square items-center justify-center rounded-md bg-slate-800 transition-colors"
+            >
+              {c.isEndpoint && (
+                <span
+                  className="block h-3/5 w-3/5 rounded-full"
+                  style={{ background: colorHex(c.endpointColor!) }}
+                />
+              )}
+              {!c.isEndpoint && c.pathColor !== null && (
+                <span
+                  className="block h-1/2 w-1/2 rounded-sm opacity-70"
+                  style={{ background: colorHex(c.pathColor) }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Button variant="primary" block className="max-w-md" onClick={() => restart()}>

@@ -262,7 +262,7 @@ export default function GfrettGame() {
   const movesLeft = state.moveLimit !== null ? state.moveLimit - state.moves : null;
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -311,18 +311,20 @@ export default function GfrettGame() {
         </div>
       </div>
 
-      <Board
-        state={state}
-        drag={drag}
-        boardRef={boardRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerCancel}
-        onFocusBlock={(id) => {
-          focusedBlockRef.current = id;
-        }}
-      />
+      <div className="fit-area w-full">
+        <Board
+          state={state}
+          drag={drag}
+          boardRef={boardRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+          onFocusBlock={(id) => {
+            focusedBlockRef.current = id;
+          }}
+        />
+      </div>
 
       <MatchAreaView slots={state.matchArea.slots} capacity={state.matchArea.capacity} />
 
@@ -405,12 +407,14 @@ function Board({
   return (
     <div
       ref={boardRef}
-      className="grid w-full max-w-md touch-none select-none rounded-2xl bg-slate-800 p-1 dark:bg-slate-900"
-      style={{
-        gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))`,
-        aspectRatio: `${grid.cols} / ${grid.rows}`,
-      }}
+      className="grid fit-box max-w-md touch-none select-none rounded-2xl bg-slate-800 p-1 dark:bg-slate-900"
+      style={
+        {
+          gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))`,
+          '--fit-ar': grid.cols / grid.rows,
+        } as CSSProperties
+      }
       role="application"
       aria-label="Gfrett-Spielfeld"
     >
