@@ -96,7 +96,7 @@ export default function SchulteGame() {
   const best = bestMap[String(size)];
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -134,31 +134,33 @@ export default function SchulteGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-md gap-1 rounded-2xl bg-slate-200 p-1 dark:bg-slate-800"
-        style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
-        role="group"
-        aria-label={`Schulte-Tabelle ${size} mal ${size}`}
-      >
-        {board.map((value, i) => {
-          const done = value < next;
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={() => handlePress(value)}
-              disabled={finishedSec !== null}
-              aria-label={`Zahl ${value}`}
-              className={`flex aspect-square items-center justify-center rounded-lg text-base font-bold tabular-nums sm:text-xl md:text-2xl ${
-                done
-                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200'
-                  : 'bg-white text-slate-800 hover:bg-brand-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800'
-              }`}
-            >
-              {value}
-            </button>
-          );
-        })}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-md gap-1 rounded-2xl bg-slate-200 p-1 dark:bg-slate-800"
+          style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
+          role="group"
+          aria-label={`Schulte-Tabelle ${size} mal ${size}`}
+        >
+          {board.map((value, i) => {
+            const done = value < next;
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handlePress(value)}
+                disabled={finishedSec !== null}
+                aria-label={`Zahl ${value}`}
+                className={`flex aspect-square items-center justify-center rounded-lg text-base font-bold tabular-nums sm:text-xl md:text-2xl ${
+                  done
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200'
+                    : 'bg-white text-slate-800 hover:bg-brand-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                {value}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <Button variant="primary" block className="max-w-md" onClick={() => reset()}>

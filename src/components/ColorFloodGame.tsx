@@ -79,7 +79,7 @@ export default function ColorFloodGame() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -104,19 +104,21 @@ export default function ColorFloodGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-md gap-0 overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
-        style={{ gridTemplateColumns: `repeat(${COLOR_FLOOD_SIZE}, minmax(0, 1fr))` }}
-        role="img"
-        aria-label={`Farbflut-Spielfeld, ${state.moves} von ${COLOR_FLOOD_MAX_MOVES} Zügen verbraucht, ${percent} Prozent geflutet`}
-      >
-        {state.grid.map((color, i) => (
-          <div
-            key={i}
-            className="aspect-square"
-            style={{ backgroundColor: COLOR_FLOOD_PALETTE[color] }}
-          />
-        ))}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-md gap-0 overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
+          style={{ gridTemplateColumns: `repeat(${COLOR_FLOOD_SIZE}, minmax(0, 1fr))` }}
+          role="img"
+          aria-label={`Farbflut-Spielfeld, ${state.moves} von ${COLOR_FLOOD_MAX_MOVES} Zügen verbraucht, ${percent} Prozent geflutet`}
+        >
+          {state.grid.map((color, i) => (
+            <div
+              key={i}
+              className="aspect-square"
+              style={{ backgroundColor: COLOR_FLOOD_PALETTE[color] }}
+            />
+          ))}
+        </div>
       </div>
 
       <div

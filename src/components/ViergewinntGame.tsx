@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { type ViergewinntDifficulty, ViergewinntDifficultySchema } from '../lib/persistedSchemas';
@@ -249,7 +249,7 @@ export default function ViergewinntGame() {
   }, [vsAi, over, turn, difficulty, board, drop]);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -289,36 +289,42 @@ export default function ViergewinntGame() {
         {thinking ? 'Computer denkt …' : announcement}
       </div>
 
-      <div
-        className="grid gap-1 rounded-2xl bg-sky-700 p-2"
-        role="group"
-        aria-label="4-Gewinnt-Spielbrett"
-        style={{
-          gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
-          maxWidth: '440px',
-          width: '100%',
-        }}
-      >
-        {board.flatMap((row, r) =>
-          row.map((value, c) => {
-            const isWin = winCells.some(([wr, wc]) => wr === r && wc === c);
-            const color =
-              value === 1 ? 'bg-rose-500' : value === 2 ? 'bg-amber-300' : 'bg-slate-900';
-            const ring = isWin ? 'ring-4 ring-emerald-400' : '';
-            return (
-              <button
-                key={`${r}-${c}`}
-                type="button"
-                onClick={() => drop(c)}
-                disabled={over || thinking || (vsAi && turn === 2)}
-                aria-label={`Spalte ${c + 1}`}
-                className="aspect-square"
-              >
-                <span aria-hidden className={`block h-full w-full rounded-full ${color} ${ring}`} />
-              </button>
-            );
-          }),
-        )}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-[440px] gap-1 rounded-2xl bg-sky-700 p-2"
+          role="group"
+          aria-label="4-Gewinnt-Spielbrett"
+          style={
+            {
+              gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
+              '--fit-ar': COLS / ROWS,
+            } as CSSProperties
+          }
+        >
+          {board.flatMap((row, r) =>
+            row.map((value, c) => {
+              const isWin = winCells.some(([wr, wc]) => wr === r && wc === c);
+              const color =
+                value === 1 ? 'bg-rose-500' : value === 2 ? 'bg-amber-300' : 'bg-slate-900';
+              const ring = isWin ? 'ring-4 ring-emerald-400' : '';
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  type="button"
+                  onClick={() => drop(c)}
+                  disabled={over || thinking || (vsAi && turn === 2)}
+                  aria-label={`Spalte ${c + 1}`}
+                  className="aspect-square"
+                >
+                  <span
+                    aria-hidden
+                    className={`block h-full w-full rounded-full ${color} ${ring}`}
+                  />
+                </button>
+              );
+            }),
+          )}
+        </div>
       </div>
 
       <p className="max-w-md text-center text-xs text-surface-500 dark:text-surface-400">

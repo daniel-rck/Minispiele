@@ -6,6 +6,7 @@ export default function Connections() {
     <GameLayout
       title="Connections"
       description="Finde 4 Gruppen von je 4 zusammengehörigen Wörtern — höchstens 4 Fehler."
+      fit="scroll"
     >
       <ConnectionsGame />
     </GameLayout>

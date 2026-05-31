@@ -212,7 +212,7 @@ export default function TicTacToeGame() {
   }, [handleNewGame, setScores]);
 
   return (
-    <div className="flex flex-col items-center gap-4 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
       <AriaLive message={announcement} />
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 sm:grid-cols-4">
@@ -251,37 +251,39 @@ export default function TicTacToeGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-md grid-cols-3 gap-2"
-        role="group"
-        aria-label="Tic-Tac-Toe-Spielfeld"
-      >
-        {board.map((value, i) => {
-          const isWin = winCells.includes(i);
-          const baseColor = isWin
-            ? 'border-emerald-500 bg-emerald-100 dark:bg-emerald-900/40'
-            : 'border-surface-300 bg-surface-100 hover:bg-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:hover:bg-surface-700';
-          const valueColor =
-            value === 'X'
-              ? 'text-amber-600 dark:text-amber-400'
-              : value === 'O'
-                ? 'text-rose-600 dark:text-rose-400'
-                : '';
-          return (
-            <button
-              key={`cell-${i}`}
-              type="button"
-              onClick={() => handleCell(i)}
-              disabled={over || value !== '' || turn !== 'X'}
-              aria-label={
-                value === '' ? `Feld ${i + 1} leer` : `Feld ${i + 1} ${value === 'X' ? 'X' : 'O'}`
-              }
-              className={`aspect-square min-h-16 rounded-xl border-2 text-4xl font-extrabold transition-colors disabled:cursor-not-allowed ${baseColor} ${valueColor}`}
-            >
-              {value || ''}
-            </button>
-          );
-        })}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-md grid-cols-3 gap-2"
+          role="group"
+          aria-label="Tic-Tac-Toe-Spielfeld"
+        >
+          {board.map((value, i) => {
+            const isWin = winCells.includes(i);
+            const baseColor = isWin
+              ? 'border-emerald-500 bg-emerald-100 dark:bg-emerald-900/40'
+              : 'border-surface-300 bg-surface-100 hover:bg-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:hover:bg-surface-700';
+            const valueColor =
+              value === 'X'
+                ? 'text-amber-600 dark:text-amber-400'
+                : value === 'O'
+                  ? 'text-rose-600 dark:text-rose-400'
+                  : '';
+            return (
+              <button
+                key={`cell-${i}`}
+                type="button"
+                onClick={() => handleCell(i)}
+                disabled={over || value !== '' || turn !== 'X'}
+                aria-label={
+                  value === '' ? `Feld ${i + 1} leer` : `Feld ${i + 1} ${value === 'X' ? 'X' : 'O'}`
+                }
+                className={`aspect-square rounded-xl border-2 text-4xl font-extrabold transition-colors disabled:cursor-not-allowed ${baseColor} ${valueColor}`}
+              >
+                {value || ''}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {over && (

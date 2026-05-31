@@ -180,7 +180,7 @@ export default function Match3Game() {
   );
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-surface-700 dark:text-surface-200">
@@ -195,38 +195,36 @@ export default function Match3Game() {
         </div>
       </div>
 
-      <div
-        className="grid gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
-        role="group"
-        aria-label="Match-3-Spielfeld"
-        style={{
-          gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))`,
-          maxWidth: '380px',
-          width: '100%',
-        }}
-      >
-        {grid.flatMap((row, r) =>
-          row.map((value, c) => {
-            const isSelected = selected?.[0] === r && selected?.[1] === c;
-            return (
-              <button
-                key={`${r}-${c}`}
-                type="button"
-                onClick={() => handleCell(r, c)}
-                disabled={over}
-                aria-label={`Feld ${r + 1},${c + 1}`}
-                className="aspect-square p-0.5"
-              >
-                <span
-                  aria-hidden
-                  className={`block h-full w-full rounded-full ${COLORS[value] ?? 'bg-slate-700'} ${
-                    isSelected ? 'ring-4 ring-amber-300' : ''
-                  }`}
-                />
-              </button>
-            );
-          }),
-        )}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-[380px] gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
+          role="group"
+          aria-label="Match-3-Spielfeld"
+          style={{ gridTemplateColumns: `repeat(${N}, minmax(0, 1fr))` }}
+        >
+          {grid.flatMap((row, r) =>
+            row.map((value, c) => {
+              const isSelected = selected?.[0] === r && selected?.[1] === c;
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  type="button"
+                  onClick={() => handleCell(r, c)}
+                  disabled={over}
+                  aria-label={`Feld ${r + 1},${c + 1}`}
+                  className="aspect-square p-0.5"
+                >
+                  <span
+                    aria-hidden
+                    className={`block h-full w-full rounded-full ${COLORS[value] ?? 'bg-slate-700'} ${
+                      isSelected ? 'ring-4 ring-amber-300' : ''
+                    }`}
+                  />
+                </button>
+              );
+            }),
+          )}
+        </div>
       </div>
 
       <Button variant="primary" onClick={restart}>

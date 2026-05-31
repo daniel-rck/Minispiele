@@ -6,6 +6,7 @@ export default function Freecell() {
     <GameLayout
       title="FreeCell"
       description="Sortiere alle Karten nach Farbe auf die vier Foundations. Vier freie Zellen helfen dir bei komplizierten Zügen."
+      fit="scroll"
     >
       <FreecellGame />
     </GameLayout>

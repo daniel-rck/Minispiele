@@ -185,7 +185,7 @@ export default function SimonGame() {
           : 'Bereit';
 
   return (
-    <div className="flex flex-col items-center gap-4 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
       <AriaLive message={announcement} />
 
       <div className="grid w-full grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -200,28 +200,30 @@ export default function SimonGame() {
         </div>
       </div>
 
-      <div
-        className="grid aspect-square w-full max-w-md grid-cols-2 grid-rows-2 gap-2 rounded-full bg-slate-900 p-2 dark:bg-slate-950 sm:max-w-lg"
-        role="group"
-        aria-label="Simon-Felder"
-      >
-        {PADS.map((pad, idx) => {
-          const color = idx as SimonColor;
-          const isActive = activePad === color;
-          const disabled = state.phase !== 'input';
-          return (
-            <button
-              key={pad.label}
-              type="button"
-              onClick={() => handlePadPress(color)}
-              disabled={disabled}
-              aria-label={pad.label}
-              className={`relative h-full w-full transition-transform select-none ${pad.position} ${
-                isActive ? pad.flash : pad.base
-              } ${disabled ? 'cursor-not-allowed opacity-80' : 'active:scale-[0.98]'}`}
-            />
-          );
-        })}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-md grid-cols-2 grid-rows-2 gap-2 rounded-full bg-slate-900 p-2 dark:bg-slate-950 sm:max-w-lg"
+          role="group"
+          aria-label="Simon-Felder"
+        >
+          {PADS.map((pad, idx) => {
+            const color = idx as SimonColor;
+            const isActive = activePad === color;
+            const disabled = state.phase !== 'input';
+            return (
+              <button
+                key={pad.label}
+                type="button"
+                onClick={() => handlePadPress(color)}
+                disabled={disabled}
+                aria-label={pad.label}
+                className={`relative h-full w-full transition-transform select-none ${pad.position} ${
+                  isActive ? pad.flash : pad.base
+                } ${disabled ? 'cursor-not-allowed opacity-80' : 'active:scale-[0.98]'}`}
+              />
+            );
+          })}
+        </div>
       </div>
 
       {showStart && (

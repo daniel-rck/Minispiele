@@ -6,6 +6,7 @@ export default function Kniffel() {
     <GameLayout
       title="Kniffel"
       description="Würfelspiel mit 13 Kategorien. 3 Würfe pro Runde, ab 63 Oberteil-Bonus."
+      fit="scroll"
     >
       <KniffelGame />
     </GameLayout>

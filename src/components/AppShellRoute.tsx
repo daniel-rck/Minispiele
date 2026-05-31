@@ -27,7 +27,7 @@ export default function AppShellRoute() {
   const isHome = pathname === ROUTES.home;
 
   return (
-    <div className="flex min-h-full flex-col bg-surface text-fg">
+    <div className="flex h-full flex-col bg-surface text-fg">
       <a href="#main" className="skip-link">
         Zum Inhalt springen
       </a>
@@ -68,7 +68,7 @@ export default function AppShellRoute() {
         }
       />
       <OfflineIndicator />
-      <main id="main" className="flex-1" tabIndex={-1}>
+      <main id="main" className="flex min-h-0 flex-1 flex-col" tabIndex={-1}>
         <ErrorBoundary label="route">
           <Suspense fallback={<RouteFallback />}>
             <Outlet />

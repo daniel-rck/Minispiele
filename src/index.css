@@ -259,6 +259,38 @@ input[type="search"]::-webkit-search-decoration {
   top: 0;
 }
 
+/* ----- Viewport-Fit: Spielbretter sollen ohne Seiten-Scroll passen -----
+   `fit-area` ist der höhenbegrenzte Eltern-Container (Flex-Child, der dank
+   `min-height:0` schrumpfen darf) und etabliert via `container-type:size` die
+   Bezugsgröße für Container-Query-Einheiten. `fit-box` rendert darin die größte
+   Box mit Seitenverhältnis `--fit-ar` (Standard 1 = Quadrat), die in BEIDE
+   Dimensionen passt, ohne hochzuskalieren. Für nicht-quadratische Bretter
+   `style={{ '--fit-ar': cols / rows }}` setzen. */
+@utility fit-area {
+  display: flex;
+  flex: 1 1 0%;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+
+@utility fit-box {
+  --fit-ar: 1;
+  aspect-ratio: var(--fit-ar);
+  /* größte Breite, die zugleich in Container-Breite UND -Höhe passt */
+  width: min(100cqw, calc(100cqh * var(--fit-ar)));
+}
+
+/* In dichten Spielrastern dürfen einzelne Zellen kleiner als das 44px-Touch-
+   Minimum (coarse pointer) werden – sonst sprengen z.B. 30 Reihen à 44px die
+   Höhe und `aspect-ratio` kann das Brett nicht passend skalieren. Das Brett als
+   Ganzes bleibt ein großes Touch-Ziel. */
+.fit-box :where(button, [role="button"]) {
+  min-height: 0;
+  min-width: 0;
+}
+
 /* ----- New playful interaction patterns ----- */
 
 @keyframes star-pop {
