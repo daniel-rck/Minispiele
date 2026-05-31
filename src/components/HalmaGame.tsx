@@ -220,7 +220,7 @@ export default function HalmaGame() {
     (side === 'player' ? PLAYER_HOME : AI_HOME).some(([rr, cc]) => rr === r && cc === c);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="flex w-full max-w-md items-center justify-between text-sm text-surface-700 dark:text-surface-200">
@@ -238,47 +238,45 @@ export default function HalmaGame() {
         </div>
       </div>
 
-      <div
-        className="grid gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
-        role="group"
-        aria-label="Halma-Spielfeld"
-        style={{
-          gridTemplateColumns: `repeat(${BOARD}, minmax(0, 1fr))`,
-          maxWidth: '380px',
-          width: '100%',
-        }}
-      >
-        {board.flatMap((row, r) =>
-          row.map((value, c) => {
-            const inPlayer = isInHome(r, c, 'player');
-            const inAi = isInHome(r, c, 'ai');
-            const isMove = moves.some(([vr, vc]) => vr === r && vc === c);
-            const isSelected = selected?.[0] === r && selected?.[1] === c;
-            const bg = inPlayer ? 'bg-rose-900/30' : inAi ? 'bg-sky-900/30' : 'bg-slate-800/60';
-            return (
-              <button
-                key={`${r}-${c}`}
-                type="button"
-                onClick={() => handleCell(r, c)}
-                disabled={!!over || turn !== 'player'}
-                aria-label={`Feld ${r + 1},${c + 1}${value === 1 ? ' Blau' : value === 2 ? ' Rot' : ''}${isMove ? ' Zielfeld' : ''}`}
-                className={`relative aspect-square ${bg} disabled:cursor-not-allowed`}
-              >
-                {isMove && (
-                  <span aria-hidden className="absolute inset-1/4 rounded-full bg-amber-300/60" />
-                )}
-                {value !== 0 && (
-                  <span
-                    aria-hidden
-                    className={`absolute inset-1 rounded-full ${value === 1 ? 'bg-sky-500' : 'bg-rose-500'} ${
-                      isSelected ? 'ring-4 ring-amber-300' : ''
-                    }`}
-                  />
-                )}
-              </button>
-            );
-          }),
-        )}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-[380px] gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
+          role="group"
+          aria-label="Halma-Spielfeld"
+          style={{ gridTemplateColumns: `repeat(${BOARD}, minmax(0, 1fr))` }}
+        >
+          {board.flatMap((row, r) =>
+            row.map((value, c) => {
+              const inPlayer = isInHome(r, c, 'player');
+              const inAi = isInHome(r, c, 'ai');
+              const isMove = moves.some(([vr, vc]) => vr === r && vc === c);
+              const isSelected = selected?.[0] === r && selected?.[1] === c;
+              const bg = inPlayer ? 'bg-rose-900/30' : inAi ? 'bg-sky-900/30' : 'bg-slate-800/60';
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  type="button"
+                  onClick={() => handleCell(r, c)}
+                  disabled={!!over || turn !== 'player'}
+                  aria-label={`Feld ${r + 1},${c + 1}${value === 1 ? ' Blau' : value === 2 ? ' Rot' : ''}${isMove ? ' Zielfeld' : ''}`}
+                  className={`relative aspect-square ${bg} disabled:cursor-not-allowed`}
+                >
+                  {isMove && (
+                    <span aria-hidden className="absolute inset-1/4 rounded-full bg-amber-300/60" />
+                  )}
+                  {value !== 0 && (
+                    <span
+                      aria-hidden
+                      className={`absolute inset-1 rounded-full ${value === 1 ? 'bg-sky-500' : 'bg-rose-500'} ${
+                        isSelected ? 'ring-4 ring-amber-300' : ''
+                      }`}
+                    />
+                  )}
+                </button>
+              );
+            }),
+          )}
+        </div>
       </div>
 
       <Button variant="primary" onClick={restart}>

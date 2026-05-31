@@ -1,4 +1,12 @@
-import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  type ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
 import { useVibration } from '../hooks/useVibration';
 import {
@@ -429,7 +437,7 @@ export default function BubblesGame() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -441,75 +449,77 @@ export default function BubblesGame() {
         </div>
       </div>
 
-      <div
-        className="relative w-full max-w-md touch-none select-none overflow-hidden rounded-2xl bg-slate-900 dark:bg-slate-950"
-        style={{ aspectRatio: `${FIELD_W} / ${FIELD_H}` }}
-        role="application"
-        aria-label="Blasenschießen-Spielfeld"
-      >
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${FIELD_W} ${FIELD_H}`}
-          className="absolute inset-0 h-full w-full"
-          preserveAspectRatio="none"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={(e) => finishDrag(e, true)}
-          onPointerCancel={(e) => finishDrag(e, false)}
+      <div className="fit-area w-full">
+        <div
+          className="relative fit-box max-w-md touch-none select-none overflow-hidden rounded-2xl bg-slate-900 dark:bg-slate-950"
+          style={{ '--fit-ar': FIELD_W / FIELD_H } as CSSProperties}
+          role="application"
+          aria-label="Blasenschießen-Spielfeld"
         >
-          {renderCells()}
-          {aimPreview && (
-            <polyline
-              points={aimPreview.path.map((p) => `${p.x},${p.y}`).join(' ')}
-              fill="none"
-              stroke="rgba(255,255,255,0.45)"
-              strokeWidth={0.4}
-              strokeDasharray="1.5 1.5"
-              aria-hidden
-            />
-          )}
-          {aimPreview && !flight && (
-            <circle
-              cx={aimPreview.path[aimPreview.path.length - 1]!.x}
-              cy={aimPreview.path[aimPreview.path.length - 1]!.y}
-              r={RADIUS}
-              fill="none"
-              stroke="rgba(255,255,255,0.5)"
-              strokeWidth={0.4}
-              strokeDasharray="1 1"
-              aria-hidden
-            />
-          )}
-          {flight && (
-            <circle
-              cx={flight.x}
-              cy={flight.y}
-              r={RADIUS}
-              fill={COLORS[flight.color]}
-              opacity={0.95}
-            />
-          )}
-          {particles.map((p, i) => (
-            <circle
-              key={i}
-              cx={p.x}
-              cy={p.y}
-              r={p.size}
-              fill={p.color}
-              opacity={particleOpacity(p)}
-            />
-          ))}
-          {!flight && (
-            <circle
-              cx={START_X}
-              cy={START_Y}
-              r={RADIUS}
-              fill={COLORS[state.nextColor]}
-              stroke="rgba(255,255,255,0.6)"
-              strokeWidth={0.4}
-            />
-          )}
-        </svg>
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${FIELD_W} ${FIELD_H}`}
+            className="absolute inset-0 h-full w-full"
+            preserveAspectRatio="none"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={(e) => finishDrag(e, true)}
+            onPointerCancel={(e) => finishDrag(e, false)}
+          >
+            {renderCells()}
+            {aimPreview && (
+              <polyline
+                points={aimPreview.path.map((p) => `${p.x},${p.y}`).join(' ')}
+                fill="none"
+                stroke="rgba(255,255,255,0.45)"
+                strokeWidth={0.4}
+                strokeDasharray="1.5 1.5"
+                aria-hidden
+              />
+            )}
+            {aimPreview && !flight && (
+              <circle
+                cx={aimPreview.path[aimPreview.path.length - 1]!.x}
+                cy={aimPreview.path[aimPreview.path.length - 1]!.y}
+                r={RADIUS}
+                fill="none"
+                stroke="rgba(255,255,255,0.5)"
+                strokeWidth={0.4}
+                strokeDasharray="1 1"
+                aria-hidden
+              />
+            )}
+            {flight && (
+              <circle
+                cx={flight.x}
+                cy={flight.y}
+                r={RADIUS}
+                fill={COLORS[flight.color]}
+                opacity={0.95}
+              />
+            )}
+            {particles.map((p, i) => (
+              <circle
+                key={i}
+                cx={p.x}
+                cy={p.y}
+                r={p.size}
+                fill={p.color}
+                opacity={particleOpacity(p)}
+              />
+            ))}
+            {!flight && (
+              <circle
+                cx={START_X}
+                cy={START_Y}
+                r={RADIUS}
+                fill={COLORS[state.nextColor]}
+                stroke="rgba(255,255,255,0.6)"
+                strokeWidth={0.4}
+              />
+            )}
+          </svg>
+        </div>
       </div>
 
       <Button variant="primary" block className="max-w-md" onClick={restart}>
