@@ -343,13 +343,13 @@ export default function FroggerGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-[520px]">
         <canvas
           ref={canvasRef}
           width={W}
           height={H}
           aria-label="Frogger-Spielfeld"
-          className="fit-box max-w-[520px] rounded-lg bg-slate-900 ring-1 ring-slate-700"
+          className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700"
           style={{ '--fit-ar': W / H } as CSSProperties}
         />
       </div>

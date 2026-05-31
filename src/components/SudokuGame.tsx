@@ -305,9 +305,9 @@ export default function SudokuGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md gap-px overflow-hidden rounded-lg border-2 border-slate-700 bg-slate-700 dark:border-slate-500 dark:bg-slate-500"
+          className="grid fit-box gap-px overflow-hidden rounded-lg border-2 border-slate-700 bg-slate-700 dark:border-slate-500 dark:bg-slate-500"
           style={{ gridTemplateColumns: `repeat(${SUDOKU_SIZE}, minmax(0, 1fr))` }}
           role="grid"
           aria-label="Sudoku-Gitter"

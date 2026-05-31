@@ -451,13 +451,13 @@ export default function AsteroidsGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-[700px]">
         <canvas
           ref={canvasRef}
           width={W}
           height={H}
           aria-label="Asteroids-Spielfeld"
-          className="fit-box max-w-[700px] rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
+          className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
           style={{ '--fit-ar': W / H } as CSSProperties}
         />
       </div>

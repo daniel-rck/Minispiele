@@ -251,9 +251,9 @@ export default function TicTacToeGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md grid-cols-3 gap-2"
+          className="grid fit-box grid-cols-3 gap-2"
           role="group"
           aria-label="Tic-Tac-Toe-Spielfeld"
         >

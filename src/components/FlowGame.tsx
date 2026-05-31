@@ -160,9 +160,9 @@ export default function FlowGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md select-none gap-1 rounded-2xl bg-slate-900 p-2 touch-none dark:bg-slate-950"
+          className="grid fit-box select-none gap-1 rounded-2xl bg-slate-900 p-2 touch-none dark:bg-slate-950"
           style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
           onPointerUp={endDraw}
           onPointerLeave={endDraw}

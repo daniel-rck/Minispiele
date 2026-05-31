@@ -148,12 +148,12 @@ export default function SnakeGame() {
       />
 
       <div
-        className="fit-area w-full select-none"
+        className="fit-area mx-auto w-full max-w-md select-none sm:max-w-lg"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <div
-          className="relative fit-box max-w-md overflow-hidden rounded-lg bg-slate-50 p-[2px] sm:max-w-lg dark:bg-slate-900"
+          className="relative fit-box overflow-hidden rounded-lg bg-slate-50 p-[2px] dark:bg-slate-900"
           role="grid"
           aria-label={`Snake-Spielfeld ${state.cols}×${state.rows}`}
           style={{

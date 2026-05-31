@@ -287,11 +287,8 @@ export default function FlappyBirdGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
-        <div
-          className="relative fit-box max-w-[400px]"
-          style={{ '--fit-ar': W / H } as CSSProperties}
-        >
+      <div className="fit-area mx-auto w-full max-w-[400px]">
+        <div className="relative fit-box" style={{ '--fit-ar': W / H } as CSSProperties}>
           <canvas
             ref={canvasRef}
             width={W}

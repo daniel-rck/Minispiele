@@ -158,9 +158,9 @@ export default function SlidingPuzzleGame() {
         ]}
       />
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg">
         <div
-          className="grid fit-box mx-auto max-w-md gap-2 rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 sm:max-w-lg dark:border-slate-700 dark:bg-slate-800"
+          className="grid fit-box gap-2 rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
           style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
         >
           {state.board.map((value, i) => {

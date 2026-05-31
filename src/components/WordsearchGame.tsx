@@ -139,9 +139,9 @@ export default function WordsearchGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md select-none gap-px rounded-lg bg-slate-300 p-1 touch-none dark:bg-slate-700"
+          className="grid fit-box select-none gap-px rounded-lg bg-slate-300 p-1 touch-none dark:bg-slate-700"
           style={{ gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))` }}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}

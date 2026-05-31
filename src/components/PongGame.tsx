@@ -288,13 +288,13 @@ export default function PongGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-[700px]">
         <canvas
           ref={canvasRef}
           width={W}
           height={H}
           aria-label="Pong-Spielfeld"
-          className="fit-box max-w-[700px] rounded-lg bg-slate-900 ring-1 ring-slate-700"
+          className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700"
           style={{ '--fit-ar': W / H, touchAction: 'none' } as CSSProperties}
         />
       </div>

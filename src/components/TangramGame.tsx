@@ -221,9 +221,9 @@ export default function TangramGame() {
         </label>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="relative fit-box max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
+          className="relative fit-box overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
           style={{ '--fit-ar': VIEW_W / VIEW_H } as CSSProperties}
         >
           <svg

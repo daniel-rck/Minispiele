@@ -289,9 +289,9 @@ export default function ViergewinntGame() {
         {thinking ? 'Computer denkt …' : announcement}
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-[440px]">
         <div
-          className="grid fit-box max-w-[440px] gap-1 rounded-2xl bg-sky-700 p-2"
+          className="grid fit-box gap-1 rounded-2xl bg-sky-700 p-2"
           role="group"
           aria-label="4-Gewinnt-Spielbrett"
           style={

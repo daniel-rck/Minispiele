@@ -102,9 +102,9 @@ export default function LightsOutGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md gap-2 rounded-2xl bg-slate-900 p-3 dark:bg-slate-950"
+          className="grid fit-box gap-2 rounded-2xl bg-slate-900 p-3 dark:bg-slate-950"
           style={{ gridTemplateColumns: `repeat(${LIGHTS_SIZE}, minmax(0, 1fr))` }}
           role="grid"
           aria-label="Lichter-Gitter"

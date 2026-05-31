@@ -238,9 +238,9 @@ export default function HalmaGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-[380px]">
         <div
-          className="grid fit-box max-w-[380px] gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
+          className="grid fit-box gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
           role="group"
           aria-label="Halma-Spielfeld"
           style={{ gridTemplateColumns: `repeat(${BOARD}, minmax(0, 1fr))` }}

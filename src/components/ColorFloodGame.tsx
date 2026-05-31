@@ -104,9 +104,9 @@ export default function ColorFloodGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md gap-0 overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
+          className="grid fit-box gap-0 overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
           style={{ gridTemplateColumns: `repeat(${COLOR_FLOOD_SIZE}, minmax(0, 1fr))` }}
           role="img"
           aria-label={`Farbflut-Spielfeld, ${state.moves} von ${COLOR_FLOOD_MAX_MOVES} Zügen verbraucht, ${percent} Prozent geflutet`}

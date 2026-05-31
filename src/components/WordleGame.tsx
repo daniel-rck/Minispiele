@@ -193,9 +193,9 @@ export default function WordleGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
       <AriaLive message={announcement} />
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-xs sm:max-w-sm">
         <div
-          className={`flex fit-box max-w-xs flex-col gap-1 sm:max-w-sm ${shake ? 'wordle-shake' : ''}`}
+          className={`flex fit-box flex-col gap-1 ${shake ? 'wordle-shake' : ''}`}
           style={{ '--fit-ar': WORD_LENGTH / MAX_GUESSES } as CSSProperties}
           role="group"
           aria-label={`Wordle-Versuche ${state.guesses.length} von ${MAX_GUESSES}`}

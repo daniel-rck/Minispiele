@@ -134,9 +134,9 @@ export default function SchulteGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md gap-1 rounded-2xl bg-slate-200 p-1 dark:bg-slate-800"
+          className="grid fit-box gap-1 rounded-2xl bg-slate-200 p-1 dark:bg-slate-800"
           style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
           role="group"
           aria-label={`Schulte-Tabelle ${size} mal ${size}`}

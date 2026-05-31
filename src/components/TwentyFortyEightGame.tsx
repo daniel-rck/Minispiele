@@ -176,12 +176,12 @@ export default function TwentyFortyEightGame() {
         ]}
       />
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg">
         <div
           ref={containerRef}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
-          className="fit-box mx-auto max-w-md rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 sm:max-w-lg dark:border-slate-700 dark:bg-slate-800"
+          className="fit-box rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
           style={{ touchAction: 'none' }}
         >
           <div

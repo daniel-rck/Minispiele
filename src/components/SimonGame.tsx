@@ -200,9 +200,9 @@ export default function SimonGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg">
         <div
-          className="grid fit-box max-w-md grid-cols-2 grid-rows-2 gap-2 rounded-full bg-slate-900 p-2 dark:bg-slate-950 sm:max-w-lg"
+          className="grid fit-box grid-cols-2 grid-rows-2 gap-2 rounded-full bg-slate-900 p-2 dark:bg-slate-950"
           role="group"
           aria-label="Simon-Felder"
         >

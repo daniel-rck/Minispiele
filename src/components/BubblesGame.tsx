@@ -449,9 +449,9 @@ export default function BubblesGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="relative fit-box max-w-md touch-none select-none overflow-hidden rounded-2xl bg-slate-900 dark:bg-slate-950"
+          className="relative fit-box touch-none select-none overflow-hidden rounded-2xl bg-slate-900 dark:bg-slate-950"
           style={{ '--fit-ar': FIELD_W / FIELD_H } as CSSProperties}
           role="application"
           aria-label="Blasenschießen-Spielfeld"

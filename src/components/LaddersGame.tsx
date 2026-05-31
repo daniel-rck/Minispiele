@@ -280,13 +280,13 @@ export default function LaddersGame() {
         {message}
       </p>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <canvas
           ref={canvasRef}
           width={500}
           height={500}
           aria-label={`Leiterspiel-Brett, du bist auf Feld ${state.positions[0] ?? 0} von ${FINISH}`}
-          className="fit-box block max-w-md rounded-2xl"
+          className="fit-box block rounded-2xl"
         />
       </div>
 

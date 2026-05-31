@@ -184,9 +184,9 @@ export default function BinairoGame() {
         </Button>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md gap-1 rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
+          className="grid fit-box gap-1 rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
           role="group"
           aria-label="Binairo-Rätsel"
           style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}

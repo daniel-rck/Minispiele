@@ -207,9 +207,9 @@ export default function ConwayBattleGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-xl">
         <div
-          className="grid fit-box max-w-xl gap-[1px] rounded-lg bg-slate-900 p-1 dark:bg-slate-950"
+          className="grid fit-box gap-[1px] rounded-lg bg-slate-900 p-1 dark:bg-slate-950"
           role="group"
           aria-label="Conway-Battle-Spielfeld"
           style={

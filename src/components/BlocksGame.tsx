@@ -308,9 +308,9 @@ export default function BlocksGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-xs">
         <div
-          className="relative fit-box max-w-xs overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
+          className="relative fit-box overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
           style={{ '--fit-ar': COLS / ROWS } as CSSProperties}
         >
           <div

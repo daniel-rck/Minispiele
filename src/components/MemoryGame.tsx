@@ -151,9 +151,9 @@ export default function MemoryGame() {
         ]}
       />
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
         <div
-          className="grid max-w-md gap-2 fit-box sm:max-w-lg sm:gap-3 md:max-w-xl"
+          className="grid gap-2 fit-box sm:gap-3"
           style={
             {
               gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,

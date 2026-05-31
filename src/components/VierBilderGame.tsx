@@ -189,12 +189,8 @@ export default function VierBilderGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
-        <div
-          className="grid fit-box max-w-sm grid-cols-2 gap-2"
-          role="group"
-          aria-label="Bildhinweise"
-        >
+      <div className="fit-area mx-auto w-full max-w-sm">
+        <div className="grid fit-box grid-cols-2 gap-2" role="group" aria-label="Bildhinweise">
           {puzzle.emojis.map((emoji, i) => (
             <div
               key={i}

@@ -153,9 +153,9 @@ export default function NonogramGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box max-w-md"
+          className="grid fit-box"
           style={
             {
               gridTemplateColumns: `${maxRowHints}fr repeat(${puzzle.size}, 1fr)`,

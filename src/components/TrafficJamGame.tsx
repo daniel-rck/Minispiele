@@ -305,8 +305,8 @@ export default function TrafficJamGame() {
         ]}
       />
 
-      <div className="fit-area w-full">
-        <div className="relative mx-auto fit-box max-w-md sm:max-w-lg">
+      <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg">
+        <div className="relative fit-box">
           <span className="sr-only">Ausfahrt rechts in Reihe {EXIT_ROW + 1}</span>
 
           <div className="pr-7 sm:pr-8">

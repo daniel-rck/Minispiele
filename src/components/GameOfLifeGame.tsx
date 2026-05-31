@@ -323,9 +323,9 @@ export default function GameOfLifeGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-[700px]">
         <div
-          className="grid fit-box max-w-[700px] gap-0 rounded-lg bg-slate-900 p-1 ring-1 ring-slate-700 dark:bg-slate-950"
+          className="grid fit-box gap-0 rounded-lg bg-slate-900 p-1 ring-1 ring-slate-700 dark:bg-slate-950"
           role="group"
           aria-label="Game-of-Life-Spielfeld"
           style={

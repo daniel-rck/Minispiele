@@ -311,7 +311,7 @@ export default function GfrettGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-md">
         <Board
           state={state}
           drag={drag}
@@ -407,7 +407,7 @@ function Board({
   return (
     <div
       ref={boardRef}
-      className="grid fit-box max-w-md touch-none select-none rounded-2xl bg-slate-800 p-1 dark:bg-slate-900"
+      className="grid fit-box touch-none select-none rounded-2xl bg-slate-800 p-1 dark:bg-slate-900"
       style={
         {
           gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`,

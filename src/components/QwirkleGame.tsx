@@ -292,9 +292,9 @@ export default function QwirkleGame() {
         </div>
       </div>
 
-      <div className="fit-area w-full">
+      <div className="fit-area mx-auto w-full max-w-[440px]">
         <div
-          className="grid fit-box max-w-[440px] gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
+          className="grid fit-box gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
           role="group"
           aria-label="Qwirkle-Spielbrett"
           style={{ gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))` }}
