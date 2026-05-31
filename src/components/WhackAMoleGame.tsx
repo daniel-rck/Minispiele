@@ -153,7 +153,7 @@ export default function WhackAMoleGame() {
   );
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-surface-700 dark:text-surface-200">
@@ -172,33 +172,35 @@ export default function WhackAMoleGame() {
         {running ? 'Neu starten' : 'Neues Spiel'}
       </Button>
 
-      <div
-        className="grid w-full max-w-md grid-cols-3 gap-3 rounded-2xl bg-emerald-800 p-3"
-        role="group"
-        aria-label="Whack-a-Mole-Feld"
-      >
-        {Array.from({ length: HOLES }).map((_, i) => {
-          const isUp = active.has(i);
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={() => whack(i)}
-              disabled={!running}
-              aria-label={`Loch ${i + 1}${isUp ? ' — Maulwurf!' : ''}`}
-              className="relative aspect-square overflow-hidden rounded-full bg-amber-900 ring-2 ring-amber-950 transition-colors active:bg-amber-800 disabled:cursor-not-allowed"
-            >
-              <span
-                aria-hidden
-                className={`absolute inset-x-2 bottom-0 flex h-2/3 items-end justify-center text-4xl transition-transform duration-150 ${
-                  isUp ? 'translate-y-0' : 'translate-y-full'
-                }`}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-md grid-cols-3 gap-3 rounded-2xl bg-emerald-800 p-3"
+          role="group"
+          aria-label="Whack-a-Mole-Feld"
+        >
+          {Array.from({ length: HOLES }).map((_, i) => {
+            const isUp = active.has(i);
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => whack(i)}
+                disabled={!running}
+                aria-label={`Loch ${i + 1}${isUp ? ' — Maulwurf!' : ''}`}
+                className="relative aspect-square overflow-hidden rounded-full bg-amber-900 ring-2 ring-amber-950 transition-colors active:bg-amber-800 disabled:cursor-not-allowed"
               >
-                🐹
-              </span>
-            </button>
-          );
-        })}
+                <span
+                  aria-hidden
+                  className={`absolute inset-x-2 bottom-0 flex h-2/3 items-end justify-center text-4xl transition-transform duration-150 ${
+                    isUp ? 'translate-y-0' : 'translate-y-full'
+                  }`}
+                >
+                  🐹
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <p className="max-w-md text-center text-xs text-surface-500 dark:text-surface-400">

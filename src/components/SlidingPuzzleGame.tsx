@@ -128,7 +128,7 @@ export default function SlidingPuzzleGame() {
   const best = highscores[state.difficulty];
 
   return (
-    <div className="flex flex-col gap-3 pb-24">
+    <div className="flex h-full min-h-0 flex-col gap-3 pb-2">
       <div className="flex flex-wrap items-center gap-3">
         <DifficultySelector<SlidingDifficulty>
           value={state.difficulty}
@@ -158,9 +158,9 @@ export default function SlidingPuzzleGame() {
         ]}
       />
 
-      <div className="mx-auto w-full max-w-md sm:max-w-lg">
+      <div className="fit-area w-full">
         <div
-          className="grid gap-2 rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
+          className="grid fit-box mx-auto max-w-md gap-2 rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 sm:max-w-lg dark:border-slate-700 dark:bg-slate-800"
           style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
         >
           {state.board.map((value, i) => {

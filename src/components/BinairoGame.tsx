@@ -154,7 +154,7 @@ export default function BinairoGame() {
   }, [isFull, solved, checkSolution]);
 
   return (
-    <div className="flex flex-col items-center gap-4 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
       <AriaLive message={announcement} />
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -184,41 +184,43 @@ export default function BinairoGame() {
         </Button>
       </div>
 
-      <div
-        className="grid gap-1 rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
-        role="group"
-        aria-label="Binairo-Rätsel"
-        style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
-      >
-        {puzzle.grid.flatMap((row, r) =>
-          row.map((value, c) => {
-            const isGiven = puzzle.given[r]?.[c] === true;
-            const base =
-              value === 0
-                ? 'bg-sky-500 text-white'
-                : value === 1
-                  ? 'bg-rose-500 text-white'
-                  : 'bg-slate-800 text-slate-300';
-            const givenRing = isGiven ? 'ring-2 ring-white/30' : '';
-            const disabled = isGiven || solved;
-            return (
-              <button
-                key={`${r}-${c}`}
-                type="button"
-                onClick={() => handleCell(r, c)}
-                disabled={disabled}
-                aria-label={
-                  isGiven
-                    ? `Vorgabe ${value} Zeile ${r + 1} Spalte ${c + 1}`
-                    : `Feld Zeile ${r + 1} Spalte ${c + 1}: ${value === -1 ? 'leer' : value}`
-                }
-                className={`flex aspect-square min-h-9 min-w-9 items-center justify-center rounded-full text-base font-bold transition disabled:cursor-not-allowed ${base} ${givenRing}`}
-              >
-                {value === -1 ? '' : value}
-              </button>
-            );
-          }),
-        )}
+      <div className="fit-area w-full">
+        <div
+          className="grid fit-box max-w-md gap-1 rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
+          role="group"
+          aria-label="Binairo-Rätsel"
+          style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
+        >
+          {puzzle.grid.flatMap((row, r) =>
+            row.map((value, c) => {
+              const isGiven = puzzle.given[r]?.[c] === true;
+              const base =
+                value === 0
+                  ? 'bg-sky-500 text-white'
+                  : value === 1
+                    ? 'bg-rose-500 text-white'
+                    : 'bg-slate-800 text-slate-300';
+              const givenRing = isGiven ? 'ring-2 ring-white/30' : '';
+              const disabled = isGiven || solved;
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  type="button"
+                  onClick={() => handleCell(r, c)}
+                  disabled={disabled}
+                  aria-label={
+                    isGiven
+                      ? `Vorgabe ${value} Zeile ${r + 1} Spalte ${c + 1}`
+                      : `Feld Zeile ${r + 1} Spalte ${c + 1}: ${value === -1 ? 'leer' : value}`
+                  }
+                  className={`flex aspect-square min-h-9 min-w-9 items-center justify-center rounded-full text-base font-bold transition disabled:cursor-not-allowed ${base} ${givenRing}`}
+                >
+                  {value === -1 ? '' : value}
+                </button>
+              );
+            }),
+          )}
+        </div>
       </div>
 
       <p className="max-w-md text-center text-xs text-surface-500 dark:text-surface-400">

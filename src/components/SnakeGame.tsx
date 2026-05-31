@@ -125,7 +125,7 @@ export default function SnakeGame() {
   const tickMs = tickIntervalMs(state.score);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-24">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <GameStats
@@ -148,12 +148,12 @@ export default function SnakeGame() {
       />
 
       <div
-        className="relative w-full max-w-md select-none sm:max-w-lg"
+        className="fit-area w-full select-none"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <div
-          className="relative aspect-square overflow-hidden rounded-lg bg-slate-50 p-[2px] dark:bg-slate-900"
+          className="relative fit-box max-w-md overflow-hidden rounded-lg bg-slate-50 p-[2px] sm:max-w-lg dark:bg-slate-900"
           role="grid"
           aria-label={`Snake-Spielfeld ${state.cols}×${state.rows}`}
           style={{

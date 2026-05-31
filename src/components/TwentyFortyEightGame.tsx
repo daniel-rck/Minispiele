@@ -162,7 +162,7 @@ export default function TwentyFortyEightGame() {
   }, [setState]);
 
   return (
-    <div className="flex flex-col gap-3 pb-24">
+    <div className="flex h-full min-h-0 flex-col gap-3 pb-2">
       <GameStats
         items={[
           { label: 'Score', value: state.score },
@@ -176,12 +176,12 @@ export default function TwentyFortyEightGame() {
         ]}
       />
 
-      <div className="mx-auto w-full max-w-md sm:max-w-lg">
+      <div className="fit-area w-full">
         <div
           ref={containerRef}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
-          className="rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
+          className="fit-box mx-auto max-w-md rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 sm:max-w-lg dark:border-slate-700 dark:bg-slate-800"
           style={{ touchAction: 'none' }}
         >
           <div

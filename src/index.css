@@ -277,9 +277,12 @@ input[type="search"]::-webkit-search-decoration {
 
 @utility fit-box {
   --fit-ar: 1;
-  aspect-ratio: var(--fit-ar);
-  /* größte Breite, die zugleich in Container-Breite UND -Höhe passt */
+  /* größte Box mit Verhältnis --fit-ar, die in Container-Breite UND -Höhe passt.
+     Breite UND Höhe explizit zu setzen (statt nur aspect-ratio) ergibt eine
+     definite Höhe – nötig, damit fr-basierte Grids (z.B. Nonogram-Hinweise)
+     sich einpassen statt an ihrer Inhaltshöhe zu wachsen. */
   width: min(100cqw, calc(100cqh * var(--fit-ar)));
+  height: min(100cqh, calc(100cqw / var(--fit-ar)));
 }
 
 /* In dichten Spielrastern dürfen einzelne Zellen kleiner als das 44px-Touch-
