@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { useGameSfx } from '../lib/useGameSfx';
 import AriaLive from './AriaLive';
@@ -189,7 +189,7 @@ export default function ConwayBattleGame() {
   }, [phase, generation, grid, sfx]);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-2 pb-2">
       <AriaLive message={announcement} />
 
       <div className="grid w-full max-w-xl grid-cols-4 gap-2 text-sm text-surface-700 dark:text-surface-200">
@@ -207,36 +207,43 @@ export default function ConwayBattleGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-xl gap-[1px] rounded-lg bg-slate-900 p-1 dark:bg-slate-950"
-        role="group"
-        aria-label="Conway-Battle-Spielfeld"
-        style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
-      >
-        {grid.flatMap((row, r) =>
-          row.map((value, c) => {
-            const inPlayerHalf = c < Math.floor(COLS / 2);
-            const bg =
-              value === 1
-                ? 'bg-sky-500'
-                : value === 2
-                  ? 'bg-rose-500'
-                  : phase === 'place' && inPlayerHalf
-                    ? 'bg-amber-900/20'
-                    : 'bg-slate-800/40';
-            const isDisabled = phase !== 'place' || !inPlayerHalf;
-            return (
-              <button
-                key={`${r}-${c}`}
-                type="button"
-                onClick={() => toggleCell(r, c)}
-                disabled={isDisabled}
-                aria-label={`Zelle Zeile ${r + 1} Spalte ${c + 1}${value === 1 ? ' blau' : value === 2 ? ' rot' : ''}`}
-                className={`aspect-square min-h-3 min-w-3 ${bg} transition disabled:cursor-not-allowed`}
-              />
-            );
-          }),
-        )}
+      <div className="fit-area mx-auto w-full max-w-xl">
+        <div
+          className="grid fit-box gap-[1px] rounded-lg bg-slate-900 p-1 dark:bg-slate-950"
+          role="group"
+          aria-label="Conway-Battle-Spielfeld"
+          style={
+            {
+              gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
+              '--fit-ar': COLS / ROWS,
+            } as CSSProperties
+          }
+        >
+          {grid.flatMap((row, r) =>
+            row.map((value, c) => {
+              const inPlayerHalf = c < Math.floor(COLS / 2);
+              const bg =
+                value === 1
+                  ? 'bg-sky-500'
+                  : value === 2
+                    ? 'bg-rose-500'
+                    : phase === 'place' && inPlayerHalf
+                      ? 'bg-amber-900/20'
+                      : 'bg-slate-800/40';
+              const isDisabled = phase !== 'place' || !inPlayerHalf;
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  type="button"
+                  onClick={() => toggleCell(r, c)}
+                  disabled={isDisabled}
+                  aria-label={`Zelle Zeile ${r + 1} Spalte ${c + 1}${value === 1 ? ' blau' : value === 2 ? ' rot' : ''}`}
+                  className={`aspect-square ${bg} transition disabled:cursor-not-allowed`}
+                />
+              );
+            }),
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2">

@@ -114,7 +114,7 @@ export default function WordsearchGame() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -139,39 +139,41 @@ export default function WordsearchGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-md select-none gap-px rounded-lg bg-slate-300 p-1 touch-none dark:bg-slate-700"
-        style={{ gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))` }}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-        role="grid"
-        aria-label="Wortgitter"
-      >
-        {puzzle.grid.map((ch, idx) => {
-          const isFound = foundCells.has(idx);
-          const isCandidate = candidateSet.has(idx);
-          return (
-            <button
-              key={idx}
-              type="button"
-              onPointerDown={(e) => {
-                e.preventDefault();
-                handlePointerDown(idx);
-              }}
-              onPointerEnter={() => handlePointerEnter(idx)}
-              aria-label={ch}
-              className={`flex aspect-square min-w-[22px] items-center justify-center text-sm font-bold sm:text-base ${
-                isFound
-                  ? 'bg-emerald-300 text-emerald-900 dark:bg-emerald-700 dark:text-emerald-100'
-                  : isCandidate
-                    ? 'bg-brand-200 dark:bg-brand-900/60'
-                    : 'bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100'
-              }`}
-            >
-              {ch}
-            </button>
-          );
-        })}
+      <div className="fit-area mx-auto w-full max-w-md">
+        <div
+          className="grid fit-box select-none gap-px rounded-lg bg-slate-300 p-1 touch-none dark:bg-slate-700"
+          style={{ gridTemplateColumns: `repeat(${puzzle.size}, minmax(0, 1fr))` }}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+          role="grid"
+          aria-label="Wortgitter"
+        >
+          {puzzle.grid.map((ch, idx) => {
+            const isFound = foundCells.has(idx);
+            const isCandidate = candidateSet.has(idx);
+            return (
+              <button
+                key={idx}
+                type="button"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  handlePointerDown(idx);
+                }}
+                onPointerEnter={() => handlePointerEnter(idx)}
+                aria-label={ch}
+                className={`flex aspect-square min-w-[22px] items-center justify-center text-sm font-bold sm:text-base ${
+                  isFound
+                    ? 'bg-emerald-300 text-emerald-900 dark:bg-emerald-700 dark:text-emerald-100'
+                    : isCandidate
+                      ? 'bg-brand-200 dark:bg-brand-900/60'
+                      : 'bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100'
+                }`}
+              >
+                {ch}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-1 sm:grid-cols-3">

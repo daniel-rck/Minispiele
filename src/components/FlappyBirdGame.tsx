@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
@@ -275,7 +275,7 @@ export default function FlappyBirdGame() {
   }, [flap]);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="flex w-full max-w-[400px] items-center justify-between text-sm text-surface-700 dark:text-surface-200">
@@ -287,41 +287,42 @@ export default function FlappyBirdGame() {
         </div>
       </div>
 
-      <div className="relative w-full max-w-[400px]">
-        <canvas
-          ref={canvasRef}
-          width={W}
-          height={H}
-          onPointerDown={(e) => {
-            e.preventDefault();
-            flap();
-          }}
-          aria-label="Flappy-Bird-Spielfeld"
-          className="w-full rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
-          style={{ aspectRatio: `${W}/${H}`, height: 'auto' }}
-        />
-        {phaseDisplay !== 'playing' && (
-          <div
-            role="status"
-            className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-slate-900/70 text-center text-white"
-          >
-            <div className="text-2xl font-extrabold tracking-wide">
-              {phaseDisplay === 'ready' ? 'FLAPPY BIRD' : 'Vorbei'}
+      <div className="fit-area mx-auto w-full max-w-[400px]">
+        <div className="relative fit-box" style={{ '--fit-ar': W / H } as CSSProperties}>
+          <canvas
+            ref={canvasRef}
+            width={W}
+            height={H}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              flap();
+            }}
+            aria-label="Flappy-Bird-Spielfeld"
+            className="h-full w-full rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
+          />
+          {phaseDisplay !== 'playing' && (
+            <div
+              role="status"
+              className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-slate-900/70 text-center text-white"
+            >
+              <div className="text-2xl font-extrabold tracking-wide">
+                {phaseDisplay === 'ready' ? 'FLAPPY BIRD' : 'Vorbei'}
+              </div>
+              {phaseDisplay === 'dead' && (
+                <>
+                  <div className="text-lg">
+                    {scoreDisplay} Punkte{' '}
+                    {medalFor(scoreDisplay) && <span aria-hidden>{medalFor(scoreDisplay)}</span>}
+                  </div>
+                  <div className="text-xs text-slate-300">Tippe zum Neustart</div>
+                </>
+              )}
+              {phaseDisplay === 'ready' && (
+                <div className="text-xs text-slate-300">Leertaste, Klick oder Tap zum Flattern</div>
+              )}
             </div>
-            {phaseDisplay === 'dead' && (
-              <>
-                <div className="text-lg">
-                  {scoreDisplay} Punkte{' '}
-                  {medalFor(scoreDisplay) && <span aria-hidden>{medalFor(scoreDisplay)}</span>}
-                </div>
-                <div className="text-xs text-slate-300">Tippe zum Neustart</div>
-              </>
-            )}
-            {phaseDisplay === 'ready' && (
-              <div className="text-xs text-slate-300">Leertaste, Klick oder Tap zum Flattern</div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <Button variant="primary" onClick={flap}>

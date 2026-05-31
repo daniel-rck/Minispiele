@@ -6,6 +6,7 @@ export default function Kakuro() {
     <GameLayout
       title="Kakuro"
       description="Zahlen-Kreuzworträtsel: fülle weiße Zellen mit 1-9 nach den Summenhinweisen."
+      fit="scroll"
     >
       <KakuroGame />
     </GameLayout>

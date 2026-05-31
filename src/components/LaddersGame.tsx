@@ -270,7 +270,7 @@ export default function LaddersGame() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <p
@@ -280,13 +280,13 @@ export default function LaddersGame() {
         {message}
       </p>
 
-      <div className="w-full max-w-md">
+      <div className="fit-area mx-auto w-full max-w-md">
         <canvas
           ref={canvasRef}
           width={500}
           height={500}
           aria-label={`Leiterspiel-Brett, du bist auf Feld ${state.positions[0] ?? 0} von ${FINISH}`}
-          className="block aspect-square w-full rounded-2xl"
+          className="fit-box block rounded-2xl"
         />
       </div>
 

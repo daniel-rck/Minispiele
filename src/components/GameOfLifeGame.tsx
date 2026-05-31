@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useGameSfx } from '../lib/useGameSfx';
 import AriaLive from './AriaLive';
 import Button from './ui/Button';
@@ -250,7 +250,7 @@ export default function GameOfLifeGame() {
   const population = countPopulation(gridRef.current);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-2 pb-2">
       <AriaLive message={announcement} />
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -323,28 +323,32 @@ export default function GameOfLifeGame() {
         </div>
       </div>
 
-      <div
-        className="grid gap-0 rounded-lg bg-slate-900 p-1 ring-1 ring-slate-700 dark:bg-slate-950"
-        role="group"
-        aria-label="Game-of-Life-Spielfeld"
-        style={{
-          gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
-          width: 'min(95vw, 700px)',
-        }}
-      >
-        {Array.from(gridRef.current).map((alive, i) => {
-          const r = Math.floor(i / COLS);
-          const c = i % COLS;
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={() => toggleCell(r, c)}
-              aria-label={`Zelle ${r + 1},${c + 1} ${alive ? 'lebt' : 'leer'}`}
-              className={`aspect-square ${alive ? 'bg-amber-400' : 'bg-slate-800/40 hover:bg-slate-700/60'}`}
-            />
-          );
-        })}
+      <div className="fit-area mx-auto w-full max-w-[700px]">
+        <div
+          className="grid fit-box gap-0 rounded-lg bg-slate-900 p-1 ring-1 ring-slate-700 dark:bg-slate-950"
+          role="group"
+          aria-label="Game-of-Life-Spielfeld"
+          style={
+            {
+              gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
+              '--fit-ar': COLS / ROWS,
+            } as CSSProperties
+          }
+        >
+          {Array.from(gridRef.current).map((alive, i) => {
+            const r = Math.floor(i / COLS);
+            const c = i % COLS;
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => toggleCell(r, c)}
+                aria-label={`Zelle ${r + 1},${c + 1} ${alive ? 'lebt' : 'leer'}`}
+                className={`aspect-square ${alive ? 'bg-amber-400' : 'bg-slate-800/40 hover:bg-slate-700/60'}`}
+              />
+            );
+          })}
+        </div>
       </div>
 
       <p className="max-w-md text-center text-xs text-surface-500 dark:text-surface-400">

@@ -267,7 +267,7 @@ export default function SudokuGame() {
   const selectedValue = selected !== null ? (game.cells[selected]?.value ?? 0) : 0;
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -305,71 +305,73 @@ export default function SudokuGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-md gap-px overflow-hidden rounded-lg border-2 border-slate-700 bg-slate-700 dark:border-slate-500 dark:bg-slate-500"
-        style={{ gridTemplateColumns: `repeat(${SUDOKU_SIZE}, minmax(0, 1fr))` }}
-        role="grid"
-        aria-label="Sudoku-Gitter"
-      >
-        {game.cells.map((cell, idx) => {
-          const row = Math.floor(idx / SUDOKU_SIZE);
-          const col = idx % SUDOKU_SIZE;
-          const isSelected = selected === idx;
-          const sameValue = selectedValue !== 0 && cell.value === selectedValue;
-          const sameRow = selected !== null && Math.floor(selected / SUDOKU_SIZE) === row;
-          const sameCol = selected !== null && selected % SUDOKU_SIZE === col;
-          const sameBox =
-            selected !== null &&
-            Math.floor(row / 3) === Math.floor(Math.floor(selected / SUDOKU_SIZE) / 3) &&
-            Math.floor(col / 3) === Math.floor((selected % SUDOKU_SIZE) / 3);
-          const conflict = conflictsAt(game.cells, idx);
-          const borderRight = col % 3 === 2 && col !== SUDOKU_SIZE - 1 ? 'mr-[1px]' : '';
-          const borderBottom = row % 3 === 2 && row !== SUDOKU_SIZE - 1 ? 'mb-[1px]' : '';
-          return (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handleCellPress(idx)}
-              aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? 'leer' : cell.value}${conflict ? ', Konflikt' : ''}`}
-              aria-invalid={conflict || undefined}
-              className={`relative aspect-square text-base font-semibold tabular-nums transition-colors duration-150 sm:text-lg ${borderRight} ${borderBottom} ${
-                isSelected
-                  ? 'bg-brand-200 dark:bg-brand-900/60'
-                  : sameValue
-                    ? 'bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)]/40'
-                    : sameRow || sameCol || sameBox
-                      ? 'bg-slate-100 dark:bg-slate-800'
-                      : 'bg-white dark:bg-slate-900'
-              } ${cell.given ? 'text-slate-900 dark:text-slate-100' : 'text-brand-700 dark:text-brand-300'} ${
-                conflict
-                  ? 'text-[var(--color-danger-600)] underline decoration-2 underline-offset-2 dark:text-[var(--color-danger-400)]'
-                  : ''
-              } ${shakeIdx === idx ? 'wordle-shake' : ''}`}
-            >
-              {cell.value !== 0 ? (
-                <>
-                  {cell.value}
-                  {conflict && (
-                    <span
-                      aria-hidden
-                      className="absolute top-0 right-0.5 text-[8px] leading-none text-[var(--color-danger-600)] sm:text-[10px] dark:text-[var(--color-danger-400)]"
-                    >
-                      ⚠
-                    </span>
-                  )}
-                </>
-              ) : cell.notes.length > 0 ? (
-                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0 p-[1px] text-[8px] leading-tight text-slate-500 sm:text-[10px] dark:text-slate-400">
-                  {Array.from({ length: 9 }, (_, n) => (
-                    <span key={n} className="flex items-center justify-center">
-                      {cell.notes.includes(n + 1) ? n + 1 : ''}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-            </button>
-          );
-        })}
+      <div className="fit-area mx-auto w-full max-w-md">
+        <div
+          className="grid fit-box gap-px overflow-hidden rounded-lg border-2 border-slate-700 bg-slate-700 dark:border-slate-500 dark:bg-slate-500"
+          style={{ gridTemplateColumns: `repeat(${SUDOKU_SIZE}, minmax(0, 1fr))` }}
+          role="grid"
+          aria-label="Sudoku-Gitter"
+        >
+          {game.cells.map((cell, idx) => {
+            const row = Math.floor(idx / SUDOKU_SIZE);
+            const col = idx % SUDOKU_SIZE;
+            const isSelected = selected === idx;
+            const sameValue = selectedValue !== 0 && cell.value === selectedValue;
+            const sameRow = selected !== null && Math.floor(selected / SUDOKU_SIZE) === row;
+            const sameCol = selected !== null && selected % SUDOKU_SIZE === col;
+            const sameBox =
+              selected !== null &&
+              Math.floor(row / 3) === Math.floor(Math.floor(selected / SUDOKU_SIZE) / 3) &&
+              Math.floor(col / 3) === Math.floor((selected % SUDOKU_SIZE) / 3);
+            const conflict = conflictsAt(game.cells, idx);
+            const borderRight = col % 3 === 2 && col !== SUDOKU_SIZE - 1 ? 'mr-[1px]' : '';
+            const borderBottom = row % 3 === 2 && row !== SUDOKU_SIZE - 1 ? 'mb-[1px]' : '';
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleCellPress(idx)}
+                aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? 'leer' : cell.value}${conflict ? ', Konflikt' : ''}`}
+                aria-invalid={conflict || undefined}
+                className={`relative aspect-square text-base font-semibold tabular-nums transition-colors duration-150 sm:text-lg ${borderRight} ${borderBottom} ${
+                  isSelected
+                    ? 'bg-brand-200 dark:bg-brand-900/60'
+                    : sameValue
+                      ? 'bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)]/40'
+                      : sameRow || sameCol || sameBox
+                        ? 'bg-slate-100 dark:bg-slate-800'
+                        : 'bg-white dark:bg-slate-900'
+                } ${cell.given ? 'text-slate-900 dark:text-slate-100' : 'text-brand-700 dark:text-brand-300'} ${
+                  conflict
+                    ? 'text-[var(--color-danger-600)] underline decoration-2 underline-offset-2 dark:text-[var(--color-danger-400)]'
+                    : ''
+                } ${shakeIdx === idx ? 'wordle-shake' : ''}`}
+              >
+                {cell.value !== 0 ? (
+                  <>
+                    {cell.value}
+                    {conflict && (
+                      <span
+                        aria-hidden
+                        className="absolute top-0 right-0.5 text-[8px] leading-none text-[var(--color-danger-600)] sm:text-[10px] dark:text-[var(--color-danger-400)]"
+                      >
+                        ⚠
+                      </span>
+                    )}
+                  </>
+                ) : cell.notes.length > 0 ? (
+                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0 p-[1px] text-[8px] leading-tight text-slate-500 sm:text-[10px] dark:text-slate-400">
+                    {Array.from({ length: 9 }, (_, n) => (
+                      <span key={n} className="flex items-center justify-center">
+                        {cell.notes.includes(n + 1) ? n + 1 : ''}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div

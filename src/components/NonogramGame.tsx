@@ -1,4 +1,12 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { STORAGE_KEYS } from '../lib/constants';
@@ -106,7 +114,7 @@ export default function NonogramGame() {
   const maxColHints = Math.max(...puzzle.colHints.map((h) => h.length));
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -145,20 +153,23 @@ export default function NonogramGame() {
         </div>
       </div>
 
-      <div className="w-full max-w-md overflow-x-auto">
+      <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid"
-          style={{
-            gridTemplateColumns: `${maxRowHints}fr repeat(${puzzle.size}, 1fr)`,
-            gridTemplateRows: `${maxColHints}fr repeat(${puzzle.size}, 1fr)`,
-            gap: '2px',
-          }}
+          className="grid fit-box"
+          style={
+            {
+              gridTemplateColumns: `${maxRowHints}fr repeat(${puzzle.size}, 1fr)`,
+              gridTemplateRows: `${maxColHints}fr repeat(${puzzle.size}, 1fr)`,
+              gap: '2px',
+              '--fit-ar': (maxRowHints + puzzle.size) / (maxColHints + puzzle.size),
+            } as CSSProperties
+          }
         >
           <div />
           {puzzle.colHints.map((hints, c) => (
             <div
               key={`ch-${c}`}
-              className="flex aspect-square min-w-[24px] flex-col items-center justify-end pb-1 text-[10px] font-bold text-slate-700 sm:text-xs dark:text-slate-200"
+              className="flex min-w-[24px] flex-col items-center justify-end pb-1 text-[10px] font-bold text-slate-700 sm:text-xs dark:text-slate-200"
             >
               {hints.map((h, i) => (
                 <span key={i}>{h}</span>
@@ -167,7 +178,7 @@ export default function NonogramGame() {
           ))}
           {puzzle.rowHints.map((hints, r) => (
             <Fragment key={`row-${r}`}>
-              <div className="flex aspect-square min-w-[24px] items-center justify-end gap-1 pr-1 text-[10px] font-bold text-slate-700 sm:text-xs dark:text-slate-200">
+              <div className="flex min-w-[24px] items-center justify-end gap-1 pr-1 text-[10px] font-bold text-slate-700 sm:text-xs dark:text-slate-200">
                 {hints.map((h, i) => (
                   <span key={i}>{h}</span>
                 ))}

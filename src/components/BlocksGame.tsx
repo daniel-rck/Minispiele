@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import {
   BLOCKS_COLORS as COLORS,
@@ -269,7 +269,7 @@ export default function BlocksGame() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex w-full max-w-xs items-center justify-between gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -308,36 +308,38 @@ export default function BlocksGame() {
         </div>
       </div>
 
-      <div
-        className="relative w-full max-w-xs overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
-        style={{ aspectRatio: `${COLS} / ${ROWS}` }}
-      >
+      <div className="fit-area mx-auto w-full max-w-xs">
         <div
-          className="grid h-full w-full gap-px"
-          style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
-          role="grid"
-          aria-label="Blockstapler-Feld"
+          className="relative fit-box overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
+          style={{ '--fit-ar': COLS / ROWS } as CSSProperties}
         >
-          {displayBoard.map((v, i) => {
-            const row = Math.floor(i / COLS);
-            const flashing = flashSet.has(row);
-            return (
-              <div
-                key={i}
-                className={`rounded-[2px] ${flashing ? 'blocks-line-sweep' : ''}`}
-                style={{ background: v === 0 ? 'rgba(255,255,255,0.04)' : COLORS[v] }}
-                aria-hidden
-              />
-            );
-          })}
-        </div>
-        {state.status === 'idle' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <Button variant="primary" onClick={start}>
-              Starten
-            </Button>
+          <div
+            className="grid h-full w-full gap-px"
+            style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
+            role="grid"
+            aria-label="Blockstapler-Feld"
+          >
+            {displayBoard.map((v, i) => {
+              const row = Math.floor(i / COLS);
+              const flashing = flashSet.has(row);
+              return (
+                <div
+                  key={i}
+                  className={`rounded-[2px] ${flashing ? 'blocks-line-sweep' : ''}`}
+                  style={{ background: v === 0 ? 'rgba(255,255,255,0.04)' : COLORS[v] }}
+                  aria-hidden
+                />
+              );
+            })}
           </div>
-        )}
+          {state.status === 'idle' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <Button variant="primary" onClick={start}>
+                Starten
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid w-full max-w-md grid-cols-5 gap-2" role="group" aria-label="Steuerung">

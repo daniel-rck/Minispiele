@@ -6,6 +6,7 @@ export default function Crossword() {
     <GameLayout
       title="Kreuzworträtsel"
       description="Klassisches Kreuzworträtsel mit deutschen Wörtern und Hinweisen."
+      fit="scroll"
     >
       <CrosswordGame />
     </GameLayout>

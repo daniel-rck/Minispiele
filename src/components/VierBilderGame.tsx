@@ -173,7 +173,7 @@ export default function VierBilderGame() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-surface-700 dark:text-surface-200">
@@ -189,21 +189,19 @@ export default function VierBilderGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-sm grid-cols-2 gap-2"
-        role="group"
-        aria-label="Bildhinweise"
-      >
-        {puzzle.emojis.map((emoji, i) => (
-          <div
-            key={i}
-            role="img"
-            aria-label={`Bild ${i + 1}`}
-            className="flex aspect-square items-center justify-center rounded-2xl bg-surface-100 text-5xl dark:bg-surface-800"
-          >
-            <span aria-hidden>{emoji}</span>
-          </div>
-        ))}
+      <div className="fit-area mx-auto w-full max-w-sm">
+        <div className="grid fit-box grid-cols-2 gap-2" role="group" aria-label="Bildhinweise">
+          {puzzle.emojis.map((emoji, i) => (
+            <div
+              key={i}
+              role="img"
+              aria-label={`Bild ${i + 1}`}
+              className="flex aspect-square items-center justify-center rounded-2xl bg-surface-100 text-5xl dark:bg-surface-800"
+            >
+              <span aria-hidden>{emoji}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="flex justify-center gap-1" role="group" aria-label="Antwort">

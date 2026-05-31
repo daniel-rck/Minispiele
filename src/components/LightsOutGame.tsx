@@ -76,7 +76,7 @@ export default function LightsOutGame() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -102,27 +102,29 @@ export default function LightsOutGame() {
         </div>
       </div>
 
-      <div
-        className="grid w-full max-w-md gap-2 rounded-2xl bg-slate-900 p-3 dark:bg-slate-950"
-        style={{ gridTemplateColumns: `repeat(${LIGHTS_SIZE}, minmax(0, 1fr))` }}
-        role="grid"
-        aria-label="Lichter-Gitter"
-      >
-        {state.grid.map((on, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => handleCell(i)}
-            disabled={state.solved}
-            aria-label={`Licht ${i + 1}, ${on ? 'an' : 'aus'}`}
-            aria-pressed={on}
-            className={`aspect-square rounded-xl transition-colors ${
-              on
-                ? 'bg-amber-300 shadow-[0_0_18px_rgba(252,211,77,0.55)]'
-                : 'bg-slate-700 hover:bg-slate-600'
-            }`}
-          />
-        ))}
+      <div className="fit-area mx-auto w-full max-w-md">
+        <div
+          className="grid fit-box gap-2 rounded-2xl bg-slate-900 p-3 dark:bg-slate-950"
+          style={{ gridTemplateColumns: `repeat(${LIGHTS_SIZE}, minmax(0, 1fr))` }}
+          role="grid"
+          aria-label="Lichter-Gitter"
+        >
+          {state.grid.map((on, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => handleCell(i)}
+              disabled={state.solved}
+              aria-label={`Licht ${i + 1}, ${on ? 'an' : 'aus'}`}
+              aria-pressed={on}
+              className={`aspect-square rounded-xl transition-colors ${
+                on
+                  ? 'bg-amber-300 shadow-[0_0_18px_rgba(252,211,77,0.55)]'
+                  : 'bg-slate-700 hover:bg-slate-600'
+              }`}
+            />
+          ))}
+        </div>
       </div>
 
       <Button variant="primary" block className="max-w-md" onClick={() => restart()}>

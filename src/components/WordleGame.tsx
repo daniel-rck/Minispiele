@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { EMPTY_WORDLE_STATS, type WordleStats, WordleStatsSchema } from '../lib/persistedSchemas';
@@ -190,40 +190,43 @@ export default function WordleGame() {
     });
 
   return (
-    <div className="flex flex-col items-center gap-4 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
       <AriaLive message={announcement} />
 
-      <div
-        className={`mx-auto flex w-full max-w-xs flex-col gap-1 sm:max-w-sm ${shake ? 'wordle-shake' : ''}`}
-        role="group"
-        aria-label={`Wordle-Versuche ${state.guesses.length} von ${MAX_GUESSES}`}
-      >
-        {rows.map((row, ri) => (
-          <div key={ri} className="grid grid-cols-5 gap-1">
-            {row.letters.map((ch, ci) => (
-              <div
-                key={ci}
-                role="img"
-                aria-label={
-                  row.statuses[ci]
-                    ? `${ch}, ${
-                        row.statuses[ci] === 'correct'
-                          ? 'richtig'
-                          : row.statuses[ci] === 'present'
-                            ? 'enthalten'
-                            : 'nicht enthalten'
-                      }`
-                    : ch
-                      ? `${ch}`
-                      : 'leer'
-                }
-                className={`flex aspect-square items-center justify-center rounded border-2 text-2xl font-bold uppercase ${cellClass(row.statuses[ci], !!ch)}`}
-              >
-                {ch}
-              </div>
-            ))}
-          </div>
-        ))}
+      <div className="fit-area mx-auto w-full max-w-xs sm:max-w-sm">
+        <div
+          className={`flex fit-box flex-col gap-1 ${shake ? 'wordle-shake' : ''}`}
+          style={{ '--fit-ar': WORD_LENGTH / MAX_GUESSES } as CSSProperties}
+          role="group"
+          aria-label={`Wordle-Versuche ${state.guesses.length} von ${MAX_GUESSES}`}
+        >
+          {rows.map((row, ri) => (
+            <div key={ri} className="grid grid-cols-5 gap-1">
+              {row.letters.map((ch, ci) => (
+                <div
+                  key={ci}
+                  role="img"
+                  aria-label={
+                    row.statuses[ci]
+                      ? `${ch}, ${
+                          row.statuses[ci] === 'correct'
+                            ? 'richtig'
+                            : row.statuses[ci] === 'present'
+                              ? 'enthalten'
+                              : 'nicht enthalten'
+                        }`
+                      : ch
+                        ? `${ch}`
+                        : 'leer'
+                  }
+                  className={`flex aspect-square items-center justify-center rounded border-2 text-2xl font-bold uppercase ${cellClass(row.statuses[ci], !!ch)}`}
+                >
+                  {ch}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       {error && (

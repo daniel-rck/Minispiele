@@ -277,7 +277,7 @@ export default function QwirkleGame() {
   }, [state.gameOver, state.scoreP, state.scoreAi, sfx, vibrate]);
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-surface-700 dark:text-surface-200">
@@ -292,45 +292,43 @@ export default function QwirkleGame() {
         </div>
       </div>
 
-      <div
-        className="grid gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
-        role="group"
-        aria-label="Qwirkle-Spielbrett"
-        style={{
-          gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
-          maxWidth: '440px',
-          width: '100%',
-        }}
-      >
-        {state.board.flatMap((row, r) =>
-          row.map((cell, c) => {
-            const placement = state.placements.find((p) => p.r === r && p.c === c);
-            const tile = cell ?? placement?.tile ?? null;
-            const isTemp = !!placement;
-            return (
-              <button
-                key={`${r}-${c}`}
-                type="button"
-                onClick={() => placeAt(r, c)}
-                disabled={!!cell || state.turn !== 'player' || state.selected === null}
-                aria-label={`Brettfeld ${r + 1},${c + 1}${tile ? ` ${SHAPES[tile.shape]}` : ''}`}
-                className={`flex aspect-square items-center justify-center rounded text-xl font-bold ${
-                  tile
-                    ? isTemp
-                      ? 'bg-amber-100 ring-2 ring-amber-400 dark:bg-amber-900/40'
-                      : 'bg-slate-800'
-                    : 'bg-slate-800/30 disabled:cursor-not-allowed'
-                }`}
-              >
-                {tile && (
-                  <span className={COLOR_CLASSES[tile.color]} aria-hidden>
-                    {SHAPES[tile.shape]}
-                  </span>
-                )}
-              </button>
-            );
-          }),
-        )}
+      <div className="fit-area mx-auto w-full max-w-[440px]">
+        <div
+          className="grid fit-box gap-[2px] rounded-2xl bg-slate-900 p-2 dark:bg-slate-950"
+          role="group"
+          aria-label="Qwirkle-Spielbrett"
+          style={{ gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))` }}
+        >
+          {state.board.flatMap((row, r) =>
+            row.map((cell, c) => {
+              const placement = state.placements.find((p) => p.r === r && p.c === c);
+              const tile = cell ?? placement?.tile ?? null;
+              const isTemp = !!placement;
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  type="button"
+                  onClick={() => placeAt(r, c)}
+                  disabled={!!cell || state.turn !== 'player' || state.selected === null}
+                  aria-label={`Brettfeld ${r + 1},${c + 1}${tile ? ` ${SHAPES[tile.shape]}` : ''}`}
+                  className={`flex aspect-square items-center justify-center rounded text-xl font-bold ${
+                    tile
+                      ? isTemp
+                        ? 'bg-amber-100 ring-2 ring-amber-400 dark:bg-amber-900/40'
+                        : 'bg-slate-800'
+                      : 'bg-slate-800/30 disabled:cursor-not-allowed'
+                  }`}
+                >
+                  {tile && (
+                    <span className={COLOR_CLASSES[tile.color]} aria-hidden>
+                      {SHAPES[tile.shape]}
+                    </span>
+                  )}
+                </button>
+              );
+            }),
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-center gap-2">

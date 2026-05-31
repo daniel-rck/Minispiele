@@ -270,7 +270,7 @@ export default function TrafficJamGame() {
   const best = highscores[state.difficulty];
 
   return (
-    <div className="flex flex-col gap-3 pb-24">
+    <div className="flex h-full min-h-0 flex-col gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="flex flex-wrap items-center gap-3">
@@ -305,74 +305,76 @@ export default function TrafficJamGame() {
         ]}
       />
 
-      <div className="relative mx-auto w-full max-w-md sm:max-w-lg">
-        <span className="sr-only">Ausfahrt rechts in Reihe {EXIT_ROW + 1}</span>
+      <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg">
+        <div className="relative fit-box">
+          <span className="sr-only">Ausfahrt rechts in Reihe {EXIT_ROW + 1}</span>
 
-        <div className="pr-7 sm:pr-8">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute right-0 text-2xl leading-none text-red-500 dark:text-red-400"
-            style={{
-              top: `${((EXIT_ROW + 0.5) / BOARD_SIZE) * 100}%`,
-              transform: 'translateY(-50%)',
-            }}
-          >
-            →
-          </span>
-          <div
-            className="grid touch-none gap-1 rounded-2xl border-2 border-slate-300 bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800"
-            style={{
-              gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
-              gridTemplateRows: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
-              aspectRatio: '1 / 1',
-              touchAction: 'none',
-            }}
-          >
-            {/* Lane indicator background */}
-            {Array.from({ length: BOARD_SIZE * BOARD_SIZE }).map((_, i) => {
-              const r = Math.floor(i / BOARD_SIZE);
-              const isExitRow = r === EXIT_ROW;
-              return (
-                <div
-                  key={`bg-${i}`}
-                  aria-hidden
-                  className={`rounded-md ${
-                    isExitRow
-                      ? 'bg-slate-200 dark:bg-slate-700'
-                      : 'bg-slate-50 dark:bg-slate-900/40'
-                  }`}
-                  style={{
-                    gridColumn: `${(i % BOARD_SIZE) + 1} / span 1`,
-                    gridRow: `${r + 1} / span 1`,
-                  }}
-                />
-              );
-            })}
+          <div className="pr-7 sm:pr-8">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-0 text-2xl leading-none text-red-500 dark:text-red-400"
+              style={{
+                top: `${((EXIT_ROW + 0.5) / BOARD_SIZE) * 100}%`,
+                transform: 'translateY(-50%)',
+              }}
+            >
+              →
+            </span>
+            <div
+              className="grid touch-none gap-1 rounded-2xl border-2 border-slate-300 bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800"
+              style={{
+                gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
+                gridTemplateRows: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
+                aspectRatio: '1 / 1',
+                touchAction: 'none',
+              }}
+            >
+              {/* Lane indicator background */}
+              {Array.from({ length: BOARD_SIZE * BOARD_SIZE }).map((_, i) => {
+                const r = Math.floor(i / BOARD_SIZE);
+                const isExitRow = r === EXIT_ROW;
+                return (
+                  <div
+                    key={`bg-${i}`}
+                    aria-hidden
+                    className={`rounded-md ${
+                      isExitRow
+                        ? 'bg-slate-200 dark:bg-slate-700'
+                        : 'bg-slate-50 dark:bg-slate-900/40'
+                    }`}
+                    style={{
+                      gridColumn: `${(i % BOARD_SIZE) + 1} / span 1`,
+                      gridRow: `${r + 1} / span 1`,
+                    }}
+                  />
+                );
+              })}
 
-            {state.cars.map((car) => {
-              const spanCol = car.orientation === 'h' ? car.length : 1;
-              const spanRow = car.orientation === 'v' ? car.length : 1;
-              const label = car.isTarget
-                ? `Rotes Zielauto, fährt nach ${facingWord[car.facing]}`
-                : `Auto ${car.id}, ${car.length === 3 ? 'Lkw' : 'Pkw'}, fährt nach ${facingWord[car.facing]}`;
-              return (
-                <button
-                  key={car.id}
-                  type="button"
-                  onClick={() => onDrive(car)}
-                  aria-label={label}
-                  title={`${facingArrow[car.facing]} ${facingWord[car.facing]}`}
-                  className="relative block touch-none overflow-visible bg-transparent p-0 transition select-none focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
-                  style={{
-                    gridColumn: `${car.col + 1} / span ${spanCol}`,
-                    gridRow: `${car.row + 1} / span ${spanRow}`,
-                    minHeight: 0,
-                  }}
-                >
-                  <CarSVG car={car} />
-                </button>
-              );
-            })}
+              {state.cars.map((car) => {
+                const spanCol = car.orientation === 'h' ? car.length : 1;
+                const spanRow = car.orientation === 'v' ? car.length : 1;
+                const label = car.isTarget
+                  ? `Rotes Zielauto, fährt nach ${facingWord[car.facing]}`
+                  : `Auto ${car.id}, ${car.length === 3 ? 'Lkw' : 'Pkw'}, fährt nach ${facingWord[car.facing]}`;
+                return (
+                  <button
+                    key={car.id}
+                    type="button"
+                    onClick={() => onDrive(car)}
+                    aria-label={label}
+                    title={`${facingArrow[car.facing]} ${facingWord[car.facing]}`}
+                    className="relative block touch-none overflow-visible bg-transparent p-0 transition select-none focus:outline-none focus-visible:ring-4 focus-visible:ring-amber-300"
+                    style={{
+                      gridColumn: `${car.col + 1} / span ${spanCol}`,
+                      gridRow: `${car.row + 1} / span ${spanRow}`,
+                      minHeight: 0,
+                    }}
+                  >
+                    <CarSVG car={car} />
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

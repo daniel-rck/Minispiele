@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
 import { isBetter } from '../lib/highscores';
@@ -117,10 +117,11 @@ export default function MemoryGame() {
   };
 
   const cols = MEMORY_COLS[state.difficulty];
+  const rows = Math.ceil(state.cards.length / cols);
   const best = highscores[state.difficulty];
 
   return (
-    <div className="flex flex-col gap-3 pb-24">
+    <div className="flex h-full min-h-0 flex-col gap-3 pb-2">
       <div className="flex flex-wrap items-center gap-3">
         <DifficultySelector<MemoryDifficulty>
           value={state.difficulty}
@@ -150,10 +151,15 @@ export default function MemoryGame() {
         ]}
       />
 
-      <div className="mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
+      <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg md:max-w-xl">
         <div
-          className="grid gap-2 sm:gap-3"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+          className="grid gap-2 fit-box sm:gap-3"
+          style={
+            {
+              gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+              '--fit-ar': cols / rows,
+            } as CSSProperties
+          }
         >
           {state.cards.map((card, i) => {
             const revealed = card.flipped || card.matched;

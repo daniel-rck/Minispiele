@@ -121,7 +121,7 @@ export default function MastermindGame() {
   });
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -143,7 +143,7 @@ export default function MastermindGame() {
       </div>
 
       <div
-        className="flex w-full max-w-md flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
+        className="flex min-h-0 w-full max-w-md flex-1 flex-col gap-1.5 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
         role="group"
         aria-label="Mastermind-Versuche"
       >

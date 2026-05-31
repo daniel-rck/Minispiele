@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
@@ -255,7 +255,7 @@ export default function PongGame() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-3 pb-4">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
 
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -288,14 +288,16 @@ export default function PongGame() {
         </div>
       </div>
 
-      <canvas
-        ref={canvasRef}
-        width={W}
-        height={H}
-        aria-label="Pong-Spielfeld"
-        className="w-full max-w-[700px] rounded-lg bg-slate-900 ring-1 ring-slate-700"
-        style={{ aspectRatio: `${W}/${H}`, height: 'auto', touchAction: 'none' }}
-      />
+      <div className="fit-area mx-auto w-full max-w-[700px]">
+        <canvas
+          ref={canvasRef}
+          width={W}
+          height={H}
+          aria-label="Pong-Spielfeld"
+          className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700"
+          style={{ '--fit-ar': W / H, touchAction: 'none' } as CSSProperties}
+        />
+      </div>
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 sm:hidden">
         <button
