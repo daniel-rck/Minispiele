@@ -17,7 +17,7 @@ Baseline vor Start: alles grün (93 Testdateien, 687 Tests). Branch: `claude/dee
       Change: `[...dirs].sort(() => Math.random() - 0.5)` ist ein verzerrter Shuffle (nicht-uniforme Permutationen → statistisch verzerrte Spannbäume bei der Puzzle-Generierung). Ersetzen durch In-place-Fisher-Yates auf der Kopie, analog `shuffleArr` in `FutoshikiGame.tsx`/`HitoriGame.tsx`. Die ~8 weiteren lokalen Fisher-Yates-Kopien in `src/lib/*` sind korrekt (seedbares `rng`) — bewusste Konvention, nicht konsolidieren.
       Verify: `bun run test && bun run typecheck && bun run lint`
 
-- [ ] T2: Ungenutzte devDependency `@axe-core/react` entfernen
+- [x] T2: Ungenutzte devDependency `@axe-core/react` entfernen
       Files: `package.json`, `bun.lock`
       Change: `"@axe-core/react"` aus devDependencies löschen, `bun install`. Kein Import im Repo; a11y-Tests nutzen `axe-core` direkt (`src/test/a11y.ts`). `workbox-window` bleibt — wird von `virtual:pwa-register` dynamisch importiert (required peerDependency von vite-plugin-pwa).
       Verify: `bun install && bun run test && bun run build`
