@@ -22,7 +22,7 @@ Baseline vor Start: alles grün (93 Testdateien, 687 Tests). Branch: `claude/dee
       Change: `"@axe-core/react"` aus devDependencies löschen, `bun install`. Kein Import im Repo; a11y-Tests nutzen `axe-core` direkt (`src/test/a11y.ts`). `workbox-window` bleibt — wird von `virtual:pwa-register` dynamisch importiert (required peerDependency von vite-plugin-pwa).
       Verify: `bun install && bun run test && bun run build`
 
-- [ ] T3: README.md — Tool-/Versions-Drift beheben
+- [x] T3: README.md — Tool-/Versions-Drift beheben
       Files: `README.md` (Zeilen 22, 50, 66–67, 83)
       Change: TypeScript-Badge 5.7 → 6; Text „TypeScript 5.7 + Vite 7" → „TypeScript 6 + Vite 8"; Dev-Befehle-Tabelle `lint`/`format` von „ESLint"/„Prettier" auf Biome korrigieren; CI-Pipeline-Beschreibung an `.github/workflows/ci.yml` angleichen (`check` = Biome Lint + Format, kein separates `format:check`/`lint`).
       Verify: `bun run lint` + Sichtprüfung
