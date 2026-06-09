@@ -27,7 +27,7 @@ Baseline vor Start: alles grün (93 Testdateien, 687 Tests). Branch: `claude/dee
       Change: TypeScript-Badge 5.7 → 6; Text „TypeScript 5.7 + Vite 7" → „TypeScript 6 + Vite 8"; Dev-Befehle-Tabelle `lint`/`format` von „ESLint"/„Prettier" auf Biome korrigieren; CI-Pipeline-Beschreibung an `.github/workflows/ci.yml` angleichen (`check` = Biome Lint + Format, kein separates `format:check`/`lint`).
       Verify: `bun run lint` + Sichtprüfung
 
-- [ ] T4: CONTRIBUTING.md — tote Pfade und Tool-Namen korrigieren
+- [x] T4: CONTRIBUTING.md — tote Pfade und Tool-Namen korrigieren
       Files: `CONTRIBUTING.md` (Zeilen 28, 37–38, 41)
       Change: `src/App.tsx` und `LazyRoute` existieren nicht — Route-Registrierung korrekt beschreiben (`src/lib/routes.ts` + `lazyPage` in `src/lib/router.tsx`); „Prettier"/„ESLint" → Biome.
       Verify: `bun run lint` + referenzierte Dateipfade existieren
