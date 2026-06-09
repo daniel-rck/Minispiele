@@ -34,8 +34,8 @@ Baseline vor Start: alles grün (93 Testdateien, 687 Tests). Branch: `claude/dee
 
 ## Abschluss
 
-- [ ] Full-Verification grün
-- [ ] Push + Draft-PR
+- [x] Full-Verification grün (lint, format:check, typecheck, 687/687 Tests, build)
+- [x] Push + Draft-PR
 
 ## Not this session
 
