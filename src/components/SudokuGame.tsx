@@ -307,7 +307,7 @@ export default function SudokuGame() {
 
       <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="grid fit-box gap-px overflow-hidden rounded-lg border-2 border-slate-700 bg-slate-700 dark:border-slate-500 dark:bg-slate-500"
+          className="grid fit-box gap-[2px] overflow-hidden rounded-lg border-2 border-slate-700 bg-slate-700 dark:border-slate-500 dark:bg-slate-500"
           style={{ gridTemplateColumns: `repeat(${SUDOKU_SIZE}, minmax(0, 1fr))` }}
           role="grid"
           aria-label="Sudoku-Gitter"
@@ -324,8 +324,8 @@ export default function SudokuGame() {
               Math.floor(row / 3) === Math.floor(Math.floor(selected / SUDOKU_SIZE) / 3) &&
               Math.floor(col / 3) === Math.floor((selected % SUDOKU_SIZE) / 3);
             const conflict = conflictsAt(game.cells, idx);
-            const borderRight = col % 3 === 2 && col !== SUDOKU_SIZE - 1 ? 'mr-[1px]' : '';
-            const borderBottom = row % 3 === 2 && row !== SUDOKU_SIZE - 1 ? 'mb-[1px]' : '';
+            const borderRight = col % 3 === 2 && col !== SUDOKU_SIZE - 1 ? 'mr-[2px]' : '';
+            const borderBottom = row % 3 === 2 && row !== SUDOKU_SIZE - 1 ? 'mb-[2px]' : '';
             return (
               <button
                 key={idx}
