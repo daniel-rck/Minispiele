@@ -19,7 +19,7 @@
   <a href="./.github/workflows/ci.yml"><img alt="Bundle budget" src="https://img.shields.io/badge/bundle-%E2%89%A4%20270%20KB-blue?style=flat-square"></a>
   <br>
   <a href="https://react.dev"><img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&style=flat-square"></a>
-  <a href="https://www.typescriptlang.org"><img alt="TypeScript 5.7" src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white&style=flat-square"></a>
+  <a href="https://www.typescriptlang.org"><img alt="TypeScript 6" src="https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white&style=flat-square"></a>
   <a href="https://vitejs.dev"><img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white&style=flat-square"></a>
   <a href="https://tailwindcss.com"><img alt="Tailwind 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square"></a>
   <img alt="PWA ready" src="https://img.shields.io/badge/PWA-ready-5A0FC8?logo=pwa&logoColor=white&style=flat-square">
@@ -47,7 +47,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 ## Tech-Stack
 
-- **React 19** + **TypeScript 5.7** + **Vite 7**
+- **React 19** + **TypeScript 6** + **Vite 8**
 - **React Compiler** aktiv — automatische Memoization, weniger `useMemo`/`useCallback`-Boilerplate
 - **Biome** für Lint + Format (ersetzt ESLint + Prettier, ~30× schneller)
 - **Tailwind CSS 4** (Styling), **Zod** (Schema-Validierung)
@@ -63,8 +63,8 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 | `bun run test`          | Unit-Tests (einmalig)                          |
 | `bun run test:watch`    | Unit-Tests im Watch-Modus                      |
 | `bun run test:e2e`      | Playwright-E2E auf gebauter App                |
-| `bun run lint`          | ESLint                                         |
-| `bun run format`        | Prettier (Schreiben)                           |
+| `bun run lint`          | Biome (Lint + Format-Check)                    |
+| `bun run format`        | Biome (Format, schreibend)                     |
 | `bun run typecheck`     | TypeScript `--noEmit`                          |
 | `bun run build`         | Production-Build nach `dist/`                  |
 | `bun run preview`       | Lokale Vorschau des Builds                     |
@@ -80,7 +80,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 ## CI / Deployment
 
-CI grün = mergebar. Pipeline: `format:check` → `lint` → `typecheck` → `test` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
+CI grün = mergebar. Pipeline: `check` (Biome: Lint + Format) → `typecheck` → `test` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
 
 ## Beitragen
 

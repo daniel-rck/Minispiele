@@ -48,7 +48,6 @@
     "lucide-react": "^1.16.0"
   },
   "devDependencies": {
-    "@axe-core/react": "^4.10.0",
     "@biomejs/biome": "^2.4.15",
     "@cloudflare/workers-types": "^4.20260504.1",
     "@playwright/test": "^1.49.0",

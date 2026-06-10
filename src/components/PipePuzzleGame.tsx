@@ -31,7 +31,11 @@ function generatePuzzle(n: number): Puzzle {
   function dfs(r: number, c: number): void {
     const row = visited[r];
     if (row) row[c] = true;
-    const shuffled = [...dirs].sort(() => Math.random() - 0.5);
+    const shuffled = [...dirs];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j]!, shuffled[i]!];
+    }
     for (const [dr, dc, dir, opp] of shuffled) {
       const nr = r + dr;
       const nc = c + dc;

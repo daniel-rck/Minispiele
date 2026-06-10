@@ -25,7 +25,7 @@ Tests laufen mit `bun run test` (Unit) bzw. `bun run test:e2e` (Playwright).
 
 1. **Komponente anlegen** in `src/pages/<DeinSpiel>.tsx` und in [`<GameLayout>`](./src/components/GameLayout.tsx) wrappen — damit erbt das Spiel Header, Back-Button und a11y-Landmarks automatisch.
 2. **Katalog-Eintrag** in [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts) ergänzen (`to`, `title`, `description`, `preview`, `previewAlt`, `category`). Das ist die Single Source of Truth — Home, Suche und Kategorien lesen alles daraus.
-3. **Route registrieren** in [`src/App.tsx`](./src/App.tsx) als `<Route>` innerhalb des `AppShell` — bestehende Einträge zeigen das Muster für Lazy-Loading via `LazyRoute`.
+3. **Route registrieren**: Pfad-Konstante in [`src/lib/routes.ts`](./src/lib/routes.ts) ergänzen und die Route in [`src/lib/router.tsx`](./src/lib/router.tsx) unter dem AppShell-Eintrag als `lazy: lazyPage(() => import('../pages/<DeinSpiel>.tsx'))` registrieren — bestehende Einträge zeigen das Muster.
 4. **Preview-Asset** unter `public/games/<slug>-preview.svg` ablegen (siehe vorhandene Previews).
 5. **Tests** schreiben:
    - Unit: `src/pages/<DeinSpiel>.test.tsx` mit Vitest + Testing Library.
@@ -34,11 +34,11 @@ Tests laufen mit `bun run test` (Unit) bzw. `bun run test:e2e` (Playwright).
 
 ## Coding Standards
 
-- **Prettier** läuft als pre-commit-Hook (via `simple-git-hooks` + `lint-staged`) — kein manuelles Formatieren nötig.
-- **ESLint** strikt: `bun run lint` muss grün sein. JSX-a11y-Regeln sind aktiv.
+- **Biome** formatiert als pre-commit-Hook (via `simple-git-hooks` + `lint-staged`) — kein manuelles Formatieren nötig.
+- **Biome** strikt: `bun run lint` muss grün sein. A11y-Lint-Regeln sind aktiv.
 - **TypeScript** strict: `bun run typecheck`. Keine `any`, keine impliziten Typen.
 - **Accessibility:** Touch-Targets ≥ 44 px, semantische `<button>`-Elemente statt `div onClick`, sichtbarer Fokus-Ring, Tastaturbedienung möglich.
-- **Bundle-Budget:** Der main chunk sollte 270 KB nicht überschreiten — bei Überschreitung loggt CI eine Warnung (kein Hard-Fail). Bei größeren Spielen Lazy-Loading via `React.lazy` nutzen (siehe `LazyRoute` in [`src/App.tsx`](./src/App.tsx)).
+- **Bundle-Budget:** Der main chunk sollte 270 KB nicht überschreiten — bei Überschreitung loggt CI eine Warnung (kein Hard-Fail). Alle Routen laden ohnehin lazy über `lazyPage` in [`src/lib/router.tsx`](./src/lib/router.tsx) — jedes Spiel landet automatisch in einem eigenen Chunk.
 - **Mobile-first:** Layout muss auf 320 px Breite funktionieren. Touch zuerst, Maus/Tastatur danach.
 
 ## PR-Checkliste
