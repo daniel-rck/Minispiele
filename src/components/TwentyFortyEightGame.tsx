@@ -153,7 +153,10 @@ export default function TwentyFortyEightGame() {
     return () => window.removeEventListener('keydown', onKey);
   }, [move]);
 
-  const { onTouchStart, onTouchEnd } = useSwipeDetection({ threshold: 30, onSwipe: move });
+  const { onTouchStart, onTouchEnd, onTouchCancel } = useSwipeDetection({
+    threshold: 30,
+    onSwipe: move,
+  });
 
   const restart = useCallback(() => {
     setState({ grid: createInitialGrid(), score: 0, won: false });
@@ -181,6 +184,7 @@ export default function TwentyFortyEightGame() {
           ref={containerRef}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
+          onTouchCancel={onTouchCancel}
           className="fit-box rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
           style={{ touchAction: 'none' }}
         >

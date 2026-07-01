@@ -5,17 +5,24 @@ export interface Point {
   y: number;
 }
 
+export interface Segment extends Point {
+  id: number;
+}
+
 export interface SnakeState {
-  snake: Point[];
+  snake: Segment[];
   food: Point;
   dir: Direction;
-  pendingDir: Direction;
+  dirQueue: Direction[];
   cols: number;
   rows: number;
   alive: boolean;
   score: number;
   tick: number;
+  nextSegId: number;
 }
+
+const MAX_QUEUED_DIRECTIONS = 2;
 
 const DIR_DELTA: Readonly<Record<Direction, Point>> = {
   up: { x: 0, y: -1 },
@@ -38,21 +45,22 @@ export function createInitialState(
 ): SnakeState {
   const cx = Math.floor(cols / 2);
   const cy = Math.floor(rows / 2);
-  const snake: Point[] = [
-    { x: cx, y: cy },
-    { x: cx - 1, y: cy },
-    { x: cx - 2, y: cy },
+  const snake: Segment[] = [
+    { x: cx, y: cy, id: 0 },
+    { x: cx - 1, y: cy, id: 1 },
+    { x: cx - 2, y: cy, id: 2 },
   ];
   const base: SnakeState = {
     snake,
     food: { x: 0, y: 0 },
     dir: 'right',
-    pendingDir: 'right',
+    dirQueue: [],
     cols,
     rows,
     alive: true,
     score: 0,
     tick: 0,
+    nextSegId: 3,
   };
   return spawnFood(base, rng);
 }
@@ -71,27 +79,29 @@ export function spawnFood(state: SnakeState, rng: () => number = Math.random): S
 
 export function queueDirection(state: SnakeState, dir: Direction): SnakeState {
   if (!state.alive) return state;
-  if (OPPOSITE[state.dir] === dir) return state;
-  if (state.pendingDir === dir) return state;
-  return { ...state, pendingDir: dir };
+  if (state.dirQueue.length >= MAX_QUEUED_DIRECTIONS) return state;
+  const effective = state.dirQueue[state.dirQueue.length - 1] ?? state.dir;
+  if (effective === dir || OPPOSITE[effective] === dir) return state;
+  return { ...state, dirQueue: [...state.dirQueue, dir] };
 }
 
 export function tick(state: SnakeState, rng: () => number = Math.random): SnakeState {
   if (!state.alive) return state;
-  const dir = state.pendingDir;
+  const dir = state.dirQueue[0] ?? state.dir;
+  const dirQueue = state.dirQueue.slice(1);
   const head = state.snake[0]!;
   const delta = DIR_DELTA[dir];
-  const newHead: Point = { x: head.x + delta.x, y: head.y + delta.y };
+  const newHead: Segment = { x: head.x + delta.x, y: head.y + delta.y, id: state.nextSegId };
 
   if (newHead.x < 0 || newHead.x >= state.cols || newHead.y < 0 || newHead.y >= state.rows) {
-    return { ...state, dir, alive: false, tick: state.tick + 1 };
+    return { ...state, dir, dirQueue, alive: false, tick: state.tick + 1 };
   }
 
   const willEat = newHead.x === state.food.x && newHead.y === state.food.y;
   const bodyToCheck = willEat ? state.snake : state.snake.slice(0, -1);
   for (const s of bodyToCheck) {
     if (s.x === newHead.x && s.y === newHead.y) {
-      return { ...state, dir, alive: false, tick: state.tick + 1 };
+      return { ...state, dir, dirQueue, alive: false, tick: state.tick + 1 };
     }
   }
 
@@ -102,8 +112,10 @@ export function tick(state: SnakeState, rng: () => number = Math.random): SnakeS
     ...state,
     snake: newSnake,
     dir,
+    dirQueue,
     score: willEat ? state.score + 1 : state.score,
     tick: state.tick + 1,
+    nextSegId: state.nextSegId + 1,
   };
 
   if (willEat) next = spawnFood(next, rng);

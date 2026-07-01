@@ -27,16 +27,52 @@ describe('snake', () => {
     const s = createInitialState(10, 10, seq([0.9])); // food in a corner away from snake
     const head = s.snake[0]!;
     const next = tick(s, seq([0.9]));
-    expect(next.snake[0]).toEqual({ x: head.x + 1, y: head.y });
+    expect(next.snake[0]).toMatchObject({ x: head.x + 1, y: head.y });
   });
 
   it('queueDirection refuses 180° reversals', () => {
     const s = createInitialState(10, 10, seq([0.9]));
     // dir is 'right', so queuing 'left' should be a no-op
     const a = queueDirection(s, 'left');
-    expect(a.pendingDir).toBe('right');
+    expect(a.dirQueue).toEqual([]);
     const b = queueDirection(s, 'up');
-    expect(b.pendingDir).toBe('up');
+    expect(b.dirQueue).toEqual(['up']);
+  });
+
+  it('queueDirection validates against the last queued direction, not just the committed one', () => {
+    const s = createInitialState(10, 10, seq([0.9]));
+    // dir is 'right'; queue 'up' then 'down' — 'down' reverses the queued 'up'
+    const a = queueDirection(s, 'up');
+    const b = queueDirection(a, 'down');
+    expect(b.dirQueue).toEqual(['up']);
+    // duplicates of the effective direction are ignored too
+    const c = queueDirection(a, 'up');
+    expect(c.dirQueue).toEqual(['up']);
+  });
+
+  it('keeps a two-turn combo and plays it out over two ticks', () => {
+    const s = createInitialState(10, 10, seq([0.9]));
+    const head = s.snake[0]!;
+    // moving right: quickly queue 'up' then 'left' (a fast corner maneuver)
+    const queued = queueDirection(queueDirection(s, 'up'), 'left');
+    expect(queued.dirQueue).toEqual(['up', 'left']);
+    const t1 = tick(queued, seq([0.9]));
+    expect(t1.dir).toBe('up');
+    expect(t1.snake[0]).toMatchObject({ x: head.x, y: head.y - 1 });
+    const t2 = tick(t1, seq([0.9]));
+    expect(t2.dir).toBe('left');
+    expect(t2.snake[0]).toMatchObject({ x: head.x - 1, y: head.y - 1 });
+  });
+
+  it('caps the direction queue at two entries', () => {
+    const s = createInitialState(10, 10, seq([0.9]));
+    const q = queueDirection(queueDirection(queueDirection(s, 'up'), 'left'), 'down');
+    expect(q.dirQueue).toEqual(['up', 'left']);
+  });
+
+  it('queueDirection is a no-op when dead', () => {
+    const s = { ...createInitialState(10, 10, seq([0.9])), alive: false };
+    expect(queueDirection(s, 'up')).toBe(s);
   });
 
   it('eating food grows the snake by one and increments the score', () => {
@@ -63,24 +99,37 @@ describe('snake', () => {
     // not the tail, so it does not vacate before the head arrives.
     const state = {
       snake: [
-        { x: 5, y: 5 },
-        { x: 4, y: 5 },
-        { x: 4, y: 4 },
-        { x: 5, y: 4 }, // <- target of the next move
-        { x: 6, y: 4 },
-        { x: 6, y: 5 },
+        { x: 5, y: 5, id: 0 },
+        { x: 4, y: 5, id: 1 },
+        { x: 4, y: 4, id: 2 },
+        { x: 5, y: 4, id: 3 }, // <- target of the next move
+        { x: 6, y: 4, id: 4 },
+        { x: 6, y: 5, id: 5 },
       ],
       food: { x: 9, y: 9 },
       dir: 'up' as const,
-      pendingDir: 'up' as const,
+      dirQueue: [],
       cols: 10,
       rows: 10,
       alive: true,
       score: 0,
       tick: 0,
+      nextSegId: 6,
     };
     const next = tick(state, seq([0.5]));
     expect(next.alive).toBe(false);
+  });
+
+  it('assigns each new head segment a fresh stable id', () => {
+    const s = createInitialState(10, 10, seq([0.9]));
+    const next = tick(s, seq([0.9]));
+    expect(next.snake[0]!.id).toBe(s.nextSegId);
+    // the surviving body keeps its ids
+    expect(next.snake.slice(1).map((seg) => seg.id)).toEqual(
+      s.snake.slice(0, -1).map((seg) => seg.id),
+    );
+    const ids = new Set(next.snake.map((seg) => seg.id));
+    expect(ids.size).toBe(next.snake.length);
   });
 
   it('spawnFood never places food on the snake', () => {

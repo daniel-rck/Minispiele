@@ -130,7 +130,10 @@ export default function SokobanGame() {
     return () => window.removeEventListener('keydown', onKey);
   }, [handleMove]);
 
-  const { onTouchStart, onTouchEnd } = useSwipeDetection({ threshold: 20, onSwipe: handleMove });
+  const { onTouchStart, onTouchEnd, onTouchCancel } = useSwipeDetection({
+    threshold: 20,
+    onSwipe: handleMove,
+  });
 
   const best = bestMap[String(levelIdx)];
 
@@ -174,6 +177,7 @@ export default function SokobanGame() {
         className="touch-none select-none rounded-2xl bg-slate-800 p-2 dark:bg-slate-900"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchCancel}
       >
         <div
           className="grid gap-px"

@@ -50,6 +50,8 @@ export default function SnakeGame() {
 
   const stateRef = useRef(state);
   stateRef.current = state;
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
   const prevScoreRef = useRef(state.score);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -63,19 +65,24 @@ export default function SnakeGame() {
   }, [state.score, phase, sfx]);
 
   const handleDirection = useCallback((dir: Direction) => {
+    if (phaseRef.current !== 'playing') return;
     setState((s) => queueDirection(s, dir));
   }, []);
 
-  const { onTouchStart, onTouchEnd } = useSwipeDetection({ onSwipe: handleDirection });
+  const { onTouchStart, onTouchEnd, onTouchCancel } = useSwipeDetection({
+    onSwipe: handleDirection,
+  });
 
   useEffect(() => {
     if (phase !== 'playing') return;
-    const interval = tickIntervalMs(state.score);
-    const id = window.setInterval(() => {
+    let id = 0;
+    const step = () => {
       setState((s) => tick(s));
-    }, interval);
-    return () => window.clearInterval(id);
-  }, [phase, state.score]);
+      id = window.setTimeout(step, tickIntervalMs(stateRef.current.score));
+    };
+    id = window.setTimeout(step, tickIntervalMs(stateRef.current.score));
+    return () => window.clearTimeout(id);
+  }, [phase]);
 
   useEffect(() => {
     if (!state.alive && phase === 'playing') {
@@ -148,9 +155,10 @@ export default function SnakeGame() {
       />
 
       <div
-        className="fit-area mx-auto w-full max-w-md select-none sm:max-w-lg"
+        className="fit-area mx-auto w-full max-w-md touch-none select-none sm:max-w-lg"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchCancel}
       >
         <div
           className="relative fit-box overflow-hidden rounded-lg bg-slate-50 p-[2px] dark:bg-slate-900"
@@ -166,7 +174,7 @@ export default function SnakeGame() {
             const isHead = i === 0;
             return (
               <div
-                key={i}
+                key={s.id}
                 aria-hidden
                 className={
                   isHead
