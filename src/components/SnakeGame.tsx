@@ -132,7 +132,7 @@ export default function SnakeGame() {
   const tickMs = tickIntervalMs(state.score);
 
   return (
-    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
+    <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-20">
       <AriaLive message={announcement} />
 
       <GameStats
