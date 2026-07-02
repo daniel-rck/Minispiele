@@ -10,6 +10,8 @@ import AriaLive from './AriaLive';
 import Button from './ui/Button';
 import Sheet from './ui/Sheet';
 
+// Reference frame duration: speeds are tuned in px per 60fps frame.
+const BASE_FRAME_MS = 1000 / 60;
 const TRAIL_LENGTH = 6;
 
 const FIELD_W = 480;
@@ -157,6 +159,8 @@ export default function BreakoutGame() {
   const stateRef = useRef(state);
   stateRef.current = state;
   const rafRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number | null>(null);
+  const frameAccRef = useRef(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const finishedRef = useRef(false);
   const lastLevelRef = useRef(1);
@@ -179,197 +183,226 @@ export default function BreakoutGame() {
     };
   }, []);
 
-  const step = useCallback(() => {
-    const s = stateRef.current;
-    if (s.status !== 'playing') {
-      rafRef.current = window.requestAnimationFrame(step);
-      return;
-    }
-    let { ballX, ballY, vx, vy, lives, score, paddleW, level } = s;
-    let status: Status = s.status;
-    let bricks = s.bricks;
-    let powerUps = s.powerUps;
-
-    // Move ball (unless stuck, but in 'playing' state it's never stuck)
-    ballX += vx;
-    ballY += vy;
-
-    // Wall bounces
-    if (ballX < BALL_R) {
-      ballX = BALL_R;
-      vx = Math.abs(vx);
-    } else if (ballX > FIELD_W - BALL_R) {
-      ballX = FIELD_W - BALL_R;
-      vx = -Math.abs(vx);
-    }
-    if (ballY < BALL_R) {
-      ballY = BALL_R;
-      vy = Math.abs(vy);
-    }
-
-    // Paddle bounce
-    let paddleHit = false;
-    if (vy > 0 && ballY + BALL_R >= PADDLE_Y && ballY + BALL_R <= PADDLE_Y + PADDLE_H) {
-      if (ballX > s.paddleX && ballX < s.paddleX + paddleW) {
-        const hitPos = (ballX - s.paddleX - paddleW / 2) / (paddleW / 2);
-        const speed = Math.sqrt(vx * vx + vy * vy);
-        const angle = hitPos * (Math.PI / 3);
-        vx = speed * Math.sin(angle);
-        vy = -Math.abs(speed * Math.cos(angle));
-        ballY = PADDLE_Y - BALL_R - 1;
-        paddleHit = true;
+  const step = useCallback(
+    (now: number) => {
+      const s = stateRef.current;
+      if (s.status !== 'playing') {
+        lastTimeRef.current = now;
+        rafRef.current = window.requestAnimationFrame(step);
+        return;
       }
-    }
+      // Fixed-timestep: die Physik ist in px pro 60fps-Frame getunt, also wird
+      // pro RAF so oft simuliert, wie ganze Referenz-Frames vergangen sind —
+      // auf 120-Hz-Displays lief das Spiel sonst doppelt so schnell.
+      const prev = lastTimeRef.current ?? now - BASE_FRAME_MS;
+      lastTimeRef.current = now;
+      frameAccRef.current = Math.min(
+        frameAccRef.current + Math.min(now - prev, 100),
+        4 * BASE_FRAME_MS,
+      );
+      const iterations = Math.floor(frameAccRef.current / BASE_FRAME_MS);
+      frameAccRef.current -= iterations * BASE_FRAME_MS;
+      if (iterations === 0) {
+        rafRef.current = window.requestAnimationFrame(step);
+        return;
+      }
+      let { ballX, ballY, vx, vy, lives, score, paddleW, level } = s;
+      let status: Status = s.status;
+      let bricks = s.bricks;
+      let powerUps = s.powerUps;
+      let paddleHit = false;
+      let caughtPowerUp: PowerUpType | null = null;
+      let stuck = false;
+      const burstParticles: Particle[] = [];
 
-    // Brick collisions
-    let mutated = false;
-    let scoreDelta = 0;
-    const burstParticles: Particle[] = [];
-    const newPowerUps: PowerUp[] = [];
-    const newBricks = bricks.map((b) => {
-      if (!b.alive) return b;
-      if (
-        ballX + BALL_R > b.x &&
-        ballX - BALL_R < b.x + BRICK_W &&
-        ballY + BALL_R > b.y &&
-        ballY - BALL_R < b.y + BRICK_H
-      ) {
-        const overlapX = Math.min(ballX + BALL_R - b.x, b.x + BRICK_W - (ballX - BALL_R));
-        const overlapY = Math.min(ballY + BALL_R - b.y, b.y + BRICK_H - (ballY - BALL_R));
-        if (overlapX < overlapY) vx = -vx;
-        else vy = -vy;
+      for (let iter = 0; iter < iterations && status === 'playing'; iter++) {
+        // Move ball (unless stuck, but in 'playing' state it's never stuck)
+        ballX += vx;
+        ballY += vy;
 
-        mutated = true;
-        const remaining = b.hp - 1;
-        if (remaining <= 0) {
-          scoreDelta += b.points * level;
-          burstParticles.push(
-            ...spawnBurst({
-              x: b.x + BRICK_W / 2,
-              y: b.y + BRICK_H / 2,
-              count: 8,
-              speed: 1.6,
-              color: b.color,
-              lifeMs: 500,
-              size: 2,
-            }),
-          );
-          if (Math.random() < POWERUP_DROP_CHANCE) {
-            const type: PowerUpType = Math.random() < 0.55 ? 'wide' : 'slow';
-            newPowerUps.push({
-              id: powerUpIdSeed++,
-              x: b.x + BRICK_W / 2,
-              y: b.y + BRICK_H / 2,
-              type,
-            });
+        // Wall bounces
+        if (ballX < BALL_R) {
+          ballX = BALL_R;
+          vx = Math.abs(vx);
+        } else if (ballX > FIELD_W - BALL_R) {
+          ballX = FIELD_W - BALL_R;
+          vx = -Math.abs(vx);
+        }
+        if (ballY < BALL_R) {
+          ballY = BALL_R;
+          vy = Math.abs(vy);
+        }
+
+        // Paddle bounce
+        if (vy > 0 && ballY + BALL_R >= PADDLE_Y && ballY + BALL_R <= PADDLE_Y + PADDLE_H) {
+          if (ballX > s.paddleX && ballX < s.paddleX + paddleW) {
+            const hitPos = (ballX - s.paddleX - paddleW / 2) / (paddleW / 2);
+            const speed = Math.sqrt(vx * vx + vy * vy);
+            const angle = hitPos * (Math.PI / 3);
+            vx = speed * Math.sin(angle);
+            vy = -Math.abs(speed * Math.cos(angle));
+            ballY = PADDLE_Y - BALL_R - 1;
+            paddleHit = true;
           }
-          return { ...b, alive: false, hp: 0 };
         }
-        return { ...b, hp: remaining };
-      }
-      return b;
-    });
-    if (mutated) {
-      bricks = newBricks;
-      score += scoreDelta;
-      sfx.pop();
-    }
-    if (newPowerUps.length > 0) {
-      powerUps = [...powerUps, ...newPowerUps];
-    }
 
-    // Power-up movement and catch
-    let caughtPowerUp: PowerUpType | null = null;
-    if (powerUps.length > 0) {
-      const next: PowerUp[] = [];
-      for (const p of powerUps) {
-        const ny = p.y + POWERUP_SPEED;
-        if (ny > FIELD_H + POWERUP_R) continue;
-        if (
-          ny + POWERUP_R >= PADDLE_Y &&
-          ny - POWERUP_R <= PADDLE_Y + PADDLE_H &&
-          p.x >= s.paddleX &&
-          p.x <= s.paddleX + paddleW
-        ) {
-          caughtPowerUp = p.type;
-          continue;
+        // Brick collisions
+        let mutated = false;
+        let bounced = false;
+        let scoreDelta = 0;
+        const newPowerUps: PowerUp[] = [];
+        const newBricks = bricks.map((b) => {
+          if (!b.alive) return b;
+          if (
+            ballX + BALL_R > b.x &&
+            ballX - BALL_R < b.x + BRICK_W &&
+            ballY + BALL_R > b.y &&
+            ballY - BALL_R < b.y + BRICK_H
+          ) {
+            const overlapX = Math.min(ballX + BALL_R - b.x, b.x + BRICK_W - (ballX - BALL_R));
+            const overlapY = Math.min(ballY + BALL_R - b.y, b.y + BRICK_H - (ballY - BALL_R));
+            // Nur am ersten getroffenen Stein abprallen — zwei gleichzeitige
+            // Treffer hoben die Richtungsumkehr sonst wieder auf
+            if (!bounced) {
+              if (overlapX < overlapY) vx = -vx;
+              else vy = -vy;
+              bounced = true;
+            }
+
+            mutated = true;
+            const remaining = b.hp - 1;
+            if (remaining <= 0) {
+              scoreDelta += b.points * level;
+              burstParticles.push(
+                ...spawnBurst({
+                  x: b.x + BRICK_W / 2,
+                  y: b.y + BRICK_H / 2,
+                  count: 8,
+                  speed: 1.6,
+                  color: b.color,
+                  lifeMs: 500,
+                  size: 2,
+                }),
+              );
+              if (Math.random() < POWERUP_DROP_CHANCE) {
+                const type: PowerUpType = Math.random() < 0.55 ? 'wide' : 'slow';
+                newPowerUps.push({
+                  id: powerUpIdSeed++,
+                  x: b.x + BRICK_W / 2,
+                  y: b.y + BRICK_H / 2,
+                  type,
+                });
+              }
+              return { ...b, alive: false, hp: 0 };
+            }
+            return { ...b, hp: remaining };
+          }
+          return b;
+        });
+        if (mutated) {
+          bricks = newBricks;
+          score += scoreDelta;
+          sfx.pop();
         }
-        next.push({ ...p, y: ny });
+        if (newPowerUps.length > 0) {
+          powerUps = [...powerUps, ...newPowerUps];
+        }
+
+        // Power-up movement and catch
+        let caughtThisStep: PowerUpType | null = null;
+        if (powerUps.length > 0) {
+          const next: PowerUp[] = [];
+          for (const p of powerUps) {
+            const ny = p.y + POWERUP_SPEED;
+            if (ny > FIELD_H + POWERUP_R) continue;
+            if (
+              ny + POWERUP_R >= PADDLE_Y &&
+              ny - POWERUP_R <= PADDLE_Y + PADDLE_H &&
+              p.x >= s.paddleX &&
+              p.x <= s.paddleX + paddleW
+            ) {
+              caughtThisStep = p.type;
+              caughtPowerUp = p.type;
+              continue;
+            }
+            next.push({ ...p, y: ny });
+          }
+          powerUps = next;
+        }
+        if (caughtThisStep === 'wide') {
+          paddleW = Math.min(MAX_PADDLE_W, paddleW + 18);
+        } else if (caughtThisStep === 'slow') {
+          vx *= 0.78;
+          vy *= 0.78;
+        }
+
+        // Ball lost
+        if (ballY > FIELD_H + BALL_R) {
+          lives -= 1;
+          if (lives <= 0) {
+            status = 'lost';
+          } else {
+            const respawn = spawnBall(level, s.paddleX, paddleW);
+            ballX = respawn.ballX;
+            ballY = respawn.ballY;
+            vx = respawn.vx;
+            vy = respawn.vy;
+            stuck = true;
+            status = 'ready';
+          }
+        }
+
+        // Level complete
+        if (status === 'playing' && !bricks.some((b) => b.alive)) {
+          level += 1;
+          bricks = buildBricks(level);
+          const respawn = spawnBall(level, s.paddleX, BASE_PADDLE_W);
+          ballX = respawn.ballX;
+          ballY = respawn.ballY;
+          vx = respawn.vx;
+          vy = respawn.vy;
+          paddleW = BASE_PADDLE_W;
+          powerUps = [];
+          stuck = true;
+          status = 'ready';
+        }
       }
-      powerUps = next;
-    }
-    if (caughtPowerUp === 'wide') {
-      paddleW = Math.min(MAX_PADDLE_W, paddleW + 18);
-    } else if (caughtPowerUp === 'slow') {
-      vx *= 0.78;
-      vy *= 0.78;
-    }
 
-    // Ball lost
-    let stuck = false;
-    if (ballY > FIELD_H + BALL_R) {
-      lives -= 1;
-      if (lives <= 0) {
-        status = 'lost';
-      } else {
-        const respawn = spawnBall(level, s.paddleX, paddleW);
-        ballX = respawn.ballX;
-        ballY = respawn.ballY;
-        vx = respawn.vx;
-        vy = respawn.vy;
-        stuck = true;
-        status = 'ready';
+      setState((p) => ({
+        ...p,
+        ballX,
+        ballY,
+        vx,
+        vy,
+        bricks,
+        powerUps,
+        paddleW,
+        score,
+        lives,
+        level,
+        status,
+        stuck,
+      }));
+      if (burstParticles.length > 0) {
+        setParticles((p) => [...p, ...burstParticles]);
       }
-    }
-
-    // Level complete
-    if (status === 'playing' && !bricks.some((b) => b.alive)) {
-      level += 1;
-      bricks = buildBricks(level);
-      const respawn = spawnBall(level, s.paddleX, BASE_PADDLE_W);
-      ballX = respawn.ballX;
-      ballY = respawn.ballY;
-      vx = respawn.vx;
-      vy = respawn.vy;
-      paddleW = BASE_PADDLE_W;
-      powerUps = [];
-      stuck = true;
-      status = 'ready';
-    }
-
-    setState((prev) => ({
-      ...prev,
-      ballX,
-      ballY,
-      vx,
-      vy,
-      bricks,
-      powerUps,
-      paddleW,
-      score,
-      lives,
-      level,
-      status,
-      stuck,
-    }));
-    if (burstParticles.length > 0) {
-      setParticles((p) => [...p, ...burstParticles]);
-    }
-    setTrail((t) => {
-      const next = [{ x: ballX, y: ballY }, ...t];
-      if (next.length > TRAIL_LENGTH) next.length = TRAIL_LENGTH;
-      return next;
-    });
-    if (paddleHit) {
-      vibrate(8);
-      flashPaddle();
-    }
-    if (caughtPowerUp) {
-      vibrate([12, 20, 12]);
-      sfx.win();
-    }
-    rafRef.current = window.requestAnimationFrame(step);
-  }, [vibrate, flashPaddle, sfx]);
+      setTrail((t) => {
+        const next = [{ x: ballX, y: ballY }, ...t];
+        if (next.length > TRAIL_LENGTH) next.length = TRAIL_LENGTH;
+        return next;
+      });
+      if (paddleHit) {
+        vibrate(8);
+        flashPaddle();
+      }
+      if (caughtPowerUp) {
+        vibrate([12, 20, 12]);
+        sfx.win();
+      }
+      rafRef.current = window.requestAnimationFrame(step);
+    },
+    [vibrate, flashPaddle, sfx],
+  );
 
   useAnimationFrame((delta) => {
     setParticles((prev) => stepParticles(prev, delta, 0.05));
@@ -439,13 +472,14 @@ export default function BreakoutGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
+      const canSteer = state.status === 'playing' || state.status === 'ready';
+      if (e.key === 'ArrowLeft' && canSteer) {
         setState((s) => {
           const px = Math.max(0, s.paddleX - 22);
           if (s.stuck) return { ...s, paddleX: px, ballX: px + s.paddleW / 2 };
           return { ...s, paddleX: px };
         });
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === 'ArrowRight' && canSteer) {
         setState((s) => {
           const px = Math.min(FIELD_W - s.paddleW, s.paddleX + 22);
           if (s.stuck) return { ...s, paddleX: px, ballX: px + s.paddleW / 2 };
@@ -486,6 +520,8 @@ export default function BreakoutGame() {
         style={{ aspectRatio: `${FIELD_W} / ${FIELD_H}` }}
         onPointerDown={(e) => {
           e.preventDefault();
+          // Capture, damit der Drag weiterläuft, wenn der Finger das Feld verlässt
+          e.currentTarget.setPointerCapture(e.pointerId);
           movePaddle(e.clientX);
           if (state.status === 'ready') launch();
         }}
