@@ -1,5 +1,6 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { useAnimationFrame } from '../hooks/useAnimationFrame';
+import { type SwipeDirection, useSwipeDetection } from '../hooks/useSwipeDetection';
 import { useVibration } from '../hooks/useVibration';
 import { STORAGE_KEYS } from '../lib/constants';
 import { FroggerBestSchema } from '../lib/persistedSchemas';
@@ -59,7 +60,11 @@ interface State {
   goals: boolean[];
   lanes: Lane[];
   gameOver: boolean;
+  bestRow: number;
 }
+
+// Reference frame duration: lane speeds are tuned in px per 60fps frame.
+const BASE_FRAME_MS = 1000 / 60;
 
 const CAR_COLORS = ['#ef4444', '#f97316', '#0ea5e9', '#a855f7'];
 
@@ -106,6 +111,7 @@ function createInitial(): State {
     goals: [false, false, false, false, false],
     lanes: makeLanes(1),
     gameOver: false,
+    bestRow: ROWS - 1,
   };
 }
 
@@ -114,8 +120,9 @@ export default function FroggerGame() {
   const stateRef = useRef<State>(createInitial());
   const [hud, setHud] = useState({ score: 0, lives: 3, level: 1 });
   const [overOpen, setOverOpen] = useState(false);
+  const [isOver, setIsOver] = useState(false);
   const [isNewBest, setIsNewBest] = useState(false);
-  const [announcement, setAnnouncement] = useState('Pfeile / Tap-Felder zum Hüpfen.');
+  const [announcement, setAnnouncement] = useState('Pfeile, Wischen oder Tap-Felder zum Hüpfen.');
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.FROGGER_BEST, FroggerBestSchema, 0);
 
   const sfx = useGameSfx();
@@ -125,8 +132,9 @@ export default function FroggerGame() {
     stateRef.current = createInitial();
     setHud({ score: 0, lives: 3, level: 1 });
     setOverOpen(false);
+    setIsOver(false);
     setIsNewBest(false);
-    setAnnouncement('Pfeile / Tap-Felder zum Hüpfen.');
+    setAnnouncement('Pfeile, Wischen oder Tap-Felder zum Hüpfen.');
   }, []);
 
   const onDeath = useCallback(() => {
@@ -140,12 +148,14 @@ export default function FroggerGame() {
       const newBest = finalScore > best;
       if (newBest) setBest(finalScore);
       setIsNewBest(newBest);
+      setIsOver(true);
       setOverOpen(true);
       setAnnouncement(newBest ? `Vorbei. Neue Bestmarke ${finalScore}` : 'Vorbei');
       sfx.lose();
       vibrate([120, 60, 120]);
     } else {
       s.frog = { x: W / 2 - CS / 2, y: (ROWS - 1) * CS, w: CS - 8, h: CS - 8 };
+      s.bestRow = ROWS - 1;
     }
     setHud({ score: s.score, lives: s.lives, level: s.level });
   }, [best, setBest, sfx, vibrate]);
@@ -158,8 +168,11 @@ export default function FroggerGame() {
       s.frog.y += dr * CS;
       s.frog.x = Math.max(0, Math.min(W - s.frog.w - 8, s.frog.x));
       s.frog.y = Math.max(0, Math.min((ROWS - 1) * CS, s.frog.y));
-      if (dr < 0) {
-        s.score += 10;
+      const row = Math.round(s.frog.y / CS);
+      if (row < s.bestRow) {
+        // Punkte gibt es nur für neuen Fortschritt, nicht fürs Hin- und Herhüpfen
+        s.score += 10 * (s.bestRow - row);
+        s.bestRow = row;
         setHud({ score: s.score, lives: s.lives, level: s.level });
       }
       sfx.pop();
@@ -168,16 +181,14 @@ export default function FroggerGame() {
     [sfx, vibrate],
   );
 
-  useAnimationFrame(() => {
+  useAnimationFrame((deltaMs) => {
     const s = stateRef.current;
-    if (s.gameOver) {
-      drawScene();
-      return;
-    }
+    if (s.gameOver) return;
+    const frames = deltaMs / BASE_FRAME_MS;
 
     for (const lane of s.lanes) {
       for (const o of lane.objs) {
-        o.x += o.speed;
+        o.x += o.speed * frames;
         if (o.speed > 0 && o.x > W + 100) o.x = -o.w - 50;
         if (o.speed < 0 && o.x < -o.w - 100) o.x = W + 50;
       }
@@ -193,7 +204,7 @@ export default function FroggerGame() {
           s.frog.x < o.x + o.w + 2 &&
           Math.abs(s.frog.y - o.y) < CS
         ) {
-          s.frog.x += o.speed;
+          s.frog.x += o.speed * frames;
           onLog = true;
           break;
         }
@@ -230,6 +241,7 @@ export default function FroggerGame() {
           sfx.match();
         }
         s.frog = { x: W / 2 - CS / 2, y: (ROWS - 1) * CS, w: CS - 8, h: CS - 8 };
+        s.bestRow = ROWS - 1;
         setHud({ score: s.score, lives: s.lives, level: s.level });
       } else {
         onDeath();
@@ -242,7 +254,7 @@ export default function FroggerGame() {
     }
 
     drawScene();
-  });
+  }, !isOver);
 
   const drawScene = useCallback(() => {
     const ctx = canvasRef.current?.getContext('2d');
@@ -325,6 +337,18 @@ export default function FroggerGame() {
     return () => window.removeEventListener('keydown', onKey);
   }, [move, restart]);
 
+  const handleSwipe = useCallback(
+    (dir: SwipeDirection) => {
+      if (dir === 'up') move(-1, 0);
+      else if (dir === 'down') move(1, 0);
+      else if (dir === 'left') move(0, -1);
+      else move(0, 1);
+    },
+    [move],
+  );
+
+  const { onTouchStart, onTouchEnd, onTouchCancel } = useSwipeDetection({ onSwipe: handleSwipe });
+
   return (
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announcement} />
@@ -343,7 +367,12 @@ export default function FroggerGame() {
         </div>
       </div>
 
-      <div className="fit-area mx-auto w-full max-w-[520px]">
+      <div
+        className="fit-area mx-auto w-full max-w-[520px] touch-none select-none"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchCancel}
+      >
         <canvas
           ref={canvasRef}
           width={W}
@@ -396,7 +425,8 @@ export default function FroggerGame() {
       </Button>
 
       <p className="max-w-md text-center text-xs text-surface-500 dark:text-surface-400">
-        Bring den Frosch sicher zur Zielreihe oben. Im Wasser musst du auf Baumstämmen reiten.
+        Bring den Frosch sicher zur Zielreihe oben. Wische aufs Spielfeld oder nutze
+        Pfeiltasten/Buttons. Im Wasser musst du auf Baumstämmen reiten.
       </p>
 
       <Sheet open={overOpen} onClose={() => setOverOpen(false)} title="Spiel vorbei">
