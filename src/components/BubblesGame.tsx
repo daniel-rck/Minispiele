@@ -262,7 +262,10 @@ export default function BubblesGame() {
 
   const shoot = useCallback(
     (angle: number) => {
-      if (state.done || flight) return;
+      // Auch während Pop-Animation/ausstehender Landung blockieren: grid und
+      // nextColor sind dann noch alt, ein Schuss würde auf dem veralteten
+      // Zustand berechnet (falsche Farbe, Ziel in verschwindenden Blasen)
+      if (state.done || flight || poppingIdx.size > 0 || pendingLandingRef.current) return;
       const shot = castShot(state.grid, angle);
       if (!shot) return;
       flightTargetRef.current = { idx: shot.idx, col: shot.idx % COLS };
@@ -274,7 +277,7 @@ export default function BubblesGame() {
         color: state.nextColor,
       });
     },
-    [state.done, state.grid, state.nextColor, flight],
+    [state.done, state.grid, state.nextColor, flight, poppingIdx],
   );
 
   const aimPreview = useMemo(() => {
@@ -292,7 +295,7 @@ export default function BubblesGame() {
   }, []);
 
   const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (state.done || flight) return;
+    if (state.done || flight || poppingIdx.size > 0 || pendingLandingRef.current) return;
     e.preventDefault();
     setDragging(true);
     pendingShotRef.current = true;
