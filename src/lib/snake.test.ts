@@ -120,16 +120,35 @@ describe('snake', () => {
     expect(next.alive).toBe(false);
   });
 
-  it('assigns each new head segment a fresh stable id', () => {
+  it('segments keep their ids and slide forward (caterpillar semantics)', () => {
     const s = createInitialState(10, 10, seq([0.9]));
     const next = tick(s, seq([0.9]));
-    expect(next.snake[0]!.id).toBe(s.nextSegId);
-    // the surviving body keeps its ids
-    expect(next.snake.slice(1).map((seg) => seg.id)).toEqual(
-      s.snake.slice(0, -1).map((seg) => seg.id),
-    );
+    // ids stay attached to their slot so React keys are stable while
+    // every segment's position changes each tick (CSS transition slides)
+    expect(next.snake.map((seg) => seg.id)).toEqual(s.snake.map((seg) => seg.id));
+    // each body segment takes its predecessor's previous position
+    for (let i = 1; i < next.snake.length; i++) {
+      expect({ x: next.snake[i]!.x, y: next.snake[i]!.y }).toEqual({
+        x: s.snake[i - 1]!.x,
+        y: s.snake[i - 1]!.y,
+      });
+    }
     const ids = new Set(next.snake.map((seg) => seg.id));
     expect(ids.size).toBe(next.snake.length);
+  });
+
+  it('eating appends a new tail segment with a fresh id at the old tail position', () => {
+    const s = createInitialState(10, 10, seq([0.9]));
+    const head = s.snake[0]!;
+    const oldTail = s.snake[s.snake.length - 1]!;
+    const placed = { ...s, food: { x: head.x + 1, y: head.y } };
+    const next = tick(placed, seq([0.5]));
+    const newTail = next.snake[next.snake.length - 1]!;
+    expect(newTail.id).toBe(s.nextSegId);
+    expect({ x: newTail.x, y: newTail.y }).toEqual({ x: oldTail.x, y: oldTail.y });
+    expect(next.nextSegId).toBe(s.nextSegId + 1);
+    // without eating the id counter must not advance
+    expect(tick(s, seq([0.9])).nextSegId).toBe(s.nextSegId);
   });
 
   it('spawnFood never places food on the snake', () => {

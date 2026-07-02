@@ -91,7 +91,7 @@ export function tick(state: SnakeState, rng: () => number = Math.random): SnakeS
   const dirQueue = state.dirQueue.slice(1);
   const head = state.snake[0]!;
   const delta = DIR_DELTA[dir];
-  const newHead: Segment = { x: head.x + delta.x, y: head.y + delta.y, id: state.nextSegId };
+  const newHead: Point = { x: head.x + delta.x, y: head.y + delta.y };
 
   if (newHead.x < 0 || newHead.x >= state.cols || newHead.y < 0 || newHead.y >= state.rows) {
     return { ...state, dir, dirQueue, alive: false, tick: state.tick + 1 };
@@ -105,8 +105,19 @@ export function tick(state: SnakeState, rng: () => number = Math.random): SnakeS
     }
   }
 
-  const newSnake = [newHead, ...state.snake];
-  if (!willEat) newSnake.pop();
+  // Segmente wandern und behalten ihre IDs (Raupen-Prinzip): so ändern sich
+  // die transforms der gerenderten Elemente pro Tick und die CSS-Transition
+  // lässt die Schlange gleiten — bei stabilen React-Keys ohne Wachstums-Glitch.
+  const newSnake: Segment[] = state.snake.map((seg, i) =>
+    i === 0
+      ? { ...seg, x: newHead.x, y: newHead.y }
+      : { ...seg, x: state.snake[i - 1]!.x, y: state.snake[i - 1]!.y },
+  );
+  if (willEat) {
+    // Neues Schwanz-Segment erscheint ortsfest auf der alten Schwanzposition
+    const tail = state.snake[state.snake.length - 1]!;
+    newSnake.push({ x: tail.x, y: tail.y, id: state.nextSegId });
+  }
 
   let next: SnakeState = {
     ...state,
@@ -115,7 +126,7 @@ export function tick(state: SnakeState, rng: () => number = Math.random): SnakeS
     dirQueue,
     score: willEat ? state.score + 1 : state.score,
     tick: state.tick + 1,
-    nextSegId: state.nextSegId + 1,
+    nextSegId: willEat ? state.nextSegId + 1 : state.nextSegId,
   };
 
   if (willEat) next = spawnFood(next, rng);
