@@ -521,7 +521,7 @@ export default function BreakoutGame() {
         onPointerDown={(e) => {
           e.preventDefault();
           // Capture, damit der Drag weiterläuft, wenn der Finger das Feld verlässt
-          e.currentTarget.setPointerCapture(e.pointerId);
+          e.currentTarget.setPointerCapture?.(e.pointerId);
           movePaddle(e.clientX);
           if (state.status === 'ready') launch();
         }}
