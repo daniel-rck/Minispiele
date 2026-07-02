@@ -262,6 +262,16 @@ export function startPath(state: FlowState, color: number, idx: number): FlowSta
   return { ...state, paths: fresh };
 }
 
+export function grabPath(state: FlowState, color: number, idx: number): FlowState {
+  // Grabbing a cell in the middle of a wire continues drawing from there,
+  // so the tail beyond the grabbed cell is cut off.
+  const path = state.paths[color];
+  if (!path) return state;
+  const pos = path.indexOf(idx);
+  if (pos === -1) return state;
+  return { ...state, paths: { ...state.paths, [color]: path.slice(0, pos + 1) } };
+}
+
 export function extendPath(state: FlowState, color: number, idx: number): FlowState | null {
   const path = state.paths[color];
   if (!path || path.length === 0) return null;

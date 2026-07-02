@@ -8,6 +8,7 @@ import {
   endpointFor,
   extendPath,
   type FlowState,
+  grabPath,
   isSolved,
   LEVELS,
   startPath,
@@ -77,9 +78,10 @@ export default function FlowGame() {
   const startCell = (idx: number) => {
     const color = endpointFor(state.level, idx);
     if (color === null) {
-      // continue an existing path if owned
+      // continue an existing path if owned — drawing resumes at the grabbed cell
       const owner = cellOwner(state, idx);
       if (owner === null) return;
+      setState((s) => grabPath(s, owner, idx));
       setDrawing(owner);
       return;
     }
@@ -88,21 +90,47 @@ export default function FlowGame() {
     vibrate(8);
   };
 
-  const enterCell = (idx: number) => {
-    if (drawing === null) return;
-    setState((s) => {
-      const next = extendPath(s, drawing, idx);
-      if (next) {
-        setMoves((m) => m + 1);
-        return next;
-      }
-      return s;
-    });
-  };
+  const enterCell = useCallback(
+    (idx: number) => {
+      if (drawing === null) return;
+      setState((s) => {
+        const next = extendPath(s, drawing, idx);
+        if (next) {
+          setMoves((m) => m + 1);
+          return next;
+        }
+        return s;
+      });
+    },
+    [drawing],
+  );
 
-  const endDraw = () => {
-    setDrawing(null);
-  };
+  // On touch, the pointerdown target implicitly captures the pointer, so
+  // pointerenter never fires on the cells under the moving finger. Resolve
+  // the hovered cell from the pointer position instead — works for mouse too.
+  const onGridPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (drawing === null) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const cell = el?.closest('[data-cell-idx]');
+      if (cell instanceof HTMLElement && cell.dataset.cellIdx !== undefined) {
+        enterCell(Number(cell.dataset.cellIdx));
+      }
+    },
+    [drawing, enterCell],
+  );
+
+  // End the stroke wherever the pointer is released — also outside the grid.
+  useEffect(() => {
+    if (drawing === null) return;
+    const end = () => setDrawing(null);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    return () => {
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+    };
+  }, [drawing]);
 
   const size = state.level.size;
   const cells: {
@@ -164,8 +192,7 @@ export default function FlowGame() {
         <div
           className="grid fit-box select-none gap-1 rounded-2xl bg-slate-900 p-2 touch-none dark:bg-slate-950"
           style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
-          onPointerUp={endDraw}
-          onPointerLeave={endDraw}
+          onPointerMove={onGridPointerMove}
           role="grid"
           aria-label="Verbinden-Spielfeld"
         >
@@ -173,11 +200,11 @@ export default function FlowGame() {
             <button
               key={c.idx}
               type="button"
+              data-cell-idx={c.idx}
               onPointerDown={(e) => {
                 e.preventDefault();
                 startCell(c.idx);
               }}
-              onPointerEnter={() => enterCell(c.idx)}
               aria-label={
                 c.isEndpoint
                   ? `Endpunkt Farbe ${(c.endpointColor ?? 0) + 1}`
