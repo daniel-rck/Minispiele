@@ -18,6 +18,8 @@ const PIPE_GAP_MIN = 100;
 const PIPE_SPEED = 2.5;
 const BIRD_R = 14;
 const GROUND_H = 60;
+// Reference frame duration: physics constants are tuned in px per 60fps frame.
+const BASE_FRAME_MS = 1000 / 60;
 
 type Phase = 'ready' | 'playing' | 'dead';
 
@@ -110,27 +112,28 @@ export default function FlappyBirdGame() {
     }
   }, [restart, sfx]);
 
-  useAnimationFrame(() => {
+  useAnimationFrame((deltaMs) => {
     const s = stateRef.current;
+    const frames = deltaMs / BASE_FRAME_MS;
 
     if (s.phase !== 'playing') {
       if (s.phase === 'ready') {
         s.bird.y = H / 2 - 50 + Math.sin(Date.now() / 300) * 8;
       }
-      s.groundX -= 1;
+      s.groundX -= 1 * frames;
       if (s.groundX < -40) s.groundX += 40;
     } else {
-      s.bird.vy += GRAVITY;
-      s.bird.y += s.bird.vy;
+      s.bird.vy += GRAVITY * frames;
+      s.bird.y += s.bird.vy * frames;
       s.bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, s.bird.vy * 0.08));
 
-      s.groundX -= PIPE_SPEED;
+      s.groundX -= PIPE_SPEED * frames;
       if (s.groundX < -40) s.groundX += 40;
 
       for (let i = s.pipes.length - 1; i >= 0; i--) {
         const p = s.pipes[i];
         if (!p) continue;
-        p.x -= PIPE_SPEED;
+        p.x -= PIPE_SPEED * frames;
         if (p.x < -PIPE_W - 10) s.pipes.splice(i, 1);
       }
 
@@ -259,7 +262,7 @@ export default function FlappyBirdGame() {
     if (s.flashTimer > 0) {
       ctx.fillStyle = `rgba(244, 63, 94, ${s.flashTimer / 16})`;
       ctx.fillRect(0, 0, W, H);
-      s.flashTimer--;
+      s.flashTimer = Math.max(0, s.flashTimer - frames);
     }
   });
 
@@ -298,7 +301,7 @@ export default function FlappyBirdGame() {
               flap();
             }}
             aria-label="Flappy-Bird-Spielfeld"
-            className="h-full w-full rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
+            className="h-full w-full touch-none select-none rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
           />
           {phaseDisplay !== 'playing' && (
             <div
