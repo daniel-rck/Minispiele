@@ -22,14 +22,40 @@ const COLORS = [
 type Grid = number[][];
 
 function randomGrid(): Grid {
-  // Generate without initial matches
+  // Generate without initial matches but with at least one possible move
   let g: Grid;
   do {
     g = Array.from({ length: N }, () =>
       Array.from({ length: N }, () => Math.floor(Math.random() * COLOR_COUNT)),
     );
-  } while (findMatches(g).size > 0);
+  } while (findMatches(g).size > 0 || !hasAnyMove(g));
   return g;
+}
+
+function swapCells(g: Grid, r1: number, c1: number, r2: number, c2: number): void {
+  const tmp = g[r1]![c1]!;
+  g[r1]![c1] = g[r2]![c2]!;
+  g[r2]![c2] = tmp;
+}
+
+function hasAnyMove(g: Grid): boolean {
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      if (c + 1 < N) {
+        swapCells(g, r, c, r, c + 1);
+        const found = findMatches(g).size > 0;
+        swapCells(g, r, c, r, c + 1);
+        if (found) return true;
+      }
+      if (r + 1 < N) {
+        swapCells(g, r, c, r + 1, c);
+        const found = findMatches(g).size > 0;
+        swapCells(g, r, c, r + 1, c);
+        if (found) return true;
+      }
+    }
+  }
+  return false;
 }
 
 function findMatches(g: Grid): Set<string> {
@@ -124,25 +150,36 @@ export default function Match3Game() {
         timeoutsRef.current.push(window.setTimeout(() => cascade(working, ns), 200));
       } else {
         setAnimating(false);
-        setMoves((m) => {
-          if (m - 1 <= 0) {
-            setOver(true);
-            setAnnouncement(`Spiel vorbei. ${accumulatedScore} Punkte.`);
-            if (accumulatedScore > best) {
-              setBest(accumulatedScore);
-              sfx.win();
-              vibrate([60, 40, 120]);
-            } else {
-              sfx.lose();
-            }
-            return 0;
-          }
-          return m - 1;
-        });
+        setMoves((m) => Math.max(0, m - 1));
       }
     },
-    [best, setBest, sfx, vibrate],
+    [sfx, vibrate],
   );
+
+  // Game over as effect (not inside the setMoves updater — updaters must stay
+  // pure, otherwise sfx/vibrate double-fire under StrictMode)
+  useEffect(() => {
+    if (over || animating || moves > 0) return;
+    setOver(true);
+    setAnnouncement(`Spiel vorbei. ${score} Punkte.`);
+    if (score > best) {
+      setBest(score);
+      sfx.win();
+      vibrate([60, 40, 120]);
+    } else {
+      sfx.lose();
+    }
+  }, [moves, animating, over, score, best, setBest, sfx, vibrate]);
+
+  // Soft-Lock-Schutz: gibt es keinen möglichen Tausch mehr, wird neu gemischt
+  useEffect(() => {
+    if (over || animating || moves <= 0) return;
+    if (!hasAnyMove(grid)) {
+      setGrid(randomGrid());
+      setSelected(null);
+      setAnnouncement('Keine Züge möglich — Feld neu gemischt.');
+    }
+  }, [grid, over, animating, moves]);
 
   const handleCell = useCallback(
     (r: number, c: number) => {
@@ -153,6 +190,10 @@ export default function Match3Game() {
         return;
       }
       const [sr, sc] = selected;
+      if (sr === r && sc === c) {
+        setSelected(null);
+        return;
+      }
       const dr = Math.abs(sr - r);
       const dc = Math.abs(sc - c);
       if ((dr === 1 && dc === 0) || (dr === 0 && dc === 1)) {

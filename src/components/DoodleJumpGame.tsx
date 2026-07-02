@@ -16,6 +16,8 @@ const PLAYER_H = 30;
 const GRAVITY = 0.4;
 const JUMP_VELOCITY = -11;
 const SPRING_VELOCITY = -18;
+// Reference frame duration: physics constants are tuned in px per 60fps frame.
+const BASE_FRAME_MS = 1000 / 60;
 
 type PlatformType = 'normal' | 'moving' | 'fragile' | 'spring';
 
@@ -116,29 +118,32 @@ export default function DoodleJumpGame() {
     }
   }, []);
 
-  useAnimationFrame(() => {
+  useAnimationFrame((deltaMs) => {
     const s = stateRef.current;
     if (s.gameOver) return;
+    const frames = deltaMs / BASE_FRAME_MS;
 
     const keys = keysRef.current;
-    if (keys.left) s.player.x -= 5;
-    if (keys.right) s.player.x += 5;
+    if (keys.left) s.player.x -= 5 * frames;
+    if (keys.right) s.player.x += 5 * frames;
     if (s.player.x < -PLAYER_W) s.player.x = W;
     if (s.player.x > W) s.player.x = -PLAYER_W;
 
     if (s.started) {
-      s.player.vy += GRAVITY;
-      s.player.y += s.player.vy;
+      s.player.vy += GRAVITY * frames;
+      const prevBottom = s.player.y + PLAYER_H;
+      s.player.y += s.player.vy * frames;
 
-      // platform collision when falling
+      // platform collision when falling — swept check so fast falls can't
+      // tunnel through the 12px landing band in a single frame
       if (s.player.vy > 0) {
         for (const p of s.platforms) {
           if (p.broken) continue;
           if (
             s.player.x + PLAYER_W > p.x &&
             s.player.x < p.x + p.w &&
-            s.player.y + PLAYER_H > p.y &&
-            s.player.y + PLAYER_H < p.y + 12
+            prevBottom <= p.y + 12 &&
+            s.player.y + PLAYER_H > p.y
           ) {
             if (p.type === 'fragile') {
               p.broken = true;
@@ -159,7 +164,7 @@ export default function DoodleJumpGame() {
 
       for (const p of s.platforms) {
         if (p.type === 'moving') {
-          p.x += p.vx;
+          p.x += p.vx * frames;
           if (p.x < 0 || p.x + p.w > W) p.vx *= -1;
         }
       }
@@ -311,7 +316,7 @@ export default function DoodleJumpGame() {
         <button
           type="button"
           aria-label="Nach links"
-          className="flex min-h-14 items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
+          className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
           {...touchHandlers('left')}
         >
           ←
@@ -319,7 +324,7 @@ export default function DoodleJumpGame() {
         <button
           type="button"
           aria-label="Nach rechts"
-          className="flex min-h-14 items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
+          className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
           {...touchHandlers('right')}
         >
           →

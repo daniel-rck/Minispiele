@@ -36,5 +36,9 @@ export function useSwipeDetection({ threshold = 24, onSwipe }: UseSwipeDetection
     [threshold, onSwipe],
   );
 
-  return { onTouchStart, onTouchEnd };
+  const onTouchCancel = useCallback(() => {
+    startRef.current = null;
+  }, []);
+
+  return { onTouchStart, onTouchEnd, onTouchCancel };
 }

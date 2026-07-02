@@ -14,6 +14,8 @@ const PADDLE_W = 12;
 const PADDLE_H = 80;
 const BALL_R = 8;
 const WIN_SCORE = 11;
+// Reference frame duration: speeds are tuned in px per 60fps frame.
+const BASE_FRAME_MS = 1000 / 60;
 const AI_SPEED: Record<PongDifficulty, number> = { easy: 2.5, medium: 4.5, hard: 7 };
 const AI_REACT: Record<PongDifficulty, number> = { easy: 0.55, medium: 0.75, hard: 0.95 };
 const DIFF_LABEL: Record<PongDifficulty, string> = {
@@ -68,7 +70,13 @@ export default function PongGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<State>(makeInitial());
   const keysRef = useRef<{ up: boolean; down: boolean }>({ up: false, down: false });
-  const [hud, setHud] = useState({ scoreL: 0, scoreR: 0, message: '' });
+  const [hud, setHud] = useState({
+    scoreL: 0,
+    scoreR: 0,
+    message: '',
+    running: false,
+    gameOver: false,
+  });
   const [difficulty, setDifficulty] = useLocalStorage<PongDifficulty>(
     STORAGE_KEYS.PONG_DIFFICULTY,
     PongDifficultySchema,
@@ -81,7 +89,13 @@ export default function PongGame() {
 
   const syncHud = useCallback(() => {
     const s = stateRef.current;
-    setHud({ scoreL: s.scoreL, scoreR: s.scoreR, message: s.message });
+    setHud({
+      scoreL: s.scoreL,
+      scoreR: s.scoreR,
+      message: s.message,
+      running: s.running,
+      gameOver: s.gameOver,
+    });
   }, []);
 
   const restart = useCallback(() => {
@@ -101,12 +115,13 @@ export default function PongGame() {
     syncHud();
   }, [restart, syncHud]);
 
-  useAnimationFrame(() => {
+  useAnimationFrame((deltaMs) => {
     const s = stateRef.current;
+    const frames = deltaMs / BASE_FRAME_MS;
     if (s.running && !s.gameOver) {
       const keys = keysRef.current;
-      if (keys.up) s.leftY -= 6;
-      if (keys.down) s.leftY += 6;
+      if (keys.up) s.leftY -= 6 * frames;
+      if (keys.down) s.leftY += 6 * frames;
       s.leftY = Math.max(0, Math.min(H - PADDLE_H, s.leftY));
 
       const speed = AI_SPEED[difficulty];
@@ -125,75 +140,87 @@ export default function PongGame() {
       const center = s.rightY + PADDLE_H / 2;
       const dy = targetY - center;
       if (Math.abs(dy) > 4) {
-        s.rightY += Math.sign(dy) * Math.min(speed, Math.abs(dy));
+        s.rightY += Math.sign(dy) * Math.min(speed * frames, Math.abs(dy));
       }
       s.rightY = Math.max(0, Math.min(H - PADDLE_H, s.rightY));
 
-      // ball
-      s.ball.x += s.ball.vx;
-      s.ball.y += s.ball.vy;
-      if (s.ball.y - BALL_R < 0) {
-        s.ball.y = BALL_R;
-        s.ball.vy = Math.abs(s.ball.vy);
-      }
-      if (s.ball.y + BALL_R > H) {
-        s.ball.y = H - BALL_R;
-        s.ball.vy = -Math.abs(s.ball.vy);
-      }
-      // paddle collisions
-      if (s.ball.vx < 0 && s.ball.x - BALL_R <= 20 + PADDLE_W && s.ball.x - BALL_R >= 16) {
-        if (s.ball.y >= s.leftY && s.ball.y <= s.leftY + PADDLE_H) {
-          const hit = (s.ball.y - s.leftY - PADDLE_H / 2) / (PADDLE_H / 2);
-          const angle = (hit * Math.PI) / 3.5;
-          const sp = Math.min(12, Math.hypot(s.ball.vx, s.ball.vy) + 0.3);
-          s.ball.vx = sp * Math.cos(angle);
-          s.ball.vy = sp * Math.sin(angle);
-          s.ball.x = 20 + PADDLE_W + BALL_R;
-          sfx.pop();
-          vibrate(10);
+      // ball — in Teilschritten von max. 1 Referenz-Frame, damit der Ball bei
+      // großen Frame-Deltas nicht durch ein Paddle hindurchspringt
+      let remaining = frames;
+      while (remaining > 0.001) {
+        const step = Math.min(1, remaining);
+        remaining -= step;
+        s.ball.x += s.ball.vx * step;
+        s.ball.y += s.ball.vy * step;
+        if (s.ball.y - BALL_R < 0) {
+          s.ball.y = BALL_R;
+          s.ball.vy = Math.abs(s.ball.vy);
         }
-      }
-      if (s.ball.vx > 0 && s.ball.x + BALL_R >= W - 20 - PADDLE_W && s.ball.x + BALL_R <= W - 16) {
-        if (s.ball.y >= s.rightY && s.ball.y <= s.rightY + PADDLE_H) {
-          const hit = (s.ball.y - s.rightY - PADDLE_H / 2) / (PADDLE_H / 2);
-          const angle = Math.PI - (hit * Math.PI) / 3.5;
-          const sp = Math.min(12, Math.hypot(s.ball.vx, s.ball.vy) + 0.3);
-          s.ball.vx = -sp * Math.cos(Math.PI - angle);
-          s.ball.vy = sp * Math.sin(angle);
-          s.ball.x = W - 20 - PADDLE_W - BALL_R;
-          sfx.pop();
+        if (s.ball.y + BALL_R > H) {
+          s.ball.y = H - BALL_R;
+          s.ball.vy = -Math.abs(s.ball.vy);
         }
-      }
-      // scoring
-      if (s.ball.x < -BALL_R) {
-        s.scoreR++;
-        if (s.scoreR >= WIN_SCORE) {
-          s.gameOver = true;
-          s.running = false;
-          s.message = 'Computer gewinnt.';
-          setAnnouncement('Computer gewinnt.');
-          sfx.lose();
-          vibrate([120, 60, 80]);
-        } else {
-          s.ball = makeBall(1);
-          sfx.error();
+        // paddle collisions
+        if (s.ball.vx < 0 && s.ball.x - BALL_R <= 20 + PADDLE_W && s.ball.x - BALL_R >= 16) {
+          if (s.ball.y >= s.leftY && s.ball.y <= s.leftY + PADDLE_H) {
+            const hit = (s.ball.y - s.leftY - PADDLE_H / 2) / (PADDLE_H / 2);
+            const angle = (hit * Math.PI) / 3.5;
+            const sp = Math.min(12, Math.hypot(s.ball.vx, s.ball.vy) + 0.3);
+            s.ball.vx = sp * Math.cos(angle);
+            s.ball.vy = sp * Math.sin(angle);
+            s.ball.x = 20 + PADDLE_W + BALL_R;
+            sfx.pop();
+            vibrate(10);
+          }
         }
-        syncHud();
-      }
-      if (s.ball.x > W + BALL_R) {
-        s.scoreL++;
-        if (s.scoreL >= WIN_SCORE) {
-          s.gameOver = true;
-          s.running = false;
-          s.message = 'Du gewinnst!';
-          setAnnouncement('Du gewinnst!');
-          sfx.win();
-          vibrate([60, 40, 120]);
-        } else {
-          s.ball = makeBall(-1);
-          sfx.match();
+        if (
+          s.ball.vx > 0 &&
+          s.ball.x + BALL_R >= W - 20 - PADDLE_W &&
+          s.ball.x + BALL_R <= W - 16
+        ) {
+          if (s.ball.y >= s.rightY && s.ball.y <= s.rightY + PADDLE_H) {
+            const hit = (s.ball.y - s.rightY - PADDLE_H / 2) / (PADDLE_H / 2);
+            const angle = Math.PI - (hit * Math.PI) / 3.5;
+            const sp = Math.min(12, Math.hypot(s.ball.vx, s.ball.vy) + 0.3);
+            s.ball.vx = -sp * Math.cos(Math.PI - angle);
+            s.ball.vy = sp * Math.sin(angle);
+            s.ball.x = W - 20 - PADDLE_W - BALL_R;
+            sfx.pop();
+          }
         }
-        syncHud();
+        // scoring
+        if (s.ball.x < -BALL_R) {
+          s.scoreR++;
+          if (s.scoreR >= WIN_SCORE) {
+            s.gameOver = true;
+            s.running = false;
+            s.message = 'Computer gewinnt.';
+            setAnnouncement('Computer gewinnt.');
+            sfx.lose();
+            vibrate([120, 60, 80]);
+          } else {
+            s.ball = makeBall(1);
+            sfx.error();
+          }
+          syncHud();
+          break;
+        }
+        if (s.ball.x > W + BALL_R) {
+          s.scoreL++;
+          if (s.scoreL >= WIN_SCORE) {
+            s.gameOver = true;
+            s.running = false;
+            s.message = 'Du gewinnst!';
+            setAnnouncement('Du gewinnst!');
+            sfx.win();
+            vibrate([60, 40, 120]);
+          } else {
+            s.ball = makeBall(-1);
+            sfx.match();
+          }
+          syncHud();
+          break;
+        }
       }
     }
 
@@ -274,7 +301,7 @@ export default function PongGame() {
           </select>
         </label>
         <Button variant="primary" size="sm" onClick={togglePlay}>
-          {stateRef.current.gameOver ? 'Neues Spiel' : stateRef.current.running ? 'Pause' : 'Start'}
+          {hud.gameOver ? 'Neues Spiel' : hud.running ? 'Pause' : 'Start'}
         </Button>
       </div>
 

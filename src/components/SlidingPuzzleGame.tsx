@@ -128,7 +128,7 @@ export default function SlidingPuzzleGame() {
   const best = highscores[state.difficulty];
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 pb-2">
+    <div className="flex h-full min-h-0 flex-col gap-3 pb-20">
       <div className="flex flex-wrap items-center gap-3">
         <DifficultySelector<SlidingDifficulty>
           value={state.difficulty}

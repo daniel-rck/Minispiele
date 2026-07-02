@@ -1,4 +1,5 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { useHoldRepeat } from '../hooks/useHoldRepeat';
 import { useVibration } from '../hooks/useVibration';
 import {
   BLOCKS_COLORS as COLORS,
@@ -193,6 +194,7 @@ export default function BlocksGame() {
       const rows = fullRowIndices(merged);
       const scoreAdd = dropDistance * 2;
       if (rows.length > 0) {
+        sfx.clear();
         if (clearTimerRef.current !== null) window.clearTimeout(clearTimerRef.current);
         clearTimerRef.current = window.setTimeout(() => finalizeClear(merged), 180);
         return {
@@ -216,7 +218,11 @@ export default function BlocksGame() {
       };
     });
     vibrate(20);
-  }, [vibrate, finalizeClear]);
+  }, [vibrate, finalizeClear, sfx]);
+
+  const holdLeft = useHoldRepeat(() => move(-1));
+  const holdRight = useHoldRepeat(() => move(1));
+  const holdDown = useHoldRepeat(softDrop, { initialDelayMs: 180, repeatMs: 60 });
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -310,7 +316,7 @@ export default function BlocksGame() {
 
       <div className="fit-area mx-auto w-full max-w-xs">
         <div
-          className="relative fit-box overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
+          className="relative fit-box touch-none overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
           style={{ '--fit-ar': COLS / ROWS } as CSSProperties}
         >
           <div
@@ -345,9 +351,9 @@ export default function BlocksGame() {
       <div className="grid w-full max-w-md grid-cols-5 gap-2" role="group" aria-label="Steuerung">
         <button
           type="button"
-          onClick={() => move(-1)}
+          {...holdLeft}
           aria-label="Links"
-          className="min-h-12 rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
+          className="min-h-12 touch-none select-none rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
         >
           ←
         </button>
@@ -355,15 +361,15 @@ export default function BlocksGame() {
           type="button"
           onClick={rotate}
           aria-label="Drehen"
-          className="min-h-12 rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
+          className="min-h-12 touch-none select-none rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
         >
           ⟳
         </button>
         <button
           type="button"
-          onClick={softDrop}
+          {...holdDown}
           aria-label="Runter"
-          className="min-h-12 rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
+          className="min-h-12 touch-none select-none rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
         >
           ↓
         </button>
@@ -371,15 +377,15 @@ export default function BlocksGame() {
           type="button"
           onClick={hardDrop}
           aria-label="Sofort fallen"
-          className="min-h-12 rounded-xl bg-slate-100 text-sm dark:bg-slate-800"
+          className="min-h-12 touch-none select-none rounded-xl bg-slate-100 text-sm dark:bg-slate-800"
         >
           ⇩⇩
         </button>
         <button
           type="button"
-          onClick={() => move(1)}
+          {...holdRight}
           aria-label="Rechts"
-          className="min-h-12 rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
+          className="min-h-12 touch-none select-none rounded-xl bg-slate-100 text-lg dark:bg-slate-800"
         >
           →
         </button>

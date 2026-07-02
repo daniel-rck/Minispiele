@@ -12,6 +12,8 @@ import Sheet from './ui/Sheet';
 const W = 700;
 const H = 500;
 const SHIP_RADIUS = 12;
+// Reference frame duration: physics constants are tuned in px per 60fps frame.
+const BASE_FRAME_MS = 1000 / 60;
 const SIZE_RADIUS: readonly number[] = [40, 25, 12];
 const SIZE_SCORE: readonly number[] = [100, 50, 20];
 
@@ -166,29 +168,31 @@ export default function AsteroidsGame() {
     [best, setBest, sfx, vibrate],
   );
 
-  useAnimationFrame(() => {
+  useAnimationFrame((deltaMs) => {
     const s = stateRef.current;
     if (s.gameOver) return;
+    const frames = deltaMs / BASE_FRAME_MS;
 
     // controls
     const keys = keysRef.current;
-    if (keys.left) s.ship.angle -= 0.07;
-    if (keys.right) s.ship.angle += 0.07;
+    if (keys.left) s.ship.angle -= 0.07 * frames;
+    if (keys.right) s.ship.angle += 0.07 * frames;
     if (keys.thrust) {
-      s.ship.vx += Math.cos(s.ship.angle) * 0.12;
-      s.ship.vy += Math.sin(s.ship.angle) * 0.12;
+      s.ship.vx += Math.cos(s.ship.angle) * 0.12 * frames;
+      s.ship.vy += Math.sin(s.ship.angle) * 0.12 * frames;
     }
-    s.ship.vx *= 0.99;
-    s.ship.vy *= 0.99;
-    s.ship.x = (s.ship.x + s.ship.vx + W) % W;
-    s.ship.y = (s.ship.y + s.ship.vy + H) % H;
+    const drag = 0.99 ** frames;
+    s.ship.vx *= drag;
+    s.ship.vy *= drag;
+    s.ship.x = (s.ship.x + s.ship.vx * frames + W) % W;
+    s.ship.y = (s.ship.y + s.ship.vy * frames + H) % H;
 
     if (s.invincible) {
-      s.invTimer--;
+      s.invTimer -= frames;
       if (s.invTimer <= 0) s.invincible = false;
     }
 
-    if (s.shootCooldown > 0) s.shootCooldown--;
+    if (s.shootCooldown > 0) s.shootCooldown -= frames;
     if (keys.fire && s.shootCooldown <= 0) {
       s.bullets.push({
         x: s.ship.x + Math.cos(s.ship.angle) * 15,
@@ -202,16 +206,16 @@ export default function AsteroidsGame() {
     }
 
     for (const b of s.bullets) {
-      b.x += b.vx;
-      b.y += b.vy;
-      b.life--;
+      b.x += b.vx * frames;
+      b.y += b.vy * frames;
+      b.life -= frames;
     }
     s.bullets = s.bullets.filter((b) => b.life > 0);
 
     for (const a of s.asteroids) {
-      a.x = (a.x + a.vx + W) % W;
-      a.y = (a.y + a.vy + H) % H;
-      a.rot += a.rotSpeed;
+      a.x = (a.x + a.vx * frames + W) % W;
+      a.y = (a.y + a.vy * frames + H) % H;
+      a.rot += a.rotSpeed * frames;
     }
 
     // bullet-asteroid collision
@@ -286,9 +290,9 @@ export default function AsteroidsGame() {
     }
 
     for (const p of s.particles) {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life--;
+      p.x += p.vx * frames;
+      p.y += p.vy * frames;
+      p.life -= frames;
     }
     s.particles = s.particles.filter((p) => p.life > 0);
 
@@ -466,7 +470,7 @@ export default function AsteroidsGame() {
         <button
           type="button"
           aria-label="Nach links"
-          className="flex min-h-14 items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
+          className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
           {...touchHandlers('left')}
         >
           ←
@@ -474,7 +478,7 @@ export default function AsteroidsGame() {
         <button
           type="button"
           aria-label="Schub"
-          className="flex min-h-14 items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
+          className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
           {...touchHandlers('thrust')}
         >
           ↑
@@ -482,7 +486,7 @@ export default function AsteroidsGame() {
         <button
           type="button"
           aria-label="Nach rechts"
-          className="flex min-h-14 items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
+          className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
           {...touchHandlers('right')}
         >
           →
@@ -490,7 +494,7 @@ export default function AsteroidsGame() {
         <button
           type="button"
           aria-label="Schießen"
-          className="flex min-h-14 items-center justify-center rounded-xl bg-amber-500 text-2xl text-white active:bg-amber-600"
+          className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-amber-500 text-2xl text-white active:bg-amber-600"
           {...touchHandlers('fire')}
         >
           ●

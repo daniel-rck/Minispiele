@@ -80,6 +80,8 @@ export default function TwentyFortyEightGame() {
   const [winShown, setWinShown] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const prevGameOverRef = useRef(false);
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const sfx = useGameSfx();
   useWakeLock(state.score > 0 && !gameOver);
 
@@ -96,24 +98,25 @@ export default function TwentyFortyEightGame() {
 
   const move = useCallback(
     (direction: Direction) => {
-      setState((current) => {
-        const { grid: after, moved, gained } = slide(current.grid, direction);
-        if (!moved) return current;
-        const withSpawn = spawnRandom(after);
-        const justWon = !current.won && hasWinningTile(withSpawn);
-        if (gained > 0) {
-          const mergedValue = highestMergedTile(current.grid, after);
-          if (mergedValue > 0) sfx.merge(Math.log2(mergedValue));
-        }
-        if (justWon) {
-          setWinShown(true);
-          sfx.win();
-        }
-        return {
-          grid: withSpawn,
-          score: current.score + gained,
-          won: current.won || justWon,
-        };
+      // Außerhalb des setState-Updaters rechnen: Updater müssen pur bleiben,
+      // sonst feuern sfx.merge/sfx.win unter StrictMode doppelt
+      const current = stateRef.current;
+      const { grid: after, moved, gained } = slide(current.grid, direction);
+      if (!moved) return;
+      const withSpawn = spawnRandom(after);
+      const justWon = !current.won && hasWinningTile(withSpawn);
+      if (gained > 0) {
+        const mergedValue = highestMergedTile(current.grid, after);
+        if (mergedValue > 0) sfx.merge(Math.log2(mergedValue));
+      }
+      if (justWon) {
+        setWinShown(true);
+        sfx.win();
+      }
+      setState({
+        grid: withSpawn,
+        score: current.score + gained,
+        won: current.won || justWon,
       });
     },
     [setState, sfx],
@@ -153,7 +156,10 @@ export default function TwentyFortyEightGame() {
     return () => window.removeEventListener('keydown', onKey);
   }, [move]);
 
-  const { onTouchStart, onTouchEnd } = useSwipeDetection({ threshold: 30, onSwipe: move });
+  const { onTouchStart, onTouchEnd, onTouchCancel } = useSwipeDetection({
+    threshold: 30,
+    onSwipe: move,
+  });
 
   const restart = useCallback(() => {
     setState({ grid: createInitialGrid(), score: 0, won: false });
@@ -181,6 +187,7 @@ export default function TwentyFortyEightGame() {
           ref={containerRef}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
+          onTouchCancel={onTouchCancel}
           className="fit-box rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
           style={{ touchAction: 'none' }}
         >

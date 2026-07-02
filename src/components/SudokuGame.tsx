@@ -308,7 +308,10 @@ export default function SudokuGame() {
       <div className="fit-area mx-auto w-full max-w-md">
         <div
           className="grid fit-box gap-[2px] overflow-hidden rounded-lg border-2 border-slate-700 bg-slate-700 dark:border-slate-500 dark:bg-slate-500"
-          style={{ gridTemplateColumns: `repeat(${SUDOKU_SIZE}, minmax(0, 1fr))` }}
+          style={{
+            gridTemplateColumns: `repeat(${SUDOKU_SIZE}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${SUDOKU_SIZE}, minmax(0, 1fr))`,
+          }}
           role="grid"
           aria-label="Sudoku-Gitter"
         >
@@ -333,7 +336,7 @@ export default function SudokuGame() {
                 onClick={() => handleCellPress(idx)}
                 aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? 'leer' : cell.value}${conflict ? ', Konflikt' : ''}`}
                 aria-invalid={conflict || undefined}
-                className={`relative aspect-square text-base font-semibold tabular-nums transition-colors duration-150 sm:text-lg ${borderRight} ${borderBottom} ${
+                className={`relative text-base font-semibold tabular-nums transition-colors duration-150 sm:text-lg ${borderRight} ${borderBottom} ${
                   isSelected
                     ? 'bg-brand-200 dark:bg-brand-900/60'
                     : sameValue
