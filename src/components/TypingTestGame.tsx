@@ -186,6 +186,11 @@ export default function TypingTestGame() {
     0,
   );
   const startedAt = useRef<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const correctCountRef = useRef(correctCount);
+  correctCountRef.current = correctCount;
+  const bestRef = useRef(best);
+  bestRef.current = best;
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -217,9 +222,9 @@ export default function TypingTestGame() {
       if (left <= 0) {
         setFinished(true);
         setRunning(false);
-        const words = correctCount / 5;
-        const wpm = elapsed > 0 ? Math.round(words / (elapsed / 60)) : 0;
-        if (wpm > best) {
+        const words = correctCountRef.current / 5;
+        const wpm = Math.round(words / (duration / 60));
+        if (wpm > bestRef.current) {
           setBest(wpm);
           sfx.win();
           vibrate([60, 40, 120]);
@@ -231,14 +236,11 @@ export default function TypingTestGame() {
       }
     }, 500);
     return () => window.clearInterval(id);
-  }, [running, finished, duration, correctCount, best, setBest, sfx, vibrate]);
+  }, [running, finished, duration, setBest, sfx, vibrate]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
+  const handleChar = useCallback(
+    (key: string) => {
       if (finished) return;
-      if (e.ctrlKey || e.altKey || e.metaKey) return;
-      if (e.key.length !== 1) return;
-      e.preventDefault();
       if (!running) {
         setRunning(true);
         startedAt.current = Date.now();
@@ -246,7 +248,7 @@ export default function TypingTestGame() {
       if (charIndex < text.length) {
         const expected = text[charIndex];
         setTotalTyped((t) => t + 1);
-        if (e.key === expected) {
+        if (key === expected) {
           setCorrectCount((c) => c + 1);
         } else {
           setIncorrect((s) => {
@@ -261,13 +263,26 @@ export default function TypingTestGame() {
       if (charIndex >= text.length - 40) {
         setText((t) => t + ' ' + generateText(50));
       }
+    },
+    [finished, running, charIndex, text, vibrate],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+      if (e.key.length !== 1) return;
+      // preventDefault also stops the character from reaching the hidden
+      // input, so hardware keyboards never double-fire via onInput below
+      e.preventDefault();
+      handleChar(e.key);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [finished, running, charIndex, text, vibrate]);
+  }, [handleChar]);
 
   const elapsed = startedAt.current ? Math.floor((Date.now() - startedAt.current) / 1000) : 0;
-  const wpm = elapsed > 0 ? Math.round(correctCount / 5 / (elapsed / 60)) : 0;
+  const wpmElapsed = finished ? duration : elapsed;
+  const wpm = wpmElapsed > 0 ? Math.round(correctCount / 5 / (wpmElapsed / 60)) : 0;
   const accuracy = totalTyped > 0 ? Math.round((correctCount / totalTyped) * 100) : 100;
 
   const windowBefore = 15;
@@ -298,14 +313,14 @@ export default function TypingTestGame() {
         </Button>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-4 gap-2 text-sm text-surface-700 dark:text-surface-200">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-surface-700 sm:grid-cols-4 dark:text-surface-200">
         <div>
           WPM: <span className="font-semibold tabular-nums">{wpm}</span>
         </div>
-        <div className="text-center">
+        <div className="text-right sm:text-center">
           Genauigkeit: <span className="font-semibold tabular-nums">{accuracy}%</span>
         </div>
-        <div className="text-right">
+        <div className="sm:text-right">
           Zeit: <span className="font-semibold tabular-nums">{remaining}s</span>
         </div>
         <div className="text-right">
@@ -314,23 +329,42 @@ export default function TypingTestGame() {
       </div>
 
       <div
-        className="min-h-24 w-full max-w-2xl rounded-lg bg-slate-900 p-4 font-mono text-base leading-relaxed dark:bg-slate-950"
+        className="relative min-h-24 w-full max-w-2xl cursor-text rounded-lg bg-slate-900 p-4 font-mono text-base leading-relaxed dark:bg-slate-950"
         role="group"
         aria-label="Tipp-Text"
       >
-        {Array.from(text.slice(visibleStart, visibleEnd)).map((ch, i) => {
-          const idx = visibleStart + i;
-          const isPast = idx < charIndex;
-          const isCurrent = idx === charIndex;
-          let cls = 'text-slate-400';
-          if (isPast) cls = incorrect.has(idx) ? 'text-rose-400 underline' : 'text-emerald-400';
-          else if (isCurrent) cls = 'text-amber-300 underline';
-          return (
-            <span key={idx} className={cls}>
-              {ch === ' ' ? ' ' : ch}
-            </span>
-          );
-        })}
+        <input
+          ref={inputRef}
+          type="text"
+          aria-label="Tippfeld — tippe hier den angezeigten Text"
+          className="absolute inset-0 h-full w-full cursor-text opacity-0"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="off"
+          spellCheck={false}
+          onInput={(e) => {
+            // Soft keyboards (mobile) don't deliver usable keydown events;
+            // consume whatever landed in the hidden input instead.
+            const value = e.currentTarget.value;
+            e.currentTarget.value = '';
+            for (const ch of value) handleChar(ch);
+          }}
+        />
+        <div className="pointer-events-none relative">
+          {Array.from(text.slice(visibleStart, visibleEnd)).map((ch, i) => {
+            const idx = visibleStart + i;
+            const isPast = idx < charIndex;
+            const isCurrent = idx === charIndex;
+            let cls = 'text-slate-400';
+            if (isPast) cls = incorrect.has(idx) ? 'text-rose-400 underline' : 'text-emerald-400';
+            else if (isCurrent) cls = 'text-amber-300 underline';
+            return (
+              <span key={idx} className={cls}>
+                {ch === ' ' ? ' ' : ch}
+              </span>
+            );
+          })}
+        </div>
       </div>
 
       <p className="max-w-md text-center text-xs text-surface-500 dark:text-surface-400">

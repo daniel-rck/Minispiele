@@ -24,6 +24,8 @@ export default function WhackAMoleGame() {
   const startedAt = useRef<number | null>(null);
   const moleTimeoutRef = useRef<number | null>(null);
   const hideTimeoutsRef = useRef<Map<number, number>>(new Map());
+  const scoreRef = useRef(score);
+  scoreRef.current = score;
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -108,7 +110,7 @@ export default function WhackAMoleGame() {
     setRunning(true);
     setAnnouncement('Erwische die Maulwürfe.');
     startedAt.current = Date.now();
-    window.setTimeout(spawnMole, 300);
+    moleTimeoutRef.current = window.setTimeout(spawnMole, 300);
   }, [cleanup, spawnMole]);
 
   useEffect(() => {
@@ -119,11 +121,11 @@ export default function WhackAMoleGame() {
       const left = Math.max(0, GAME_DURATION - elapsed);
       setTimeLeft(left);
       if (left <= 0) {
-        endGame(score);
+        endGame(scoreRef.current);
       }
     }, 250);
     return () => window.clearInterval(id);
-  }, [running, score, endGame]);
+  }, [running, endGame]);
 
   const whack = useCallback(
     (i: number) => {
