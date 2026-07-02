@@ -160,10 +160,21 @@ export default function HyperfokusGame() {
       lastSavedAtRef.current = now;
       setSave((s) => ({ ...s, lastSavedAt: now }));
     };
-    document.addEventListener('visibilitychange', stamp);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        // Auto-Tapper-Einkommen der versteckten Zeitspanne nachbuchen
+        const now = Date.now();
+        const gain = Math.floor(computeOfflineIncome(saveRef.current, now));
+        lastSavedAtRef.current = now;
+        setSave((s) => ({ ...s, coins: s.coins + Math.max(0, gain), lastSavedAt: now }));
+      } else {
+        stamp();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('beforeunload', stamp);
     return () => {
-      document.removeEventListener('visibilitychange', stamp);
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('beforeunload', stamp);
     };
   }, [setSave]);
@@ -220,6 +231,9 @@ export default function HyperfokusGame() {
   // totalTaps honest (achievements depend on it) without overflowing each tick.
   useEffect(() => {
     const id = window.setInterval(() => {
+      // Im Hintergrund throttlen Browser Intervalle ohnehin; die versteckte
+      // Zeit wird beim Sichtbarwerden als Offline-Einkommen nachgebucht
+      if (document.hidden) return;
       const s = saveRef.current;
       const rate = autoTapperRate(s.upgrades.autoTapper);
       const ev = eventRef.current;
@@ -415,7 +429,11 @@ export default function HyperfokusGame() {
           scheduleNextEvent();
           pushToast('BOSS BESIEGT!', `+${formatNumber(bossReward)}`);
         } else {
-          setActiveEvent({ ...ev, bossHp: nextHp });
+          const updated = { ...ev, bossHp: nextHp };
+          // Ref sofort nachziehen: zwei schnelle Taps vor dem Re-Render lasen
+          // sonst beide dieselbe HP und ein Treffer ging verloren
+          eventRef.current = updated;
+          setActiveEvent(updated);
         }
       }
 
@@ -428,31 +446,33 @@ export default function HyperfokusGame() {
         critsInRowRef.current = 0;
       }
 
+      // Achievements außerhalb des Updaters ermitteln: pushToast in einem
+      // setState-Updater feuert unter StrictMode doppelt
+      const baseSave = saveRef.current;
+      const unlocked = newlyUnlockedAchievements(baseSave.unlockedAchievements, {
+        coins: baseSave.coins + gained,
+        totalTaps: baseSave.totalTaps + 1,
+        combo: newCombo,
+        critsInRow: critsInRowRef.current,
+        crystals: baseSave.prestigeCrystals,
+      });
+      for (const id of unlocked) {
+        const def = ACHIEVEMENTS.find((a) => a.id === id);
+        if (def) pushToast(`🏆 ${def.name}`, def.description);
+      }
       setSave((s) => {
         const nextCoins = s.coins + gained;
         const nextTaps = s.totalTaps + 1;
         const nextBest = Math.max(s.allTimeBest, nextCoins);
-        const ach = newlyUnlockedAchievements(s.unlockedAchievements, {
+        const fresh = unlocked.filter((id) => !s.unlockedAchievements.includes(id));
+        return {
+          ...s,
           coins: nextCoins,
           totalTaps: nextTaps,
-          combo: newCombo,
-          critsInRow: critsInRowRef.current,
-          crystals: s.prestigeCrystals,
-        });
-        if (ach.length > 0) {
-          for (const id of ach) {
-            const def = ACHIEVEMENTS.find((a) => a.id === id);
-            if (def) pushToast(`🏆 ${def.name}`, def.description);
-          }
-          return {
-            ...s,
-            coins: nextCoins,
-            totalTaps: nextTaps,
-            allTimeBest: nextBest,
-            unlockedAchievements: [...s.unlockedAchievements, ...ach],
-          };
-        }
-        return { ...s, coins: nextCoins, totalTaps: nextTaps, allTimeBest: nextBest };
+          allTimeBest: nextBest,
+          unlockedAchievements:
+            fresh.length > 0 ? [...s.unlockedAchievements, ...fresh] : s.unlockedAchievements,
+        };
       });
 
       // Floating number + flash + particles + sound.
@@ -517,7 +537,9 @@ export default function HyperfokusGame() {
     let raf = 0;
     let prev = performance.now();
     const loop = (now: number) => {
-      const delta = now - prev;
+      // Delta wie in useAnimationFrame clampen, sonst springen Partikel nach
+      // einem Tab-Wechsel um die gesamte versteckte Zeit weiter
+      const delta = Math.min(now - prev, 100);
       prev = now;
       particlesRef.current = stepParticles(particlesRef.current, delta, 0.0006);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -541,7 +563,13 @@ export default function HyperfokusGame() {
   // ----- Keyboard support -----
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLElement && e.target.closest('[role="dialog"]')) return;
+      if (e.target instanceof HTMLElement) {
+        if (e.target.closest('[role="dialog"]')) return;
+        // Fokus liegt auf einem anderen Bedienelement (Upgrade-Button etc.):
+        // Enter/Space soll dieses aktivieren, nicht zusätzlich den Kern tappen
+        const interactive = e.target.closest('button, a, input, select, textarea');
+        if (interactive && interactive !== coreRef.current) return;
+      }
       if (e.key === ' ' || e.key === 'Enter') {
         if (e.repeat) return;
         const rect = coreRef.current?.getBoundingClientRect();
@@ -863,7 +891,7 @@ const Core = forwardRef<HTMLButtonElement, CoreProps>(function Core(
       onPointerDown={handlePointer}
       onContextMenu={(e) => e.preventDefault()}
       aria-label="Hyperfokus-Kern tippen"
-      className={`relative aspect-square w-[68vmin] max-w-[420px] min-w-[240px] rounded-full border-4 border-white/20 transition-transform duration-100 ease-out select-none touch-manipulation ${scaleClass} ${flashRing}`}
+      className={`relative aspect-square w-[68vmin] max-w-[420px] min-w-[240px] rounded-full border-4 border-white/20 transition-transform duration-100 ease-out select-none touch-none ${scaleClass} ${flashRing}`}
       style={{
         background: `radial-gradient(circle at 30% 25%, ${from}, ${to})`,
       }}
