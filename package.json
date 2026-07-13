@@ -48,7 +48,7 @@
     "lucide-react": "^1.16.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
+    "@babel/core": "^8.0.1",
     "@biomejs/biome": "^2.4.15",
     "@cloudflare/workers-types": "^5.20260706.1",
     "@playwright/test": "^1.49.0",
