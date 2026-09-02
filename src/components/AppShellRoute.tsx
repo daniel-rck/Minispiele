@@ -34,6 +34,7 @@ export default function AppShellRoute() {
       <UpdateBanner />
       <AppHeader
         title={BRAND_NAME}
+        maxWidthClass="max-w-7xl"
         logo={
           <span className="inline-flex items-center gap-1">
             {!isHome && (

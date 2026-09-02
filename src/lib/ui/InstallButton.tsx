@@ -22,13 +22,7 @@ export function InstallButton() {
 
   const handleClick = async () => {
     if (isIOS) {
-      const dialog = dialogRef.current;
-      if (dialog && typeof dialog.showModal === "function") {
-        dialog.showModal();
-      } else if (dialog) {
-        // Fallback for browsers without <dialog>.showModal — show as a regular element
-        dialog.setAttribute("open", "");
-      }
+      dialogRef.current?.showModal();
       return;
     }
     await promptInstall();

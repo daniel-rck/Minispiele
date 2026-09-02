@@ -1,16 +1,20 @@
-/* web-base shared design tokens (theme.css imports tailwindcss itself).
-   We extend & override below: Minispiele uses turquoise (hue 195) as the
-   web-base Accent slot; numbered scales, category families and the warm
-   "highlight" color stay app-specific. */
+/* Self-hosted Nunito. This used to be an `@import url(fonts.googleapis.com/...)`
+   sitting *after* the rule blocks below, which the CSS spec discards outright —
+   so the font never loaded at all. A CDN import would also make an offline-first
+   PWA depend on the network for its own typography. */
+@import "@fontsource/nunito/latin-400.css";
+@import "@fontsource/nunito/latin-600.css";
+@import "@fontsource/nunito/latin-700.css";
+@import "@fontsource/nunito/latin-800.css";
+@import "@fontsource/nunito/latin-900.css";
+
+/* web-base shared design tokens (theme.css imports tailwindcss itself, carries
+   the accent hue and the data-theme `dark:` variant). We extend below:
+   numbered scales, category families and the warm "highlight" color stay
+   app-specific. */
 @import "./lib/ui/theme.css";
 
-/* Tailwind v4 dark variant tied to `.dark` class (set synchronously by SettingsProvider in src/lib/useSettings.ts) */
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
-  /* Override web-base default Accent hue (was 250 / slate-blue) with Minispiele turquoise */
-  --accent-h: 195;
-
   /* Typography — rounded system stack with Nunito as enhancement when loaded */
   --font-sans:
     "Nunito", "ui-rounded", "SF Pro Rounded", "Hiragino Maru Gothic ProN", system-ui, -apple-system,
@@ -144,7 +148,25 @@
   --color-danger: var(--color-danger-500);
 }
 
-:where(.dark) {
+/*
+ * Dark values for the app's own tokens, following the same three-state contract
+ * as theme.css: no `data-theme` = follow the OS, `data-theme="dark"`/`"light"` =
+ * forced. Each block appears twice because CSS cannot share one declaration
+ * block between a media query and a plain selector. Keep the pairs in sync.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-border: var(--color-surface-700);
+    --color-surface: var(--color-surface-950);
+    --color-surface-muted: var(--color-surface-900);
+    --color-surface-sunken: var(--color-surface-800);
+    --color-fg: var(--color-surface-100);
+    --color-fg-muted: var(--color-surface-400);
+    --color-fg-subtle: var(--color-surface-500);
+  }
+}
+
+:root[data-theme="dark"] {
   --color-border: var(--color-surface-700);
   --color-surface: var(--color-surface-950);
   --color-surface-muted: var(--color-surface-900);
@@ -181,14 +203,32 @@ body {
   color: var(--color-surface-900);
 }
 
-:where(.dark) body {
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body {
+    background-color: var(--color-surface-950);
+    color: var(--color-surface-100);
+  }
+}
+
+:root[data-theme="dark"] body {
   background-color: var(--color-surface-950);
   color: var(--color-surface-100);
 }
 
 /* Category soft backgrounds swap for dark mode so cards stay readable.
    Same token name, different value — `bg-[var(--color-cat-*-soft)]` automatically picks the right one. */
-:where(.dark) {
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-cat-logik-soft: oklch(0.26 0.05 195);
+    --color-cat-wort-soft: oklch(0.26 0.05 305);
+    --color-cat-action-soft: oklch(0.26 0.05 25);
+    --color-cat-gehirntraining-soft: oklch(0.26 0.05 145);
+    --color-cat-karten-soft: oklch(0.26 0.05 250);
+    --color-cat-werkzeuge-soft: oklch(0.24 0.015 220);
+  }
+}
+
+:root[data-theme="dark"] {
   --color-cat-logik-soft: oklch(0.26 0.05 195);
   --color-cat-wort-soft: oklch(0.26 0.05 305);
   --color-cat-action-soft: oklch(0.26 0.05 25);
@@ -196,10 +236,6 @@ body {
   --color-cat-karten-soft: oklch(0.26 0.05 250);
   --color-cat-werkzeuge-soft: oklch(0.24 0.015 220);
 }
-
-/* Self-host Nunito would be ideal for PWA offline; use Google Fonts as enhancement.
-   System fallback (ui-rounded / SF Pro Rounded) keeps the playful feel even offline. */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap");
 
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -19,20 +19,18 @@ export interface SettingsContextValue {
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
-function prefersDarkScheme(): boolean {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
-  try {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  } catch {
-    return false;
-  }
-}
-
+/**
+ * Express the theme as `data-theme` on <html>: absent means "follow the OS",
+ * "dark"/"light" mean forced. A class cannot say "follow the OS" without
+ * JavaScript, so with the old `.dark` toggle every forced choice flashed the
+ * wrong colors until React mounted. Keep in sync with public/theme-init.js,
+ * which applies the same rule before first paint.
+ */
 function applyTheme(theme: Theme): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
-  const dark = theme === "dark" || (theme === "system" && prefersDarkScheme());
-  root.classList.toggle("dark", dark);
+  if (theme === "system") root.removeAttribute("data-theme");
+  else root.setAttribute("data-theme", theme);
 }
 
 function readStoredTheme(): Theme {
@@ -61,12 +59,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     applyTheme(settings.theme);
-    if (settings.theme !== "system") return;
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => applyTheme("system");
-    mq.addEventListener?.("change", handler);
-    return () => mq.removeEventListener?.("change", handler);
   }, [settings.theme]);
 
   const setTheme = useCallback(
