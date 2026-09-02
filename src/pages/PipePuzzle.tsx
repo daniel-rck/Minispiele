@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import PipePuzzleGame from '../components/PipePuzzleGame';
+import GameLayout from "../components/GameLayout";
+import PipePuzzleGame from "../components/PipePuzzleGame";
 
 export default function PipePuzzle() {
   return (

@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type HitoriSize, HitoriSizeSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type HitoriSize, HitoriSizeSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const SIZES: readonly HitoriSize[] = [5, 6, 7];
 type CellState = 0 | 1 | 2; // 0 white, 1 black, 2 circled
@@ -88,7 +88,7 @@ function check(puzzle: Puzzle): { ok: boolean; reason: string } {
     for (let c = 0; c < n; c++) {
       if (state[r]?.[c] === 1) continue;
       const v = numbers[r]?.[c] ?? 0;
-      if (seen.has(v)) return { ok: false, reason: 'Duplikat in einer Zeile.' };
+      if (seen.has(v)) return { ok: false, reason: "Duplikat in einer Zeile." };
       seen.add(v);
     }
   }
@@ -97,7 +97,7 @@ function check(puzzle: Puzzle): { ok: boolean; reason: string } {
     for (let r = 0; r < n; r++) {
       if (state[r]?.[c] === 1) continue;
       const v = numbers[r]?.[c] ?? 0;
-      if (seen.has(v)) return { ok: false, reason: 'Duplikat in einer Spalte.' };
+      if (seen.has(v)) return { ok: false, reason: "Duplikat in einer Spalte." };
       seen.add(v);
     }
   }
@@ -105,9 +105,9 @@ function check(puzzle: Puzzle): { ok: boolean; reason: string } {
     for (let c = 0; c < n; c++) {
       if (state[r]?.[c] !== 1) continue;
       if (r > 0 && state[r - 1]?.[c] === 1)
-        return { ok: false, reason: 'Schwarze Zellen benachbart.' };
+        return { ok: false, reason: "Schwarze Zellen benachbart." };
       if (c > 0 && state[r]?.[c - 1] === 1)
-        return { ok: false, reason: 'Schwarze Zellen benachbart.' };
+        return { ok: false, reason: "Schwarze Zellen benachbart." };
     }
   }
   const visited: boolean[][] = Array.from({ length: n }, () => Array<boolean>(n).fill(false));
@@ -120,7 +120,7 @@ function check(puzzle: Puzzle): { ok: boolean; reason: string } {
       }
     }
   }
-  if (!start) return { ok: false, reason: 'Keine weißen Zellen übrig.' };
+  if (!start) return { ok: false, reason: "Keine weißen Zellen übrig." };
   const queue: [number, number][] = [start];
   const visited2 = visited[start[0]];
   if (visited2) visited2[start[1]] = true;
@@ -147,8 +147,8 @@ function check(puzzle: Puzzle): { ok: boolean; reason: string } {
   }
   let totalWhite = 0;
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (state[r]?.[c] !== 1) totalWhite++;
-  if (count !== totalWhite) return { ok: false, reason: 'Weiße Zellen nicht zusammenhängend.' };
-  return { ok: true, reason: 'Gelöst! Perfekt.' };
+  if (count !== totalWhite) return { ok: false, reason: "Weiße Zellen nicht zusammenhängend." };
+  return { ok: true, reason: "Gelöst! Perfekt." };
 }
 
 export default function HitoriGame() {
@@ -159,7 +159,7 @@ export default function HitoriGame() {
   );
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(size));
   const [announcement, setAnnouncement] = useState(
-    'Schwärze Zellen: Klick = schwärzen, Lang-Klick = markieren.',
+    "Schwärze Zellen: Klick = schwärzen, Lang-Klick = markieren.",
   );
 
   const sfx = useGameSfx();
@@ -252,10 +252,10 @@ export default function HitoriGame() {
             const st = puzzle.state[r]?.[c] ?? 0;
             const base =
               st === 1
-                ? 'bg-slate-900 text-slate-700 dark:bg-slate-950'
+                ? "bg-slate-900 text-slate-700 dark:bg-slate-950"
                 : st === 2
-                  ? 'bg-amber-100 text-surface-900 ring-2 ring-amber-400 dark:bg-amber-900/40 dark:text-amber-100'
-                  : 'bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100';
+                  ? "bg-amber-100 text-surface-900 ring-2 ring-amber-400 dark:bg-amber-900/40 dark:text-amber-100"
+                  : "bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100";
             return (
               <button
                 key={`${r}-${c}`}
@@ -266,7 +266,7 @@ export default function HitoriGame() {
                   toggleMark(r, c);
                 }}
                 aria-label={`Feld ${r + 1},${c + 1} Wert ${value} ${
-                  st === 1 ? 'geschwärzt' : st === 2 ? 'markiert' : 'weiß'
+                  st === 1 ? "geschwärzt" : st === 2 ? "markiert" : "weiß"
                 }`}
                 className={`flex aspect-square min-h-11 min-w-11 items-center justify-center rounded-md text-lg font-bold ${base}`}
               >

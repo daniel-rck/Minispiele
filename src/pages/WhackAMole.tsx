@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import WhackAMoleGame from '../components/WhackAMoleGame';
+import GameLayout from "../components/GameLayout";
+import WhackAMoleGame from "../components/WhackAMoleGame";
 
 export default function WhackAMole() {
   return (

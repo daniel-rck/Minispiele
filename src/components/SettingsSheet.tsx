@@ -1,11 +1,11 @@
-import { useVibration } from '../hooks/useVibration';
-import { APP_BUILD_DATE, APP_GIT_SHA, formatBuildDate } from '../lib/appVersion';
-import type { Theme } from '../lib/crossGameSchemas';
-import { usePwaUpdate } from '../lib/usePwaUpdate';
-import { useSettings } from '../lib/useSettings';
-import { MonitorIcon, MoonIcon, SunIcon } from './ui/icons';
-import Sheet from './ui/Sheet';
-import Switch from './ui/Switch';
+import { useVibration } from "../hooks/useVibration";
+import { APP_BUILD_DATE, APP_GIT_SHA, formatBuildDate } from "../lib/appVersion";
+import type { Theme } from "../lib/crossGameSchemas";
+import { usePwaUpdate } from "../lib/usePwaUpdate";
+import { useSettings } from "../lib/useSettings";
+import { MonitorIcon, MoonIcon, SunIcon } from "./ui/icons";
+import Sheet from "./ui/Sheet";
+import Switch from "./ui/Switch";
 
 interface SettingsSheetProps {
   open: boolean;
@@ -13,9 +13,9 @@ interface SettingsSheetProps {
 }
 
 const THEME_OPTIONS: { value: Theme; label: string; Icon: typeof SunIcon }[] = [
-  { value: 'light', label: 'Hell', Icon: SunIcon },
-  { value: 'dark', label: 'Dunkel', Icon: MoonIcon },
-  { value: 'system', label: 'System', Icon: MonitorIcon },
+  { value: "light", label: "Hell", Icon: SunIcon },
+  { value: "dark", label: "Dunkel", Icon: MoonIcon },
+  { value: "system", label: "System", Icon: MonitorIcon },
 ];
 
 export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
@@ -41,8 +41,8 @@ export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
                 onClick={() => setTheme(value)}
                 className={`flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border-2 px-3 py-2 text-sm font-bold transition-colors ${
                   selected
-                    ? 'border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-400 dark:bg-primary-900/40 dark:text-primary-100'
-                    : 'border-surface-200 bg-white text-surface-700 hover:border-primary-300 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-200'
+                    ? "border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-400 dark:bg-primary-900/40 dark:text-primary-100"
+                    : "border-surface-200 bg-white text-surface-700 hover:border-primary-300 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-200"
                 }`}
               >
                 <Icon size={22} />
@@ -68,8 +68,8 @@ export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
             label="Vibration"
             description={
               hapticsSupported
-                ? 'Kleine Rückmeldung beim Tippen und bei Spielereignissen.'
-                : 'Nicht von diesem Gerät unterstützt.'
+                ? "Kleine Rückmeldung beim Tippen und bei Spielereignissen."
+                : "Nicht von diesem Gerät unterstützt."
             }
             checked={settings.vibration}
             onChange={setVibration}
@@ -109,10 +109,10 @@ export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
             disabled={checking}
             className="inline-flex min-h-10 items-center rounded-xl bg-surface-100 px-4 text-sm font-bold text-surface-800 hover:bg-surface-200 disabled:opacity-50 dark:bg-surface-800 dark:text-surface-100 dark:hover:bg-surface-700"
           >
-            {needRefresh ? 'Jetzt neu laden' : checking ? 'Prüfe …' : 'Auf Updates prüfen'}
+            {needRefresh ? "Jetzt neu laden" : checking ? "Prüfe …" : "Auf Updates prüfen"}
           </button>
           <span className="text-xs text-surface-500 dark:text-surface-400" aria-live="polite">
-            {needRefresh ? 'Neue Version verfügbar.' : 'App ist aktuell.'}
+            {needRefresh ? "Neue Version verfügbar." : "App ist aktuell."}
           </span>
         </div>
       </fieldset>

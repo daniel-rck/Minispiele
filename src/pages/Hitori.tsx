@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import HitoriGame from '../components/HitoriGame';
+import GameLayout from "../components/GameLayout";
+import HitoriGame from "../components/HitoriGame";
 
 export default function Hitori() {
   return (

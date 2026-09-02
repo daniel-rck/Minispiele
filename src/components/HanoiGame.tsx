@@ -1,30 +1,30 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   createInitialState,
   type HanoiState,
   isSolved,
   minimumMoves,
   selectPeg,
-} from '../lib/hanoi';
-import { HanoiBestSchema, HanoiDisksSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/hanoi";
+import { HanoiBestSchema, HanoiDisksSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const DISK_OPTIONS = [3, 4, 5, 6, 7, 8] as const;
 const DISK_COLORS = [
-  'bg-rose-500',
-  'bg-orange-500',
-  'bg-amber-500',
-  'bg-lime-500',
-  'bg-emerald-500',
-  'bg-sky-500',
-  'bg-violet-500',
-  'bg-fuchsia-500',
+  "bg-rose-500",
+  "bg-orange-500",
+  "bg-amber-500",
+  "bg-lime-500",
+  "bg-emerald-500",
+  "bg-sky-500",
+  "bg-violet-500",
+  "bg-fuchsia-500",
 ];
 
 export default function HanoiGame() {
@@ -37,7 +37,7 @@ export default function HanoiGame() {
   const [state, setState] = useState<HanoiState>(() => createInitialState(disks));
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const prevSolvedRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -58,7 +58,7 @@ export default function HanoiGame() {
         setScoreIsNew(false);
       }
       setWinOpen(true);
-      setAnnounce('Gelöst!');
+      setAnnounce("Gelöst!");
       vibrate([40, 30, 60]);
       sfx.win();
     }
@@ -142,8 +142,8 @@ export default function HanoiGame() {
               aria-label={`Stab ${pegIdx + 1}`}
               className={`relative flex flex-1 flex-col items-center justify-end self-stretch rounded-lg pb-2 transition ${
                 selected
-                  ? 'ring-2 ring-brand-500 ring-offset-2 ring-offset-slate-200 dark:ring-offset-slate-800'
-                  : ''
+                  ? "ring-2 ring-brand-500 ring-offset-2 ring-offset-slate-200 dark:ring-offset-slate-800"
+                  : ""
               }`}
             >
               <div className="absolute bottom-2 top-3 w-1.5 -translate-y-0 rounded bg-slate-400 dark:bg-slate-600" />

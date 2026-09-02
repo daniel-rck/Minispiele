@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import NurikabeGame from '../components/NurikabeGame';
+import GameLayout from "../components/GameLayout";
+import NurikabeGame from "../components/NurikabeGame";
 
 export default function Nurikabe() {
   return (

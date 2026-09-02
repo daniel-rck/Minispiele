@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import WordsearchGame from '../components/WordsearchGame';
+import GameLayout from "../components/GameLayout";
+import WordsearchGame from "../components/WordsearchGame";
 
 export default function Wordsearch() {
   return (

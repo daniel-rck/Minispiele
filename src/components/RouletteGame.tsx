@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { RouletteBalanceSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { RouletteBalanceSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const WHEEL_ORDER = [
   0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14,
@@ -15,15 +15,15 @@ const RED_NUMS = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30,
 const CHIPS = [5, 10, 25, 50, 100] as const;
 type ChipValue = (typeof CHIPS)[number];
 
-type OutsideKey = 'red' | 'black' | 'even' | 'odd' | 'low' | 'high';
+type OutsideKey = "red" | "black" | "even" | "odd" | "low" | "high";
 
 const OUTSIDE: { key: OutsideKey; label: string; color: string }[] = [
-  { key: 'red', label: 'Rot', color: 'bg-rose-700' },
-  { key: 'black', label: 'Schwarz', color: 'bg-slate-900' },
-  { key: 'even', label: 'Gerade', color: 'bg-slate-700' },
-  { key: 'odd', label: 'Ungerade', color: 'bg-slate-700' },
-  { key: 'low', label: '1-18', color: 'bg-slate-700' },
-  { key: 'high', label: '19-36', color: 'bg-slate-700' },
+  { key: "red", label: "Rot", color: "bg-rose-700" },
+  { key: "black", label: "Schwarz", color: "bg-slate-900" },
+  { key: "even", label: "Gerade", color: "bg-slate-700" },
+  { key: "odd", label: "Ungerade", color: "bg-slate-700" },
+  { key: "low", label: "1-18", color: "bg-slate-700" },
+  { key: "high", label: "19-36", color: "bg-slate-700" },
 ];
 
 function isRed(n: number): boolean {
@@ -40,7 +40,7 @@ export default function RouletteGame() {
   const [bets, setBets] = useState<Record<string, number>>({});
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<number | null>(null);
-  const [announcement, setAnnouncement] = useState('Platziere Einsätze und drehe das Rad.');
+  const [announcement, setAnnouncement] = useState("Platziere Einsätze und drehe das Rad.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -65,7 +65,7 @@ export default function RouletteGame() {
   const spin = useCallback(() => {
     if (spinning) return;
     if (totalBet === 0) {
-      setAnnouncement('Platziere zuerst einen Einsatz.');
+      setAnnouncement("Platziere zuerst einen Einsatz.");
       sfx.error();
       return;
     }
@@ -79,18 +79,18 @@ export default function RouletteGame() {
       let winnings = 0;
       for (const [key, amount] of Object.entries(bets)) {
         if (key === String(num)) winnings += amount * 36;
-        else if (key === 'red' && isRed(num)) winnings += amount * 2;
-        else if (key === 'black' && num > 0 && !isRed(num)) winnings += amount * 2;
-        else if (key === 'even' && num > 0 && num % 2 === 0) winnings += amount * 2;
-        else if (key === 'odd' && num % 2 === 1) winnings += amount * 2;
-        else if (key === 'low' && num >= 1 && num <= 18) winnings += amount * 2;
-        else if (key === 'high' && num >= 19 && num <= 36) winnings += amount * 2;
+        else if (key === "red" && isRed(num)) winnings += amount * 2;
+        else if (key === "black" && num > 0 && !isRed(num)) winnings += amount * 2;
+        else if (key === "even" && num > 0 && num % 2 === 0) winnings += amount * 2;
+        else if (key === "odd" && num % 2 === 1) winnings += amount * 2;
+        else if (key === "low" && num >= 1 && num <= 18) winnings += amount * 2;
+        else if (key === "high" && num >= 19 && num <= 36) winnings += amount * 2;
       }
       setBalance((b) => b + winnings);
       setResult(num);
       setBets({});
       setSpinning(false);
-      const color = num === 0 ? 'Grün' : isRed(num) ? 'Rot' : 'Schwarz';
+      const color = num === 0 ? "Grün" : isRed(num) ? "Rot" : "Schwarz";
       if (winnings > 0) {
         setAnnouncement(`${num} ${color}. Gewinn: ${winnings}.`);
         sfx.win();
@@ -107,7 +107,7 @@ export default function RouletteGame() {
     setBalance(1000);
     setBets({});
     setResult(null);
-    setAnnouncement('Guthaben zurückgesetzt.');
+    setAnnouncement("Guthaben zurückgesetzt.");
   }, [setBalance]);
 
   return (
@@ -132,15 +132,15 @@ export default function RouletteGame() {
           <div className="text-center">
             <div
               className={`text-4xl font-extrabold ${
-                result === 0 ? 'text-emerald-400' : isRed(result) ? 'text-rose-400' : 'text-white'
+                result === 0 ? "text-emerald-400" : isRed(result) ? "text-rose-400" : "text-white"
               }`}
               role="img"
-              aria-label={`Ergebnis ${result} ${result === 0 ? 'Grün' : isRed(result) ? 'Rot' : 'Schwarz'}`}
+              aria-label={`Ergebnis ${result} ${result === 0 ? "Grün" : isRed(result) ? "Rot" : "Schwarz"}`}
             >
               {result}
             </div>
             <div className="text-xs text-slate-300">
-              {result === 0 ? 'Grün' : isRed(result) ? 'Rot' : 'Schwarz'}
+              {result === 0 ? "Grün" : isRed(result) ? "Rot" : "Schwarz"}
             </div>
           </div>
         )}
@@ -159,17 +159,17 @@ export default function RouletteGame() {
             aria-pressed={chip === value}
             aria-label={`Chip ${value}`}
             className={`h-12 w-12 rounded-full text-sm font-bold text-white ${
-              chip === value ? 'ring-4 ring-amber-300' : ''
+              chip === value ? "ring-4 ring-amber-300" : ""
             } ${
               value === 5
-                ? 'bg-emerald-500'
+                ? "bg-emerald-500"
                 : value === 10
-                  ? 'bg-sky-500'
+                  ? "bg-sky-500"
                   : value === 25
-                    ? 'bg-violet-500'
+                    ? "bg-violet-500"
                     : value === 50
-                      ? 'bg-rose-500'
-                      : 'bg-amber-500'
+                      ? "bg-rose-500"
+                      : "bg-amber-500"
             }`}
           >
             {value}
@@ -184,14 +184,14 @@ export default function RouletteGame() {
       >
         <button
           type="button"
-          onClick={() => placeBet('0')}
+          onClick={() => placeBet("0")}
           disabled={spinning}
-          aria-label={`Zahl 0${bets['0'] ? ` Einsatz ${bets['0']}` : ''}`}
+          aria-label={`Zahl 0${bets["0"] ? ` Einsatz ${bets["0"]}` : ""}`}
           className={`col-span-6 min-h-10 rounded bg-emerald-700 text-sm font-bold text-white ${
-            bets['0'] ? 'ring-2 ring-amber-300' : ''
+            bets["0"] ? "ring-2 ring-amber-300" : ""
           }`}
         >
-          0 {bets['0'] ? `(${bets['0']})` : ''}
+          0 {bets["0"] ? `(${bets["0"]})` : ""}
         </button>
         {Array.from({ length: 36 }).map((_, i) => {
           const n = i + 1;
@@ -203,10 +203,10 @@ export default function RouletteGame() {
               type="button"
               onClick={() => placeBet(key)}
               disabled={spinning}
-              aria-label={`Zahl ${n}${bet ? ` Einsatz ${bet}` : ''}`}
+              aria-label={`Zahl ${n}${bet ? ` Einsatz ${bet}` : ""}`}
               className={`flex min-h-10 flex-col items-center justify-center rounded text-xs font-bold text-white ${
-                isRed(n) ? 'bg-rose-700' : 'bg-slate-700'
-              } ${bet ? 'ring-2 ring-amber-300' : ''}`}
+                isRed(n) ? "bg-rose-700" : "bg-slate-700"
+              } ${bet ? "ring-2 ring-amber-300" : ""}`}
             >
               <span>{n}</span>
               {bet ? <span className="text-[10px]">{bet}</span> : null}
@@ -224,12 +224,12 @@ export default function RouletteGame() {
               type="button"
               onClick={() => placeBet(o.key)}
               disabled={spinning}
-              aria-label={`${o.label}${bet ? ` Einsatz ${bet}` : ''}`}
+              aria-label={`${o.label}${bet ? ` Einsatz ${bet}` : ""}`}
               className={`min-h-10 rounded text-xs font-bold text-white ${o.color} ${
-                bet ? 'ring-2 ring-amber-300' : ''
+                bet ? "ring-2 ring-amber-300" : ""
               }`}
             >
-              {o.label} {bet ? `(${bet})` : ''}
+              {o.label} {bet ? `(${bet})` : ""}
             </button>
           );
         })}
@@ -237,7 +237,7 @@ export default function RouletteGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-2">
         <Button variant="primary" size="sm" onClick={spin} disabled={spinning}>
-          {spinning ? 'Dreht …' : 'Drehen'}
+          {spinning ? "Dreht …" : "Drehen"}
         </Button>
         <Button variant="ghost" size="sm" onClick={clearBets} disabled={spinning}>
           Einsätze löschen

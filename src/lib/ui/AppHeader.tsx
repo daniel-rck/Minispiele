@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 export type AppHeaderProps = {
   title: string;
@@ -10,7 +10,7 @@ export function AppHeader({ title, logo, actions }: AppHeaderProps) {
   return (
     <header
       className="sticky top-0 z-20 shrink-0 border-b border-border bg-surface/95 backdrop-blur"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="container mx-auto max-w-7xl h-14 px-4 flex items-center justify-between gap-4 sm:px-6">
         <div className="flex items-center gap-2 min-w-0">

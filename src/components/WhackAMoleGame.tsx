@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { WhackAMoleBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { WhackAMoleBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const HOLES = 9;
 const GAME_DURATION = 30;
@@ -108,7 +108,7 @@ export default function WhackAMoleGame() {
     setTimeLeft(GAME_DURATION);
     setActive(new Set());
     setRunning(true);
-    setAnnouncement('Erwische die Maulwürfe.');
+    setAnnouncement("Erwische die Maulwürfe.");
     startedAt.current = Date.now();
     moleTimeoutRef.current = window.setTimeout(spawnMole, 300);
   }, [cleanup, spawnMole]);
@@ -171,7 +171,7 @@ export default function WhackAMoleGame() {
       </div>
 
       <Button variant="primary" onClick={startGame}>
-        {running ? 'Neu starten' : 'Neues Spiel'}
+        {running ? "Neu starten" : "Neues Spiel"}
       </Button>
 
       <div className="fit-area mx-auto w-full max-w-md">
@@ -188,13 +188,13 @@ export default function WhackAMoleGame() {
                 type="button"
                 onClick={() => whack(i)}
                 disabled={!running}
-                aria-label={`Loch ${i + 1}${isUp ? ' — Maulwurf!' : ''}`}
+                aria-label={`Loch ${i + 1}${isUp ? " — Maulwurf!" : ""}`}
                 className="relative aspect-square overflow-hidden rounded-full bg-amber-900 ring-2 ring-amber-950 transition-colors active:bg-amber-800 disabled:cursor-not-allowed"
               >
                 <span
                   aria-hidden
                   className={`absolute inset-x-2 bottom-0 flex h-2/3 items-end justify-center text-4xl transition-transform duration-150 ${
-                    isUp ? 'translate-y-0' : 'translate-y-full'
+                    isUp ? "translate-y-0" : "translate-y-full"
                   }`}
                 >
                   🐹

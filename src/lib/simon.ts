@@ -1,5 +1,5 @@
 export type SimonColor = 0 | 1 | 2 | 3;
-export type SimonPhase = 'idle' | 'showing' | 'input' | 'lost';
+export type SimonPhase = "idle" | "showing" | "input" | "lost";
 
 export interface SimonState {
   sequence: SimonColor[];
@@ -9,7 +9,7 @@ export interface SimonState {
 }
 
 export function createInitialState(): SimonState {
-  return { sequence: [], inputIdx: 0, phase: 'idle', level: 0 };
+  return { sequence: [], inputIdx: 0, phase: "idle", level: 0 };
 }
 
 export function extendSequence(state: SimonState, rng: () => number = Math.random): SimonState {
@@ -17,13 +17,13 @@ export function extendSequence(state: SimonState, rng: () => number = Math.rando
   return {
     sequence: [...state.sequence, next],
     inputIdx: 0,
-    phase: 'showing',
+    phase: "showing",
     level: state.level + 1,
   };
 }
 
 export function startInput(state: SimonState): SimonState {
-  return { ...state, phase: 'input', inputIdx: 0 };
+  return { ...state, phase: "input", inputIdx: 0 };
 }
 
 export interface PressResult {
@@ -34,13 +34,13 @@ export interface PressResult {
 }
 
 export function pressColor(state: SimonState, color: SimonColor): PressResult {
-  if (state.phase !== 'input') {
+  if (state.phase !== "input") {
     return { state, correct: false, completed: false };
   }
   const expected = state.sequence[state.inputIdx];
   if (color !== expected) {
     return {
-      state: { ...state, phase: 'lost' },
+      state: { ...state, phase: "lost" },
       correct: false,
       completed: false,
     };

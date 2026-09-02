@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   createInitialState,
   DIFFICULTY,
@@ -8,15 +8,15 @@ import {
   placeMinesAvoiding,
   reveal,
   toggleFlag,
-} from './minesweeper';
+} from "./minesweeper";
 
 function constRng(value = 0): () => number {
   return () => value;
 }
 
-describe('minesweeper', () => {
-  it('createInitialState produces an empty grid with the expected size', () => {
-    const s = createInitialState('easy');
+describe("minesweeper", () => {
+  it("createInitialState produces an empty grid with the expected size", () => {
+    const s = createInitialState("easy");
     expect(s.cols).toBe(DIFFICULTY.easy.cols);
     expect(s.rows).toBe(DIFFICULTY.easy.rows);
     expect(s.mines).toBe(DIFFICULTY.easy.mines);
@@ -25,8 +25,8 @@ describe('minesweeper', () => {
     expect(s.firstClick).toBe(true);
   });
 
-  it('placeMinesAvoiding places the configured number of mines and skips the safe area', () => {
-    const s = createInitialState('easy');
+  it("placeMinesAvoiding places the configured number of mines and skips the safe area", () => {
+    const s = createInitialState("easy");
     // With constant rng → Fisher-Yates is a no-op, so mines fill the lowest indices
     // outside the safe area around idx 0 (which forbids 0, 1, cols, cols+1).
     const after = placeMinesAvoiding(s, 0, constRng(0));
@@ -40,8 +40,8 @@ describe('minesweeper', () => {
     expect(after.firstClick).toBe(false);
   });
 
-  it('placeMinesAvoiding computes correct adjacent counts', () => {
-    const s = createInitialState('easy');
+  it("placeMinesAvoiding computes correct adjacent counts", () => {
+    const s = createInitialState("easy");
     const after = placeMinesAvoiding(s, 0, constRng(0));
     // For every non-mine cell, the adjacent count must equal the actual neighbour mine count.
     for (let i = 0; i < after.grid.length; i++) {
@@ -63,8 +63,8 @@ describe('minesweeper', () => {
     }
   });
 
-  it('reveal places mines on first click avoiding the clicked cell', () => {
-    const s = createInitialState('easy');
+  it("reveal places mines on first click avoiding the clicked cell", () => {
+    const s = createInitialState("easy");
     const after = reveal(s, 0, constRng(0));
     expect(after.firstClick).toBe(false);
     expect(after.grid[0]!.revealed).toBe(true);
@@ -72,16 +72,16 @@ describe('minesweeper', () => {
     expect(after.lost).toBe(false);
   });
 
-  it('reveal cascades through 0-adjacent neighbors', () => {
-    const s = createInitialState('easy');
+  it("reveal cascades through 0-adjacent neighbors", () => {
+    const s = createInitialState("easy");
     const after = reveal(s, 0, constRng(0));
     // The clicked cell has adjacent=0 (it has no mines around it), so flood-fill
     // should reveal more than one cell.
     expect(after.revealed).toBeGreaterThan(1);
   });
 
-  it('reveal on a mine ends the game with lost=true and losingIdx set', () => {
-    const s = createInitialState('easy');
+  it("reveal on a mine ends the game with lost=true and losingIdx set", () => {
+    const s = createInitialState("easy");
     const seeded = placeMinesAvoiding(s, 0, constRng(0));
     const mineIdx = seeded.grid.findIndex((c) => c.mine);
     expect(mineIdx).toBeGreaterThan(-1);
@@ -91,15 +91,15 @@ describe('minesweeper', () => {
     expect(after.grid[mineIdx]!.revealed).toBe(true);
   });
 
-  it('reveal on a flagged cell is a no-op', () => {
-    const s = createInitialState('easy');
+  it("reveal on a flagged cell is a no-op", () => {
+    const s = createInitialState("easy");
     const flagged = toggleFlag(s, 5);
     const after = reveal(flagged, 5);
     expect(after).toBe(flagged);
   });
 
-  it('toggleFlag flips the flag and updates the counter', () => {
-    const s = createInitialState('easy');
+  it("toggleFlag flips the flag and updates the counter", () => {
+    const s = createInitialState("easy");
     const a = toggleFlag(s, 3);
     expect(a.grid[3]!.flagged).toBe(true);
     expect(a.flagged).toBe(1);
@@ -108,15 +108,15 @@ describe('minesweeper', () => {
     expect(b.flagged).toBe(0);
   });
 
-  it('toggleFlag on a revealed cell is a no-op', () => {
-    const s = createInitialState('easy');
+  it("toggleFlag on a revealed cell is a no-op", () => {
+    const s = createInitialState("easy");
     const revealed = reveal(s, 0, constRng(0));
     const firstRevealedIdx = revealed.grid.findIndex((c) => c.revealed);
     const after = toggleFlag(revealed, firstRevealedIdx);
     expect(after).toBe(revealed);
   });
 
-  it('reveals to a win when all non-mine cells are uncovered', () => {
+  it("reveals to a win when all non-mine cells are uncovered", () => {
     // Tiny synthetic state: 3x3 with one mine at index 8.
     const grid = Array.from({ length: 9 }, () => ({
       mine: false,
@@ -138,8 +138,8 @@ describe('minesweeper', () => {
       lost: false,
       won: false,
       firstClick: false,
-      difficulty: 'easy' as const,
-      mode: 'rect' as const,
+      difficulty: "easy" as const,
+      mode: "rect" as const,
       losingIdx: null,
     };
     const after = reveal(state, 0);
@@ -147,35 +147,35 @@ describe('minesweeper', () => {
     expect(after.revealed).toBe(8);
   });
 
-  it('createInitialState supports hex mode with hex difficulty configs', () => {
-    const s = createInitialState('easy', 'hex');
-    expect(s.mode).toBe('hex');
+  it("createInitialState supports hex mode with hex difficulty configs", () => {
+    const s = createInitialState("easy", "hex");
+    expect(s.mode).toBe("hex");
     expect(s.cols).toBe(HEX_DIFFICULTY.easy.cols);
     expect(s.rows).toBe(HEX_DIFFICULTY.easy.rows);
     expect(s.mines).toBe(HEX_DIFFICULTY.easy.mines);
   });
 
-  it('neighborIndices returns 6 neighbors for an interior hex cell on an even row', () => {
+  it("neighborIndices returns 6 neighbors for an interior hex cell on an even row", () => {
     // idx 12 in a 5×5 grid = (r=2, c=2, even row).
     // Even-row hex dirs: (-1,-1)=6, (-1,0)=7, (0,-1)=11, (0,1)=13, (1,-1)=16, (1,0)=17.
-    const n = neighborIndices(12, 5, 5, 'hex')
+    const n = neighborIndices(12, 5, 5, "hex")
       .slice()
       .sort((a, b) => a - b);
     expect(n).toEqual([6, 7, 11, 13, 16, 17]);
   });
 
-  it('neighborIndices returns 6 neighbors for an interior hex cell on an odd row', () => {
+  it("neighborIndices returns 6 neighbors for an interior hex cell on an odd row", () => {
     // idx 17 in a 5×5 grid = (r=3, c=2, odd row).
     // Odd-row hex dirs: (-1,0)=12, (-1,1)=13, (0,-1)=16, (0,1)=18, (1,0)=22, (1,1)=23.
-    const n = neighborIndices(17, 5, 5, 'hex')
+    const n = neighborIndices(17, 5, 5, "hex")
       .slice()
       .sort((a, b) => a - b);
     expect(n).toEqual([12, 13, 16, 18, 22, 23]);
   });
 
-  it('neighborIndices differs between rect (8 neighbors) and hex (6 neighbors) for the same cell', () => {
-    const rect = new Set(neighborIndices(12, 5, 5, 'rect'));
-    const hex = new Set(neighborIndices(12, 5, 5, 'hex'));
+  it("neighborIndices differs between rect (8 neighbors) and hex (6 neighbors) for the same cell", () => {
+    const rect = new Set(neighborIndices(12, 5, 5, "rect"));
+    const hex = new Set(neighborIndices(12, 5, 5, "hex"));
     expect(rect.size).toBe(8);
     expect(hex.size).toBe(6);
     // Cells 8 (r=1,c=3) and 18 (r=3,c=3) are rect neighbors of idx 12 but not hex neighbors.
@@ -185,16 +185,16 @@ describe('minesweeper', () => {
     expect(hex.has(18)).toBe(false);
   });
 
-  it('neighborIndices clips to bounds for hex corner cells', () => {
+  it("neighborIndices clips to bounds for hex corner cells", () => {
     // idx 0 = (r=0, c=0, even row). Only (0,1)=1 and (1,0)=5 are inside.
     expect(
-      neighborIndices(0, 5, 5, 'hex')
+      neighborIndices(0, 5, 5, "hex")
         .slice()
         .sort((a, b) => a - b),
     ).toEqual([1, 5]);
   });
 
-  it('reveal cascade respects hex 6-neighbor topology', () => {
+  it("reveal cascade respects hex 6-neighbor topology", () => {
     // Build a synthetic 5×5 hex state with one mine at idx 12 (r=2,c=2, even row).
     // Its hex neighbors {6,7,11,13,16,17} get adjacent=1; all other non-mine cells stay 0.
     // In rect topology, idx 8 (r=1,c=3) and idx 18 (r=3,c=3) would also be adjacent to the mine.
@@ -218,8 +218,8 @@ describe('minesweeper', () => {
       lost: false,
       won: false,
       firstClick: false,
-      difficulty: 'easy',
-      mode: 'hex',
+      difficulty: "easy",
+      mode: "hex",
       losingIdx: null,
     };
 
@@ -238,9 +238,9 @@ describe('minesweeper', () => {
     expect(after.grid[12]!.revealed).toBe(false);
   });
 
-  it('createInitialState hex easy uses HEX_DIFFICULTY dimensions', () => {
+  it("createInitialState hex easy uses HEX_DIFFICULTY dimensions", () => {
     // Sanity: easy hex grid is 8×8 (not 9×9 like rect).
-    const s = createInitialState('easy', 'hex');
+    const s = createInitialState("easy", "hex");
     expect(s.cols).toBe(HEX_DIFFICULTY.easy.cols);
     expect(s.rows).toBe(HEX_DIFFICULTY.easy.rows);
     expect(s.cols).toBe(8);

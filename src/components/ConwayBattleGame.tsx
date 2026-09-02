@@ -1,8 +1,8 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useGameSfx } from '../lib/useGameSfx';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useGameSfx } from "../lib/useGameSfx";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const COLS = 30;
 const ROWS = 20;
@@ -12,7 +12,7 @@ const STEP_MS = 80;
 
 type Cell = 0 | 1 | 2; // 0 empty, 1 blue (player), 2 red (AI)
 
-type Phase = 'place' | 'battle' | 'done';
+type Phase = "place" | "battle" | "done";
 
 function makeGrid(): Cell[][] {
   return Array.from({ length: ROWS }, () => Array<Cell>(COLS).fill(0));
@@ -84,11 +84,11 @@ export default function ConwayBattleGame() {
     placeAI(g, INITIAL_BUDGET);
     return g;
   });
-  const [phase, setPhase] = useState<Phase>('place');
+  const [phase, setPhase] = useState<Phase>("place");
   const [budget, setBudget] = useState(INITIAL_BUDGET);
   const [generation, setGeneration] = useState(0);
   const [announcement, setAnnouncement] = useState(
-    'Platziere deine Zellen (Blau) in der linken Hälfte.',
+    "Platziere deine Zellen (Blau) in der linken Hälfte.",
   );
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -101,15 +101,15 @@ export default function ConwayBattleGame() {
     const g = makeGrid();
     placeAI(g, INITIAL_BUDGET);
     setGrid(g);
-    setPhase('place');
+    setPhase("place");
     setBudget(INITIAL_BUDGET);
     setGeneration(0);
-    setAnnouncement('Platziere deine Zellen (Blau) in der linken Hälfte.');
+    setAnnouncement("Platziere deine Zellen (Blau) in der linken Hälfte.");
   }, []);
 
   const toggleCell = useCallback(
     (r: number, c: number) => {
-      if (phaseRef.current !== 'place') return;
+      if (phaseRef.current !== "place") return;
       if (c >= Math.floor(COLS / 2)) return;
       vibrate(10);
       setGrid((prev) => {
@@ -134,20 +134,20 @@ export default function ConwayBattleGame() {
   );
 
   const startBattle = useCallback(() => {
-    if (phase !== 'place') return;
-    setPhase('battle');
-    setAnnouncement('Schlacht läuft.');
+    if (phase !== "place") return;
+    setPhase("battle");
+    setAnnouncement("Schlacht läuft.");
     sfx.match();
   }, [phase, sfx]);
 
   useEffect(() => {
-    if (phase !== 'battle') return;
+    if (phase !== "battle") return;
     const interval = window.setInterval(() => {
       setGrid((prev) => {
         const next = step(prev);
         const { blue: b, red: r } = countCells(next);
         if (b === 0 || r === 0) {
-          setPhase('done');
+          setPhase("done");
           if (b > r) {
             setAnnouncement(`Blau gewinnt! ${b} : ${r}.`);
             sfx.win();
@@ -165,7 +165,7 @@ export default function ConwayBattleGame() {
       });
       setGeneration((g) => {
         if (g + 1 >= MAX_GENERATIONS) {
-          setPhase('done');
+          setPhase("done");
         }
         return g + 1;
       });
@@ -174,7 +174,7 @@ export default function ConwayBattleGame() {
   }, [phase, sfx, vibrate]);
 
   useEffect(() => {
-    if (phase === 'done' && generation >= MAX_GENERATIONS) {
+    if (phase === "done" && generation >= MAX_GENERATIONS) {
       const { blue: b, red: r } = countCells(grid);
       if (b > r) {
         setAnnouncement(`Zeit aus. Blau gewinnt! ${b} : ${r}.`);
@@ -215,7 +215,7 @@ export default function ConwayBattleGame() {
           style={
             {
               gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
-              '--fit-ar': COLS / ROWS,
+              "--fit-ar": COLS / ROWS,
             } as CSSProperties
           }
         >
@@ -224,20 +224,20 @@ export default function ConwayBattleGame() {
               const inPlayerHalf = c < Math.floor(COLS / 2);
               const bg =
                 value === 1
-                  ? 'bg-sky-500'
+                  ? "bg-sky-500"
                   : value === 2
-                    ? 'bg-rose-500'
-                    : phase === 'place' && inPlayerHalf
-                      ? 'bg-amber-900/20'
-                      : 'bg-slate-800/40';
-              const isDisabled = phase !== 'place' || !inPlayerHalf;
+                    ? "bg-rose-500"
+                    : phase === "place" && inPlayerHalf
+                      ? "bg-amber-900/20"
+                      : "bg-slate-800/40";
+              const isDisabled = phase !== "place" || !inPlayerHalf;
               return (
                 <button
                   key={`${r}-${c}`}
                   type="button"
                   onClick={() => toggleCell(r, c)}
                   disabled={isDisabled}
-                  aria-label={`Zelle Zeile ${r + 1} Spalte ${c + 1}${value === 1 ? ' blau' : value === 2 ? ' rot' : ''}`}
+                  aria-label={`Zelle Zeile ${r + 1} Spalte ${c + 1}${value === 1 ? " blau" : value === 2 ? " rot" : ""}`}
                   className={`aspect-square ${bg} transition disabled:cursor-not-allowed`}
                 />
               );
@@ -251,7 +251,7 @@ export default function ConwayBattleGame() {
           variant="primary"
           size="sm"
           onClick={startBattle}
-          disabled={phase !== 'place' || blue === 0}
+          disabled={phase !== "place" || blue === 0}
         >
           Schlacht starten
         </Button>

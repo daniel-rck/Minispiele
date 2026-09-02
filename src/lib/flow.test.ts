@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   cellOwner,
   colorHex,
@@ -9,15 +9,15 @@ import {
   isSolved,
   LEVELS,
   startPath,
-} from './flow';
+} from "./flow";
 
-describe('flow', () => {
-  it('colorHex cycles through the palette', () => {
+describe("flow", () => {
+  it("colorHex cycles through the palette", () => {
     expect(colorHex(0)).toMatch(/^#/);
     expect(colorHex(6)).toBe(colorHex(0));
   });
 
-  it('endpointFor finds the colour at endpoint cells', () => {
+  it("endpointFor finds the colour at endpoint cells", () => {
     const level = LEVELS[0]!;
     const firstEp = level.endpoints[0]!;
     expect(endpointFor(level, firstEp.cells[0])).toBe(firstEp.color);
@@ -26,14 +26,14 @@ describe('flow', () => {
     expect(endpointFor(level, 7)).toBeNull();
   });
 
-  it('isAdjacent detects 4-neighbourhood', () => {
+  it("isAdjacent detects 4-neighbourhood", () => {
     expect(isAdjacent(5, 0, 1)).toBe(true);
     expect(isAdjacent(5, 0, 5)).toBe(true);
     expect(isAdjacent(5, 0, 6)).toBe(false); // diagonal
     expect(isAdjacent(5, 0, 2)).toBe(false);
   });
 
-  it('startPath seeds only the chosen colour, leaving others untouched', () => {
+  it("startPath seeds only the chosen colour, leaving others untouched", () => {
     const level = LEVELS[0]!;
     let state = createState(level);
     const [a, b, c] = level.endpoints;
@@ -44,7 +44,7 @@ describe('flow', () => {
     expect(state.paths[c!.color]).toEqual([]);
   });
 
-  it('extendPath grows along an adjacent cell and supports backtracking', () => {
+  it("extendPath grows along an adjacent cell and supports backtracking", () => {
     const level = LEVELS[0]!;
     let state = createState(level);
     const ep = level.endpoints[0]!;
@@ -61,7 +61,7 @@ describe('flow', () => {
     expect(extendPath(grown!, ep.color, neighbour)).toBeNull();
   });
 
-  it('extendPath rejects non-adjacent moves and other colours’ endpoints', () => {
+  it("extendPath rejects non-adjacent moves and other colours’ endpoints", () => {
     const level = LEVELS[0]!;
     let state = createState(level);
     const [a, b] = level.endpoints;
@@ -75,7 +75,7 @@ describe('flow', () => {
     }
   });
 
-  it('cellOwner reports which colour occupies a cell', () => {
+  it("cellOwner reports which colour occupies a cell", () => {
     const level = LEVELS[0]!;
     const ep = level.endpoints[0]!;
     let state = createState(level);
@@ -84,12 +84,12 @@ describe('flow', () => {
     expect(cellOwner(state, 99)).toBeNull();
   });
 
-  it('isSolved is false on a fresh state', () => {
+  it("isSolved is false on a fresh state", () => {
     expect(isSolved(createState(LEVELS[0]!))).toBe(false);
   });
 
-  describe('LEVELS', () => {
-    it('all levels are well-formed', () => {
+  describe("LEVELS", () => {
+    it("all levels are well-formed", () => {
       for (let i = 0; i < LEVELS.length; i++) {
         const lvl = LEVELS[i]!;
         const totalCells = lvl.size * lvl.size;
@@ -109,7 +109,7 @@ describe('flow', () => {
     // Sanity check: each level admits a full-coverage solution where every
     // cell belongs to some color's path. Brute-force DFS finishes the 20-level
     // sweep in roughly a second on a dev box; 15s leaves CI headroom.
-    it('every level has at least one full-coverage solution', () => {
+    it("every level has at least one full-coverage solution", () => {
       for (let i = 0; i < LEVELS.length; i++) {
         const lvl = LEVELS[i]!;
         expect(canSolve(lvl), `Level ${i + 1} (${lvl.size}x${lvl.size}) is unsolvable`).toBe(true);

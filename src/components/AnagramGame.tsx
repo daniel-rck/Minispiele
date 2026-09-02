@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { type AnagramTile, scrambleLetters, verifyGuess } from '../lib/anagram';
-import { STORAGE_KEYS } from '../lib/constants';
-import { pickRandomHangmanWord } from '../lib/hangmanWords';
-import { AnagramBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { type AnagramTile, scrambleLetters, verifyGuess } from "../lib/anagram";
+import { STORAGE_KEYS } from "../lib/constants";
+import { pickRandomHangmanWord } from "../lib/hangmanWords";
+import { AnagramBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 type Tile = AnagramTile;
 
@@ -17,8 +17,8 @@ export default function AnagramGame() {
   const [slots, setSlots] = useState<(Tile | null)[]>(() => new Array(word.length).fill(null));
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.ANAGRAM_BEST, AnagramBestSchema, 0);
-  const [feedback, setFeedback] = useState<'none' | 'correct' | 'wrong'>('none');
-  const [announce, setAnnounce] = useState('');
+  const [feedback, setFeedback] = useState<"none" | "correct" | "wrong">("none");
+  const [announce, setAnnounce] = useState("");
   const submittedRef = useRef(false);
   const feedbackTimeoutRef = useRef<number | undefined>(undefined);
   const { vibrate } = useVibration();
@@ -32,12 +32,12 @@ export default function AnagramGame() {
     setWord(next);
     setTiles(scrambleLetters(next));
     setSlots(new Array(next.length).fill(null));
-    setFeedback('none');
+    setFeedback("none");
     submittedRef.current = false;
   }, []);
 
   const placeTile = (tileId: number) => {
-    if (feedback === 'correct') return;
+    if (feedback === "correct") return;
     setTiles((prev) => {
       const tile = prev.find((t) => t.id === tileId);
       if (!tile || tile.placed) return prev;
@@ -54,7 +54,7 @@ export default function AnagramGame() {
   };
 
   const removeSlot = (slotIdx: number) => {
-    if (feedback === 'correct') return;
+    if (feedback === "correct") return;
     setSlots((prev) => {
       const tile = prev[slotIdx];
       if (!tile) return prev;
@@ -69,13 +69,13 @@ export default function AnagramGame() {
   const clear = () => {
     setTiles((prev) => prev.map((t) => ({ ...t, placed: false })));
     setSlots(new Array(word.length).fill(null));
-    setFeedback('none');
+    setFeedback("none");
   };
 
   const submit = useCallback(() => {
     if (slots.some((s) => s === null)) return;
     if (verifyGuess(slots, word)) {
-      setFeedback('correct');
+      setFeedback("correct");
       setAnnounce(`Richtig: ${word}`);
       vibrate([40, 30, 60]);
       sfx.match();
@@ -86,19 +86,19 @@ export default function AnagramGame() {
         return next;
       });
     } else {
-      setFeedback('wrong');
-      setAnnounce('Falsch — versuche es nochmal');
+      setFeedback("wrong");
+      setAnnounce("Falsch — versuche es nochmal");
       vibrate([80, 60, 80]);
       sfx.error();
       setStreak(0);
       window.clearTimeout(feedbackTimeoutRef.current);
-      feedbackTimeoutRef.current = window.setTimeout(() => setFeedback('none'), 1000);
+      feedbackTimeoutRef.current = window.setTimeout(() => setFeedback("none"), 1000);
     }
   }, [slots, word, best, setBest, vibrate, sfx]);
 
   useEffect(() => {
     const remaining = slots.some((s) => s === null);
-    if (!remaining && feedback === 'none' && !submittedRef.current) submit();
+    if (!remaining && feedback === "none" && !submittedRef.current) submit();
   }, [slots, feedback, submit]);
 
   return (
@@ -119,11 +119,11 @@ export default function AnagramGame() {
 
       <div
         className={`flex flex-wrap items-center justify-center gap-2 rounded-2xl border-2 p-3 transition-colors ${
-          feedback === 'correct'
-            ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30'
-            : feedback === 'wrong'
-              ? 'border-red-500 bg-red-50 dark:bg-red-900/30'
-              : 'border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900'
+          feedback === "correct"
+            ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30"
+            : feedback === "wrong"
+              ? "border-red-500 bg-red-50 dark:bg-red-900/30"
+              : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900"
         }`}
         role="group"
         aria-label="Lösung"
@@ -134,7 +134,7 @@ export default function AnagramGame() {
               key={i}
               type="button"
               onClick={() => removeSlot(i)}
-              disabled={feedback === 'correct'}
+              disabled={feedback === "correct"}
               aria-label={`Lösungsbuchstabe ${s.letter}`}
               className="h-12 w-9 rounded-lg bg-brand-600 text-xl font-bold uppercase text-white"
             >
@@ -161,12 +161,12 @@ export default function AnagramGame() {
             key={t.id}
             type="button"
             onClick={() => placeTile(t.id)}
-            disabled={t.placed || feedback === 'correct'}
+            disabled={t.placed || feedback === "correct"}
             aria-label={t.letter}
             className={`h-12 w-9 rounded-lg border text-xl font-bold uppercase ${
               t.placed
-                ? 'invisible'
-                : 'border-slate-300 bg-white text-slate-800 hover:bg-brand-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800'
+                ? "invisible"
+                : "border-slate-300 bg-white text-slate-800 hover:bg-brand-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
             }`}
           >
             {t.letter}
@@ -178,13 +178,13 @@ export default function AnagramGame() {
         <button
           type="button"
           onClick={clear}
-          disabled={feedback === 'correct'}
+          disabled={feedback === "correct"}
           className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
         >
           Leeren
         </button>
         <Button variant="primary" className="flex-1" onClick={newRound}>
-          {feedback === 'correct' ? 'Nächstes Wort' : 'Überspringen'}
+          {feedback === "correct" ? "Nächstes Wort" : "Überspringen"}
         </Button>
       </div>
     </div>

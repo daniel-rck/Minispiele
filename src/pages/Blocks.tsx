@@ -1,5 +1,5 @@
-import BlocksGame from '../components/BlocksGame';
-import GameLayout from '../components/GameLayout';
+import BlocksGame from "../components/BlocksGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Blocks() {
   return (

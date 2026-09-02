@@ -1,7 +1,7 @@
-import { Download, Share } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import { Button } from './primitives.tsx';
-import { useInstallPrompt } from './useInstallPrompt.ts';
+import { Download, Share } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Button } from "./primitives.tsx";
+import { useInstallPrompt } from "./useInstallPrompt.ts";
 
 export function InstallButton() {
   const { canInstall, isIOS, isStandalone, promptInstall } = useInstallPrompt();
@@ -13,8 +13,8 @@ export function InstallButton() {
     const onClick = (event: MouseEvent) => {
       if (event.target === dialog) dialog.close();
     };
-    dialog.addEventListener('click', onClick);
-    return () => dialog.removeEventListener('click', onClick);
+    dialog.addEventListener("click", onClick);
+    return () => dialog.removeEventListener("click", onClick);
   }, []);
 
   if (isStandalone) return null;
@@ -23,11 +23,11 @@ export function InstallButton() {
   const handleClick = async () => {
     if (isIOS) {
       const dialog = dialogRef.current;
-      if (dialog && typeof dialog.showModal === 'function') {
+      if (dialog && typeof dialog.showModal === "function") {
         dialog.showModal();
       } else if (dialog) {
         // Fallback for browsers without <dialog>.showModal — show as a regular element
-        dialog.setAttribute('open', '');
+        dialog.setAttribute("open", "");
       }
       return;
     }
@@ -55,7 +55,7 @@ export function InstallButton() {
             </p>
             <ol className="text-sm space-y-2 list-decimal pl-5 text-fg">
               <li>
-                Tippe in Safari unten auf das Teilen-Symbol{' '}
+                Tippe in Safari unten auf das Teilen-Symbol{" "}
                 <Share className="inline h-4 w-4 align-text-bottom" aria-hidden="true" />.
               </li>
               <li>Wähle „Zum Home-Bildschirm".</li>

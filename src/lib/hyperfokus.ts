@@ -1,8 +1,8 @@
-import type { HyperfokusSave, HyperfokusTheme, HyperfokusUpgrades } from './persistedSchemas';
+import type { HyperfokusSave, HyperfokusTheme, HyperfokusUpgrades } from "./persistedSchemas";
 
 export type UpgradeId = keyof HyperfokusUpgrades;
-export type EventKind = 'goldrausch' | 'frenzy' | 'boss' | 'zeitlupe';
-export type CoinKind = 'normal' | 'bonus' | 'mega';
+export type EventKind = "goldrausch" | "frenzy" | "boss" | "zeitlupe";
+export type CoinKind = "normal" | "bonus" | "mega";
 
 export interface UpgradeDef {
   id: UpgradeId;
@@ -15,48 +15,48 @@ export interface UpgradeDef {
 
 export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
   tapPower: {
-    id: 'tapPower',
-    name: 'Tipp-Kraft',
+    id: "tapPower",
+    name: "Tipp-Kraft",
     describe: (lvl) => `+${tapPowerValue(lvl) - 1} pro Tipp`,
     maxLevel: 14,
     baseCost: 25,
     costGrowth: 1.7,
   },
   autoTapper: {
-    id: 'autoTapper',
-    name: 'Auto-Tapper',
+    id: "autoTapper",
+    name: "Auto-Tapper",
     describe: (lvl) => `${autoTapperRate(lvl).toFixed(1)} Tipps/s passiv`,
     maxLevel: 10,
     baseCost: 100,
     costGrowth: 2.0,
   },
   critChance: {
-    id: 'critChance',
-    name: 'Crit-Chance',
+    id: "critChance",
+    name: "Crit-Chance",
     describe: (lvl) => `${Math.round(critChance(lvl) * 100)}% pro Tipp`,
     maxLevel: 20,
     baseCost: 60,
     costGrowth: 1.55,
   },
   critMulti: {
-    id: 'critMulti',
-    name: 'Crit-Multi',
+    id: "critMulti",
+    name: "Crit-Multi",
     describe: (lvl) => `×${critMultiplier(lvl)} bei Crit`,
     maxLevel: 10,
     baseCost: 200,
     costGrowth: 1.85,
   },
   comboDecay: {
-    id: 'comboDecay',
-    name: 'Combo-Atem',
+    id: "comboDecay",
+    name: "Combo-Atem",
     describe: (lvl) => `Combo-Decay ${comboDecaySec(lvl).toFixed(2)}s`,
     maxLevel: 6,
     baseCost: 400,
     costGrowth: 2.2,
   },
   eventRate: {
-    id: 'eventRate',
-    name: 'Ereignis-Drang',
+    id: "eventRate",
+    name: "Ereignis-Drang",
     describe: (lvl) => `×${eventRateMultiplier(lvl).toFixed(2)} Ereignis-Frequenz`,
     maxLevel: 4,
     baseCost: 1500,
@@ -65,12 +65,12 @@ export const UPGRADES: Record<UpgradeId, UpgradeDef> = {
 };
 
 export const UPGRADE_ORDER: readonly UpgradeId[] = [
-  'tapPower',
-  'autoTapper',
-  'critChance',
-  'critMulti',
-  'comboDecay',
-  'eventRate',
+  "tapPower",
+  "autoTapper",
+  "critChance",
+  "critMulti",
+  "comboDecay",
+  "eventRate",
 ];
 
 export const DEFAULT_SAVE: HyperfokusSave = {
@@ -89,7 +89,7 @@ export const DEFAULT_SAVE: HyperfokusSave = {
     eventRate: 0,
   },
   unlockedAchievements: [],
-  currentTheme: 'default',
+  currentTheme: "default",
   lastSavedAt: 0,
 };
 
@@ -199,14 +199,14 @@ export function rollTapReward(ctx: TapContext): TapReward {
   const cmult = comboMultiplier(ctx.combo);
   const pmult = prestigeBonus(ctx.save.prestigeCrystals);
 
-  let coinKind: CoinKind = 'normal';
+  let coinKind: CoinKind = "normal";
   let coinMulti = 1;
   const coinRoll = rng();
   if (coinRoll < 0.005) {
-    coinKind = 'mega';
+    coinKind = "mega";
     coinMulti = 50;
   } else if (coinRoll < 0.08) {
-    coinKind = 'bonus';
+    coinKind = "bonus";
     coinMulti = 5;
   }
 
@@ -229,39 +229,39 @@ export interface EventDef {
 
 export const EVENTS: Record<EventKind, EventDef> = {
   goldrausch: {
-    kind: 'goldrausch',
-    name: 'GOLDRAUSCH',
+    kind: "goldrausch",
+    name: "GOLDRAUSCH",
     durationMs: 10_000,
     rewardMultiplier: 3,
   },
   frenzy: {
-    kind: 'frenzy',
-    name: 'FRENZY',
+    kind: "frenzy",
+    name: "FRENZY",
     durationMs: 5_000,
     rewardMultiplier: 1,
     autoTapsPerSec: 8,
   },
   boss: {
-    kind: 'boss',
-    name: 'BOSS-KERN',
+    kind: "boss",
+    name: "BOSS-KERN",
     durationMs: 6_000,
     rewardMultiplier: 1,
     bossTaps: 25,
   },
   zeitlupe: {
-    kind: 'zeitlupe',
-    name: 'ZEITLUPE',
+    kind: "zeitlupe",
+    name: "ZEITLUPE",
     durationMs: 6_000,
     rewardMultiplier: 1,
     comboDecayFactor: 0.2,
   },
 };
 
-const EVENT_POOL: readonly EventKind[] = ['goldrausch', 'frenzy', 'boss', 'zeitlupe'];
+const EVENT_POOL: readonly EventKind[] = ["goldrausch", "frenzy", "boss", "zeitlupe"];
 
 export function pickRandomEvent(rng: () => number = Math.random): EventKind {
   const i = Math.floor(rng() * EVENT_POOL.length);
-  return EVENT_POOL[Math.min(EVENT_POOL.length - 1, Math.max(0, i))] ?? 'goldrausch';
+  return EVENT_POOL[Math.min(EVENT_POOL.length - 1, Math.max(0, i))] ?? "goldrausch";
 }
 
 export function nextEventDelayMs(upgradeLevel: number, rng: () => number = Math.random): number {
@@ -288,87 +288,87 @@ export interface AchievementState {
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   {
-    id: 'firstTap',
-    name: 'Erster Funke',
-    description: 'Tippe den Kern zum ersten Mal',
+    id: "firstTap",
+    name: "Erster Funke",
+    description: "Tippe den Kern zum ersten Mal",
     satisfied: (s) => s.totalTaps >= 1,
   },
   {
-    id: 'coins100',
-    name: 'Hundert',
-    description: 'Sammle 100 Coins',
+    id: "coins100",
+    name: "Hundert",
+    description: "Sammle 100 Coins",
     satisfied: (s) => s.coins >= 100 || s.totalTaps >= 100,
   },
   {
-    id: 'coins1k',
-    name: 'Tausender',
-    description: 'Sammle 1.000 Coins',
+    id: "coins1k",
+    name: "Tausender",
+    description: "Sammle 1.000 Coins",
     satisfied: (s) => s.coins >= 1_000,
   },
   {
-    id: 'coins10k',
-    name: 'Zehntausender',
-    description: 'Sammle 10.000 Coins',
+    id: "coins10k",
+    name: "Zehntausender",
+    description: "Sammle 10.000 Coins",
     satisfied: (s) => s.coins >= 10_000,
   },
   {
-    id: 'coins100k',
-    name: 'Hunderttausender',
-    description: 'Sammle 100.000 Coins',
+    id: "coins100k",
+    name: "Hunderttausender",
+    description: "Sammle 100.000 Coins",
     satisfied: (s) => s.coins >= 100_000,
   },
   {
-    id: 'coins1M',
-    name: 'Millionär',
-    description: 'Sammle 1.000.000 Coins',
+    id: "coins1M",
+    name: "Millionär",
+    description: "Sammle 1.000.000 Coins",
     satisfied: (s) => s.coins >= 1_000_000,
   },
   {
-    id: 'combo20',
-    name: 'Im Flow',
-    description: 'Erreiche Combo 20',
+    id: "combo20",
+    name: "Im Flow",
+    description: "Erreiche Combo 20",
     satisfied: (s) => s.combo >= 20,
   },
   {
-    id: 'combo50',
-    name: 'Hyperfokus',
-    description: 'Erreiche Combo 50',
+    id: "combo50",
+    name: "Hyperfokus",
+    description: "Erreiche Combo 50",
     satisfied: (s) => s.combo >= 50,
   },
   {
-    id: 'combo100',
-    name: 'Tunnelblick',
-    description: 'Erreiche Combo 100',
+    id: "combo100",
+    name: "Tunnelblick",
+    description: "Erreiche Combo 100",
     satisfied: (s) => s.combo >= 100,
   },
   {
-    id: 'critStreak3',
-    name: 'Glückssträhne',
-    description: '3 Crits in Folge',
+    id: "critStreak3",
+    name: "Glückssträhne",
+    description: "3 Crits in Folge",
     satisfied: (s) => s.critsInRow >= 3,
   },
   {
-    id: 'critStreak5',
-    name: 'Dopamin-Sturm',
-    description: '5 Crits in Folge',
+    id: "critStreak5",
+    name: "Dopamin-Sturm",
+    description: "5 Crits in Folge",
     satisfied: (s) => s.critsInRow >= 5,
   },
   {
-    id: 'taps500',
-    name: 'Fingerübung',
-    description: '500 Tipps insgesamt',
+    id: "taps500",
+    name: "Fingerübung",
+    description: "500 Tipps insgesamt",
     satisfied: (s) => s.totalTaps >= 500,
   },
   {
-    id: 'taps5k',
-    name: 'Trommelfeuer',
-    description: '5.000 Tipps insgesamt',
+    id: "taps5k",
+    name: "Trommelfeuer",
+    description: "5.000 Tipps insgesamt",
     satisfied: (s) => s.totalTaps >= 5_000,
   },
   {
-    id: 'firstPrestige',
-    name: 'Neugeboren',
-    description: 'Erstes Prestige',
+    id: "firstPrestige",
+    name: "Neugeboren",
+    description: "Erstes Prestige",
     satisfied: (s) => s.crystals >= 1,
   },
 ];
@@ -401,48 +401,48 @@ export interface ThemeDef {
 
 export const THEMES: Record<HyperfokusTheme, ThemeDef> = {
   default: {
-    id: 'default',
-    name: 'Standard',
+    id: "default",
+    name: "Standard",
     crystalsToUnlock: 0,
-    from: 'oklch(0.18 0.04 220)',
-    to: 'oklch(0.06 0.025 220)',
-    coreFrom: 'oklch(0.78 0.18 195)',
-    coreTo: 'oklch(0.5 0.18 195)',
-    particles: ['#22d3ee', '#7dd3fc', '#fbbf24', '#f472b6'],
+    from: "oklch(0.18 0.04 220)",
+    to: "oklch(0.06 0.025 220)",
+    coreFrom: "oklch(0.78 0.18 195)",
+    coreTo: "oklch(0.5 0.18 195)",
+    particles: ["#22d3ee", "#7dd3fc", "#fbbf24", "#f472b6"],
   },
   neon: {
-    id: 'neon',
-    name: 'Neon',
+    id: "neon",
+    name: "Neon",
     crystalsToUnlock: 1,
-    from: 'oklch(0.16 0.08 320)',
-    to: 'oklch(0.05 0.05 280)',
-    coreFrom: 'oklch(0.78 0.22 320)',
-    coreTo: 'oklch(0.5 0.22 280)',
-    particles: ['#f0abfc', '#22d3ee', '#fde047', '#fb7185'],
+    from: "oklch(0.16 0.08 320)",
+    to: "oklch(0.05 0.05 280)",
+    coreFrom: "oklch(0.78 0.22 320)",
+    coreTo: "oklch(0.5 0.22 280)",
+    particles: ["#f0abfc", "#22d3ee", "#fde047", "#fb7185"],
   },
   kosmos: {
-    id: 'kosmos',
-    name: 'Kosmos',
+    id: "kosmos",
+    name: "Kosmos",
     crystalsToUnlock: 5,
-    from: 'oklch(0.14 0.06 270)',
-    to: 'oklch(0.04 0.03 250)',
-    coreFrom: 'oklch(0.7 0.2 260)',
-    coreTo: 'oklch(0.42 0.18 280)',
-    particles: ['#a78bfa', '#22d3ee', '#fef3c7', '#fb923c'],
+    from: "oklch(0.14 0.06 270)",
+    to: "oklch(0.04 0.03 250)",
+    coreFrom: "oklch(0.7 0.2 260)",
+    coreTo: "oklch(0.42 0.18 280)",
+    particles: ["#a78bfa", "#22d3ee", "#fef3c7", "#fb923c"],
   },
   aurora: {
-    id: 'aurora',
-    name: 'Aurora',
+    id: "aurora",
+    name: "Aurora",
     crystalsToUnlock: 15,
-    from: 'oklch(0.18 0.07 165)',
-    to: 'oklch(0.05 0.05 250)',
-    coreFrom: 'oklch(0.82 0.2 165)',
-    coreTo: 'oklch(0.4 0.18 260)',
-    particles: ['#5eead4', '#a7f3d0', '#f0abfc', '#fef08a'],
+    from: "oklch(0.18 0.07 165)",
+    to: "oklch(0.05 0.05 250)",
+    coreFrom: "oklch(0.82 0.2 165)",
+    coreTo: "oklch(0.4 0.18 260)",
+    particles: ["#5eead4", "#a7f3d0", "#f0abfc", "#fef08a"],
   },
 };
 
-export const THEME_ORDER: readonly HyperfokusTheme[] = ['default', 'neon', 'kosmos', 'aurora'];
+export const THEME_ORDER: readonly HyperfokusTheme[] = ["default", "neon", "kosmos", "aurora"];
 
 export function isThemeUnlocked(theme: HyperfokusTheme, crystals: number): boolean {
   return crystals >= THEMES[theme].crystalsToUnlock;
@@ -479,18 +479,18 @@ export function computeOfflineIncome(save: HyperfokusSave, nowMs: number): numbe
 }
 
 export function formatNumber(n: number): string {
-  if (!isFinite(n)) return '∞';
+  if (!isFinite(n)) return "∞";
   const abs = Math.abs(n);
   if (abs < 1_000) return Math.floor(n).toString();
-  if (abs < 1_000_000) return (n / 1_000).toFixed(n < 10_000 ? 2 : 1) + 'k';
-  if (abs < 1_000_000_000) return (n / 1_000_000).toFixed(2) + 'M';
-  if (abs < 1_000_000_000_000) return (n / 1_000_000_000).toFixed(2) + 'B';
-  return (n / 1_000_000_000_000).toFixed(2) + 'T';
+  if (abs < 1_000_000) return (n / 1_000).toFixed(n < 10_000 ? 2 : 1) + "k";
+  if (abs < 1_000_000_000) return (n / 1_000_000).toFixed(2) + "M";
+  if (abs < 1_000_000_000_000) return (n / 1_000_000_000).toFixed(2) + "B";
+  return (n / 1_000_000_000_000).toFixed(2) + "T";
 }
 
 export function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
     return false;
   }
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }

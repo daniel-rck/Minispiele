@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   CODE_LENGTH,
   createInitialState,
@@ -9,23 +9,23 @@ import {
   placePeg,
   removePeg,
   submit,
-} from '../lib/mastermind';
-import { MastermindBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/mastermind";
+import { MastermindBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const COLOR_CLASSES = [
-  'bg-red-500',
-  'bg-amber-400',
-  'bg-emerald-500',
-  'bg-sky-500',
-  'bg-violet-500',
-  'bg-pink-500',
+  "bg-red-500",
+  "bg-amber-400",
+  "bg-emerald-500",
+  "bg-sky-500",
+  "bg-violet-500",
+  "bg-pink-500",
 ];
-const COLOR_NAMES = ['Rot', 'Gelb', 'Grün', 'Blau', 'Violett', 'Pink'];
+const COLOR_NAMES = ["Rot", "Gelb", "Grün", "Blau", "Violett", "Pink"];
 
 export default function MastermindGame() {
   const [state, setState] = useState<MastermindState>(() => createInitialState());
@@ -36,7 +36,7 @@ export default function MastermindGame() {
   );
   const [doneOpen, setDoneOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -44,7 +44,7 @@ export default function MastermindGame() {
   useEffect(() => {
     if (state.done && !finishedRef.current) {
       finishedRef.current = true;
-      if (state.done === 'won') {
+      if (state.done === "won") {
         const count = state.guesses.length;
         if (best === null || count < best) {
           setBest(count);
@@ -57,7 +57,7 @@ export default function MastermindGame() {
         sfx.win();
       } else {
         setScoreIsNew(false);
-        setAnnounce('Verloren');
+        setAnnounce("Verloren");
         vibrate([80, 60, 80]);
         sfx.lose();
       }
@@ -126,7 +126,7 @@ export default function MastermindGame() {
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
         <div>
-          Versuch:{' '}
+          Versuch:{" "}
           <span className="font-semibold tabular-nums">
             {state.guesses.length + (state.done ? 0 : 1)} / {MAX_GUESSES}
           </span>
@@ -154,10 +154,10 @@ export default function MastermindGame() {
                 <div
                   key={j}
                   role="img"
-                  aria-label={p === null ? 'leer' : COLOR_NAMES[p]}
+                  aria-label={p === null ? "leer" : COLOR_NAMES[p]}
                   className={`h-7 w-7 rounded-full border ${
                     p === null
-                      ? 'border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-800'
+                      ? "border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
                       : `border-slate-300 dark:border-slate-700 ${COLOR_CLASSES[p]}`
                   }`}
                 />
@@ -168,9 +168,9 @@ export default function MastermindGame() {
                 ? Array.from({ length: CODE_LENGTH }, (_, k) => {
                     const black = row.fb!.black;
                     const white = row.fb!.white;
-                    let cls = 'bg-slate-200 dark:bg-slate-700';
-                    if (k < black) cls = 'bg-slate-900 dark:bg-slate-100';
-                    else if (k < black + white) cls = 'bg-white border border-slate-400';
+                    let cls = "bg-slate-200 dark:bg-slate-700";
+                    if (k < black) cls = "bg-slate-900 dark:bg-slate-100";
+                    else if (k < black + white) cls = "bg-white border border-slate-400";
                     return <span key={k} className={`h-3 w-3 rounded-full ${cls}`} />;
                   })
                 : Array.from({ length: CODE_LENGTH }, (_, k) => (
@@ -222,11 +222,11 @@ export default function MastermindGame() {
       <Sheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
-        title={state.done === 'won' ? 'Geknackt!' : 'Verloren'}
+        title={state.done === "won" ? "Geknackt!" : "Verloren"}
       >
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
-            {state.done === 'won' ? '🔓' : '🙈'}
+            {state.done === "won" ? "🔓" : "🙈"}
           </div>
           {scoreIsNew && (
             <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
@@ -234,7 +234,7 @@ export default function MastermindGame() {
             </div>
           )}
           <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">
-            {state.done === 'won' ? (
+            {state.done === "won" ? (
               <>In {state.guesses.length} Versuchen geknackt.</>
             ) : (
               <>Code war:</>

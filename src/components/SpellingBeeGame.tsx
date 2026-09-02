@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SpellingBeeBestSchema } from '../lib/persistedSchemas';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { SpellingBeeBestSchema } from "../lib/persistedSchemas";
 import {
   generatePuzzle,
   SPELLING_BEE_MIN_WORD_LENGTH,
   type SpellingBeePuzzle,
   submitWord,
-} from '../lib/spellingBee';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+} from "../lib/spellingBee";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
-const HEX_CLIP = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
+const HEX_CLIP = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
 
 interface PuzzleProgress {
   found: Set<string>;
@@ -25,9 +25,9 @@ const EMPTY: PuzzleProgress = { found: new Set(), score: 0 };
 export default function SpellingBeeGame() {
   const [puzzle, setPuzzle] = useState<SpellingBeePuzzle>(() => generatePuzzle());
   const [progress, setProgress] = useState<PuzzleProgress>(() => ({ ...EMPTY, found: new Set() }));
-  const [input, setInput] = useState('');
-  const [message, setMessage] = useState('');
-  const [announce, setAnnounce] = useState('');
+  const [input, setInput] = useState("");
+  const [message, setMessage] = useState("");
+  const [announce, setAnnounce] = useState("");
   const [best, setBest] = useLocalStorage<number>(
     STORAGE_KEYS.SPELLING_BEE_BEST,
     SpellingBeeBestSchema,
@@ -45,7 +45,7 @@ export default function SpellingBeeGame() {
   const percent = totalWords > 0 ? Math.round((foundCount / totalWords) * 100) : 0;
 
   const sortedFound = useMemo(
-    () => Array.from(progress.found).sort((a, b) => a.localeCompare(b, 'de')),
+    () => Array.from(progress.found).sort((a, b) => a.localeCompare(b, "de")),
     [progress.found],
   );
 
@@ -53,8 +53,8 @@ export default function SpellingBeeGame() {
     const next = generatePuzzle();
     setPuzzle(next);
     setProgress({ found: new Set(), score: 0 });
-    setInput('');
-    setAnnounce('Neues Rätsel gestartet.');
+    setInput("");
+    setAnnounce("Neues Rätsel gestartet.");
   }, []);
 
   const appendLetter = (letter: string) => {
@@ -67,32 +67,32 @@ export default function SpellingBeeGame() {
 
   const submit = () => {
     const result = submitWord(input, puzzle, progress.found);
-    setInput('');
+    setInput("");
     switch (result.kind) {
-      case 'too-short':
+      case "too-short":
         setMessage(`Mindestens ${SPELLING_BEE_MIN_WORD_LENGTH} Buchstaben.`);
         vibrate(40);
         sfx.error();
         return;
-      case 'missing-center':
+      case "missing-center":
         setMessage(`Muss „${puzzle.center}" enthalten.`);
         vibrate(40);
         sfx.error();
         return;
-      case 'invalid-letters':
-        setMessage('Nur die angezeigten Buchstaben.');
+      case "invalid-letters":
+        setMessage("Nur die angezeigten Buchstaben.");
         vibrate(40);
         sfx.error();
         return;
-      case 'already-found':
-        setMessage('Bereits gefunden.');
+      case "already-found":
+        setMessage("Bereits gefunden.");
         return;
-      case 'unknown':
-        setMessage('Nicht in der Wortliste.');
+      case "unknown":
+        setMessage("Nicht in der Wortliste.");
         vibrate(40);
         sfx.error();
         return;
-      case 'accepted': {
+      case "accepted": {
         setProgress((prev) => {
           const found = new Set(prev.found);
           found.add(result.word);
@@ -114,7 +114,7 @@ export default function SpellingBeeGame() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
       submit();
     }
@@ -132,13 +132,13 @@ export default function SpellingBeeGame() {
       </p>
 
       <div className="flex flex-col items-center gap-1" aria-label="Buchstaben-Wabe" role="group">
-        <HexRow letters={[puzzle.outer[0] ?? '', puzzle.outer[1] ?? '']} onPick={appendLetter} />
+        <HexRow letters={[puzzle.outer[0] ?? "", puzzle.outer[1] ?? ""]} onPick={appendLetter} />
         <HexRow
-          letters={[puzzle.outer[2] ?? '', puzzle.center, puzzle.outer[3] ?? '']}
+          letters={[puzzle.outer[2] ?? "", puzzle.center, puzzle.outer[3] ?? ""]}
           centerIndex={1}
           onPick={appendLetter}
         />
-        <HexRow letters={[puzzle.outer[4] ?? '', puzzle.outer[5] ?? '']} onPick={appendLetter} />
+        <HexRow letters={[puzzle.outer[4] ?? "", puzzle.outer[5] ?? ""]} onPick={appendLetter} />
       </div>
 
       <div className="flex w-full max-w-md flex-wrap items-center justify-center gap-2">
@@ -181,7 +181,7 @@ export default function SpellingBeeGame() {
             Punkte: <span className="font-semibold tabular-nums">{progress.score}</span>
           </span>
           <span>
-            Gefunden:{' '}
+            Gefunden:{" "}
             <span className="font-semibold tabular-nums">
               {foundCount}/{totalWords}
             </span>
@@ -238,11 +238,11 @@ function HexRow({ letters, centerIndex, onPick }: HexRowProps) {
             key={`${i}-${l}`}
             type="button"
             onClick={() => onPick(l)}
-            aria-label={`Buchstabe ${l}${isCenter ? ' (Mitte)' : ''}`}
+            aria-label={`Buchstabe ${l}${isCenter ? " (Mitte)" : ""}`}
             className={`flex h-14 w-14 items-center justify-center text-xl font-extrabold transition-transform active:scale-95 ${
               isCenter
-                ? 'bg-amber-400 text-slate-900 dark:bg-amber-400 dark:text-slate-900'
-                : 'bg-slate-200 text-slate-800 hover:bg-amber-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600'
+                ? "bg-amber-400 text-slate-900 dark:bg-amber-400 dark:text-slate-900"
+                : "bg-slate-200 text-slate-800 hover:bg-amber-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
             }`}
             style={{ clipPath: HEX_CLIP }}
           >

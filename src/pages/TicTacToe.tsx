@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import TicTacToeGame from '../components/TicTacToeGame';
+import GameLayout from "../components/GameLayout";
+import TicTacToeGame from "../components/TicTacToeGame";
 
 export default function TicTacToe() {
   return (

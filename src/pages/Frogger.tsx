@@ -1,5 +1,5 @@
-import FroggerGame from '../components/FroggerGame';
-import GameLayout from '../components/GameLayout';
+import FroggerGame from "../components/FroggerGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Frogger() {
   return (

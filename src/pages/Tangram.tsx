@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import TangramGame from '../components/TangramGame';
+import GameLayout from "../components/GameLayout";
+import TangramGame from "../components/TangramGame";
 
 export default function Tangram() {
   return (

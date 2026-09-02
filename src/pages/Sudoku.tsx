@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SudokuGame from '../components/SudokuGame';
+import GameLayout from "../components/GameLayout";
+import SudokuGame from "../components/SudokuGame";
 
 export default function Sudoku() {
   return (

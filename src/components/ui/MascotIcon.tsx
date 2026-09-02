@@ -1,24 +1,24 @@
-import type { SVGAttributes } from 'react';
+import type { SVGAttributes } from "react";
 
-type Mood = 'happy' | 'thinking' | 'cheer';
+type Mood = "happy" | "thinking" | "cheer";
 
-interface MascotIconProps extends Omit<SVGAttributes<SVGSVGElement>, 'children'> {
+interface MascotIconProps extends Omit<SVGAttributes<SVGSVGElement>, "children"> {
   mood?: Mood;
   size?: number;
 }
 
 export default function MascotIcon({
-  mood = 'happy',
+  mood = "happy",
   size = 64,
-  className = '',
+  className = "",
   ...rest
 }: MascotIconProps) {
   const mouth =
-    mood === 'thinking'
-      ? 'M22 46 Q32 46 42 46'
-      : mood === 'cheer'
-        ? 'M22 42 Q32 56 42 42'
-        : 'M22 42 Q32 50 42 42';
+    mood === "thinking"
+      ? "M22 46 Q32 46 42 46"
+      : mood === "cheer"
+        ? "M22 42 Q32 56 42 42"
+        : "M22 42 Q32 50 42 42";
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

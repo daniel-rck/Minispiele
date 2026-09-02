@@ -1,7 +1,7 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { isBetter } from '../lib/highscores';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { ANIMATION, STORAGE_KEYS } from "../lib/constants";
+import { isBetter } from "../lib/highscores";
 import {
   createInitialState,
   flipCard,
@@ -9,33 +9,33 @@ import {
   type MemoryDifficulty,
   type MemoryState,
   resolvePicks,
-} from '../lib/memory';
+} from "../lib/memory";
 import {
   EMPTY_MEMORY_HIGHSCORES,
   type HighscoreEntry,
   MemoryDifficultySchema,
   MemoryHighscoresSchema,
-} from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import Button from './ui/Button';
-import DifficultySelector from './ui/DifficultySelector';
-import GameFooter from './ui/GameFooter';
-import GameOverSheet from './ui/GameOverSheet';
-import GameStats from './ui/GameStats';
+} from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration, useGameTimer } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import Button from "./ui/Button";
+import DifficultySelector from "./ui/DifficultySelector";
+import GameFooter from "./ui/GameFooter";
+import GameOverSheet from "./ui/GameOverSheet";
+import GameStats from "./ui/GameStats";
 
 const difficultyLabels: Record<MemoryDifficulty, string> = {
-  easy: 'Leicht (6 Paare)',
-  medium: 'Mittel (8 Paare)',
-  hard: 'Schwer (18 Paare)',
+  easy: "Leicht (6 Paare)",
+  medium: "Mittel (8 Paare)",
+  hard: "Schwer (18 Paare)",
 };
 
 export default function MemoryGame() {
   const [difficulty, setDifficulty] = useLocalStorage<MemoryDifficulty>(
     STORAGE_KEYS.MEMORY_DIFFICULTY,
     MemoryDifficultySchema,
-    'medium',
+    "medium",
   );
   const [highscores, setHighscores] = useLocalStorage(
     STORAGE_KEYS.MEMORY_HIGHSCORES,
@@ -47,7 +47,7 @@ export default function MemoryGame() {
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
   const timer = useGameTimer();
-  useWakeLock(timer.status === 'running');
+  useWakeLock(timer.status === "running");
   const peekTimeoutRef = useRef<number | null>(null);
   const prevWonRef = useRef(false);
   const prevMatchedRef = useRef(0);
@@ -132,14 +132,14 @@ export default function MemoryGame() {
 
       <GameStats
         items={[
-          { label: 'Züge', value: state.moves },
+          { label: "Züge", value: state.moves },
           {
-            label: 'Zeit',
+            label: "Zeit",
             value: formatDuration(timer.elapsedSeconds),
-            valueAriaLabel: 'Spielzeit',
+            valueAriaLabel: "Spielzeit",
           },
           {
-            label: 'Best',
+            label: "Best",
             value: best ? (
               <>
                 {best.moves}Z · {formatDuration(best.seconds)}
@@ -157,7 +157,7 @@ export default function MemoryGame() {
           style={
             {
               gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-              '--fit-ar': cols / rows,
+              "--fit-ar": cols / rows,
             } as CSSProperties
           }
         >
@@ -168,18 +168,18 @@ export default function MemoryGame() {
                 key={card.id}
                 type="button"
                 onClick={() => handleFlip(i)}
-                aria-label={`Karte ${i + 1}${card.matched ? ', gefunden' : revealed ? `, ${card.symbol}` : ''}`}
+                aria-label={`Karte ${i + 1}${card.matched ? ", gefunden" : revealed ? `, ${card.symbol}` : ""}`}
                 aria-pressed={revealed}
                 disabled={card.matched}
                 className={`relative flex aspect-square items-center justify-center rounded-xl border-2 text-3xl transition select-none sm:text-4xl md:text-5xl ${
                   card.matched
-                    ? 'border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30'
+                    ? "border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30"
                     : revealed
-                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-                      : 'border-slate-300 bg-white hover:border-brand-300 dark:border-slate-700 dark:bg-slate-900'
+                      ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
+                      : "border-slate-300 bg-white hover:border-brand-300 dark:border-slate-700 dark:bg-slate-900"
                 }`}
               >
-                <span aria-hidden className={revealed ? 'opacity-100' : 'opacity-0'}>
+                <span aria-hidden className={revealed ? "opacity-100" : "opacity-0"}>
                   {card.symbol}
                 </span>
                 {!revealed && (
@@ -207,7 +207,7 @@ export default function MemoryGame() {
         isNewRecord={scoreIsNew}
         recordLabel="Neue Bestzeit!"
         message={`Gelöst in ${state.moves} Zügen, Zeit ${formatDuration(timer.elapsedSeconds)}.`}
-        primaryAction={{ label: 'Nochmal spielen', onClick: () => restart() }}
+        primaryAction={{ label: "Nochmal spielen", onClick: () => restart() }}
       />
     </div>
   );

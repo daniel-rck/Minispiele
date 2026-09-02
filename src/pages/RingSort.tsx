@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import RingSortGame from '../components/RingSortGame';
+import GameLayout from "../components/GameLayout";
+import RingSortGame from "../components/RingSortGame";
 
 export default function RingSort() {
   return (

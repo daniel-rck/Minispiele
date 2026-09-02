@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { applyHighscore } from '../lib/highscores';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { ANIMATION, STORAGE_KEYS } from "../lib/constants";
+import { applyHighscore } from "../lib/highscores";
 import {
   DifficultySchema,
   EMPTY_HIGHSCORES,
   type HighscoreEntry,
   HighscoresSchema,
   MixSchema,
-} from '../lib/persistedSchemas';
+} from "../lib/persistedSchemas";
 import {
   createInitialState,
   type Difficulty,
@@ -19,21 +19,21 @@ import {
   solve,
   tryMove,
   undoMove,
-} from '../lib/ringSort';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import Peg from './Peg';
-import Button from './ui/Button';
-import DifficultySelector from './ui/DifficultySelector';
-import GameFooter from './ui/GameFooter';
-import GameStats from './ui/GameStats';
-import Sheet from './ui/Sheet';
+} from "../lib/ringSort";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration, useGameTimer } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import Peg from "./Peg";
+import Button from "./ui/Button";
+import DifficultySelector from "./ui/DifficultySelector";
+import GameFooter from "./ui/GameFooter";
+import GameStats from "./ui/GameStats";
+import Sheet from "./ui/Sheet";
 
 const difficultyLabels: Record<Difficulty, string> = {
-  easy: 'Leicht',
-  medium: 'Mittel',
-  hard: 'Schwer',
+  easy: "Leicht",
+  medium: "Mittel",
+  hard: "Schwer",
 };
 
 interface HintHighlight {
@@ -45,7 +45,7 @@ export default function RingSortGame() {
   const [difficulty, setDifficulty] = useLocalStorage<Difficulty>(
     STORAGE_KEYS.RING_DIFFICULTY,
     DifficultySchema,
-    'medium',
+    "medium",
   );
   const [allowColorMix, setAllowColorMix] = useLocalStorage<boolean>(
     STORAGE_KEYS.RING_MIX,
@@ -69,7 +69,7 @@ export default function RingSortGame() {
   const [scoreIsNew, setScoreIsNew] = useState(false);
 
   const timer = useGameTimer();
-  useWakeLock(timer.status === 'running');
+  useWakeLock(timer.status === "running");
   const prevMovesRef = useRef(state.moves);
   const prevWonRef = useRef(state.won);
   const hintTimeoutRef = useRef<number | null>(null);
@@ -201,14 +201,14 @@ export default function RingSortGame() {
 
       <GameStats
         items={[
-          { label: 'Züge', value: state.moves },
+          { label: "Züge", value: state.moves },
           {
-            label: 'Zeit',
+            label: "Zeit",
             value: formatDuration(timer.elapsedSeconds),
-            valueAriaLabel: 'Spielzeit',
+            valueAriaLabel: "Spielzeit",
           },
           {
-            label: 'Best',
+            label: "Best",
             value: currentBest ? (
               <>
                 {currentBest.moves}Z · {formatDuration(currentBest.seconds)}
@@ -226,19 +226,19 @@ export default function RingSortGame() {
             const highlighted =
               hint !== null && (i === hint.from || i === hint.to)
                 ? i === hint.from
-                  ? 'hint-from'
-                  : 'hint-to'
+                  ? "hint-from"
+                  : "hint-to"
                 : null;
             return (
               <div
                 key={i}
                 className={
                   highlighted
-                    ? 'ring-2 ring-offset-2 motion-safe:animate-pulse rounded-2xl ' +
-                      (highlighted === 'hint-from'
-                        ? 'ring-amber-400 ring-offset-amber-100 dark:ring-offset-amber-950/30'
-                        : 'ring-emerald-400 ring-offset-emerald-100 dark:ring-offset-emerald-950/30')
-                    : ''
+                    ? "ring-2 ring-offset-2 motion-safe:animate-pulse rounded-2xl " +
+                      (highlighted === "hint-from"
+                        ? "ring-amber-400 ring-offset-amber-100 dark:ring-offset-amber-950/30"
+                        : "ring-emerald-400 ring-offset-emerald-100 dark:ring-offset-emerald-950/30")
+                    : ""
                 }
               >
                 <Peg
@@ -276,7 +276,7 @@ export default function RingSortGame() {
           aria-busy={hintBusy}
           className="min-h-12 flex-1 rounded-xl border border-amber-300 bg-amber-50 px-3 text-sm font-medium text-amber-900 hover:border-amber-500 disabled:opacity-50 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100"
         >
-          {hintBusy ? '…' : '💡 Tipp'}
+          {hintBusy ? "…" : "💡 Tipp"}
         </button>
         <Button variant="primary" className="flex-1" onClick={() => restart()}>
           Neu

@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useGameSfx } from '../lib/useGameSfx';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useGameSfx } from "../lib/useGameSfx";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const BOARD = 10;
 const TARGET_COUNT = 10;
 
 type Cell = 0 | 1 | 2; // 0 empty, 1 player blue, 2 AI red
 
-function corner(side: 'player' | 'ai'): [number, number][] {
+function corner(side: "player" | "ai"): [number, number][] {
   const cells: [number, number][] = [];
   for (let r = 0; r < BOARD; r++) {
     for (let c = 0; c < BOARD; c++) {
-      if (side === 'player') {
+      if (side === "player") {
         if (r >= BOARD - 4 && c >= BOARD - 4 && r + c >= 2 * BOARD - 5) cells.push([r, c]);
       } else if (r < 4 && c < 4 && r + c <= 3) cells.push([r, c]);
     }
@@ -21,8 +21,8 @@ function corner(side: 'player' | 'ai'): [number, number][] {
   return cells.slice(0, TARGET_COUNT);
 }
 
-const PLAYER_HOME = corner('player');
-const AI_HOME = corner('ai');
+const PLAYER_HOME = corner("player");
+const AI_HOME = corner("ai");
 
 function emptyBoard(): Cell[][] {
   return Array.from({ length: BOARD }, () => Array<Cell>(BOARD).fill(0));
@@ -124,9 +124,9 @@ export default function HalmaGame() {
   const [selected, setSelected] = useState<[number, number] | null>(null);
   const [moves, setMoves] = useState<[number, number][]>([]);
   const [playerMoves, setPlayerMoves] = useState(0);
-  const [turn, setTurn] = useState<'player' | 'ai'>('player');
-  const [over, setOver] = useState<'player' | 'ai' | null>(null);
-  const [announcement, setAnnouncement] = useState('Dein Zug. Wähle einen blauen Stein.');
+  const [turn, setTurn] = useState<"player" | "ai">("player");
+  const [over, setOver] = useState<"player" | "ai" | null>(null);
+  const [announcement, setAnnouncement] = useState("Dein Zug. Wähle einen blauen Stein.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -136,14 +136,14 @@ export default function HalmaGame() {
     setSelected(null);
     setMoves([]);
     setPlayerMoves(0);
-    setTurn('player');
+    setTurn("player");
     setOver(null);
-    setAnnouncement('Dein Zug. Wähle einen blauen Stein.');
+    setAnnouncement("Dein Zug. Wähle einen blauen Stein.");
   }, []);
 
   const handleCell = useCallback(
     (r: number, c: number) => {
-      if (over || turn !== 'player') return;
+      if (over || turn !== "player") return;
       if (selected) {
         const isValid = moves.some(([vr, vc]) => vr === r && vc === c);
         if (isValid) {
@@ -162,14 +162,14 @@ export default function HalmaGame() {
           sfx.pop();
           vibrate(15);
           if (hasWon(newBoard, 1)) {
-            setOver('player');
-            setAnnouncement('Du hast gewonnen!');
+            setOver("player");
+            setAnnouncement("Du hast gewonnen!");
             sfx.win();
             vibrate([60, 40, 120]);
             return;
           }
-          setTurn('ai');
-          setAnnouncement('KI denkt nach …');
+          setTurn("ai");
+          setAnnouncement("KI denkt nach …");
           return;
         }
       }
@@ -185,11 +185,11 @@ export default function HalmaGame() {
   );
 
   useEffect(() => {
-    if (turn !== 'ai' || over) return;
+    if (turn !== "ai" || over) return;
     const id = window.setTimeout(() => {
       const move = aiPickMove(board);
       if (!move) {
-        setTurn('player');
+        setTurn("player");
         return;
       }
       const newBoard = board.map((row) => [...row] as Cell[]);
@@ -204,20 +204,20 @@ export default function HalmaGame() {
       setBoard(newBoard);
       sfx.pop();
       if (hasWon(newBoard, 2)) {
-        setOver('ai');
-        setAnnouncement('KI hat gewonnen.');
+        setOver("ai");
+        setAnnouncement("KI hat gewonnen.");
         sfx.lose();
         vibrate([120, 60, 60]);
       } else {
-        setTurn('player');
-        setAnnouncement('Dein Zug.');
+        setTurn("player");
+        setAnnouncement("Dein Zug.");
       }
     }, 500);
     return () => window.clearTimeout(id);
   }, [turn, board, over, sfx, vibrate]);
 
-  const isInHome = (r: number, c: number, side: 'player' | 'ai') =>
-    (side === 'player' ? PLAYER_HOME : AI_HOME).some(([rr, cc]) => rr === r && cc === c);
+  const isInHome = (r: number, c: number, side: "player" | "ai") =>
+    (side === "player" ? PLAYER_HOME : AI_HOME).some(([rr, cc]) => rr === r && cc === c);
 
   return (
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
@@ -228,13 +228,13 @@ export default function HalmaGame() {
           Züge: <span className="font-semibold tabular-nums">{playerMoves}</span>
         </div>
         <div>
-          {over === 'player'
-            ? '🎉 Sieg!'
-            : over === 'ai'
-              ? '💥 Verloren'
-              : turn === 'player'
-                ? 'Du am Zug'
-                : 'KI am Zug'}
+          {over === "player"
+            ? "🎉 Sieg!"
+            : over === "ai"
+              ? "💥 Verloren"
+              : turn === "player"
+                ? "Du am Zug"
+                : "KI am Zug"}
         </div>
       </div>
 
@@ -247,18 +247,18 @@ export default function HalmaGame() {
         >
           {board.flatMap((row, r) =>
             row.map((value, c) => {
-              const inPlayer = isInHome(r, c, 'player');
-              const inAi = isInHome(r, c, 'ai');
+              const inPlayer = isInHome(r, c, "player");
+              const inAi = isInHome(r, c, "ai");
               const isMove = moves.some(([vr, vc]) => vr === r && vc === c);
               const isSelected = selected?.[0] === r && selected?.[1] === c;
-              const bg = inPlayer ? 'bg-rose-900/30' : inAi ? 'bg-sky-900/30' : 'bg-slate-800/60';
+              const bg = inPlayer ? "bg-rose-900/30" : inAi ? "bg-sky-900/30" : "bg-slate-800/60";
               return (
                 <button
                   key={`${r}-${c}`}
                   type="button"
                   onClick={() => handleCell(r, c)}
-                  disabled={!!over || turn !== 'player'}
-                  aria-label={`Feld ${r + 1},${c + 1}${value === 1 ? ' Blau' : value === 2 ? ' Rot' : ''}${isMove ? ' Zielfeld' : ''}`}
+                  disabled={!!over || turn !== "player"}
+                  aria-label={`Feld ${r + 1},${c + 1}${value === 1 ? " Blau" : value === 2 ? " Rot" : ""}${isMove ? " Zielfeld" : ""}`}
                   className={`relative aspect-square ${bg} disabled:cursor-not-allowed`}
                 >
                   {isMove && (
@@ -267,8 +267,8 @@ export default function HalmaGame() {
                   {value !== 0 && (
                     <span
                       aria-hidden
-                      className={`absolute inset-1 rounded-full ${value === 1 ? 'bg-sky-500' : 'bg-rose-500'} ${
-                        isSelected ? 'ring-4 ring-amber-300' : ''
+                      className={`absolute inset-1 rounded-full ${value === 1 ? "bg-sky-500" : "bg-rose-500"} ${
+                        isSelected ? "ring-4 ring-amber-300" : ""
                       }`}
                     />
                   )}

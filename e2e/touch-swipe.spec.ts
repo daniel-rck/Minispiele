@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, test } from "@playwright/test";
 
 /**
  * Regressionsschutz für die Swipe-Spiele (Snake, 2048, Sokoban): ein vertikaler
@@ -7,8 +7,8 @@ import { expect, type Page, test } from '@playwright/test';
  * mobile-chrome-Projekt (Touch), Swipes werden per CDP als echte Touch-Events
  * verschickt — Playwrights touchscreen kann nur tippen.
  */
-test.describe('Touch-Swipe auf Spielfeldern', () => {
-  test.skip(({ isMobile }) => !isMobile, 'Nur für das Touch-Projekt relevant');
+test.describe("Touch-Swipe auf Spielfeldern", () => {
+  test.skip(({ isMobile }) => !isMobile, "Nur für das Touch-Projekt relevant");
 
   async function swipe(
     page: Page,
@@ -16,14 +16,14 @@ test.describe('Touch-Swipe auf Spielfeldern', () => {
     to: { x: number; y: number },
   ): Promise<void> {
     const cdp = await page.context().newCDPSession(page);
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
       touchPoints: [{ x: from.x, y: from.y }],
     });
     const steps = 5;
     for (let i = 1; i <= steps; i++) {
-      await cdp.send('Input.dispatchTouchEvent', {
-        type: 'touchMove',
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
         touchPoints: [
           {
             x: from.x + ((to.x - from.x) * i) / steps,
@@ -32,7 +32,7 @@ test.describe('Touch-Swipe auf Spielfeldern', () => {
         ],
       });
     }
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
     await cdp.detach();
   }
 
@@ -42,18 +42,18 @@ test.describe('Touch-Swipe auf Spielfeldern', () => {
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   }
 
-  test('Snake: Swipe scrollt nicht und lenkt die Schlange', async ({ page }) => {
-    await page.goto('/snake');
-    await page.getByRole('button', { name: 'Starten' }).click();
+  test("Snake: Swipe scrollt nicht und lenkt die Schlange", async ({ page }) => {
+    await page.goto("/snake");
+    await page.getByRole("button", { name: "Starten" }).click();
 
-    const board = page.getByRole('grid', { name: /Snake-Spielfeld/ });
+    const board = page.getByRole("grid", { name: /Snake-Spielfeld/ });
     await expect(board).toBeVisible();
     const center = await boardCenter(page, '[role="grid"]');
 
     const headY = () =>
       page.evaluate(() => {
         const grid = document.querySelector('[role="grid"]');
-        const head = grid?.querySelector('div');
+        const head = grid?.querySelector("div");
         const m = head instanceof HTMLElement ? head.style.transform.match(/,\s*(-?\d+)%/) : null;
         return m ? Number(m[1]) : null;
       });
@@ -69,8 +69,8 @@ test.describe('Touch-Swipe auf Spielfeldern', () => {
   });
 
   for (const { path, board } of [
-    { path: '/twenty-forty-eight', board: '.fit-box' },
-    { path: '/sokoban', board: '[aria-label="Sokoban-Spielfeld"]' },
+    { path: "/twenty-forty-eight", board: ".fit-box" },
+    { path: "/sokoban", board: '[aria-label="Sokoban-Spielfeld"]' },
   ]) {
     test(`${path}: vertikaler Swipe scrollt die Seite nicht`, async ({ page }) => {
       await page.goto(path);

@@ -1,4 +1,4 @@
-import { DIE_FACES, type DieType } from './dice';
+import { DIE_FACES, type DieType } from "./dice";
 
 export interface ParsedNotation {
   count: number;
@@ -10,7 +10,7 @@ const NOTATION_RE = /^(\d+)?d(\d+)([+-]\d+)?$/i;
 const MAX_COUNT = 64;
 
 export function parseNotation(input: string): ParsedNotation | null {
-  const trimmed = input.trim().toLowerCase().replace(/\s+/g, '');
+  const trimmed = input.trim().toLowerCase().replace(/\s+/g, "");
   if (trimmed.length === 0) return null;
   const match = NOTATION_RE.exec(trimmed);
   if (!match) return null;

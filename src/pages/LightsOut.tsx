@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import LightsOutGame from '../components/LightsOutGame';
+import GameLayout from "../components/GameLayout";
+import LightsOutGame from "../components/LightsOutGame";
 
 export default function LightsOut() {
   return (

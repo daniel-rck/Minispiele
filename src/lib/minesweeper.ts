@@ -1,5 +1,5 @@
-export type MineDifficulty = 'easy' | 'medium' | 'hard';
-export type MinesMode = 'rect' | 'hex';
+export type MineDifficulty = "easy" | "medium" | "hard";
+export type MinesMode = "rect" | "hex";
 
 export interface MineCell {
   mine: boolean;
@@ -43,7 +43,7 @@ export const HEX_DIFFICULTY: Readonly<Record<MineDifficulty, DifficultyConfig>> 
 };
 
 export function configFor(mode: MinesMode, difficulty: MineDifficulty): DifficultyConfig {
-  return mode === 'hex' ? HEX_DIFFICULTY[difficulty] : DIFFICULTY[difficulty];
+  return mode === "hex" ? HEX_DIFFICULTY[difficulty] : DIFFICULTY[difficulty];
 }
 
 function emptyCell(): MineCell {
@@ -52,7 +52,7 @@ function emptyCell(): MineCell {
 
 export function createInitialState(
   difficulty: MineDifficulty,
-  mode: MinesMode = 'rect',
+  mode: MinesMode = "rect",
 ): MinesweeperState {
   const cfg = configFor(mode, difficulty);
   const total = cfg.cols * cfg.rows;
@@ -126,16 +126,16 @@ export function neighborIndices(
   idx: number,
   cols: number,
   rows: number,
-  mode: MinesMode = 'rect',
+  mode: MinesMode = "rect",
 ): number[] {
-  return mode === 'hex' ? hexNeighbors(idx, cols, rows) : rectNeighbors(idx, cols, rows);
+  return mode === "hex" ? hexNeighbors(idx, cols, rows) : rectNeighbors(idx, cols, rows);
 }
 
 function computeAdjacents(
   grid: MineCell[],
   cols: number,
   rows: number,
-  mode: MinesMode = 'rect',
+  mode: MinesMode = "rect",
 ): void {
   for (let i = 0; i < grid.length; i++) {
     const cell = grid[i]!;

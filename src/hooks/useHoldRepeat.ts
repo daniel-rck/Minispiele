@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from "react";
 
 interface UseHoldRepeatOptions {
   initialDelayMs?: number;
@@ -30,7 +30,7 @@ export function useHoldRepeat(
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
       stop();
       actionRef.current();
       const schedule = (delay: number) => {

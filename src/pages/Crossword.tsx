@@ -1,5 +1,5 @@
-import CrosswordGame from '../components/CrosswordGame';
-import GameLayout from '../components/GameLayout';
+import CrosswordGame from "../components/CrosswordGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Crossword() {
   return (

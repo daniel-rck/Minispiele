@@ -1,8 +1,8 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from "@playwright/test";
 
-test.describe('Hyperfokus', () => {
-  test('tap increments score and opens upgrade sheet', async ({ page }) => {
-    await page.goto('/hyperfokus');
+test.describe("Hyperfokus", () => {
+  test("tap increments score and opens upgrade sheet", async ({ page }) => {
+    await page.goto("/hyperfokus");
 
     const core = page.getByLabel(/Hyperfokus-Kern tippen/i);
     await expect(core).toBeVisible();
@@ -17,20 +17,20 @@ test.describe('Hyperfokus', () => {
     await expect(coinsRow).toBeVisible();
 
     // Upgrade sheet opens.
-    await page.getByRole('button', { name: /Upgrades öffnen/i }).click();
-    const dialog = page.getByRole('dialog');
+    await page.getByRole("button", { name: /Upgrades öffnen/i }).click();
+    const dialog = page.getByRole("dialog");
     await expect(dialog.getByText(/Tipp-Kraft/i)).toBeVisible();
     await expect(dialog.getByText(/Auto-Tapper/i)).toBeVisible();
   });
 
-  test('keyboard space triggers a tap', async ({ page }) => {
-    await page.goto('/hyperfokus');
+  test("keyboard space triggers a tap", async ({ page }) => {
+    await page.goto("/hyperfokus");
     const core = page.getByLabel(/Hyperfokus-Kern tippen/i);
     await expect(core).toBeVisible();
     await core.focus();
-    await page.keyboard.press('Space');
-    await page.keyboard.press('Space');
-    await page.keyboard.press('Space');
+    await page.keyboard.press("Space");
+    await page.keyboard.press("Space");
+    await page.keyboard.press("Space");
     // After a few taps, combo line is visible
     await expect(page.getByText(/COMBO/)).toBeVisible();
   });

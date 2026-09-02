@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SnakeGame from '../components/SnakeGame';
+import GameLayout from "../components/GameLayout";
+import SnakeGame from "../components/SnakeGame";
 
 export default function Snake() {
   return (

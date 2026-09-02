@@ -1,5 +1,5 @@
-import { getAudioCtor } from './audioContext';
-import { isAudioEnabled } from './audioSettings';
+import { getAudioCtor } from "./audioContext";
+import { isAudioEnabled } from "./audioSettings";
 
 const NOISE_DURATION_S = 0.25;
 const CLICK_MIN_INTERVAL_MS = 35;
@@ -20,14 +20,14 @@ export class DiceSound {
     try {
       this.ctx = new Ctor();
     } catch (err) {
-      console.warn('DiceSound: failed to create context', err);
+      console.warn("DiceSound: failed to create context", err);
       return false;
     }
     return true;
   }
 
   resume(): void {
-    if (this.ctx && this.ctx.state === 'suspended') {
+    if (this.ctx && this.ctx.state === "suspended") {
       void this.ctx.resume().catch(() => undefined);
     }
   }
@@ -56,7 +56,7 @@ export class DiceSound {
     const density = Math.min(2.5, 0.8 + diceCount * 0.25);
     let t = 0;
     while (t < dur) {
-      this.scheduleClick(ctx.currentTime + t / 1000, 'rattle');
+      this.scheduleClick(ctx.currentTime + t / 1000, "rattle");
       const gap =
         (CLICK_MIN_INTERVAL_MS + Math.random() * (CLICK_MAX_INTERVAL_MS - CLICK_MIN_INTERVAL_MS)) /
         density;
@@ -74,7 +74,7 @@ export class DiceSound {
 
     const taps = Math.min(3, Math.max(1, Math.ceil(diceCount / 2)));
     for (let i = 0; i < taps; i++) {
-      this.scheduleClick(ctx.currentTime + i * 0.04 + Math.random() * 0.02, 'settle');
+      this.scheduleClick(ctx.currentTime + i * 0.04 + Math.random() * 0.02, "settle");
     }
   }
 
@@ -88,7 +88,7 @@ export class DiceSound {
     return buffer;
   }
 
-  private scheduleClick(when: number, kind: 'rattle' | 'settle'): void {
+  private scheduleClick(when: number, kind: "rattle" | "settle"): void {
     const ctx = this.ctx;
     if (!ctx) return;
     try {
@@ -97,8 +97,8 @@ export class DiceSound {
       src.playbackRate.value = 0.85 + Math.random() * 0.3;
 
       const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      if (kind === 'rattle') {
+      filter.type = "bandpass";
+      if (kind === "rattle") {
         filter.frequency.value = 1400 + Math.random() * 600;
         filter.Q.value = 3.5;
       } else {
@@ -107,8 +107,8 @@ export class DiceSound {
       }
 
       const gain = ctx.createGain();
-      const peak = kind === 'rattle' ? 0.22 + Math.random() * 0.08 : 0.32;
-      const decayS = kind === 'rattle' ? 0.035 : 0.09;
+      const peak = kind === "rattle" ? 0.22 + Math.random() * 0.08 : 0.32;
+      const decayS = kind === "rattle" ? 0.035 : 0.09;
       gain.gain.setValueAtTime(0, when);
       gain.gain.linearRampToValueAtTime(peak, when + 0.002);
       gain.gain.exponentialRampToValueAtTime(0.0001, when + decayS);
@@ -117,7 +117,7 @@ export class DiceSound {
       src.start(when);
       src.stop(when + decayS + 0.05);
     } catch (err) {
-      console.warn('DiceSound: click failed', err);
+      console.warn("DiceSound: click failed", err);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 // Clamp the per-frame delta. requestAnimationFrame pauses while the tab is
 // hidden, so the first frame after returning would otherwise report the entire
@@ -15,7 +15,7 @@ export function useAnimationFrame(
 
   useEffect(() => {
     if (!active) return;
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     let raf = 0;
     let prev = performance.now();
     const tick = (now: number) => {

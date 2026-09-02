@@ -1,36 +1,36 @@
-import { useDeferredValue, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import Badge from '../components/ui/Badge';
-import Card from '../components/ui/Card';
-import Chip from '../components/ui/Chip';
-import { ClockIcon, SparkleIcon } from '../components/ui/icons';
-import MascotIcon from '../components/ui/MascotIcon';
-import SearchInput from '../components/ui/SearchInput';
-import StarToggle from '../components/ui/StarToggle';
-import { useFavorites } from '../hooks/useFavorites';
-import { useRecentGames } from '../hooks/useRecentGames';
-import { BRAND_TAGLINE } from '../lib/brand';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type HomeCategoryFilter, HomeCategoryFilterSchema } from '../lib/crossGameSchemas';
-import { CATEGORIES, findGameBySlug, GAMES, type GameCard } from '../lib/gamesCatalog';
-import { formatRelativeShort, isToday } from '../lib/relativeTime';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useDeferredValue, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import Badge from "../components/ui/Badge";
+import Card from "../components/ui/Card";
+import Chip from "../components/ui/Chip";
+import { ClockIcon, SparkleIcon } from "../components/ui/icons";
+import MascotIcon from "../components/ui/MascotIcon";
+import SearchInput from "../components/ui/SearchInput";
+import StarToggle from "../components/ui/StarToggle";
+import { useFavorites } from "../hooks/useFavorites";
+import { useRecentGames } from "../hooks/useRecentGames";
+import { BRAND_TAGLINE } from "../lib/brand";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type HomeCategoryFilter, HomeCategoryFilterSchema } from "../lib/crossGameSchemas";
+import { CATEGORIES, findGameBySlug, GAMES, type GameCard } from "../lib/gamesCatalog";
+import { formatRelativeShort, isToday } from "../lib/relativeTime";
+import { useLocalStorage } from "../lib/useLocalStorage";
 
 const NEW_GAME_ISSUE_URL =
-  'https://github.com/daniel-rck/minispiele/issues/new?template=new-game.yml';
+  "https://github.com/daniel-rck/minispiele/issues/new?template=new-game.yml";
 
 function greeting(now: Date = new Date()): string {
   const h = now.getHours();
-  if (h < 5) return 'Späte Runde gefällig?';
-  if (h < 11) return 'Guten Morgen!';
-  if (h < 14) return 'Mahlzeit!';
-  if (h < 18) return 'Schön, dass du da bist!';
-  if (h < 22) return 'Guten Abend!';
-  return 'Lust auf ein Spiel?';
+  if (h < 5) return "Späte Runde gefällig?";
+  if (h < 11) return "Guten Morgen!";
+  if (h < 14) return "Mahlzeit!";
+  if (h < 18) return "Schön, dass du da bist!";
+  if (h < 22) return "Guten Abend!";
+  return "Lust auf ein Spiel?";
 }
 
 function normalize(input: string): string {
-  return input.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+  return input.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "");
 }
 
 function matchesQuery(game: GameCard, q: string): boolean {
@@ -122,9 +122,9 @@ export default function Home() {
   const [filter, setFilter] = useLocalStorage<HomeCategoryFilter>(
     STORAGE_KEYS.HOME_CATEGORY_FILTER,
     HomeCategoryFilterSchema,
-    'all',
+    "all",
   );
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const { favoriteSet, isFavorite, toggleFavorite } = useFavorites();
   const { recent, topSlugs } = useRecentGames();
@@ -136,7 +136,7 @@ export default function Home() {
   }, []);
 
   const filtered = useMemo(() => {
-    const byCat = filter === 'all' ? GAMES : GAMES.filter((g) => g.category === filter);
+    const byCat = filter === "all" ? GAMES : GAMES.filter((g) => g.category === filter);
     return byCat.filter((g) => matchesQuery(g, deferredSearch));
   }, [filter, deferredSearch]);
 
@@ -226,9 +226,9 @@ export default function Home() {
 
       {/* Category chips */}
       <div role="group" aria-label="Nach Kategorie filtern" className="mb-5 flex flex-wrap gap-2">
-        <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
-          Alle{' '}
-          <Badge variant={filter === 'all' ? 'highlight' : 'neutral'} size="sm">
+        <Chip active={filter === "all"} onClick={() => setFilter("all")}>
+          Alle{" "}
+          <Badge variant={filter === "all" ? "highlight" : "neutral"} size="sm">
             {GAMES.length}
           </Badge>
         </Chip>
@@ -238,8 +238,8 @@ export default function Home() {
           const active = filter === c.id;
           return (
             <Chip key={c.id} active={active} accent={c.id} onClick={() => setFilter(c.id)}>
-              {c.label}{' '}
-              <Badge variant={active ? 'highlight' : 'neutral'} size="sm">
+              {c.label}{" "}
+              <Badge variant={active ? "highlight" : "neutral"} size="sm">
                 {count}
               </Badge>
             </Chip>
@@ -251,12 +251,12 @@ export default function Home() {
       {noResults ? (
         <div className="rounded-2xl border-2 border-dashed border-surface-300 p-8 text-center dark:border-surface-700">
           <p className="text-sm text-surface-600 dark:text-surface-300">
-            {isSearching ? `Keine Treffer für „${search}".` : 'Keine Spiele in dieser Kategorie.'}
+            {isSearching ? `Keine Treffer für „${search}".` : "Keine Spiele in dieser Kategorie."}
           </p>
           {isSearching && (
             <button
               type="button"
-              onClick={() => setSearch('')}
+              onClick={() => setSearch("")}
               className="mt-3 inline-flex min-h-10 items-center rounded-full bg-primary-500 px-4 text-sm font-bold text-white hover:bg-primary-400"
             >
               Suche zurücksetzen

@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import Match3Game from '../components/Match3Game';
+import GameLayout from "../components/GameLayout";
+import Match3Game from "../components/Match3Game";
 
 export default function Match3() {
   return (

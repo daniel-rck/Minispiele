@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import TwentyFortyEightGame from '../components/TwentyFortyEightGame';
+import GameLayout from "../components/GameLayout";
+import TwentyFortyEightGame from "../components/TwentyFortyEightGame";
 
 export default function TwentyFortyEight() {
   return (

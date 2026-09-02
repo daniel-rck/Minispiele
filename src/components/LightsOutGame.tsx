@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { createInitialState, LIGHTS_SIZE, type LightsState, press } from '../lib/lightsOut';
-import { LightsBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import DifficultySelector from './ui/DifficultySelector';
-import Sheet from './ui/Sheet';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { createInitialState, LIGHTS_SIZE, type LightsState, press } from "../lib/lightsOut";
+import { LightsBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import DifficultySelector from "./ui/DifficultySelector";
+import Sheet from "./ui/Sheet";
 
-const DIFFICULTY: Record<'easy' | 'medium' | 'hard', number> = {
+const DIFFICULTY: Record<"easy" | "medium" | "hard", number> = {
   easy: 4,
   medium: 7,
   hard: 12,
@@ -18,13 +18,13 @@ const DIFFICULTY: Record<'easy' | 'medium' | 'hard', number> = {
 type Difficulty = keyof typeof DIFFICULTY;
 
 const LABELS: Record<Difficulty, string> = {
-  easy: 'Leicht',
-  medium: 'Mittel',
-  hard: 'Schwer',
+  easy: "Leicht",
+  medium: "Mittel",
+  hard: "Schwer",
 };
 
 export default function LightsOutGame() {
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [state, setState] = useState<LightsState>(() => createInitialState(DIFFICULTY.medium));
   const [best, setBest] = useLocalStorage<number | null>(
     STORAGE_KEYS.LIGHTS_BEST,
@@ -33,7 +33,7 @@ export default function LightsOutGame() {
   );
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const prevSolvedRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -47,7 +47,7 @@ export default function LightsOutGame() {
         setScoreIsNew(false);
       }
       setWinOpen(true);
-      setAnnounce('Geschafft!');
+      setAnnounce("Geschafft!");
       vibrate([40, 30, 60]);
       sfx.win();
     }
@@ -115,12 +115,12 @@ export default function LightsOutGame() {
               type="button"
               onClick={() => handleCell(i)}
               disabled={state.solved}
-              aria-label={`Licht ${i + 1}, ${on ? 'an' : 'aus'}`}
+              aria-label={`Licht ${i + 1}, ${on ? "an" : "aus"}`}
               aria-pressed={on}
               className={`aspect-square rounded-xl transition-colors ${
                 on
-                  ? 'bg-amber-300 shadow-[0_0_18px_rgba(252,211,77,0.55)]'
-                  : 'bg-slate-700 hover:bg-slate-600'
+                  ? "bg-amber-300 shadow-[0_0_18px_rgba(252,211,77,0.55)]"
+                  : "bg-slate-700 hover:bg-slate-600"
               }`}
             />
           ))}

@@ -1,9 +1,9 @@
-import axe, { type AxeResults, type RunOptions, type Spec } from 'axe-core';
-import { expect } from 'vitest';
+import axe, { type AxeResults, type RunOptions, type Spec } from "axe-core";
+import { expect } from "vitest";
 
-const DEFAULT_RULES: Spec['rules'] = [
-  { id: 'color-contrast', enabled: false },
-  { id: 'region', enabled: false },
+const DEFAULT_RULES: Spec["rules"] = [
+  { id: "color-contrast", enabled: false },
+  { id: "region", enabled: false },
 ];
 
 let configured = false;
@@ -19,13 +19,13 @@ export async function expectNoA11yViolations(
 ): Promise<void> {
   ensureConfigured();
   const results: AxeResults = await axe.run(container, {
-    resultTypes: ['violations'],
+    resultTypes: ["violations"],
     ...options,
   });
   if (results.violations.length === 0) return;
 
   const summary = results.violations
     .map((v) => `- ${v.id}: ${v.help} (${v.nodes.length} node(s))`)
-    .join('\n');
+    .join("\n");
   expect.fail(`axe-core found ${results.violations.length} violation(s):\n${summary}`);
 }

@@ -1,4 +1,4 @@
-export type MemoryDifficulty = 'easy' | 'medium' | 'hard';
+export type MemoryDifficulty = "easy" | "medium" | "hard";
 
 export interface MemoryCard {
   id: string;
@@ -30,30 +30,30 @@ export const MEMORY_COLS: Record<MemoryDifficulty, number> = {
 };
 
 export const SYMBOL_POOL: readonly string[] = [
-  '🍎',
-  '🍌',
-  '🍇',
-  '🍒',
-  '🥑',
-  '🥕',
-  '🌽',
-  '🍓',
-  '🍍',
-  '🥥',
-  '🥝',
-  '🍑',
-  '🌶️',
-  '🍄',
-  '🌻',
-  '🌸',
-  '🌵',
-  '🍀',
-  '🐶',
-  '🐱',
-  '🐭',
-  '🐹',
-  '🐰',
-  '🦊',
+  "🍎",
+  "🍌",
+  "🍇",
+  "🍒",
+  "🥑",
+  "🥕",
+  "🌽",
+  "🍓",
+  "🍍",
+  "🥥",
+  "🥝",
+  "🍑",
+  "🌶️",
+  "🍄",
+  "🌻",
+  "🌸",
+  "🌵",
+  "🍀",
+  "🐶",
+  "🐱",
+  "🐭",
+  "🐹",
+  "🐰",
+  "🦊",
 ];
 
 function mulberry32(seed: number): () => number {

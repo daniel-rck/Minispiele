@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import KakuroGame from '../components/KakuroGame';
+import GameLayout from "../components/GameLayout";
+import KakuroGame from "../components/KakuroGame";
 
 export default function Kakuro() {
   return (

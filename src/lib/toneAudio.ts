@@ -1,5 +1,5 @@
-import { getAudioCtor } from './audioContext';
-import { isAudioEnabled } from './audioSettings';
+import { getAudioCtor } from "./audioContext";
+import { isAudioEnabled } from "./audioSettings";
 
 export interface PlayToneOptions {
   peak?: number;
@@ -17,14 +17,14 @@ export class ToneAudio {
     try {
       this.ctx = new Ctor();
     } catch (err) {
-      console.warn('ToneAudio: failed to create context', err);
+      console.warn("ToneAudio: failed to create context", err);
       return false;
     }
     return true;
   }
 
   resume(): void {
-    if (this.ctx && this.ctx.state === 'suspended') {
+    if (this.ctx && this.ctx.state === "suspended") {
       void this.ctx.resume().catch(() => undefined);
     }
   }
@@ -46,7 +46,7 @@ export class ToneAudio {
     this.resume();
     const ctx = this.ctx;
     if (!ctx) return;
-    const { peak = 0.2, attackS = 0.01, type = 'sine' } = opts;
+    const { peak = 0.2, attackS = 0.01, type = "sine" } = opts;
     const durS = Math.max(0.02, durationMs / 1000);
     try {
       const osc = ctx.createOscillator();
@@ -61,7 +61,7 @@ export class ToneAudio {
       osc.start(now);
       osc.stop(now + durS + 0.02);
     } catch (err) {
-      console.warn('ToneAudio: playTone failed', err);
+      console.warn("ToneAudio: playTone failed", err);
     }
   }
 }

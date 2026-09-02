@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 interface SheetProps {
   open: boolean;
@@ -6,8 +6,8 @@ interface SheetProps {
   title: string;
   children: ReactNode;
   labelledById?: string;
-  side?: 'bottom' | 'right';
-  size?: 'auto' | 'sm' | 'md' | 'lg';
+  side?: "bottom" | "right";
+  size?: "auto" | "sm" | "md" | "lg";
 }
 
 const SWIPE_DISMISS_PX = 80;
@@ -18,7 +18,7 @@ const FOCUSABLE_SELECTOR =
 function getFocusable(root: HTMLElement | null): HTMLElement[] {
   if (!root) return [];
   return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    (el) => !el.hasAttribute('aria-hidden') && el.offsetParent !== null,
+    (el) => !el.hasAttribute("aria-hidden") && el.offsetParent !== null,
   );
 }
 
@@ -28,23 +28,23 @@ export default function Sheet({
   title,
   children,
   labelledById,
-  side = 'bottom',
-  size = 'auto',
+  side = "bottom",
+  size = "auto",
 }: SheetProps) {
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const [dragY, setDragY] = useState(0);
   const dragStartRef = useRef<number | null>(null);
-  const titleId = labelledById ?? 'sheet-title';
+  const titleId = labelledById ?? "sheet-title";
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
         return;
       }
-      if (e.key === 'Tab') {
+      if (e.key === "Tab") {
         const focusables = getFocusable(sheetRef.current);
         if (focusables.length === 0) {
           e.preventDefault();
@@ -66,8 +66,8 @@ export default function Sheet({
         }
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   useEffect(() => {
@@ -83,11 +83,11 @@ export default function Sheet({
   if (!open) return null;
 
   const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (side !== 'bottom') return;
+    if (side !== "bottom") return;
     dragStartRef.current = e.touches[0]?.clientY ?? null;
   };
   const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (side !== 'bottom') return;
+    if (side !== "bottom") return;
     const start = dragStartRef.current;
     const current = e.touches[0]?.clientY;
     if (start === null || current === undefined) return;
@@ -95,24 +95,24 @@ export default function Sheet({
     if (delta > 0) setDragY(delta);
   };
   const onTouchEnd = () => {
-    if (side !== 'bottom') return;
+    if (side !== "bottom") return;
     if (dragY > SWIPE_DISMISS_PX) onClose();
     setDragY(0);
     dragStartRef.current = null;
   };
 
   const sizeWidth = {
-    auto: 'max-w-lg',
-    sm: 'max-w-sm',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
+    auto: "max-w-lg",
+    sm: "max-w-sm",
+    md: "max-w-lg",
+    lg: "max-w-2xl",
   }[size];
 
   const containerClass =
-    side === 'bottom' ? 'items-end justify-center' : 'items-stretch justify-end';
+    side === "bottom" ? "items-end justify-center" : "items-stretch justify-end";
 
   const panelBase =
-    side === 'bottom'
+    side === "bottom"
       ? `w-full ${sizeWidth} rounded-t-3xl`
       : `h-full w-full ${sizeWidth} rounded-l-3xl`;
 
@@ -132,12 +132,12 @@ export default function Sheet({
         tabIndex={-1}
         className={`relative ${panelBase} bg-white shadow-2xl outline-none dark:bg-surface-900`}
         style={{
-          transform: side === 'bottom' ? `translateY(${dragY}px)` : undefined,
-          transition: dragY === 0 ? 'transform 220ms var(--ease-snappy)' : 'none',
-          paddingBottom: side === 'bottom' ? 'env(safe-area-inset-bottom)' : undefined,
+          transform: side === "bottom" ? `translateY(${dragY}px)` : undefined,
+          transition: dragY === 0 ? "transform 220ms var(--ease-snappy)" : "none",
+          paddingBottom: side === "bottom" ? "env(safe-area-inset-bottom)" : undefined,
         }}
       >
-        {side === 'bottom' && (
+        {side === "bottom" && (
           <div
             className="flex flex-col items-center pt-2 pb-1"
             onTouchStart={onTouchStart}

@@ -1,10 +1,10 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const DifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const DifficultySchema = z.enum(["easy", "medium", "hard"]);
 
 export const MixSchema = z.boolean();
 
-const DieTypeSchema = z.enum(['d4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100']);
+const DieTypeSchema = z.enum(["d4", "d6", "d8", "d10", "d12", "d20", "d100"]);
 
 export const PersistedDieSchema = z.object({
   type: DieTypeSchema,
@@ -51,13 +51,13 @@ export const HighscoresSchema = z.object({
 
 export const TimerUserPresetsSchema = z.array(DurationSchema).max(3);
 
-export const TimerDisplayModeSchema = z.enum(['flip', 'continuous']);
+export const TimerDisplayModeSchema = z.enum(["flip", "continuous"]);
 
 export const DiceModifierSchema = z.number().int().min(-999).max(999);
 
 export const DiceRollDurationSchema = z.number().int().min(200).max(2500);
 
-export const MemoryDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const MemoryDifficultySchema = z.enum(["easy", "medium", "hard"]);
 
 export const MemoryHighscoresSchema = z.object({
   easy: HighscoreEntrySchema.nullable(),
@@ -65,7 +65,7 @@ export const MemoryHighscoresSchema = z.object({
   hard: HighscoreEntrySchema.nullable(),
 });
 
-export const SlidingDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const SlidingDifficultySchema = z.enum(["easy", "medium", "hard"]);
 
 export const SlidingHighscoresSchema = z.object({
   easy: HighscoreEntrySchema.nullable(),
@@ -83,9 +83,9 @@ export const TwentyFortyEightBestSchema = z.number().int().nonnegative();
 
 export const SimonBestSchema = z.number().int().nonnegative();
 
-export const MinesDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const MinesDifficultySchema = z.enum(["easy", "medium", "hard"]);
 
-export const MinesModeSchema = z.enum(['rect', 'hex']);
+export const MinesModeSchema = z.enum(["rect", "hex"]);
 export type MinesMode = z.infer<typeof MinesModeSchema>;
 
 export const MinesEntrySchema = z.object({
@@ -168,7 +168,7 @@ export const EMPTY_HANGMAN_STATS: HangmanStats = {
 
 export const AnagramBestSchema = z.number().int().nonnegative();
 
-export const SudokuDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const SudokuDifficultySchema = z.enum(["easy", "medium", "hard"]);
 export type SudokuDifficulty = z.infer<typeof SudokuDifficultySchema>;
 
 export const SudokuCellSchema = z.object({
@@ -202,7 +202,7 @@ export const FreecellBestSchema = NullableNonNegInt;
 export const TangramLevelSchema = z.number().int().min(0).max(99);
 export const FlowBestSchema = z.record(z.string(), z.number().int().nonnegative());
 
-export const TrafficJamDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const TrafficJamDifficultySchema = z.enum(["easy", "medium", "hard"]);
 export const TrafficJamHighscoresSchema = z.object({
   easy: HighscoreEntrySchema.nullable(),
   medium: HighscoreEntrySchema.nullable(),
@@ -216,7 +216,7 @@ export const EMPTY_TRAFFIC_JAM_HIGHSCORES: TrafficJamHighscores = {
   hard: null,
 };
 
-export const HyperfokusThemeSchema = z.enum(['default', 'neon', 'kosmos', 'aurora']);
+export const HyperfokusThemeSchema = z.enum(["default", "neon", "kosmos", "aurora"]);
 export type HyperfokusTheme = z.infer<typeof HyperfokusThemeSchema>;
 
 export const HyperfokusUpgradesSchema = z.object({
@@ -256,7 +256,7 @@ export const SlotMachineBestSchema = z.number().int().nonnegative();
 
 export const LadderBestSchema = NullableNonNegInt;
 
-export const TicTacToeDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const TicTacToeDifficultySchema = z.enum(["easy", "medium", "hard"]);
 export type TicTacToeDifficulty = z.infer<typeof TicTacToeDifficultySchema>;
 
 export const TicTacToeScoresSchema = z.object({
@@ -293,12 +293,12 @@ export type NurikabeSize = z.infer<typeof NurikabeSizeSchema>;
 export const PipePuzzleSizeSchema = z.union([z.literal(5), z.literal(7), z.literal(9)]);
 export type PipePuzzleSize = z.infer<typeof PipePuzzleSizeSchema>;
 
-export const PongDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const PongDifficultySchema = z.enum(["easy", "medium", "hard"]);
 export type PongDifficulty = z.infer<typeof PongDifficultySchema>;
 
 export const QuizBestSchema = z.number().int().nonnegative();
 
-export const QuizModeSchema = z.enum(['classic', 'millionaire']);
+export const QuizModeSchema = z.enum(["classic", "millionaire"]);
 export type QuizMode = z.infer<typeof QuizModeSchema>;
 
 export const RouletteBalanceSchema = z.number().int().nonnegative();
@@ -310,7 +310,7 @@ export const TypingTestBestSchema = z.number().int().nonnegative();
 
 export const VierBilderBestSchema = z.number().int().nonnegative();
 
-export const ViergewinntDifficultySchema = z.enum(['easy', 'medium', 'hard']);
+export const ViergewinntDifficultySchema = z.enum(["easy", "medium", "hard"]);
 export type ViergewinntDifficulty = z.infer<typeof ViergewinntDifficultySchema>;
 
 export const MillionaerBestSchema = z.number().int().nonnegative();

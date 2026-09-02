@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   type TicTacToeDifficulty,
   TicTacToeDifficultySchema,
   type TicTacToeScores,
   TicTacToeScoresSchema,
-} from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+} from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
-type Cell = 'X' | 'O' | '';
+type Cell = "X" | "O" | "";
 
 const LINES: readonly (readonly [number, number, number])[] = [
   [0, 1, 2],
@@ -26,9 +26,9 @@ const LINES: readonly (readonly [number, number, number])[] = [
 ];
 
 const DIFFICULTY_LABELS: Record<TicTacToeDifficulty, string> = {
-  easy: 'Leicht',
-  medium: 'Mittel',
-  hard: 'Schwer',
+  easy: "Leicht",
+  medium: "Mittel",
+  hard: "Schwer",
 };
 
 const OPTIMAL_CHANCE: Record<TicTacToeDifficulty, number> = {
@@ -41,7 +41,7 @@ const EMPTY_SCORES: TicTacToeScores = { x: 0, o: 0, d: 0 };
 
 function checkWinner(
   board: readonly Cell[],
-): { winner: 'X' | 'O'; cells: readonly number[] } | null {
+): { winner: "X" | "O"; cells: readonly number[] } | null {
   for (const line of LINES) {
     const [a, b, c] = line;
     const v = board[a];
@@ -51,12 +51,12 @@ function checkWinner(
 }
 
 function isDraw(board: readonly Cell[]): boolean {
-  return board.every((c) => c !== '');
+  return board.every((c) => c !== "");
 }
 
 function minimax(b: Cell[], isMax: boolean, alpha: number, beta: number): number {
   const result = checkWinner(b);
-  if (result) return result.winner === 'O' ? 10 : -10;
+  if (result) return result.winner === "O" ? 10 : -10;
   if (isDraw(b)) return 0;
 
   if (isMax) {
@@ -64,9 +64,9 @@ function minimax(b: Cell[], isMax: boolean, alpha: number, beta: number): number
     let a = alpha;
     for (let i = 0; i < 9; i++) {
       if (b[i]) continue;
-      b[i] = 'O';
+      b[i] = "O";
       best = Math.max(best, minimax(b, false, a, beta));
-      b[i] = '';
+      b[i] = "";
       a = Math.max(a, best);
       if (beta <= a) break;
     }
@@ -76,9 +76,9 @@ function minimax(b: Cell[], isMax: boolean, alpha: number, beta: number): number
   let bt = beta;
   for (let i = 0; i < 9; i++) {
     if (b[i]) continue;
-    b[i] = 'X';
+    b[i] = "X";
     best = Math.min(best, minimax(b, true, alpha, bt));
-    b[i] = '';
+    b[i] = "";
     bt = Math.min(bt, best);
     if (bt <= alpha) break;
   }
@@ -91,9 +91,9 @@ function bestMove(board: readonly Cell[]): number {
   const scratch = [...board];
   for (let i = 0; i < 9; i++) {
     if (scratch[i]) continue;
-    scratch[i] = 'O';
+    scratch[i] = "O";
     const s = minimax(scratch, false, -Infinity, Infinity);
-    scratch[i] = '';
+    scratch[i] = "";
     if (s > score) {
       score = s;
       move = i;
@@ -113,24 +113,24 @@ function chooseMove(board: readonly Cell[], difficulty: TicTacToeDifficulty): nu
   return Math.random() < OPTIMAL_CHANCE[difficulty] ? bestMove(board) : randomMove(board);
 }
 
-const EMPTY_BOARD: Cell[] = ['', '', '', '', '', '', '', '', ''];
+const EMPTY_BOARD: Cell[] = ["", "", "", "", "", "", "", "", ""];
 
 export default function TicTacToeGame() {
   const [board, setBoard] = useState<Cell[]>(() => [...EMPTY_BOARD]);
-  const [turn, setTurn] = useState<'X' | 'O'>('X');
+  const [turn, setTurn] = useState<"X" | "O">("X");
   const [winCells, setWinCells] = useState<readonly number[]>([]);
   const [over, setOver] = useState(false);
   const [difficulty, setDifficulty] = useLocalStorage<TicTacToeDifficulty>(
     STORAGE_KEYS.TIC_TAC_TOE_DIFFICULTY,
     TicTacToeDifficultySchema,
-    'medium',
+    "medium",
   );
   const [scores, setScores] = useLocalStorage<TicTacToeScores>(
     STORAGE_KEYS.TIC_TAC_TOE_SCORES,
     TicTacToeScoresSchema,
     EMPTY_SCORES,
   );
-  const [announcement, setAnnouncement] = useState('Du bist dran');
+  const [announcement, setAnnouncement] = useState("Du bist dran");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -141,14 +141,14 @@ export default function TicTacToeGame() {
       if (result) {
         setWinCells(result.cells);
         setOver(true);
-        if (result.winner === 'X') {
+        if (result.winner === "X") {
           setScores((s) => ({ ...s, x: s.x + 1 }));
-          setAnnouncement('Du gewinnst!');
+          setAnnouncement("Du gewinnst!");
           sfx.win();
           vibrate([60, 40, 120]);
         } else {
           setScores((s) => ({ ...s, o: s.o + 1 }));
-          setAnnouncement('Computer gewinnt!');
+          setAnnouncement("Computer gewinnt!");
           sfx.lose();
           vibrate([120, 60, 60]);
         }
@@ -157,7 +157,7 @@ export default function TicTacToeGame() {
       if (isDraw(nextBoard)) {
         setOver(true);
         setScores((s) => ({ ...s, d: s.d + 1 }));
-        setAnnouncement('Unentschieden!');
+        setAnnouncement("Unentschieden!");
         sfx.match();
         return true;
       }
@@ -167,16 +167,16 @@ export default function TicTacToeGame() {
   );
 
   useEffect(() => {
-    if (over || turn !== 'O') return;
+    if (over || turn !== "O") return;
     const id = window.setTimeout(() => {
       const idx = chooseMove(board, difficulty);
       if (idx < 0) return;
       const next = [...board];
-      next[idx] = 'O';
+      next[idx] = "O";
       setBoard(next);
       if (!finalize(next)) {
-        setTurn('X');
-        setAnnouncement('Du bist dran');
+        setTurn("X");
+        setAnnouncement("Du bist dran");
       }
     }, 250);
     return () => window.clearTimeout(id);
@@ -184,15 +184,15 @@ export default function TicTacToeGame() {
 
   const handleCell = useCallback(
     (idx: number) => {
-      if (over || board[idx] || turn !== 'X') return;
+      if (over || board[idx] || turn !== "X") return;
       sfx.match();
       vibrate(15);
       const next = [...board];
-      next[idx] = 'X';
+      next[idx] = "X";
       setBoard(next);
       if (!finalize(next)) {
-        setTurn('O');
-        setAnnouncement('Computer denkt nach …');
+        setTurn("O");
+        setAnnouncement("Computer denkt nach …");
       }
     },
     [board, turn, over, finalize, sfx, vibrate],
@@ -202,8 +202,8 @@ export default function TicTacToeGame() {
     setBoard([...EMPTY_BOARD]);
     setWinCells([]);
     setOver(false);
-    setTurn('X');
-    setAnnouncement('Du bist dran');
+    setTurn("X");
+    setAnnouncement("Du bist dran");
   }, []);
 
   const handleResetScores = useCallback(() => {
@@ -224,7 +224,7 @@ export default function TicTacToeGame() {
             className="min-h-11 w-full rounded-lg border border-surface-300 bg-surface-50 px-3 text-sm dark:border-surface-700 dark:bg-surface-900"
             aria-label="Schwierigkeit"
           >
-            {(['easy', 'medium', 'hard'] as const).map((d) => (
+            {(["easy", "medium", "hard"] as const).map((d) => (
               <option key={d} value={d}>
                 {DIFFICULTY_LABELS[d]}
               </option>
@@ -260,26 +260,26 @@ export default function TicTacToeGame() {
           {board.map((value, i) => {
             const isWin = winCells.includes(i);
             const baseColor = isWin
-              ? 'border-emerald-500 bg-emerald-100 dark:bg-emerald-900/40'
-              : 'border-surface-300 bg-surface-100 hover:bg-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:hover:bg-surface-700';
+              ? "border-emerald-500 bg-emerald-100 dark:bg-emerald-900/40"
+              : "border-surface-300 bg-surface-100 hover:bg-surface-200 dark:border-surface-700 dark:bg-surface-800 dark:hover:bg-surface-700";
             const valueColor =
-              value === 'X'
-                ? 'text-amber-600 dark:text-amber-400'
-                : value === 'O'
-                  ? 'text-rose-600 dark:text-rose-400'
-                  : '';
+              value === "X"
+                ? "text-amber-600 dark:text-amber-400"
+                : value === "O"
+                  ? "text-rose-600 dark:text-rose-400"
+                  : "";
             return (
               <button
                 key={`cell-${i}`}
                 type="button"
                 onClick={() => handleCell(i)}
-                disabled={over || value !== '' || turn !== 'X'}
+                disabled={over || value !== "" || turn !== "X"}
                 aria-label={
-                  value === '' ? `Feld ${i + 1} leer` : `Feld ${i + 1} ${value === 'X' ? 'X' : 'O'}`
+                  value === "" ? `Feld ${i + 1} leer` : `Feld ${i + 1} ${value === "X" ? "X" : "O"}`
                 }
                 className={`aspect-square rounded-xl border-2 text-4xl font-extrabold transition-colors disabled:cursor-not-allowed ${baseColor} ${valueColor}`}
               >
-                {value || ''}
+                {value || ""}
               </button>
             );
           })}

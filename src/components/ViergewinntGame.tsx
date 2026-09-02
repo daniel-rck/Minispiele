@@ -1,19 +1,19 @@
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type ViergewinntDifficulty, ViergewinntDifficultySchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { type CSSProperties, useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type ViergewinntDifficulty, ViergewinntDifficultySchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const ROWS = 6;
 const COLS = 7;
 const DEPTH: Record<ViergewinntDifficulty, number> = { easy: 2, medium: 5, hard: 7 };
 const DIFF_LABEL: Record<ViergewinntDifficulty, string> = {
-  easy: 'Leicht',
-  medium: 'Mittel',
-  hard: 'Schwer',
+  easy: "Leicht",
+  medium: "Mittel",
+  hard: "Schwer",
 };
 
 type Cell = 0 | 1 | 2;
@@ -173,10 +173,10 @@ export default function ViergewinntGame() {
   const [difficulty, setDifficulty] = useLocalStorage<ViergewinntDifficulty>(
     STORAGE_KEYS.VIERGEWINNT_DIFFICULTY,
     ViergewinntDifficultySchema,
-    'medium',
+    "medium",
   );
   const [thinking, setThinking] = useState(false);
-  const [announcement, setAnnouncement] = useState('Rot ist am Zug.');
+  const [announcement, setAnnouncement] = useState("Rot ist am Zug.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -187,7 +187,7 @@ export default function ViergewinntGame() {
     setOver(false);
     setWinCells([]);
     setThinking(false);
-    setAnnouncement('Rot ist am Zug.');
+    setAnnouncement("Rot ist am Zug.");
   }, []);
 
   const drop = useCallback(
@@ -204,7 +204,7 @@ export default function ViergewinntGame() {
       if (win) {
         setWinCells(win);
         setOver(true);
-        setAnnouncement(turn === 1 ? 'Rot gewinnt!' : 'Gelb gewinnt!');
+        setAnnouncement(turn === 1 ? "Rot gewinnt!" : "Gelb gewinnt!");
         sfx.win();
         vibrate([60, 40, 120]);
         return;
@@ -212,12 +212,12 @@ export default function ViergewinntGame() {
       const full = next[0]!.every((_, c) => getRow(next, c) === -1);
       if (full) {
         setOver(true);
-        setAnnouncement('Unentschieden.');
+        setAnnouncement("Unentschieden.");
         return;
       }
       const nextTurn: 1 | 2 = turn === 1 ? 2 : 1;
       setTurn(nextTurn);
-      setAnnouncement(nextTurn === 1 ? 'Rot ist am Zug.' : 'Gelb ist am Zug.');
+      setAnnouncement(nextTurn === 1 ? "Rot ist am Zug." : "Gelb ist am Zug.");
     },
     [over, thinking, board, turn, sfx, vibrate],
   );
@@ -236,7 +236,7 @@ export default function ViergewinntGame() {
         scratch[row]![c] = 2;
         const val = minimax(scratch, depth - 1, -Infinity, Infinity, true);
         scratch[row]![c] = 0;
-        const fuzzed = difficulty === 'easy' ? val + (Math.random() - 0.5) * 200 : val;
+        const fuzzed = difficulty === "easy" ? val + (Math.random() - 0.5) * 200 : val;
         if (fuzzed < bestVal) {
           bestVal = fuzzed;
           bestCol = c;
@@ -257,14 +257,14 @@ export default function ViergewinntGame() {
           Neues Spiel
         </Button>
         <Button
-          variant={vsAi ? 'highlight' : 'secondary'}
+          variant={vsAi ? "highlight" : "secondary"}
           size="sm"
           onClick={() => {
             setVsAi((v) => !v);
             restart();
           }}
         >
-          {vsAi ? 'Gegen KI' : '2 Spieler'}
+          {vsAi ? "Gegen KI" : "2 Spieler"}
         </Button>
         {vsAi && (
           <select
@@ -276,7 +276,7 @@ export default function ViergewinntGame() {
             aria-label="KI-Schwierigkeit"
             className="min-h-11 rounded-lg border border-surface-300 bg-surface-50 px-3 text-sm dark:border-surface-700 dark:bg-surface-900"
           >
-            {(['easy', 'medium', 'hard'] as const).map((d) => (
+            {(["easy", "medium", "hard"] as const).map((d) => (
               <option key={d} value={d}>
                 {DIFF_LABEL[d]}
               </option>
@@ -286,7 +286,7 @@ export default function ViergewinntGame() {
       </div>
 
       <div className="text-sm font-semibold text-surface-700 dark:text-surface-200">
-        {thinking ? 'Computer denkt …' : announcement}
+        {thinking ? "Computer denkt …" : announcement}
       </div>
 
       <div className="fit-area mx-auto w-full max-w-[440px]">
@@ -297,7 +297,7 @@ export default function ViergewinntGame() {
           style={
             {
               gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
-              '--fit-ar': COLS / ROWS,
+              "--fit-ar": COLS / ROWS,
             } as CSSProperties
           }
         >
@@ -305,8 +305,8 @@ export default function ViergewinntGame() {
             row.map((value, c) => {
               const isWin = winCells.some(([wr, wc]) => wr === r && wc === c);
               const color =
-                value === 1 ? 'bg-rose-500' : value === 2 ? 'bg-amber-300' : 'bg-slate-900';
-              const ring = isWin ? 'ring-4 ring-emerald-400' : '';
+                value === 1 ? "bg-rose-500" : value === 2 ? "bg-amber-300" : "bg-slate-900";
+              const ring = isWin ? "ring-4 ring-emerald-400" : "";
               return (
                 <button
                   key={`${r}-${c}`}

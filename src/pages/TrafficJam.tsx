@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import TrafficJamGame from '../components/TrafficJamGame';
+import GameLayout from "../components/GameLayout";
+import TrafficJamGame from "../components/TrafficJamGame";
 
 export default function TrafficJam() {
   return (

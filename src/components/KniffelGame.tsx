@@ -1,13 +1,13 @@
-import { useCallback, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { KniffelBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { KniffelBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
-type Section = 'upper' | 'lower';
+type Section = "upper" | "lower";
 
 interface Category {
   id: string;
@@ -24,87 +24,87 @@ function counts(dice: readonly number[]): Record<number, number> {
 
 const CATS: readonly Category[] = [
   {
-    id: 'ones',
-    name: 'Einser',
-    section: 'upper',
+    id: "ones",
+    name: "Einser",
+    section: "upper",
     fn: (d) => d.filter((x) => x === 1).reduce((a, b) => a + b, 0),
   },
   {
-    id: 'twos',
-    name: 'Zweier',
-    section: 'upper',
+    id: "twos",
+    name: "Zweier",
+    section: "upper",
     fn: (d) => d.filter((x) => x === 2).reduce((a, b) => a + b, 0),
   },
   {
-    id: 'threes',
-    name: 'Dreier',
-    section: 'upper',
+    id: "threes",
+    name: "Dreier",
+    section: "upper",
     fn: (d) => d.filter((x) => x === 3).reduce((a, b) => a + b, 0),
   },
   {
-    id: 'fours',
-    name: 'Vierer',
-    section: 'upper',
+    id: "fours",
+    name: "Vierer",
+    section: "upper",
     fn: (d) => d.filter((x) => x === 4).reduce((a, b) => a + b, 0),
   },
   {
-    id: 'fives',
-    name: 'Fünfer',
-    section: 'upper',
+    id: "fives",
+    name: "Fünfer",
+    section: "upper",
     fn: (d) => d.filter((x) => x === 5).reduce((a, b) => a + b, 0),
   },
   {
-    id: 'sixes',
-    name: 'Sechser',
-    section: 'upper',
+    id: "sixes",
+    name: "Sechser",
+    section: "upper",
     fn: (d) => d.filter((x) => x === 6).reduce((a, b) => a + b, 0),
   },
   {
-    id: 'three_kind',
-    name: 'Dreierpasch',
-    section: 'lower',
+    id: "three_kind",
+    name: "Dreierpasch",
+    section: "lower",
     fn: (d) => (Object.values(counts(d)).some((v) => v >= 3) ? d.reduce((a, b) => a + b, 0) : 0),
   },
   {
-    id: 'four_kind',
-    name: 'Viererpasch',
-    section: 'lower',
+    id: "four_kind",
+    name: "Viererpasch",
+    section: "lower",
     fn: (d) => (Object.values(counts(d)).some((v) => v >= 4) ? d.reduce((a, b) => a + b, 0) : 0),
   },
   {
-    id: 'full_house',
-    name: 'Full House',
-    section: 'lower',
+    id: "full_house",
+    name: "Full House",
+    section: "lower",
     fn: (d) => {
       const c = Object.values(counts(d)).sort();
       return c.length === 2 && c[0] === 2 && c[1] === 3 ? 25 : 0;
     },
   },
   {
-    id: 'sm_straight',
-    name: 'Kleine Straße',
-    section: 'lower',
+    id: "sm_straight",
+    name: "Kleine Straße",
+    section: "lower",
     fn: (d) => {
-      const u = [...new Set(d)].sort().join('');
-      return u.includes('1234') || u.includes('2345') || u.includes('3456') ? 30 : 0;
+      const u = [...new Set(d)].sort().join("");
+      return u.includes("1234") || u.includes("2345") || u.includes("3456") ? 30 : 0;
     },
   },
   {
-    id: 'lg_straight',
-    name: 'Große Straße',
-    section: 'lower',
+    id: "lg_straight",
+    name: "Große Straße",
+    section: "lower",
     fn: (d) => {
-      const u = [...new Set(d)].sort().join('');
-      return u === '12345' || u === '23456' ? 40 : 0;
+      const u = [...new Set(d)].sort().join("");
+      return u === "12345" || u === "23456" ? 40 : 0;
     },
   },
   {
-    id: 'kniffel',
-    name: 'Kniffel',
-    section: 'lower',
+    id: "kniffel",
+    name: "Kniffel",
+    section: "lower",
     fn: (d) => (Object.values(counts(d)).some((v) => v === 5) ? 50 : 0),
   },
-  { id: 'chance', name: 'Chance', section: 'lower', fn: (d) => d.reduce((a, b) => a + b, 0) },
+  { id: "chance", name: "Chance", section: "lower", fn: (d) => d.reduce((a, b) => a + b, 0) },
 ];
 
 const PIP_POSITIONS: Record<number, readonly [number, number][]> = {
@@ -148,7 +148,7 @@ export default function KniffelGame() {
   const [scores, setScores] = useState<Record<string, number>>({});
   const [round, setRound] = useState(0);
   const [over, setOver] = useState(false);
-  const [announcement, setAnnouncement] = useState('Würfle los!');
+  const [announcement, setAnnouncement] = useState("Würfle los!");
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.KNIFFEL_BEST, KniffelBestSchema, 0);
 
   const sfx = useGameSfx();
@@ -161,7 +161,7 @@ export default function KniffelGame() {
     setScores({});
     setRound(0);
     setOver(false);
-    setAnnouncement('Würfle los!');
+    setAnnouncement("Würfle los!");
   }, []);
 
   const rollDice = useCallback(() => {
@@ -172,8 +172,8 @@ export default function KniffelGame() {
     sfx.pop();
     setAnnouncement(
       rollsLeft - 1 > 0
-        ? 'Halte Würfel, dann nochmal würfeln.'
-        : 'Wähle eine Kategorie für deine Punkte.',
+        ? "Halte Würfel, dann nochmal würfeln."
+        : "Wähle eine Kategorie für deine Punkte.",
     );
   }, [rollsLeft, over, held, vibrate, sfx]);
 
@@ -200,7 +200,7 @@ export default function KniffelGame() {
         setOver(true);
         let upperSum = 0;
         for (const c of CATS) {
-          if (c.section === 'upper' && newScores[c.id] !== undefined) {
+          if (c.section === "upper" && newScores[c.id] !== undefined) {
             upperSum += newScores[c.id] ?? 0;
           }
         }
@@ -227,7 +227,7 @@ export default function KniffelGame() {
   let totalSum = 0;
   for (const cat of CATS) {
     if (scores[cat.id] !== undefined) {
-      if (cat.section === 'upper') upperSum += scores[cat.id] ?? 0;
+      if (cat.section === "upper") upperSum += scores[cat.id] ?? 0;
       totalSum += scores[cat.id] ?? 0;
     }
   }
@@ -239,7 +239,7 @@ export default function KniffelGame() {
       <AriaLive message={announcement} />
 
       <p className="text-sm text-surface-700 dark:text-surface-200">
-        {over ? 'Spiel vorbei' : `Runde ${round + 1}/13`}
+        {over ? "Spiel vorbei" : `Runde ${round + 1}/13`}
       </p>
 
       <div className="flex justify-center gap-2">
@@ -249,10 +249,10 @@ export default function KniffelGame() {
             type="button"
             onClick={() => toggleHold(i)}
             disabled={rollsLeft === 3 || over}
-            aria-label={`Würfel ${i + 1}: ${value}${held[i] ? ' gehalten' : ''}`}
+            aria-label={`Würfel ${i + 1}: ${value}${held[i] ? " gehalten" : ""}`}
             aria-pressed={held[i]}
             className={`relative h-12 w-12 rounded-xl bg-white shadow disabled:cursor-not-allowed ${
-              held[i] ? 'ring-4 ring-amber-400' : ''
+              held[i] ? "ring-4 ring-amber-400" : ""
             }`}
           >
             {(PIP_POSITIONS[value] ?? []).map((p, idx) => (
@@ -315,7 +315,7 @@ export default function KniffelGame() {
           <tr className="border-t border-surface-300 font-semibold dark:border-surface-600">
             <td className="px-2 py-1">Bonus ({upperSum}/63)</td>
             <td className="px-2 py-1 text-right tabular-nums">
-              {round >= 6 ? (bonus > 0 ? `+${bonus}` : '0') : '…'}
+              {round >= 6 ? (bonus > 0 ? `+${bonus}` : "0") : "…"}
             </td>
           </tr>
           <tr className="border-t border-surface-300 font-bold dark:border-surface-600">

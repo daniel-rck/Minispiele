@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import RouletteGame from '../components/RouletteGame';
+import GameLayout from "../components/GameLayout";
+import RouletteGame from "../components/RouletteGame";
 
 export default function Roulette() {
   return (

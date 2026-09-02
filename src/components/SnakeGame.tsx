@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSwipeDetection } from '../hooks/useSwipeDetection';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SnakeBestSchema } from '../lib/persistedSchemas';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSwipeDetection } from "../hooks/useSwipeDetection";
+import { useVibration } from "../hooks/useVibration";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { STORAGE_KEYS } from "../lib/constants";
+import { SnakeBestSchema } from "../lib/persistedSchemas";
 import {
   createInitialState,
   type Direction,
@@ -11,42 +11,42 @@ import {
   type SnakeState,
   tick,
   tickIntervalMs,
-} from '../lib/snake';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import GameFooter from './ui/GameFooter';
-import GameOverSheet from './ui/GameOverSheet';
-import GameStats from './ui/GameStats';
+} from "../lib/snake";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import GameFooter from "./ui/GameFooter";
+import GameOverSheet from "./ui/GameOverSheet";
+import GameStats from "./ui/GameStats";
 
 const COLS = 20;
 const ROWS = 20;
 
-type Phase = 'idle' | 'playing' | 'paused' | 'over';
+type Phase = "idle" | "playing" | "paused" | "over";
 
 const KEY_TO_DIR: Readonly<Record<string, Direction>> = {
-  ArrowUp: 'up',
-  ArrowDown: 'down',
-  ArrowLeft: 'left',
-  ArrowRight: 'right',
-  w: 'up',
-  s: 'down',
-  a: 'left',
-  d: 'right',
-  W: 'up',
-  S: 'down',
-  A: 'left',
-  D: 'right',
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  w: "up",
+  s: "down",
+  a: "left",
+  d: "right",
+  W: "up",
+  S: "down",
+  A: "left",
+  D: "right",
 };
 
 export default function SnakeGame() {
   const [state, setState] = useState<SnakeState>(() => createInitialState(COLS, ROWS));
-  const [phase, setPhase] = useState<Phase>('idle');
+  const [phase, setPhase] = useState<Phase>("idle");
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.SNAKE_BEST, SnakeBestSchema, 0);
   const [overOpen, setOverOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncement] = useState("");
 
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -55,17 +55,17 @@ export default function SnakeGame() {
   const prevScoreRef = useRef(state.score);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
-  useWakeLock(phase === 'playing');
+  useWakeLock(phase === "playing");
 
   useEffect(() => {
-    if (phase === 'playing' && state.score > prevScoreRef.current) {
+    if (phase === "playing" && state.score > prevScoreRef.current) {
       sfx.match();
     }
     prevScoreRef.current = state.score;
   }, [state.score, phase, sfx]);
 
   const handleDirection = useCallback((dir: Direction) => {
-    if (phaseRef.current !== 'playing') return;
+    if (phaseRef.current !== "playing") return;
     setState((s) => queueDirection(s, dir));
   }, []);
 
@@ -74,7 +74,7 @@ export default function SnakeGame() {
   });
 
   useEffect(() => {
-    if (phase !== 'playing') return;
+    if (phase !== "playing") return;
     let id = 0;
     const step = () => {
       setState((s) => tick(s));
@@ -85,8 +85,8 @@ export default function SnakeGame() {
   }, [phase]);
 
   useEffect(() => {
-    if (!state.alive && phase === 'playing') {
-      setPhase('over');
+    if (!state.alive && phase === "playing") {
+      setPhase("over");
       vibrate([80, 60, 80]);
       sfx.lose();
       if (state.score > best) {
@@ -106,25 +106,25 @@ export default function SnakeGame() {
       if (dir) {
         e.preventDefault();
         handleDirection(dir);
-      } else if (e.key === ' ' || e.key === 'Spacebar') {
+      } else if (e.key === " " || e.key === "Spacebar") {
         e.preventDefault();
-        setPhase((p) => (p === 'playing' ? 'paused' : p === 'paused' ? 'playing' : p));
+        setPhase((p) => (p === "playing" ? "paused" : p === "paused" ? "playing" : p));
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [handleDirection]);
 
   const start = useCallback(() => {
     setState(createInitialState(COLS, ROWS));
     setOverOpen(false);
     setScoreIsNew(false);
-    setPhase('playing');
-    setAnnouncement('Spiel gestartet');
+    setPhase("playing");
+    setAnnouncement("Spiel gestartet");
   }, []);
 
   const togglePause = useCallback(() => {
-    setPhase((p) => (p === 'playing' ? 'paused' : p === 'paused' ? 'playing' : p));
+    setPhase((p) => (p === "playing" ? "paused" : p === "paused" ? "playing" : p));
   }, []);
 
   const cellW = 100 / state.cols;
@@ -138,19 +138,19 @@ export default function SnakeGame() {
       <GameStats
         className="w-full"
         items={[
-          { label: 'Punkte', value: state.score },
+          { label: "Punkte", value: state.score },
           {
-            label: '',
+            label: "",
             value:
-              phase === 'idle'
-                ? 'Bereit'
-                : phase === 'playing'
-                  ? 'läuft'
-                  : phase === 'paused'
-                    ? 'Pause'
-                    : 'Spiel vorbei',
+              phase === "idle"
+                ? "Bereit"
+                : phase === "playing"
+                  ? "läuft"
+                  : phase === "paused"
+                    ? "Pause"
+                    : "Spiel vorbei",
           },
-          { label: 'Best', value: best },
+          { label: "Best", value: best },
         ]}
       />
 
@@ -166,7 +166,7 @@ export default function SnakeGame() {
           aria-label={`Snake-Spielfeld ${state.cols}×${state.rows}`}
           style={{
             backgroundImage:
-              'linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)',
+              "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
             backgroundSize: `${cellW}% ${cellH}%`,
           }}
         >
@@ -178,8 +178,8 @@ export default function SnakeGame() {
                 aria-hidden
                 className={
                   isHead
-                    ? 'absolute rounded-md bg-emerald-700 shadow-[0_0_8px_rgba(16,185,129,0.6)] dark:bg-emerald-400'
-                    : 'absolute rounded-[3px] bg-emerald-500 dark:bg-emerald-600'
+                    ? "absolute rounded-md bg-emerald-700 shadow-[0_0_8px_rgba(16,185,129,0.6)] dark:bg-emerald-400"
+                    : "absolute rounded-[3px] bg-emerald-500 dark:bg-emerald-600"
                 }
                 style={{
                   width: `${cellW}%`,
@@ -188,9 +188,9 @@ export default function SnakeGame() {
                   top: 0,
                   transform: `translate3d(${s.x * 100}%, ${s.y * 100}%, 0)`,
                   transition:
-                    phase === 'playing'
+                    phase === "playing"
                       ? `transform ${Math.max(60, tickMs - 20)}ms linear`
-                      : 'none',
+                      : "none",
                 }}
               />
             );
@@ -214,7 +214,7 @@ export default function SnakeGame() {
         <button
           type="button"
           aria-label="Nach oben"
-          onClick={() => handleDirection('up')}
+          onClick={() => handleDirection("up")}
           className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
         >
           ↑
@@ -223,7 +223,7 @@ export default function SnakeGame() {
         <button
           type="button"
           aria-label="Nach links"
-          onClick={() => handleDirection('left')}
+          onClick={() => handleDirection("left")}
           className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
         >
           ←
@@ -231,7 +231,7 @@ export default function SnakeGame() {
         <button
           type="button"
           aria-label="Nach unten"
-          onClick={() => handleDirection('down')}
+          onClick={() => handleDirection("down")}
           className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
         >
           ↓
@@ -239,7 +239,7 @@ export default function SnakeGame() {
         <button
           type="button"
           aria-label="Nach rechts"
-          onClick={() => handleDirection('right')}
+          onClick={() => handleDirection("right")}
           className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
         >
           →
@@ -247,13 +247,13 @@ export default function SnakeGame() {
       </div>
 
       <GameFooter>
-        {phase === 'idle' || phase === 'over' ? (
+        {phase === "idle" || phase === "over" ? (
           <Button variant="primary" className="flex-1" onClick={start}>
-            {phase === 'over' ? 'Nochmal spielen' : 'Starten'}
+            {phase === "over" ? "Nochmal spielen" : "Starten"}
           </Button>
         ) : (
           <Button variant="primary" className="flex-1" onClick={togglePause}>
-            {phase === 'playing' ? 'Pause' : 'Fortsetzen'}
+            {phase === "playing" ? "Pause" : "Fortsetzen"}
           </Button>
         )}
       </GameFooter>
@@ -265,7 +265,7 @@ export default function SnakeGame() {
         emoji="🐍"
         isNewRecord={scoreIsNew}
         message={`Du hast ${state.score} Punkte erreicht.`}
-        primaryAction={{ label: 'Nochmal spielen', onClick: start }}
+        primaryAction={{ label: "Nochmal spielen", onClick: start }}
       />
     </div>
   );

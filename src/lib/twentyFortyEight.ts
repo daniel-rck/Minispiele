@@ -1,4 +1,4 @@
-export type Direction = 'left' | 'right' | 'up' | 'down';
+export type Direction = "left" | "right" | "up" | "down";
 export const GRID_SIZE = 4;
 export const CELL_COUNT = GRID_SIZE * GRID_SIZE;
 export const WINNING_TILE = 2048;
@@ -113,12 +113,12 @@ export function slide(grid: readonly number[], direction: Direction): SlideResul
   let gained = 0;
   let moved = false;
 
-  if (direction === 'left' || direction === 'right') {
+  if (direction === "left" || direction === "right") {
     for (let r = 0; r < GRID_SIZE; r++) {
       const row = getRow(next, r);
-      const source = direction === 'left' ? row : row.slice().reverse();
+      const source = direction === "left" ? row : row.slice().reverse();
       const { line, gained: g } = slideLine(source);
-      const result = direction === 'left' ? line : line.slice().reverse();
+      const result = direction === "left" ? line : line.slice().reverse();
       gained += g;
       for (let c = 0; c < GRID_SIZE; c++) {
         if (result[c] !== row[c]) moved = true;
@@ -128,9 +128,9 @@ export function slide(grid: readonly number[], direction: Direction): SlideResul
   } else {
     for (let c = 0; c < GRID_SIZE; c++) {
       const col = getCol(next, c);
-      const source = direction === 'up' ? col : col.slice().reverse();
+      const source = direction === "up" ? col : col.slice().reverse();
       const { line, gained: g } = slideLine(source);
-      const result = direction === 'up' ? line : line.slice().reverse();
+      const result = direction === "up" ? line : line.slice().reverse();
       gained += g;
       for (let r = 0; r < GRID_SIZE; r++) {
         if (result[r] !== col[r]) moved = true;

@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import HalmaGame from '../components/HalmaGame';
+import GameLayout from "../components/GameLayout";
+import HalmaGame from "../components/HalmaGame";
 
 export default function Halma() {
   return (

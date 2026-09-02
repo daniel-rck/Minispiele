@@ -2,12 +2,12 @@
 // Tiles: # = wall, . = floor, $ = box, * = box on target, @ = player, + = player on target, T = target
 
 export const LEVELS: string[][] = [
-  ['########', '#  .   #', '#  $   #', '#  @   #', '#      #', '########'],
-  ['#######', '#.    #', '# $$  #', '# @   #', '#   ..#', '#######'],
-  ['########', '#......#', '#......#', '#$$$ @ #', '#......#', '########'],
-  ['########', '#  #   #', '# .$.  #', '# $@$  #', '# .$.  #', '#  #   #', '########'],
-  ['#########', '#   #   #', '# $ . $ #', '#   @   #', '# $ . $ #', '#   #   #', '#########'],
-  ['#########', '#.......#', '# $$$$$ #', '# .....@#', '#       #', '#########'],
+  ["########", "#  .   #", "#  $   #", "#  @   #", "#      #", "########"],
+  ["#######", "#.    #", "# $$  #", "# @   #", "#   ..#", "#######"],
+  ["########", "#......#", "#......#", "#$$$ @ #", "#......#", "########"],
+  ["########", "#  #   #", "# .$.  #", "# $@$  #", "# .$.  #", "#  #   #", "########"],
+  ["#########", "#   #   #", "# $ . $ #", "#   @   #", "# $ . $ #", "#   #   #", "#########"],
+  ["#########", "#.......#", "# $$$$$ #", "# .....@#", "#       #", "#########"],
 ];
 
 export interface SokobanState {
@@ -31,27 +31,27 @@ function parseLevel(level: string[]): SokobanState {
   for (let r = 0; r < rows; r++) {
     const line = level[r]!;
     for (let c = 0; c < cols; c++) {
-      const ch = line[c] ?? ' ';
+      const ch = line[c] ?? " ";
       const idx = r * cols + c;
       switch (ch) {
-        case '#':
+        case "#":
           walls[idx] = true;
           break;
-        case '.':
-        case 'T':
+        case ".":
+        case "T":
           targets[idx] = true;
           break;
-        case '$':
+        case "$":
           boxes[idx] = true;
           break;
-        case '*':
+        case "*":
           boxes[idx] = true;
           targets[idx] = true;
           break;
-        case '@':
+        case "@":
           player = idx;
           break;
-        case '+':
+        case "+":
           player = idx;
           targets[idx] = true;
           break;
@@ -66,7 +66,7 @@ export function loadLevel(levelIdx: number): SokobanState {
   return parseLevel(lvl);
 }
 
-export type SokobanDirection = 'up' | 'down' | 'left' | 'right';
+export type SokobanDirection = "up" | "down" | "left" | "right";
 
 export function move(state: SokobanState, dir: SokobanDirection): SokobanState {
   const delta: Record<SokobanDirection, number> = {
@@ -78,15 +78,15 @@ export function move(state: SokobanState, dir: SokobanDirection): SokobanState {
   const d = delta[dir];
   const target = state.player + d;
   if (target < 0 || target >= state.rows * state.cols) return state;
-  if (dir === 'left' && state.player % state.cols === 0) return state;
-  if (dir === 'right' && (state.player + 1) % state.cols === 0) return state;
+  if (dir === "left" && state.player % state.cols === 0) return state;
+  if (dir === "right" && (state.player + 1) % state.cols === 0) return state;
   if (state.walls[target]) return state;
   let boxes = state.boxes;
   if (state.boxes[target]) {
     const past = target + d;
     if (past < 0 || past >= state.rows * state.cols) return state;
-    if (dir === 'left' && target % state.cols === 0) return state;
-    if (dir === 'right' && (target + 1) % state.cols === 0) return state;
+    if (dir === "left" && target % state.cols === 0) return state;
+    if (dir === "right" && (target + 1) % state.cols === 0) return state;
     if (state.walls[past] || state.boxes[past]) return state;
     boxes = state.boxes.slice();
     boxes[target] = false;

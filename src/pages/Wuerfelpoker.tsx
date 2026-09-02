@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import WuerfelpokerGame from '../components/WuerfelpokerGame';
+import GameLayout from "../components/GameLayout";
+import WuerfelpokerGame from "../components/WuerfelpokerGame";
 
 export default function Wuerfelpoker() {
   return (

@@ -1,16 +1,16 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import HyperfokusGame from './HyperfokusGame';
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import HyperfokusGame from "./HyperfokusGame";
 
 beforeEach(() => {
   window.localStorage.clear();
   class StubAudioContext {
-    state = 'running';
+    state = "running";
     currentTime = 0;
     destination = {};
     createOscillator() {
       return {
-        type: 'sine',
+        type: "sine",
         frequency: { value: 0, setValueAtTime: () => undefined },
         connect: () => ({ connect: () => undefined }),
         start: () => undefined,
@@ -35,16 +35,16 @@ beforeEach(() => {
       return Promise.resolve();
     }
   }
-  vi.stubGlobal('AudioContext', StubAudioContext);
+  vi.stubGlobal("AudioContext", StubAudioContext);
 });
 
-describe('HyperfokusGame', () => {
-  it('mounts and renders core tap button', () => {
+describe("HyperfokusGame", () => {
+  it("mounts and renders core tap button", () => {
     render(<HyperfokusGame />);
     expect(screen.getByLabelText(/Hyperfokus-Kern tippen/i)).toBeTruthy();
   });
 
-  it('increments score when core is tapped', async () => {
+  it("increments score when core is tapped", async () => {
     render(<HyperfokusGame />);
     const core = screen.getByLabelText(/Hyperfokus-Kern tippen/i);
     await act(async () => {
@@ -57,7 +57,7 @@ describe('HyperfokusGame', () => {
       await new Promise((r) => setTimeout(r, 250));
     });
     // Score should be at least 1 — DEFAULT_SAVE starts at 0
-    const stored = window.localStorage.getItem('minispiele.hyperfokus.save.v1');
+    const stored = window.localStorage.getItem("minispiele.hyperfokus.save.v1");
     expect(stored).toBeTruthy();
     if (stored) {
       const parsed = JSON.parse(stored) as { coins: number; totalTaps: number };
@@ -66,7 +66,7 @@ describe('HyperfokusGame', () => {
     }
   });
 
-  it('opens upgrades sheet when button clicked', async () => {
+  it("opens upgrades sheet when button clicked", async () => {
     render(<HyperfokusGame />);
     const btn = screen.getByLabelText(/Upgrades öffnen/i);
     await act(async () => {

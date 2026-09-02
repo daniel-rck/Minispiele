@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import WordleGame from '../components/WordleGame';
+import GameLayout from "../components/GameLayout";
+import WordleGame from "../components/WordleGame";
 
 export default function Wordle() {
   return (

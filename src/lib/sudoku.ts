@@ -1,4 +1,4 @@
-export type SudokuDifficulty = 'easy' | 'medium' | 'hard';
+export type SudokuDifficulty = "easy" | "medium" | "hard";
 export const SUDOKU_SIZE = 9;
 const BOX = 3;
 const TOTAL = SUDOKU_SIZE * SUDOKU_SIZE;

@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import ViergewinntGame from '../components/ViergewinntGame';
+import GameLayout from "../components/GameLayout";
+import ViergewinntGame from "../components/ViergewinntGame";
 
 export default function Viergewinnt() {
   return (

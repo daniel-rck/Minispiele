@@ -1,5 +1,5 @@
-import BinairoGame from '../components/BinairoGame';
-import GameLayout from '../components/GameLayout';
+import BinairoGame from "../components/BinairoGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Binairo() {
   return (

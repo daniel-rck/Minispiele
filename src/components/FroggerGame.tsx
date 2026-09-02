@@ -1,33 +1,33 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { type SwipeDirection, useSwipeDetection } from '../hooks/useSwipeDetection';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { FroggerBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
+import { type SwipeDirection, useSwipeDetection } from "../hooks/useSwipeDetection";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { FroggerBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const W = 520;
 const H = 560;
 const ROWS = 13;
 const CS = H / ROWS;
 const LANE_TYPES = [
-  'goal',
-  'water',
-  'water',
-  'water',
-  'water',
-  'water',
-  'safe',
-  'road',
-  'road',
-  'road',
-  'road',
-  'road',
-  'start',
+  "goal",
+  "water",
+  "water",
+  "water",
+  "water",
+  "water",
+  "safe",
+  "road",
+  "road",
+  "road",
+  "road",
+  "road",
+  "start",
 ] as const;
 type LaneType = (typeof LANE_TYPES)[number];
 
@@ -66,14 +66,14 @@ interface State {
 // Reference frame duration: lane speeds are tuned in px per 60fps frame.
 const BASE_FRAME_MS = 1000 / 60;
 
-const CAR_COLORS = ['#ef4444', '#f97316', '#0ea5e9', '#a855f7'];
+const CAR_COLORS = ["#ef4444", "#f97316", "#0ea5e9", "#a855f7"];
 
 function makeLanes(level: number): Lane[] {
   const lanes: Lane[] = [];
   for (let r = 0; r < ROWS; r++) {
-    const type = LANE_TYPES[r] ?? 'safe';
+    const type = LANE_TYPES[r] ?? "safe";
     const objs: LaneObject[] = [];
-    if (type === 'road') {
+    if (type === "road") {
       const dir = r % 2 === 0 ? 1 : -1;
       const speed = (0.6 + Math.random() * 0.8 + level * 0.15) * dir;
       const gap = 150 + Math.random() * 80;
@@ -85,16 +85,16 @@ function makeLanes(level: number): Lane[] {
           w,
           h: CS - 4,
           speed,
-          color: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)] ?? '#ef4444',
+          color: CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)] ?? "#ef4444",
         });
       }
-    } else if (type === 'water') {
+    } else if (type === "water") {
       const dir = r % 2 === 0 ? 1 : -1;
       const speed = (0.4 + Math.random() * 0.5 + level * 0.1) * dir;
       const w = 90 + Math.random() * 60;
       const gap = w + 30 + Math.random() * 30;
       for (let x = -w; x < W + 200; x += gap) {
-        objs.push({ x, y: r * CS, w, h: CS - 2, speed, color: '#92400e' });
+        objs.push({ x, y: r * CS, w, h: CS - 2, speed, color: "#92400e" });
       }
     }
     lanes.push({ type, objs });
@@ -122,7 +122,7 @@ export default function FroggerGame() {
   const [overOpen, setOverOpen] = useState(false);
   const [isOver, setIsOver] = useState(false);
   const [isNewBest, setIsNewBest] = useState(false);
-  const [announcement, setAnnouncement] = useState('Pfeile, Wischen oder Tap-Felder zum Hüpfen.');
+  const [announcement, setAnnouncement] = useState("Pfeile, Wischen oder Tap-Felder zum Hüpfen.");
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.FROGGER_BEST, FroggerBestSchema, 0);
 
   const sfx = useGameSfx();
@@ -134,7 +134,7 @@ export default function FroggerGame() {
     setOverOpen(false);
     setIsOver(false);
     setIsNewBest(false);
-    setAnnouncement('Pfeile, Wischen oder Tap-Felder zum Hüpfen.');
+    setAnnouncement("Pfeile, Wischen oder Tap-Felder zum Hüpfen.");
   }, []);
 
   const onDeath = useCallback(() => {
@@ -150,7 +150,7 @@ export default function FroggerGame() {
       setIsNewBest(newBest);
       setIsOver(true);
       setOverOpen(true);
-      setAnnouncement(newBest ? `Vorbei. Neue Bestmarke ${finalScore}` : 'Vorbei');
+      setAnnouncement(newBest ? `Vorbei. Neue Bestmarke ${finalScore}` : "Vorbei");
       sfx.lose();
       vibrate([120, 60, 120]);
     } else {
@@ -196,7 +196,7 @@ export default function FroggerGame() {
 
     const frogRow = Math.round(s.frog.y / CS);
     const laneType = LANE_TYPES[frogRow];
-    if (laneType === 'water') {
+    if (laneType === "water") {
       let onLog = false;
       for (const o of s.lanes[frogRow]?.objs ?? []) {
         if (
@@ -214,7 +214,7 @@ export default function FroggerGame() {
         return;
       }
     }
-    if (laneType === 'road') {
+    if (laneType === "road") {
       for (const o of s.lanes[frogRow]?.objs ?? []) {
         if (
           s.frog.x + s.frog.w > o.x + 4 &&
@@ -257,22 +257,22 @@ export default function FroggerGame() {
   }, !isOver);
 
   const drawScene = useCallback(() => {
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
     const s = stateRef.current;
     for (let r = 0; r < ROWS; r++) {
       const type = LANE_TYPES[r];
       ctx.fillStyle =
-        type === 'water'
-          ? '#0c4a6e'
-          : type === 'road'
-            ? '#1f2937'
-            : type === 'goal'
-              ? '#1e3a8a'
-              : '#334155';
+        type === "water"
+          ? "#0c4a6e"
+          : type === "road"
+            ? "#1f2937"
+            : type === "goal"
+              ? "#1e3a8a"
+              : "#334155";
       ctx.fillRect(0, r * CS, W, CS);
-      if (type === 'road') {
-        ctx.strokeStyle = '#475569';
+      if (type === "road") {
+        ctx.strokeStyle = "#475569";
         ctx.lineWidth = 1;
         ctx.setLineDash([10, 10]);
         ctx.beginPath();
@@ -284,7 +284,7 @@ export default function FroggerGame() {
     }
     for (let i = 0; i < 5; i++) {
       const x = i * (W / 5) + W / 10 - 15;
-      ctx.fillStyle = s.goals[i] ? '#10b981' : '#1e3a8a';
+      ctx.fillStyle = s.goals[i] ? "#10b981" : "#1e3a8a";
       ctx.beginPath();
       ctx.arc(x + 15, CS / 2, 14, 0, Math.PI * 2);
       ctx.fill();
@@ -296,9 +296,9 @@ export default function FroggerGame() {
       }
     }
     if (!s.gameOver) {
-      ctx.fillStyle = '#10b981';
+      ctx.fillStyle = "#10b981";
       ctx.fillRect(s.frog.x + 4, s.frog.y + 4, s.frog.w, s.frog.h);
-      ctx.fillStyle = '#fff';
+      ctx.fillStyle = "#fff";
       ctx.beginPath();
       ctx.arc(s.frog.x + 12, s.frog.y + 12, 3, 0, Math.PI * 2);
       ctx.fill();
@@ -311,37 +311,37 @@ export default function FroggerGame() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           move(-1, 0);
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           move(1, 0);
           break;
-        case 'ArrowLeft':
+        case "ArrowLeft":
           e.preventDefault();
           move(0, -1);
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           e.preventDefault();
           move(0, 1);
           break;
-        case ' ':
+        case " ":
           e.preventDefault();
           if (stateRef.current.gameOver) restart();
           break;
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [move, restart]);
 
   const handleSwipe = useCallback(
     (dir: SwipeDirection) => {
-      if (dir === 'up') move(-1, 0);
-      else if (dir === 'down') move(1, 0);
-      else if (dir === 'left') move(0, -1);
+      if (dir === "up") move(-1, 0);
+      else if (dir === "down") move(1, 0);
+      else if (dir === "left") move(0, -1);
       else move(0, 1);
     },
     [move],
@@ -379,7 +379,7 @@ export default function FroggerGame() {
           height={H}
           aria-label="Frogger-Spielfeld"
           className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700"
-          style={{ '--fit-ar': W / H } as CSSProperties}
+          style={{ "--fit-ar": W / H } as CSSProperties}
         />
       </div>
 

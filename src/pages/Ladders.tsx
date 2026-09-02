@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import LaddersGame from '../components/LaddersGame';
+import GameLayout from "../components/GameLayout";
+import LaddersGame from "../components/LaddersGame";
 
 export default function Ladders() {
   return (

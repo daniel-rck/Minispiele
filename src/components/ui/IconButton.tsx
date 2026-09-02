@@ -1,10 +1,10 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import { forwardRef } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { forwardRef } from "react";
 
-type IconButtonVariant = 'ghost' | 'soft' | 'solid';
-type IconButtonSize = 'sm' | 'md' | 'lg';
+type IconButtonVariant = "ghost" | "soft" | "solid";
+type IconButtonSize = "sm" | "md" | "lg";
 
-interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   label: string;
   icon: ReactNode;
   variant?: IconButtonVariant;
@@ -13,28 +13,28 @@ interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
 }
 
 const sizeClasses: Record<IconButtonSize, string> = {
-  sm: 'size-10',
-  md: 'size-11',
-  lg: 'size-12',
+  sm: "size-10",
+  md: "size-11",
+  lg: "size-12",
 };
 
 const variantClasses: Record<IconButtonVariant, string> = {
   ghost:
-    'bg-transparent text-surface-700 hover:bg-surface-100 dark:text-surface-200 dark:hover:bg-surface-800',
-  soft: 'bg-surface-100 text-surface-800 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-100 dark:hover:bg-surface-700',
+    "bg-transparent text-surface-700 hover:bg-surface-100 dark:text-surface-200 dark:hover:bg-surface-800",
+  soft: "bg-surface-100 text-surface-800 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-100 dark:hover:bg-surface-700",
   solid:
-    'bg-primary-500 text-white shadow-[0_3px_0_0_var(--color-primary-700)] hover:bg-primary-400 active:translate-y-0.5 active:shadow-[0_0_0_0_var(--color-primary-700)]',
+    "bg-primary-500 text-white shadow-[0_3px_0_0_var(--color-primary-700)] hover:bg-primary-400 active:translate-y-0.5 active:shadow-[0_0_0_0_var(--color-primary-700)]",
 };
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
   {
     label,
     icon,
-    variant = 'ghost',
-    size = 'md',
+    variant = "ghost",
+    size = "md",
     pressed,
-    className = '',
-    type = 'button',
+    className = "",
+    type = "button",
     ...rest
   },
   ref,

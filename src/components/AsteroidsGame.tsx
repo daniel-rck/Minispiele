@@ -1,13 +1,13 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { AsteroidsBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { AsteroidsBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const W = 700;
 const H = 500;
@@ -119,7 +119,7 @@ function createState(): GameState {
   return state;
 }
 
-type ControlKey = 'left' | 'right' | 'thrust' | 'fire';
+type ControlKey = "left" | "right" | "thrust" | "fire";
 
 export default function AsteroidsGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -135,7 +135,7 @@ export default function AsteroidsGame() {
   const [hudLevel, setHudLevel] = useState(1);
   const [overOpen, setOverOpen] = useState(false);
   const [isNewBest, setIsNewBest] = useState(false);
-  const [announcement, setAnnouncement] = useState('Bereit');
+  const [announcement, setAnnouncement] = useState("Bereit");
   const [best, setBest] = useLocalStorage<number>(
     STORAGE_KEYS.ASTEROIDS_BEST,
     AsteroidsBestSchema,
@@ -152,7 +152,7 @@ export default function AsteroidsGame() {
     setHudLevel(1);
     setOverOpen(false);
     setIsNewBest(false);
-    setAnnouncement('Neues Spiel gestartet');
+    setAnnouncement("Neues Spiel gestartet");
   }, []);
 
   const handleGameOver = useCallback(
@@ -161,7 +161,7 @@ export default function AsteroidsGame() {
       if (newBest) setBest(finalScore);
       setIsNewBest(newBest);
       setOverOpen(true);
-      setAnnouncement(newBest ? `Spiel vorbei. Neue Bestmarke ${finalScore}` : 'Spiel vorbei');
+      setAnnouncement(newBest ? `Spiel vorbei. Neue Bestmarke ${finalScore}` : "Spiel vorbei");
       sfx.lose();
       vibrate([120, 60, 120]);
     },
@@ -302,16 +302,16 @@ export default function AsteroidsGame() {
     if (hudLevel !== s.level) setHudLevel(s.level);
 
     // draw
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, W, H);
 
     if (!s.gameOver && (!s.invincible || Math.floor(s.invTimer / 4) % 2 === 0)) {
       ctx.save();
       ctx.translate(s.ship.x, s.ship.y);
       ctx.rotate(s.ship.angle);
-      ctx.strokeStyle = '#fbbf24';
+      ctx.strokeStyle = "#fbbf24";
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(15, 0);
@@ -321,7 +321,7 @@ export default function AsteroidsGame() {
       ctx.closePath();
       ctx.stroke();
       if (keys.thrust) {
-        ctx.fillStyle = '#f97316';
+        ctx.fillStyle = "#f97316";
         ctx.beginPath();
         ctx.moveTo(-8, -4);
         ctx.lineTo(-16, 0);
@@ -331,7 +331,7 @@ export default function AsteroidsGame() {
       ctx.restore();
     }
 
-    ctx.strokeStyle = '#cbd5e1';
+    ctx.strokeStyle = "#cbd5e1";
     ctx.lineWidth = 1.5;
     for (const a of s.asteroids) {
       ctx.save();
@@ -349,7 +349,7 @@ export default function AsteroidsGame() {
       ctx.restore();
     }
 
-    ctx.fillStyle = '#fde047';
+    ctx.fillStyle = "#fde047";
     for (const b of s.bullets) {
       ctx.beginPath();
       ctx.arc(b.x, b.y, 2, 0, Math.PI * 2);
@@ -371,55 +371,55 @@ export default function AsteroidsGame() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
       switch (e.key) {
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-          setKey('left', true);
+        case "ArrowLeft":
+        case "a":
+        case "A":
+          setKey("left", true);
           break;
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-          setKey('right', true);
+        case "ArrowRight":
+        case "d":
+        case "D":
+          setKey("right", true);
           break;
-        case 'ArrowUp':
-        case 'w':
-        case 'W':
-          setKey('thrust', true);
+        case "ArrowUp":
+        case "w":
+        case "W":
+          setKey("thrust", true);
           break;
-        case ' ':
+        case " ":
           e.preventDefault();
-          setKey('fire', true);
+          setKey("fire", true);
           if (stateRef.current.gameOver) restart();
           break;
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-          setKey('left', false);
+        case "ArrowLeft":
+        case "a":
+        case "A":
+          setKey("left", false);
           break;
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-          setKey('right', false);
+        case "ArrowRight":
+        case "d":
+        case "D":
+          setKey("right", false);
           break;
-        case 'ArrowUp':
-        case 'w':
-        case 'W':
-          setKey('thrust', false);
+        case "ArrowUp":
+        case "w":
+        case "W":
+          setKey("thrust", false);
           break;
-        case ' ':
-          setKey('fire', false);
+        case " ":
+          setKey("fire", false);
           break;
       }
     };
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
     return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
     };
   }, [restart, setKey]);
 
@@ -427,7 +427,7 @@ export default function AsteroidsGame() {
     onPointerDown: (e: React.PointerEvent) => {
       e.preventDefault();
       setKey(key, true);
-      if (key === 'fire' && stateRef.current.gameOver) restart();
+      if (key === "fire" && stateRef.current.gameOver) restart();
     },
     onPointerUp: (e: React.PointerEvent) => {
       e.preventDefault();
@@ -462,7 +462,7 @@ export default function AsteroidsGame() {
           height={H}
           aria-label="Asteroids-Spielfeld"
           className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
-          style={{ '--fit-ar': W / H } as CSSProperties}
+          style={{ "--fit-ar": W / H } as CSSProperties}
         />
       </div>
 
@@ -471,7 +471,7 @@ export default function AsteroidsGame() {
           type="button"
           aria-label="Nach links"
           className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
-          {...touchHandlers('left')}
+          {...touchHandlers("left")}
         >
           ←
         </button>
@@ -479,7 +479,7 @@ export default function AsteroidsGame() {
           type="button"
           aria-label="Schub"
           className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
-          {...touchHandlers('thrust')}
+          {...touchHandlers("thrust")}
         >
           ↑
         </button>
@@ -487,7 +487,7 @@ export default function AsteroidsGame() {
           type="button"
           aria-label="Nach rechts"
           className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
-          {...touchHandlers('right')}
+          {...touchHandlers("right")}
         >
           →
         </button>
@@ -495,7 +495,7 @@ export default function AsteroidsGame() {
           type="button"
           aria-label="Schießen"
           className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-amber-500 text-2xl text-white active:bg-amber-600"
-          {...touchHandlers('fire')}
+          {...touchHandlers("fire")}
         >
           ●
         </button>

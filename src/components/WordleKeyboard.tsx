@@ -1,4 +1,4 @@
-import type { LetterState } from '../lib/wordle';
+import type { LetterState } from "../lib/wordle";
 
 interface Props {
   status: Record<string, LetterState>;
@@ -8,20 +8,20 @@ interface Props {
   disabled?: boolean;
 }
 
-const ROW1 = ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'];
-const ROW2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
-const ROW3 = ['Y', 'X', 'C', 'V', 'B', 'N', 'M'];
+const ROW1 = ["Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P"];
+const ROW2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
+const ROW3 = ["Y", "X", "C", "V", "B", "N", "M"];
 
 function keyClass(state: LetterState | undefined): string {
   switch (state) {
-    case 'correct':
-      return 'bg-emerald-500 text-white border-emerald-600';
-    case 'present':
-      return 'bg-amber-400 text-white border-amber-500';
-    case 'absent':
-      return 'bg-slate-400 text-white border-slate-500 dark:bg-slate-700 dark:border-slate-800';
+    case "correct":
+      return "bg-emerald-500 text-white border-emerald-600";
+    case "present":
+      return "bg-amber-400 text-white border-amber-500";
+    case "absent":
+      return "bg-slate-400 text-white border-slate-500 dark:bg-slate-700 dark:border-slate-800";
     default:
-      return 'bg-slate-200 text-slate-900 border-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700';
+      return "bg-slate-200 text-slate-900 border-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700";
   }
 }
 

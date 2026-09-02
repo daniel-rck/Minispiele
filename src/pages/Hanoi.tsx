@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import HanoiGame from '../components/HanoiGame';
+import GameLayout from "../components/GameLayout";
+import HanoiGame from "../components/HanoiGame";
 
 export default function Hanoi() {
   return (

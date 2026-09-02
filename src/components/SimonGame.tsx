@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
-import { SimonBestSchema } from '../lib/persistedSchemas';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { ANIMATION, STORAGE_KEYS } from "../lib/constants";
+import { SimonBestSchema } from "../lib/persistedSchemas";
 import {
   createInitialState,
   extendSequence,
@@ -11,12 +11,12 @@ import {
   type SimonColor,
   type SimonState,
   startInput,
-} from '../lib/simon';
-import { ToneAudio } from '../lib/toneAudio';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/simon";
+import { ToneAudio } from "../lib/toneAudio";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 interface PadDef {
   label: string;
@@ -30,32 +30,32 @@ type PadTuple = readonly [PadDef, PadDef, PadDef, PadDef];
 
 const PADS: PadTuple = [
   {
-    label: 'Grün',
+    label: "Grün",
     freq: 329.63,
-    base: 'bg-emerald-600 hover:bg-emerald-500',
-    flash: 'bg-emerald-300',
-    position: 'rounded-tl-[60%]',
+    base: "bg-emerald-600 hover:bg-emerald-500",
+    flash: "bg-emerald-300",
+    position: "rounded-tl-[60%]",
   },
   {
-    label: 'Rot',
+    label: "Rot",
     freq: 261.63,
-    base: 'bg-red-600 hover:bg-red-500',
-    flash: 'bg-red-300',
-    position: 'rounded-tr-[60%]',
+    base: "bg-red-600 hover:bg-red-500",
+    flash: "bg-red-300",
+    position: "rounded-tr-[60%]",
   },
   {
-    label: 'Gelb',
+    label: "Gelb",
     freq: 220.0,
-    base: 'bg-amber-500 hover:bg-amber-400',
-    flash: 'bg-amber-200',
-    position: 'rounded-bl-[60%]',
+    base: "bg-amber-500 hover:bg-amber-400",
+    flash: "bg-amber-200",
+    position: "rounded-bl-[60%]",
   },
   {
-    label: 'Blau',
+    label: "Blau",
     freq: 164.81,
-    base: 'bg-sky-600 hover:bg-sky-500',
-    flash: 'bg-sky-300',
-    position: 'rounded-br-[60%]',
+    base: "bg-sky-600 hover:bg-sky-500",
+    flash: "bg-sky-300",
+    position: "rounded-br-[60%]",
   },
 ];
 
@@ -70,14 +70,14 @@ export default function SimonGame() {
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.SIMON_BEST, SimonBestSchema, 0);
   const [lostOpen, setLostOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncement] = useState("");
 
   const audioRef = useRef<ToneAudio | null>(null);
   const timeoutsRef = useRef<number[]>([]);
   if (audioRef.current === null) audioRef.current = new ToneAudio();
 
   const { vibrate } = useVibration();
-  useWakeLock(state.phase === 'showing' || state.phase === 'input');
+  useWakeLock(state.phase === "showing" || state.phase === "input");
 
   const clearTimeouts = useCallback(() => {
     for (const id of timeoutsRef.current) window.clearTimeout(id);
@@ -103,7 +103,7 @@ export default function SimonGame() {
   }, []);
 
   useEffect(() => {
-    if (state.phase !== 'showing') return;
+    if (state.phase !== "showing") return;
     clearTimeouts();
     const dur = flashDurationMs(state.level);
     const gap = ANIMATION.SIMON_GAP_MS;
@@ -115,7 +115,7 @@ export default function SimonGame() {
       delay += dur + gap;
     }
     const switchToInput = window.setTimeout(() => {
-      setState((s) => (s.phase === 'showing' ? startInput(s) : s));
+      setState((s) => (s.phase === "showing" ? startInput(s) : s));
     }, delay);
     timeoutsRef.current.push(switchToInput);
   }, [state.phase, state.sequence, state.level, clearTimeouts, playFlash]);
@@ -127,12 +127,12 @@ export default function SimonGame() {
     setLostOpen(false);
     setScoreIsNew(false);
     setState(() => extendSequence(createInitialState(), Math.random));
-    setAnnouncement('Spiel gestartet');
+    setAnnouncement("Spiel gestartet");
   }, [clearTimeouts]);
 
   const handlePadPress = useCallback(
     (color: SimonColor) => {
-      if (state.phase !== 'input') return;
+      if (state.phase !== "input") return;
       const expected = state.sequence[state.inputIdx];
       if (expected === undefined) return;
       const isCorrect = expected === color;
@@ -143,7 +143,7 @@ export default function SimonGame() {
       setState(next);
 
       if (!correct) {
-        audioRef.current?.playTone(ERROR_FREQ_HZ, ERROR_DURATION_MS, { type: 'sawtooth' });
+        audioRef.current?.playTone(ERROR_FREQ_HZ, ERROR_DURATION_MS, { type: "sawtooth" });
         vibrate([80, 60, 80]);
         const reached = state.level;
         const completedLevels = Math.max(0, reached - 1);
@@ -163,7 +163,7 @@ export default function SimonGame() {
         setAnnouncement(`Level ${state.level} geschafft`);
         const id = window.setTimeout(() => {
           setState((s) =>
-            s.phase === 'input' && s.inputIdx === s.sequence.length
+            s.phase === "input" && s.inputIdx === s.sequence.length
               ? extendSequence(s, Math.random)
               : s,
           );
@@ -174,15 +174,15 @@ export default function SimonGame() {
     [state, best, setBest, vibrate, playFlash],
   );
 
-  const showStart = state.phase === 'idle' || state.phase === 'lost';
+  const showStart = state.phase === "idle" || state.phase === "lost";
   const showingLabel =
-    state.phase === 'showing'
-      ? 'Schau zu …'
-      : state.phase === 'input'
+    state.phase === "showing"
+      ? "Schau zu …"
+      : state.phase === "input"
         ? `Du bist dran (${state.inputIdx + 1} / ${state.sequence.length})`
-        : state.phase === 'lost'
-          ? 'Verloren'
-          : 'Bereit';
+        : state.phase === "lost"
+          ? "Verloren"
+          : "Bereit";
 
   return (
     <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
@@ -209,7 +209,7 @@ export default function SimonGame() {
           {PADS.map((pad, idx) => {
             const color = idx as SimonColor;
             const isActive = activePad === color;
-            const disabled = state.phase !== 'input';
+            const disabled = state.phase !== "input";
             return (
               <button
                 key={pad.label}
@@ -219,7 +219,7 @@ export default function SimonGame() {
                 aria-label={pad.label}
                 className={`relative h-full w-full transition-transform select-none ${pad.position} ${
                   isActive ? pad.flash : pad.base
-                } ${disabled ? 'cursor-not-allowed opacity-80' : 'active:scale-[0.98]'}`}
+                } ${disabled ? "cursor-not-allowed opacity-80" : "active:scale-[0.98]"}`}
               />
             );
           })}
@@ -228,7 +228,7 @@ export default function SimonGame() {
 
       {showStart && (
         <Button variant="primary" block className="max-w-md" onClick={handleStart}>
-          {state.phase === 'lost' ? 'Nochmal spielen' : 'Starten'}
+          {state.phase === "lost" ? "Nochmal spielen" : "Starten"}
         </Button>
       )}
 

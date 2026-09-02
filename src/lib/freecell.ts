@@ -1,4 +1,4 @@
-export const SUITS = ['♠', '♥', '♦', '♣'] as const;
+export const SUITS = ["♠", "♥", "♦", "♣"] as const;
 export type Suit = (typeof SUITS)[number];
 
 export interface Card {
@@ -16,17 +16,17 @@ export interface FreecellState {
 }
 
 export function rankLabel(rank: number): string {
-  if (rank === 1) return 'A';
-  if (rank === 11) return 'B';
-  if (rank === 12) return 'D';
-  if (rank === 13) return 'K';
+  if (rank === 1) return "A";
+  if (rank === 11) return "B";
+  if (rank === 12) return "D";
+  if (rank === 13) return "K";
   return String(rank);
 }
 
 function buildDeck(): Card[] {
   const deck: Card[] = [];
   for (const suit of SUITS) {
-    const red = suit === '♥' || suit === '♦';
+    const red = suit === "♥" || suit === "♦";
     for (let r = 1; r <= 13; r++) deck.push({ suit, rank: r, red });
   }
   return deck;
@@ -74,17 +74,17 @@ export function canPlaceOnTableau(stack: Card[], card: Card): boolean {
 }
 
 export interface MoveSource {
-  type: 'tableau' | 'free';
+  type: "tableau" | "free";
   index: number;
 }
 
 export interface MoveTarget {
-  type: 'tableau' | 'free' | 'foundation';
+  type: "tableau" | "free" | "foundation";
   index: number;
 }
 
 function topOf(state: FreecellState, src: MoveSource): Card | null {
-  if (src.type === 'free') return state.freeCells[src.index] ?? null;
+  if (src.type === "free") return state.freeCells[src.index] ?? null;
   const stack = state.tableau[src.index]!;
   return stack[stack.length - 1] ?? null;
 }
@@ -108,9 +108,9 @@ export function makeMove(
   if (!card) return null;
 
   // Validate target
-  if (dst.type === 'free') {
+  if (dst.type === "free") {
     if (state.freeCells[dst.index] !== null) return null;
-  } else if (dst.type === 'foundation') {
+  } else if (dst.type === "foundation") {
     if (canPlaceOnFoundation(state, card) !== dst.index) return null;
   } else {
     if (!canPlaceOnTableau(state.tableau[dst.index]!, card)) return null;
@@ -120,11 +120,11 @@ export function makeMove(
   const past = snapshot(state);
   const next = snapshot(state);
   // Remove from source
-  if (src.type === 'free') next.freeCells[src.index] = null;
+  if (src.type === "free") next.freeCells[src.index] = null;
   else next.tableau[src.index]!.pop();
   // Add to target
-  if (dst.type === 'free') next.freeCells[dst.index] = card;
-  else if (dst.type === 'foundation') next.foundations[dst.index]!.push(card);
+  if (dst.type === "free") next.freeCells[dst.index] = card;
+  else if (dst.type === "foundation") next.foundations[dst.index]!.push(card);
   else next.tableau[dst.index]!.push(card);
 
   next.moves = state.moves + 1;
@@ -141,7 +141,7 @@ export function autoMoveToFoundation(state: FreecellState, src: MoveSource): Fre
   if (!card) return null;
   const f = canPlaceOnFoundation(state, card);
   if (f === null) return null;
-  return makeMove(state, src, { type: 'foundation', index: f });
+  return makeMove(state, src, { type: "foundation", index: f });
 }
 
 export function undo(state: FreecellState): FreecellState {

@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { STORAGE_KEYS } from '../lib/constants';
-import { isBetter } from '../lib/highscores';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { STORAGE_KEYS } from "../lib/constants";
+import { isBetter } from "../lib/highscores";
 import {
   EMPTY_SLIDING_HIGHSCORES,
   type HighscoreEntry,
   SlidingDifficultySchema,
   SlidingHighscoresSchema,
-} from '../lib/persistedSchemas';
+} from "../lib/persistedSchemas";
 import {
   type ArrowDirection,
   createInitialState,
@@ -16,27 +16,27 @@ import {
   type SlidingDifficulty,
   type SlidingState,
   tryMove,
-} from '../lib/slidingPuzzle';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import Button from './ui/Button';
-import DifficultySelector from './ui/DifficultySelector';
-import GameFooter from './ui/GameFooter';
-import GameStats from './ui/GameStats';
-import Sheet from './ui/Sheet';
+} from "../lib/slidingPuzzle";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration, useGameTimer } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import Button from "./ui/Button";
+import DifficultySelector from "./ui/DifficultySelector";
+import GameFooter from "./ui/GameFooter";
+import GameStats from "./ui/GameStats";
+import Sheet from "./ui/Sheet";
 
 const difficultyLabels: Record<SlidingDifficulty, string> = {
-  easy: 'Leicht (3×3)',
-  medium: 'Mittel (4×4)',
-  hard: 'Schwer (5×5)',
+  easy: "Leicht (3×3)",
+  medium: "Mittel (4×4)",
+  hard: "Schwer (5×5)",
 };
 
 export default function SlidingPuzzleGame() {
   const [difficulty, setDifficulty] = useLocalStorage<SlidingDifficulty>(
     STORAGE_KEYS.SLIDING_DIFFICULTY,
     SlidingDifficultySchema,
-    'medium',
+    "medium",
   );
   const [highscores, setHighscores] = useLocalStorage(
     STORAGE_KEYS.SLIDING_HIGHSCORES,
@@ -48,7 +48,7 @@ export default function SlidingPuzzleGame() {
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
   const timer = useGameTimer();
-  useWakeLock(timer.status === 'running');
+  useWakeLock(timer.status === "running");
   const prevMovesRef = useRef(0);
   const prevWonRef = useRef(false);
   const sfx = useGameSfx();
@@ -84,17 +84,17 @@ export default function SlidingPuzzleGame() {
     const onKey = (e: KeyboardEvent) => {
       let dir: ArrowDirection | null = null;
       switch (e.key) {
-        case 'ArrowUp':
-          dir = 'up';
+        case "ArrowUp":
+          dir = "up";
           break;
-        case 'ArrowDown':
-          dir = 'down';
+        case "ArrowDown":
+          dir = "down";
           break;
-        case 'ArrowLeft':
-          dir = 'left';
+        case "ArrowLeft":
+          dir = "left";
           break;
-        case 'ArrowRight':
-          dir = 'right';
+        case "ArrowRight":
+          dir = "right";
           break;
       }
       if (dir) {
@@ -102,8 +102,8 @@ export default function SlidingPuzzleGame() {
         setState((s) => moveByArrow(s, dir));
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const restart = useCallback(
@@ -139,14 +139,14 @@ export default function SlidingPuzzleGame() {
 
       <GameStats
         items={[
-          { label: 'Züge', value: state.moves },
+          { label: "Züge", value: state.moves },
           {
-            label: 'Zeit',
+            label: "Zeit",
             value: formatDuration(timer.elapsedSeconds),
-            valueAriaLabel: 'Spielzeit',
+            valueAriaLabel: "Spielzeit",
           },
           {
-            label: 'Best',
+            label: "Best",
             value: best ? (
               <>
                 {best.moves}Z · {formatDuration(best.seconds)}

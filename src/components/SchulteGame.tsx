@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SchulteBestSchema, SchulteSizeSchema } from '../lib/persistedSchemas';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { SchulteBestSchema, SchulteSizeSchema } from "../lib/persistedSchemas";
 import {
   createInitialState,
   pressNumber,
   SCHULTE_SIZES,
   type SchulteSize,
   type SchulteState,
-} from '../lib/schulte';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+} from "../lib/schulte";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 export default function SchulteGame() {
   const [size, setSize] = useLocalStorage<number>(STORAGE_KEYS.SCHULTE_SIZE, SchulteSizeSchema, 5);
@@ -27,7 +27,7 @@ export default function SchulteGame() {
   const [finishedSec, setFinishedSec] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
   const tickRef = useRef<number | null>(null);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
 
@@ -152,8 +152,8 @@ export default function SchulteGame() {
                 aria-label={`Zahl ${value}`}
                 className={`flex aspect-square items-center justify-center rounded-lg text-base font-bold tabular-nums sm:text-xl md:text-2xl ${
                   done
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200'
-                    : 'bg-white text-slate-800 hover:bg-brand-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800'
+                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
+                    : "bg-white text-slate-800 hover:bg-brand-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
                 {value}
@@ -164,7 +164,7 @@ export default function SchulteGame() {
       </div>
 
       <Button variant="primary" block className="max-w-md" onClick={() => reset()}>
-        {finishedSec !== null ? 'Nochmal spielen' : 'Neu mischen'}
+        {finishedSec !== null ? "Nochmal spielen" : "Neu mischen"}
       </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">

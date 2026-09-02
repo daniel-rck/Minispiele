@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 const FLIP_DURATION_MS = 300;
 
@@ -8,8 +8,8 @@ interface Props {
 }
 
 function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export default function FlipDigit({ digit, animate }: Props) {
@@ -20,11 +20,11 @@ export default function FlipDigit({ digit, animate }: Props) {
   const endRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mql.addEventListener?.('change', handler);
-    return () => mql.removeEventListener?.('change', handler);
+    mql.addEventListener?.("change", handler);
+    return () => mql.removeEventListener?.("change", handler);
   }, []);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function FlipDigit({ digit, animate }: Props) {
   );
 
   return (
-    <span className={`flip-digit${flipping ? ' flip-digit-active' : ''}`} aria-hidden>
+    <span className={`flip-digit${flipping ? " flip-digit-active" : ""}`} aria-hidden>
       {shown}
     </span>
   );

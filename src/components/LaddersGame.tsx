@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { DiceSound } from '../lib/diceSound';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { DiceSound } from "../lib/diceSound";
 import {
   applyDieRoll,
   BOARD_SIZE,
@@ -14,15 +14,15 @@ import {
   resolveSpecial,
   rollDie,
   SNAKES,
-} from '../lib/laddersAndSnakes';
-import { LadderBestSchema } from '../lib/persistedSchemas';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/laddersAndSnakes";
+import { LadderBestSchema } from "../lib/persistedSchemas";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
-const PLAYER_COLOURS = ['#3b82f6', '#ef4444', '#22c55e', '#eab308'];
-const PLAYER_NAMES = ['Du', 'KI 1', 'KI 2', 'KI 3'];
+const PLAYER_COLOURS = ["#3b82f6", "#ef4444", "#22c55e", "#eab308"];
+const PLAYER_NAMES = ["Du", "KI 1", "KI 2", "KI 3"];
 const AI_DELAY_MS = 700;
 const SPECIAL_DELAY_MS = 350;
 
@@ -41,7 +41,7 @@ function cellCenter(cell: number, geom: CanvasGeometry): { x: number; y: number 
 
 function drawBoard(ctx: CanvasRenderingContext2D, geom: CanvasGeometry): void {
   const { size, cell } = geom;
-  ctx.fillStyle = '#16213e';
+  ctx.fillStyle = "#16213e";
   ctx.fillRect(0, 0, size, size);
 
   for (let r = 0; r < BOARD_SIZE; r++) {
@@ -50,12 +50,12 @@ function drawBoard(ctx: CanvasRenderingContext2D, geom: CanvasGeometry): void {
       const num = idx + 1;
       const x = c * cell;
       const y = (BOARD_SIZE - 1 - r) * cell;
-      ctx.fillStyle = (r + c) % 2 === 0 ? '#1a2a4e' : '#16213e';
+      ctx.fillStyle = (r + c) % 2 === 0 ? "#1a2a4e" : "#16213e";
       ctx.fillRect(x, y, cell, cell);
-      ctx.fillStyle = 'rgba(226,232,240,0.55)';
+      ctx.fillStyle = "rgba(226,232,240,0.55)";
       ctx.font = `${Math.floor(cell * 0.22)}px system-ui, sans-serif`;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
       ctx.fillText(String(num), x + 4, y + 4);
     }
   }
@@ -65,8 +65,8 @@ function drawSpecials(ctx: CanvasRenderingContext2D, geom: CanvasGeometry): void
   ctx.lineWidth = 4;
   ctx.setLineDash([8, 4]);
 
-  ctx.strokeStyle = '#22c55e';
-  ctx.fillStyle = '#22c55e';
+  ctx.strokeStyle = "#22c55e";
+  ctx.fillStyle = "#22c55e";
   for (const [fromStr, to] of Object.entries(LADDERS)) {
     const from = Number(fromStr);
     const a = cellCenter(from, geom);
@@ -76,13 +76,13 @@ function drawSpecials(ctx: CanvasRenderingContext2D, geom: CanvasGeometry): void
     ctx.lineTo(b.x, b.y);
     ctx.stroke();
     ctx.font = `bold ${Math.floor(geom.cell * 0.3)}px system-ui, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('↑', a.x + geom.cell * 0.25, a.y - geom.cell * 0.1);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("↑", a.x + geom.cell * 0.25, a.y - geom.cell * 0.1);
   }
 
-  ctx.strokeStyle = '#ef4444';
-  ctx.fillStyle = '#ef4444';
+  ctx.strokeStyle = "#ef4444";
+  ctx.fillStyle = "#ef4444";
   for (const [fromStr, to] of Object.entries(SNAKES)) {
     const from = Number(fromStr);
     const a = cellCenter(from, geom);
@@ -92,9 +92,9 @@ function drawSpecials(ctx: CanvasRenderingContext2D, geom: CanvasGeometry): void
     ctx.lineTo(b.x, b.y);
     ctx.stroke();
     ctx.font = `bold ${Math.floor(geom.cell * 0.3)}px system-ui, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('↓', a.x + geom.cell * 0.25, a.y - geom.cell * 0.1);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("↓", a.x + geom.cell * 0.25, a.y - geom.cell * 0.1);
   }
 
   ctx.setLineDash([]);
@@ -119,17 +119,17 @@ function drawTokens(
     const offset = offsets[p] ?? [0, 0];
     const x = center.x + offset[0];
     const y = center.y + offset[1];
-    ctx.fillStyle = PLAYER_COLOURS[p] ?? '#888';
+    ctx.fillStyle = PLAYER_COLOURS[p] ?? "#888";
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = "#fff";
     ctx.font = `bold ${Math.floor(radius * 1.1)}px system-ui, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(p === 0 ? 'Du' : String(p), x, y + 1);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(p === 0 ? "Du" : String(p), x, y + 1);
     if (p === current && !gameOver) {
-      ctx.strokeStyle = '#fbbf24';
+      ctx.strokeStyle = "#fbbf24";
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
@@ -148,8 +148,8 @@ export default function LaddersGame() {
   );
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [message, setMessage] = useState('Dein Zug — würfle!');
-  const [announce, setAnnounce] = useState('');
+  const [message, setMessage] = useState("Dein Zug — würfle!");
+  const [announce, setAnnounce] = useState("");
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const { vibrate } = useVibration();
   const diceSoundRef = useRef<DiceSound | null>(null);
@@ -174,13 +174,13 @@ export default function LaddersGame() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const size = canvas.width;
     const geom: CanvasGeometry = { size, cell: size / BOARD_SIZE };
     drawBoard(ctx, geom);
     drawSpecials(ctx, geom);
-    drawTokens(ctx, geom, state.positions, state.current, state.status === 'won');
+    drawTokens(ctx, geom, state.positions, state.current, state.status === "won");
   }, [state.positions, state.current, state.status]);
 
   const moveAndFinish = useCallback((playerIdx: number, roll: number) => {
@@ -188,7 +188,7 @@ export default function LaddersGame() {
       const newPos = applyDieRoll(s.positions[playerIdx] ?? 0, roll);
       const positions = s.positions.slice();
       positions[playerIdx] = newPos;
-      return { ...s, positions, lastRoll: roll, status: 'rolling' };
+      return { ...s, positions, lastRoll: roll, status: "rolling" };
     });
 
     const t1 = setTimeout(() => {
@@ -197,16 +197,16 @@ export default function LaddersGame() {
         const { dest, via } = resolveSpecial(intermediate);
         const positions = s.positions.slice();
         positions[playerIdx] = dest;
-        if (via === 'ladder') {
+        if (via === "ladder") {
           setMessage(`${PLAYER_NAMES[playerIdx]}: Leiter! ${intermediate} → ${dest}`);
-        } else if (via === 'snake') {
+        } else if (via === "snake") {
           setMessage(`${PLAYER_NAMES[playerIdx]}: Schlange! ${intermediate} → ${dest}`);
         }
         if (dest === FINISH) {
-          return { ...s, positions, status: 'won', winner: playerIdx };
+          return { ...s, positions, status: "won", winner: playerIdx };
         }
         const nextPlayer = (s.current + 1) % PLAYER_COUNT;
-        return { ...s, positions, current: nextPlayer, status: 'idle' };
+        return { ...s, positions, current: nextPlayer, status: "idle" };
       });
     }, SPECIAL_DELAY_MS);
     timersRef.current.push(t1);
@@ -214,7 +214,7 @@ export default function LaddersGame() {
 
   // AI loop — when it's an AI's turn and the game isn't over, schedule their roll.
   useEffect(() => {
-    if (state.status !== 'idle') return;
+    if (state.status !== "idle") return;
     if (state.current === 0) return;
     const aiIdx = state.current;
     const t = setTimeout(() => {
@@ -231,7 +231,7 @@ export default function LaddersGame() {
 
   // Win detection — open the sheet, persist best turns.
   useEffect(() => {
-    if (state.status !== 'won' || !winOpen === false) return;
+    if (state.status !== "won" || !winOpen === false) return;
     const isHumanWin = state.winner === 0;
     if (isHumanWin && state.humanTurns > 0) {
       if (best === null || state.humanTurns < best) {
@@ -249,7 +249,7 @@ export default function LaddersGame() {
   }, [state.status, state.winner, state.humanTurns, best, setBest, vibrate, winOpen]);
 
   const handleRoll = () => {
-    if (state.status !== 'idle' || state.current !== 0) return;
+    if (state.status !== "idle" || state.current !== 0) return;
     const roll = rollDie();
     diceSoundRef.current?.playRoll(320, 1);
     const settleId = setTimeout(() => diceSoundRef.current?.playSettle(1), 320);
@@ -265,8 +265,8 @@ export default function LaddersGame() {
     setState(createInitialState());
     setWinOpen(false);
     setScoreIsNew(false);
-    setMessage('Dein Zug — würfle!');
-    setAnnounce('Neue Runde gestartet.');
+    setMessage("Dein Zug — würfle!");
+    setAnnounce("Neue Runde gestartet.");
   };
 
   return (
@@ -293,14 +293,14 @@ export default function LaddersGame() {
       <div className="flex w-full max-w-md items-center justify-between gap-3">
         <div
           className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-2xl font-extrabold tabular-nums text-slate-900 shadow"
-          title={`Letzter Würfelwurf: ${state.lastRoll || '—'}`}
+          title={`Letzter Würfelwurf: ${state.lastRoll || "—"}`}
         >
-          {state.lastRoll || '—'}
+          {state.lastRoll || "—"}
         </div>
         <Button
           variant="primary"
           onClick={handleRoll}
-          disabled={state.status !== 'idle' || state.current !== 0}
+          disabled={state.status !== "idle" || state.current !== 0}
         >
           Würfeln
         </Button>
@@ -314,7 +314,7 @@ export default function LaddersGame() {
           Züge: <span className="font-semibold tabular-nums">{state.humanTurns}</span>
         </div>
         <div className="text-right">
-          Best: <span className="font-semibold tabular-nums">{best !== null ? best : '—'}</span>
+          Best: <span className="font-semibold tabular-nums">{best !== null ? best : "—"}</span>
         </div>
       </div>
 
@@ -326,11 +326,11 @@ export default function LaddersGame() {
       <Sheet
         open={winOpen}
         onClose={() => setWinOpen(false)}
-        title={state.winner === 0 ? 'Gewonnen!' : 'Verloren'}
+        title={state.winner === 0 ? "Gewonnen!" : "Verloren"}
       >
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
-            {state.winner === 0 ? '🏆' : '🪜'}
+            {state.winner === 0 ? "🏆" : "🪜"}
           </div>
           {scoreIsNew && (
             <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">

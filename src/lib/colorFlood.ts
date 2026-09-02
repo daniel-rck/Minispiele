@@ -1,12 +1,12 @@
 export const COLOR_FLOOD_SIZE = 14;
 export const COLOR_FLOOD_MAX_MOVES = 25;
 export const COLOR_FLOOD_PALETTE = [
-  '#e74c3c',
-  '#3498db',
-  '#2ecc71',
-  '#f1c40f',
-  '#9b59b6',
-  '#e67e22',
+  "#e74c3c",
+  "#3498db",
+  "#2ecc71",
+  "#f1c40f",
+  "#9b59b6",
+  "#e67e22",
 ] as const;
 export const COLOR_FLOOD_COLORS = COLOR_FLOOD_PALETTE.length;
 

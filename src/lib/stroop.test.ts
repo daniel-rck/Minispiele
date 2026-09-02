@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { nextChallenge, STROOP_COLORS, type StroopChallenge, scoreAnswer } from './stroop';
+import { describe, expect, it } from "vitest";
+import { nextChallenge, STROOP_COLORS, type StroopChallenge, scoreAnswer } from "./stroop";
 
 function seededRng(values: number[]): () => number {
   let i = 0;
@@ -10,13 +10,13 @@ function seededRng(values: number[]): () => number {
   };
 }
 
-describe('stroop', () => {
-  it('exposes four distinct colors', () => {
+describe("stroop", () => {
+  it("exposes four distinct colors", () => {
     expect(STROOP_COLORS).toHaveLength(4);
     expect(new Set(STROOP_COLORS.map((c) => c.key)).size).toBe(4);
   });
 
-  it('nextChallenge never produces matching word and ink (invariant)', () => {
+  it("nextChallenge never produces matching word and ink (invariant)", () => {
     // Drive many combinations through a cycling rng.
     const rng = seededRng([0, 0.1, 0.26, 0.4, 0.5, 0.6, 0.76, 0.9, 0.99]);
     for (let i = 0; i < 30; i++) {
@@ -25,7 +25,7 @@ describe('stroop', () => {
     }
   });
 
-  it('nextChallenge avoids repeating the previous identical challenge', () => {
+  it("nextChallenge avoids repeating the previous identical challenge", () => {
     const prev: StroopChallenge = {
       word: STROOP_COLORS[0]!, // red
       ink: STROOP_COLORS[1]!, // green
@@ -38,19 +38,19 @@ describe('stroop', () => {
     expect(isSameAsPrev).toBe(false);
   });
 
-  it('scoreAnswer returns correct when the answer matches the ink color', () => {
+  it("scoreAnswer returns correct when the answer matches the ink color", () => {
     const challenge: StroopChallenge = {
       word: STROOP_COLORS[0]!, // red word
       ink: STROOP_COLORS[2]!, // blue ink
     };
-    expect(scoreAnswer(challenge, 'blue')).toBe('correct');
+    expect(scoreAnswer(challenge, "blue")).toBe("correct");
   });
 
-  it('scoreAnswer returns wrong when the answer matches the word, not the ink', () => {
+  it("scoreAnswer returns wrong when the answer matches the word, not the ink", () => {
     const challenge: StroopChallenge = {
       word: STROOP_COLORS[0]!, // red word
       ink: STROOP_COLORS[2]!, // blue ink
     };
-    expect(scoreAnswer(challenge, 'red')).toBe('wrong');
+    expect(scoreAnswer(challenge, "red")).toBe("wrong");
   });
 });

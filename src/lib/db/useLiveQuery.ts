@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 export type LiveQueryResult<T> = {
   data: T | undefined;
@@ -39,13 +39,13 @@ export function useLiveQuery<T>(
 
     run();
 
-    if (typeof BroadcastChannel === 'undefined') {
+    if (typeof BroadcastChannel === "undefined") {
       return () => {
         cancelled = true;
       };
     }
 
-    const channelNames = Array.from(new Set([`db:${storeName}`, 'db:*']));
+    const channelNames = Array.from(new Set([`db:${storeName}`, "db:*"]));
     const channels = channelNames.map((name) => new BroadcastChannel(name));
     for (const channel of channels) {
       channel.onmessage = () => {

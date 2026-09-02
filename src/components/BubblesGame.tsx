@@ -6,9 +6,9 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
-import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { useVibration } from '../hooks/useVibration';
+} from "react";
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
+import { useVibration } from "../hooks/useVibration";
 import {
   buildInitial,
   BUBBLES_CELL as CELL,
@@ -25,15 +25,15 @@ import {
   BUBBLES_ROWS as ROWS,
   randomColor,
   type BubblesState as State,
-} from '../lib/bubbles';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
-import { BubblesBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/bubbles";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type Particle, particleOpacity, spawnBurst, stepParticles } from "../lib/particles";
+import { BubblesBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const FLIGHT_SPEED = 0.55; // units of CELL per ms — gives a ~150ms flight at typical distance
 
@@ -145,7 +145,7 @@ export default function BubblesGame() {
   const [aimAngle, setAimAngle] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [doneOpen, setDoneOpen] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const [flight, setFlight] = useState<Flight | null>(null);
   const [poppingIdx, setPoppingIdx] = useState<Set<number>>(new Set());
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -228,7 +228,7 @@ export default function BubblesGame() {
               y: c.y,
               count: 8,
               speed: 0.04,
-              color: COLORS[colorIdx] ?? '#fff',
+              color: COLORS[colorIdx] ?? "#fff",
               lifeMs: 500,
               size: 1.2,
             }),
@@ -332,19 +332,19 @@ export default function BubblesGame() {
     if (state.done) return;
     const onKey = (e: KeyboardEvent) => {
       if (flight) return;
-      if (e.key === 'ArrowLeft') {
+      if (e.key === "ArrowLeft") {
         e.preventDefault();
         setAimAngle((a) => Math.max(-MAX_AIM_ANGLE_RAD, a - AIM_KEY_STEP_RAD));
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === "ArrowRight") {
         e.preventDefault();
         setAimAngle((a) => Math.min(MAX_AIM_ANGLE_RAD, a + AIM_KEY_STEP_RAD));
-      } else if (e.key === ' ' || e.key === 'Enter') {
+      } else if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         shoot(aimAngle);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [state.done, flight, aimAngle, shoot]);
 
   // Flight animation loop: ride the bubble along the trajectory, bounce off side walls,
@@ -425,9 +425,9 @@ export default function BubblesGame() {
             r={RADIUS}
             fill={COLORS[v]}
             style={{
-              transition: 'transform 180ms ease-out, opacity 180ms ease-out',
+              transition: "transform 180ms ease-out, opacity 180ms ease-out",
               transformOrigin: `${center.x}px ${center.y}px`,
-              transform: popping ? 'scale(0.1)' : 'scale(1)',
+              transform: popping ? "scale(0.1)" : "scale(1)",
               opacity: popping ? 0 : 1,
             }}
             data-testid="bubble-cell"
@@ -455,7 +455,7 @@ export default function BubblesGame() {
       <div className="fit-area mx-auto w-full max-w-md">
         <div
           className="relative fit-box touch-none select-none overflow-hidden rounded-2xl bg-slate-900 dark:bg-slate-950"
-          style={{ '--fit-ar': FIELD_W / FIELD_H } as CSSProperties}
+          style={{ "--fit-ar": FIELD_W / FIELD_H } as CSSProperties}
           role="application"
           aria-label="Blasenschießen-Spielfeld"
         >
@@ -472,7 +472,7 @@ export default function BubblesGame() {
             {renderCells()}
             {aimPreview && (
               <polyline
-                points={aimPreview.path.map((p) => `${p.x},${p.y}`).join(' ')}
+                points={aimPreview.path.map((p) => `${p.x},${p.y}`).join(" ")}
                 fill="none"
                 stroke="rgba(255,255,255,0.45)"
                 strokeWidth={0.4}

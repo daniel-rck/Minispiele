@@ -1,4 +1,4 @@
-export type SlidingDifficulty = 'easy' | 'medium' | 'hard';
+export type SlidingDifficulty = "easy" | "medium" | "hard";
 
 export const SLIDING_SIZE: Record<SlidingDifficulty, number> = {
   easy: 3,
@@ -111,7 +111,7 @@ export function tryMove(state: SlidingState, tileIndex: number): SlidingState {
   };
 }
 
-export type ArrowDirection = 'up' | 'down' | 'left' | 'right';
+export type ArrowDirection = "up" | "down" | "left" | "right";
 
 /**
  * Arrow keys describe which adjacent tile to slide *toward the empty cell*.
@@ -124,16 +124,16 @@ export function moveByArrow(state: SlidingState, dir: ArrowDirection): SlidingSt
   const col = emptyIndex % size;
   let tileIndex = -1;
   switch (dir) {
-    case 'up':
+    case "up":
       if (row < size - 1) tileIndex = emptyIndex + size;
       break;
-    case 'down':
+    case "down":
       if (row > 0) tileIndex = emptyIndex - size;
       break;
-    case 'left':
+    case "left":
       if (col < size - 1) tileIndex = emptyIndex + 1;
       break;
-    case 'right':
+    case "right":
       if (col > 0) tileIndex = emptyIndex - 1;
       break;
   }

@@ -1,20 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { pickRandomHangmanWord } from '../lib/hangmanWords';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { pickRandomHangmanWord } from "../lib/hangmanWords";
 import {
   EMPTY_HANGMAN_STATS,
   type HangmanStats,
   HangmanStatsSchema,
-} from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import LetterKeyboard, { type LetterStatus } from './ui/LetterKeyboard';
-import Sheet from './ui/Sheet';
+} from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import LetterKeyboard, { type LetterStatus } from "./ui/LetterKeyboard";
+import Sheet from "./ui/Sheet";
 
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const MAX_MISTAKES = 10;
 
 interface HangmanState {
@@ -28,7 +28,7 @@ function createInitialState(): HangmanState {
 }
 
 function isWon(state: HangmanState): boolean {
-  return state.word.split('').every((ch) => state.guessed.has(ch));
+  return state.word.split("").every((ch) => state.guessed.has(ch));
 }
 
 function isLost(state: HangmanState): boolean {
@@ -36,7 +36,7 @@ function isLost(state: HangmanState): boolean {
 }
 
 function HangmanFigure({ mistakes }: { mistakes: number }) {
-  const stroke = 'currentColor';
+  const stroke = "currentColor";
   return (
     <svg
       viewBox="0 0 120 140"
@@ -75,7 +75,7 @@ export default function HangmanGame() {
     EMPTY_HANGMAN_STATS,
   );
   const [doneOpen, setDoneOpen] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const finishedRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -101,7 +101,7 @@ export default function HangmanGame() {
         }
         return { ...prev, played, currentStreak: 0 };
       });
-      setAnnounce(won ? 'Gewonnen!' : `Verloren. Wort war ${state.word}`);
+      setAnnounce(won ? "Gewonnen!" : `Verloren. Wort war ${state.word}`);
       vibrate(won ? [40, 30, 80] : [80, 60, 80]);
       if (won) sfx.win();
       else sfx.lose();
@@ -135,8 +135,8 @@ export default function HangmanGame() {
         guess(e.key);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [guess]);
 
   const restart = useCallback(() => {
@@ -151,7 +151,7 @@ export default function HangmanGame() {
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
         <div>
-          Fehler:{' '}
+          Fehler:{" "}
           <span className="font-semibold tabular-nums">
             {state.mistakes} / {MAX_MISTAKES}
           </span>
@@ -171,18 +171,18 @@ export default function HangmanGame() {
         role="group"
         aria-label="Wort"
       >
-        {state.word.split('').map((ch, i) => {
+        {state.word.split("").map((ch, i) => {
           const shown = state.guessed.has(ch) || lost;
           return (
             <span
               key={i}
               className={`inline-flex h-10 w-7 items-end justify-center border-b-2 text-2xl font-bold uppercase ${
-                shown ? 'border-slate-500 text-slate-900 dark:text-slate-100' : 'border-slate-400'
-              } ${!shown ? 'text-transparent' : ''}`}
+                shown ? "border-slate-500 text-slate-900 dark:text-slate-100" : "border-slate-400"
+              } ${!shown ? "text-transparent" : ""}`}
               role="img"
-              aria-label={shown ? ch : 'verborgen'}
+              aria-label={shown ? ch : "verborgen"}
             >
-              {shown ? ch : '_'}
+              {shown ? ch : "_"}
             </span>
           );
         })}
@@ -193,7 +193,7 @@ export default function HangmanGame() {
         status={Object.fromEntries(
           Array.from(state.guessed).map((ch): [string, LetterStatus] => [
             ch,
-            state.word.includes(ch) ? 'correct' : 'wrong',
+            state.word.includes(ch) ? "correct" : "wrong",
           ]),
         )}
         onLetter={guess}
@@ -203,11 +203,11 @@ export default function HangmanGame() {
       <Sheet
         open={doneOpen}
         onClose={() => setDoneOpen(false)}
-        title={won ? 'Gewonnen!' : 'Verloren'}
+        title={won ? "Gewonnen!" : "Verloren"}
       >
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
-            {won ? '🎉' : '💀'}
+            {won ? "🎉" : "💀"}
           </div>
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
             {won ? (

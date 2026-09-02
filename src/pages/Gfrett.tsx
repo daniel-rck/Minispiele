@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import GfrettGame from '../components/GfrettGame';
+import GameLayout from "../components/GameLayout";
+import GfrettGame from "../components/GfrettGame";
 
 export default function Gfrett() {
   return (

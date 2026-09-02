@@ -1,161 +1,161 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { TypingTestBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { TypingTestBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const WORDS_DE = [
-  'der',
-  'die',
-  'und',
-  'in',
-  'den',
-  'von',
-  'zu',
-  'das',
-  'mit',
-  'sich',
-  'des',
-  'auf',
-  'für',
-  'ist',
-  'im',
-  'dem',
-  'nicht',
-  'ein',
-  'eine',
-  'als',
-  'auch',
-  'es',
-  'an',
-  'werden',
-  'aus',
-  'er',
-  'hat',
-  'dass',
-  'sie',
-  'nach',
-  'wird',
-  'bei',
-  'einer',
-  'um',
-  'am',
-  'sind',
-  'noch',
-  'wie',
-  'einem',
-  'über',
-  'so',
-  'zum',
-  'kann',
-  'wurde',
-  'haben',
-  'nur',
-  'oder',
-  'aber',
-  'vor',
-  'zur',
-  'bis',
-  'mehr',
-  'durch',
-  'man',
-  'seine',
-  'seit',
-  'her',
-  'wenn',
-  'dann',
-  'unter',
-  'wir',
-  'diese',
-  'alle',
-  'zwischen',
-  'schon',
-  'immer',
-  'wieder',
-  'neue',
-  'anderen',
-  'dieser',
-  'Zeit',
-  'Leben',
-  'Arbeit',
-  'Jahr',
-  'Welt',
-  'Haus',
-  'Stadt',
-  'Frau',
-  'Mann',
-  'Kind',
-  'Geld',
-  'Hand',
-  'Teil',
-  'Platz',
-  'Stelle',
-  'Seite',
-  'Bild',
-  'Wasser',
-  'Kopf',
-  'Auge',
-  'Wort',
-  'Weg',
-  'Ende',
-  'Stunde',
-  'Monat',
-  'Abend',
-  'Nacht',
-  'Morgen',
-  'Anfang',
-  'Frage',
-  'Antwort',
-  'gut',
-  'schlecht',
-  'neu',
-  'alt',
-  'jung',
-  'schnell',
-  'langsam',
-  'hoch',
-  'tief',
-  'breit',
-  'schmal',
-  'gehen',
-  'kommen',
-  'sehen',
-  'geben',
-  'nehmen',
-  'finden',
-  'sagen',
-  'machen',
-  'wissen',
-  'denken',
-  'sprechen',
-  'schreiben',
-  'lesen',
-  'lernen',
-  'arbeiten',
-  'spielen',
-  'helfen',
-  'bringen',
-  'laufen',
-  'fahren',
-  'tragen',
-  'halten',
-  'beginnen',
-  'heute',
-  'gestern',
-  'morgen',
-  'hier',
-  'dort',
-  'oben',
-  'unten',
-  'links',
-  'rechts',
-  'innen',
-  'außen',
-  'vorne',
-  'hinten',
+  "der",
+  "die",
+  "und",
+  "in",
+  "den",
+  "von",
+  "zu",
+  "das",
+  "mit",
+  "sich",
+  "des",
+  "auf",
+  "für",
+  "ist",
+  "im",
+  "dem",
+  "nicht",
+  "ein",
+  "eine",
+  "als",
+  "auch",
+  "es",
+  "an",
+  "werden",
+  "aus",
+  "er",
+  "hat",
+  "dass",
+  "sie",
+  "nach",
+  "wird",
+  "bei",
+  "einer",
+  "um",
+  "am",
+  "sind",
+  "noch",
+  "wie",
+  "einem",
+  "über",
+  "so",
+  "zum",
+  "kann",
+  "wurde",
+  "haben",
+  "nur",
+  "oder",
+  "aber",
+  "vor",
+  "zur",
+  "bis",
+  "mehr",
+  "durch",
+  "man",
+  "seine",
+  "seit",
+  "her",
+  "wenn",
+  "dann",
+  "unter",
+  "wir",
+  "diese",
+  "alle",
+  "zwischen",
+  "schon",
+  "immer",
+  "wieder",
+  "neue",
+  "anderen",
+  "dieser",
+  "Zeit",
+  "Leben",
+  "Arbeit",
+  "Jahr",
+  "Welt",
+  "Haus",
+  "Stadt",
+  "Frau",
+  "Mann",
+  "Kind",
+  "Geld",
+  "Hand",
+  "Teil",
+  "Platz",
+  "Stelle",
+  "Seite",
+  "Bild",
+  "Wasser",
+  "Kopf",
+  "Auge",
+  "Wort",
+  "Weg",
+  "Ende",
+  "Stunde",
+  "Monat",
+  "Abend",
+  "Nacht",
+  "Morgen",
+  "Anfang",
+  "Frage",
+  "Antwort",
+  "gut",
+  "schlecht",
+  "neu",
+  "alt",
+  "jung",
+  "schnell",
+  "langsam",
+  "hoch",
+  "tief",
+  "breit",
+  "schmal",
+  "gehen",
+  "kommen",
+  "sehen",
+  "geben",
+  "nehmen",
+  "finden",
+  "sagen",
+  "machen",
+  "wissen",
+  "denken",
+  "sprechen",
+  "schreiben",
+  "lesen",
+  "lernen",
+  "arbeiten",
+  "spielen",
+  "helfen",
+  "bringen",
+  "laufen",
+  "fahren",
+  "tragen",
+  "halten",
+  "beginnen",
+  "heute",
+  "gestern",
+  "morgen",
+  "hier",
+  "dort",
+  "oben",
+  "unten",
+  "links",
+  "rechts",
+  "innen",
+  "außen",
+  "vorne",
+  "hinten",
 ];
 
 const DURATIONS = [30, 60, 120] as const;
@@ -164,9 +164,9 @@ type Duration = (typeof DURATIONS)[number];
 function generateText(wordCount: number): string {
   const words: string[] = [];
   for (let i = 0; i < wordCount; i++) {
-    words.push(WORDS_DE[Math.floor(Math.random() * WORDS_DE.length)] ?? 'und');
+    words.push(WORDS_DE[Math.floor(Math.random() * WORDS_DE.length)] ?? "und");
   }
-  return words.join(' ');
+  return words.join(" ");
 }
 
 export default function TypingTestGame() {
@@ -179,7 +179,7 @@ export default function TypingTestGame() {
   const [remaining, setRemaining] = useState(60);
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [announcement, setAnnouncement] = useState('Tippe los, wenn du bereit bist.');
+  const [announcement, setAnnouncement] = useState("Tippe los, wenn du bereit bist.");
   const [best, setBest] = useLocalStorage<number>(
     STORAGE_KEYS.TYPING_TEST_BEST,
     TypingTestBestSchema,
@@ -205,7 +205,7 @@ export default function TypingTestGame() {
     setRunning(false);
     setFinished(false);
     startedAt.current = null;
-    setAnnouncement('Tippe los, wenn du bereit bist.');
+    setAnnouncement("Tippe los, wenn du bereit bist.");
   }, [duration]);
 
   useEffect(() => {
@@ -261,7 +261,7 @@ export default function TypingTestGame() {
         setCharIndex((i) => i + 1);
       }
       if (charIndex >= text.length - 40) {
-        setText((t) => t + ' ' + generateText(50));
+        setText((t) => t + " " + generateText(50));
       }
     },
     [finished, running, charIndex, text, vibrate],
@@ -276,8 +276,8 @@ export default function TypingTestGame() {
       e.preventDefault();
       handleChar(e.key);
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [handleChar]);
 
   const elapsed = startedAt.current ? Math.floor((Date.now() - startedAt.current) / 1000) : 0;
@@ -346,7 +346,7 @@ export default function TypingTestGame() {
             // Soft keyboards (mobile) don't deliver usable keydown events;
             // consume whatever landed in the hidden input instead.
             const value = e.currentTarget.value;
-            e.currentTarget.value = '';
+            e.currentTarget.value = "";
             for (const ch of value) handleChar(ch);
           }}
         />
@@ -355,12 +355,12 @@ export default function TypingTestGame() {
             const idx = visibleStart + i;
             const isPast = idx < charIndex;
             const isCurrent = idx === charIndex;
-            let cls = 'text-slate-400';
-            if (isPast) cls = incorrect.has(idx) ? 'text-rose-400 underline' : 'text-emerald-400';
-            else if (isCurrent) cls = 'text-amber-300 underline';
+            let cls = "text-slate-400";
+            if (isPast) cls = incorrect.has(idx) ? "text-rose-400 underline" : "text-emerald-400";
+            else if (isCurrent) cls = "text-amber-300 underline";
             return (
               <span key={idx} className={cls}>
-                {ch === ' ' ? ' ' : ch}
+                {ch === " " ? " " : ch}
               </span>
             );
           })}

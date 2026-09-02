@@ -1,5 +1,5 @@
-import ConnectionsGame from '../components/ConnectionsGame';
-import GameLayout from '../components/GameLayout';
+import ConnectionsGame from "../components/ConnectionsGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Connections() {
   return (

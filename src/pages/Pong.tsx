@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import PongGame from '../components/PongGame';
+import GameLayout from "../components/GameLayout";
+import PongGame from "../components/PongGame";
 
 export default function Pong() {
   return (

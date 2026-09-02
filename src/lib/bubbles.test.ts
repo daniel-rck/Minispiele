@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   BUBBLES_COLOR_COUNT,
   BUBBLES_COLORS,
@@ -11,7 +11,7 @@ import {
   findGroup,
   neighbors,
   randomColor,
-} from './bubbles';
+} from "./bubbles";
 
 function seededRng(values: number[]): () => number {
   let i = 0;
@@ -26,17 +26,17 @@ function emptyGrid(): Cell[] {
   return new Array(BUBBLES_ROWS * BUBBLES_COLS).fill(-1);
 }
 
-describe('bubbles', () => {
-  it('exposes one hex color per color slot', () => {
+describe("bubbles", () => {
+  it("exposes one hex color per color slot", () => {
     expect(BUBBLES_COLORS).toHaveLength(BUBBLES_COLOR_COUNT);
   });
 
-  it('randomColor maps rng into the color range', () => {
+  it("randomColor maps rng into the color range", () => {
     expect(randomColor(seededRng([0]))).toBe(0);
     expect(randomColor(seededRng([0.99]))).toBe(BUBBLES_COLOR_COUNT - 1);
   });
 
-  it('buildInitial fills the top four rows and leaves the rest empty', () => {
+  it("buildInitial fills the top four rows and leaves the rest empty", () => {
     const state = buildInitial(seededRng([0.1]));
     expect(state.grid).toHaveLength(BUBBLES_ROWS * BUBBLES_COLS);
     // Top four rows filled with a valid color.
@@ -51,7 +51,7 @@ describe('bubbles', () => {
     expect(state.done).toBe(false);
   });
 
-  it('neighbors returns the horizontal siblings within the top row', () => {
+  it("neighbors returns the horizontal siblings within the top row", () => {
     // idx 0 (row 0, col 0): right sibling (1) and the two cells below it.
     expect(neighbors(0)).toContain(1);
     expect(neighbors(0)).toContain(BUBBLES_COLS); // (1,0)
@@ -59,13 +59,13 @@ describe('bubbles', () => {
     expect(neighbors(0).every((n) => n >= 0)).toBe(true);
   });
 
-  it('neighbors of an even and an odd row differ in their diagonal offset', () => {
+  it("neighbors of an even and an odd row differ in their diagonal offset", () => {
     const evenRowCell = 1 * 0 + 3; // row 0, col 3
     const oddRowCell = BUBBLES_COLS + 3; // row 1, col 3
     expect(neighbors(evenRowCell)).not.toEqual(neighbors(oddRowCell));
   });
 
-  it('findGroup collects all connected same-color bubbles', () => {
+  it("findGroup collects all connected same-color bubbles", () => {
     const grid = emptyGrid();
     grid[0] = 2;
     grid[1] = 2; // horizontal neighbor, same color
@@ -74,11 +74,11 @@ describe('bubbles', () => {
     expect(group).toEqual([0, 1]);
   });
 
-  it('findGroup returns empty for an empty cell', () => {
+  it("findGroup returns empty for an empty cell", () => {
     expect(findGroup(emptyGrid(), 0)).toEqual([]);
   });
 
-  it('dropFloating removes bubbles not connected to the top row', () => {
+  it("dropFloating removes bubbles not connected to the top row", () => {
     const grid = emptyGrid();
     grid[0] = 1; // anchored to the ceiling
     const floatingIdx = 4 * BUBBLES_COLS + 4; // somewhere in the middle, unconnected
@@ -91,7 +91,7 @@ describe('bubbles', () => {
     expect(result.grid[0]).toBe(1); // the anchored bubble stays
   });
 
-  it('cellCenter offsets odd rows by half a cell', () => {
+  it("cellCenter offsets odd rows by half a cell", () => {
     const even = cellCenter(0); // row 0
     const odd = cellCenter(BUBBLES_COLS); // row 1, col 0
     expect(odd.x).toBeGreaterThan(even.x);

@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import QwirkleGame from '../components/QwirkleGame';
+import GameLayout from "../components/GameLayout";
+import QwirkleGame from "../components/QwirkleGame";
 
 export default function Qwirkle() {
   return (

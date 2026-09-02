@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { generate, lineBetween, matchWord } from './wordsearch';
+import { describe, expect, it } from "vitest";
+import { generate, lineBetween, matchWord } from "./wordsearch";
 
 function seededRng(values: number[]): () => number {
   let i = 0;
@@ -10,8 +10,8 @@ function seededRng(values: number[]): () => number {
   };
 }
 
-describe('wordsearch', () => {
-  it('generate creates a grid with the requested size and at most wordCount words', () => {
+describe("wordsearch", () => {
+  it("generate creates a grid with the requested size and at most wordCount words", () => {
     const puzzle = generate(
       8,
       4,
@@ -26,23 +26,23 @@ describe('wordsearch', () => {
     }
     // Every placed word reads forward along its cells.
     for (const w of puzzle.words) {
-      const read = w.cells.map((i) => puzzle.grid[i]).join('');
+      const read = w.cells.map((i) => puzzle.grid[i]).join("");
       expect(read).toBe(w.word);
     }
   });
 
-  it('lineBetween returns the orthogonal line between two cells', () => {
+  it("lineBetween returns the orthogonal line between two cells", () => {
     expect(lineBetween(0, 4, 5)).toEqual([0, 1, 2, 3, 4]); // horizontal
     expect(lineBetween(0, 20, 5)).toEqual([0, 5, 10, 15, 20]); // vertical
     expect(lineBetween(0, 24, 5)).toEqual([0, 6, 12, 18, 24]); // diagonal
     expect(lineBetween(0, 0, 5)).toEqual([0]);
   });
 
-  it('lineBetween rejects non-line pairs', () => {
+  it("lineBetween rejects non-line pairs", () => {
     expect(lineBetween(0, 7, 5)).toBeNull(); // knight-ish
   });
 
-  it('matchWord finds a placed word and rejects unrelated cells', () => {
+  it("matchWord finds a placed word and rejects unrelated cells", () => {
     const puzzle = generate(
       8,
       6,

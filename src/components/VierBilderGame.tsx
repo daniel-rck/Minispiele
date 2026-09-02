@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { VierBilderBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { VIER_BILDER_PUZZLES } from '../lib/vierBilderPuzzles';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { VierBilderBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import { VIER_BILDER_PUZZLES } from "../lib/vierBilderPuzzles";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 interface Slot {
   letter: string;
@@ -14,11 +14,11 @@ interface Slot {
 }
 
 function makeLetters(word: string): string[] {
-  const letters = word.split('');
-  const extras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const letters = word.split("");
+  const extras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const pool = [...letters];
   while (pool.length < 12) {
-    pool.push(extras[Math.floor(Math.random() * extras.length)] ?? 'A');
+    pool.push(extras[Math.floor(Math.random() * extras.length)] ?? "A");
   }
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -39,7 +39,7 @@ export default function VierBilderGame() {
   const [letters, setLetters] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
-  const [announcement, setAnnouncement] = useState('Welches Wort passt zu den 4 Bildern?');
+  const [announcement, setAnnouncement] = useState("Welches Wort passt zu den 4 Bildern?");
   const [best, setBest] = useLocalStorage<number>(
     STORAGE_KEYS.VIER_BILDER_BEST,
     VierBilderBestSchema,
@@ -50,7 +50,7 @@ export default function VierBilderGame() {
   const { vibrate } = useVibration();
 
   const puzzle = VIER_BILDER_PUZZLES[idx] ?? VIER_BILDER_PUZZLES[0];
-  if (!puzzle) throw new Error('No puzzles');
+  if (!puzzle) throw new Error("No puzzles");
 
   const loadPuzzle = useCallback((puzzleIdx: number) => {
     const p = VIER_BILDER_PUZZLES[puzzleIdx];
@@ -59,7 +59,7 @@ export default function VierBilderGame() {
     setUsed(new Set());
     setLetters(makeLetters(p.word));
     setHintsUsed(0);
-    setAnnouncement('Welches Wort passt zu den 4 Bildern?');
+    setAnnouncement("Welches Wort passt zu den 4 Bildern?");
   }, []);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function VierBilderGame() {
         const next = [...a];
         const pos = next.findIndex((v) => !v);
         if (pos === -1 || pos >= puzzle.word.length) return a;
-        next[pos] = { letter: letters[i] ?? '', srcIdx: i };
+        next[pos] = { letter: letters[i] ?? "", srcIdx: i };
         return next;
       });
       setUsed((s) => {
@@ -123,7 +123,7 @@ export default function VierBilderGame() {
           }
           const srcIdx = letters.findIndex((l, j) => l === needed && !used.has(j));
           if (srcIdx >= 0) {
-            next[i] = { letter: needed ?? '', srcIdx };
+            next[i] = { letter: needed ?? "", srcIdx };
             setUsed((s) => {
               const ns = new Set(s);
               ns.add(srcIdx);
@@ -137,7 +137,7 @@ export default function VierBilderGame() {
     });
   }, [puzzle.word, letters, used]);
 
-  const guess = answer.map((a) => a?.letter ?? '').join('');
+  const guess = answer.map((a) => a?.letter ?? "").join("");
   const isComplete = guess.length === puzzle.word.length && !answer.includes(null);
   const isCorrect = isComplete && guess === puzzle.word;
 
@@ -163,7 +163,7 @@ export default function VierBilderGame() {
     } else if (isComplete) {
       sfx.error();
       vibrate(40);
-      setAnnouncement('Nicht ganz richtig.');
+      setAnnouncement("Nicht ganz richtig.");
     }
   }, [isCorrect, isComplete, hintsUsed, idx, score, best, setBest, sfx, vibrate]);
 
@@ -213,14 +213,14 @@ export default function VierBilderGame() {
               type="button"
               onClick={() => removeLetter(i)}
               disabled={!slot}
-              aria-label={`Buchstabe ${i + 1}${slot ? `: ${slot.letter}` : ''}`}
+              aria-label={`Buchstabe ${i + 1}${slot ? `: ${slot.letter}` : ""}`}
               className={`flex h-10 w-8 items-center justify-center rounded text-lg font-bold ${
                 slot
-                  ? 'bg-amber-300 text-slate-900 dark:bg-amber-500 dark:text-slate-950'
-                  : 'border-2 border-surface-400 bg-transparent'
+                  ? "bg-amber-300 text-slate-900 dark:bg-amber-500 dark:text-slate-950"
+                  : "border-2 border-surface-400 bg-transparent"
               }`}
             >
-              {slot?.letter ?? ''}
+              {slot?.letter ?? ""}
             </button>
           );
         })}
@@ -240,8 +240,8 @@ export default function VierBilderGame() {
             aria-label={`Buchstabe ${l}`}
             className={`h-10 w-10 rounded text-lg font-bold disabled:opacity-30 ${
               used.has(i)
-                ? 'bg-surface-200 text-surface-500 dark:bg-surface-900 dark:text-surface-700'
-                : 'bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100'
+                ? "bg-surface-200 text-surface-500 dark:bg-surface-900 dark:text-surface-700"
+                : "bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100"
             }`}
           >
             {l}

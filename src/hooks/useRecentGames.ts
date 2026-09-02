@@ -1,7 +1,7 @@
-import { useCallback, useMemo } from 'react';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type RecentGameEntry, type RecentGames, RecentGamesSchema } from '../lib/crossGameSchemas';
-import { useLocalStorage } from '../lib/useLocalStorage';
+import { useCallback, useMemo } from "react";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type RecentGameEntry, type RecentGames, RecentGamesSchema } from "../lib/crossGameSchemas";
+import { useLocalStorage } from "../lib/useLocalStorage";
 
 const MAX_RECENT = 6;
 const RING_BUFFER = 20;

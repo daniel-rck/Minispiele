@@ -1,5 +1,5 @@
-import DiceRoller from '../components/DiceRoller';
-import GameLayout from '../components/GameLayout';
+import DiceRoller from "../components/DiceRoller";
+import GameLayout from "../components/GameLayout";
 
 export default function Dice() {
   return (

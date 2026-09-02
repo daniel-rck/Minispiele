@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom/vitest';
+import "@testing-library/jest-dom/vitest";
 
 // jsdom does not implement the canvas 2D API. Several canvas-based games
 // (FlappyBird, Pong, Asteroids, …) call getContext('2d') inside their animation
 // loop; without a stub jsdom throws "Not implemented: HTMLCanvasElement.getContext"
 // on every frame, flooding test output. Provide a no-op 2D context so those
 // components render quietly in tests.
-if (typeof HTMLCanvasElement !== 'undefined') {
+if (typeof HTMLCanvasElement !== "undefined") {
   const noop = () => undefined;
   const make2dContext = (canvas: HTMLCanvasElement): CanvasRenderingContext2D => {
     const base: Record<string, unknown> = {
@@ -29,6 +29,6 @@ if (typeof HTMLCanvasElement !== 'undefined') {
     this: HTMLCanvasElement,
     contextId: string,
   ) {
-    return contextId === '2d' ? make2dContext(this) : null;
+    return contextId === "2d" ? make2dContext(this) : null;
   } as unknown as typeof HTMLCanvasElement.prototype.getContext;
 }

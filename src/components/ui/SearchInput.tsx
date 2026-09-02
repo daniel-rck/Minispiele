@@ -1,8 +1,8 @@
-import type { InputHTMLAttributes } from 'react';
-import { forwardRef } from 'react';
+import type { InputHTMLAttributes } from "react";
+import { forwardRef } from "react";
 
 interface SearchInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'onChange'> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "onChange"> {
   value: string;
   onValueChange: (v: string) => void;
   clearLabel?: string;
@@ -13,10 +13,10 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
   {
     value,
     onValueChange,
-    clearLabel = 'Suche zurücksetzen',
-    label = 'Spiele durchsuchen',
-    placeholder = 'Spiele suchen …',
-    className = '',
+    clearLabel = "Suche zurücksetzen",
+    label = "Spiele durchsuchen",
+    placeholder = "Spiele suchen …",
+    className = "",
     ...rest
   },
   ref,
@@ -54,7 +54,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
       {value ? (
         <button
           type="button"
-          onClick={() => onValueChange('')}
+          onClick={() => onValueChange("")}
           aria-label={clearLabel}
           className="absolute inset-y-0 right-2 my-auto inline-flex size-9 items-center justify-center rounded-full text-surface-500 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-800"
         >

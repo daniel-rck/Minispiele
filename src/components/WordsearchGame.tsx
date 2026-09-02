@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { STORAGE_KEYS } from '../lib/constants';
-import { WordsearchBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import { generate, lineBetween, matchWord, type WordsearchPuzzle } from '../lib/wordsearch';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { STORAGE_KEYS } from "../lib/constants";
+import { WordsearchBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration, useGameTimer } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import { generate, lineBetween, matchWord, type WordsearchPuzzle } from "../lib/wordsearch";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const SIZE = 10;
 const WORD_COUNT = 8;
@@ -26,16 +26,16 @@ export default function WordsearchGame() {
   );
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const timer = useGameTimer();
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
-  useWakeLock(timer.status === 'running');
+  useWakeLock(timer.status === "running");
 
   useEffect(() => {
-    if (timer.status === 'idle' && !startedRef.current) {
+    if (timer.status === "idle" && !startedRef.current) {
       timer.start();
       startedRef.current = true;
     }
@@ -119,13 +119,13 @@ export default function WordsearchGame() {
 
       <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
         <div>
-          Gefunden:{' '}
+          Gefunden:{" "}
           <span className="font-semibold tabular-nums">
             {found.size} / {puzzle.words.length}
           </span>
         </div>
         <div className="text-center">
-          Zeit:{' '}
+          Zeit:{" "}
           <span className="font-semibold tabular-nums">{formatDuration(timer.elapsedSeconds)}</span>
         </div>
         <div className="text-right">
@@ -163,10 +163,10 @@ export default function WordsearchGame() {
                 aria-label={ch}
                 className={`flex aspect-square min-w-[22px] items-center justify-center text-sm font-bold sm:text-base ${
                   isFound
-                    ? 'bg-emerald-300 text-emerald-900 dark:bg-emerald-700 dark:text-emerald-100'
+                    ? "bg-emerald-300 text-emerald-900 dark:bg-emerald-700 dark:text-emerald-100"
                     : isCandidate
-                      ? 'bg-brand-200 dark:bg-brand-900/60'
-                      : 'bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100'
+                      ? "bg-brand-200 dark:bg-brand-900/60"
+                      : "bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100"
                 }`}
               >
                 {ch}
@@ -182,8 +182,8 @@ export default function WordsearchGame() {
             key={w.word}
             className={`rounded-lg px-2 py-1 text-center text-sm font-medium ${
               found.has(w.word)
-                ? 'bg-emerald-100 text-emerald-700 line-through dark:bg-emerald-900/40 dark:text-emerald-200'
-                : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                ? "bg-emerald-100 text-emerald-700 line-through dark:bg-emerald-900/40 dark:text-emerald-200"
+                : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
             }`}
           >
             {w.word}

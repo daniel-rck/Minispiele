@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import MinesweeperGame from '../components/MinesweeperGame';
+import GameLayout from "../components/GameLayout";
+import MinesweeperGame from "../components/MinesweeperGame";
 
 export default function Minesweeper() {
   return (

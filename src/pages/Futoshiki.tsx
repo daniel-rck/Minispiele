@@ -1,5 +1,5 @@
-import FutoshikiGame from '../components/FutoshikiGame';
-import GameLayout from '../components/GameLayout';
+import FutoshikiGame from "../components/FutoshikiGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Futoshiki() {
   return (

@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import Button from './Button';
-import Sheet from './Sheet';
+import type { ReactNode } from "react";
+import Button from "./Button";
+import Sheet from "./Sheet";
 
 export type GameOverStat = {
   label: string;
@@ -31,7 +31,7 @@ export default function GameOverSheet({
   title,
   emoji,
   isNewRecord = false,
-  recordLabel = 'Neue Bestmarke!',
+  recordLabel = "Neue Bestmarke!",
   message,
   stats,
   primaryAction,
@@ -55,7 +55,7 @@ export default function GameOverSheet({
         )}
         {stats && stats.length > 0 && (
           <dl
-            className={`mb-4 grid gap-2 text-center text-xs ${stats.length <= 2 ? 'grid-cols-2' : stats.length === 3 ? 'grid-cols-3' : 'grid-cols-4'}`}
+            className={`mb-4 grid gap-2 text-center text-xs ${stats.length <= 2 ? "grid-cols-2" : stats.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}
           >
             {stats.map((stat) => (
               <div key={stat.label}>

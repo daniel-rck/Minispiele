@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { ReactionBestSchema } from '../lib/persistedSchemas';
-import { computeBest, pickWaitDelay } from '../lib/reaction';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { ReactionBestSchema } from "../lib/persistedSchemas";
+import { computeBest, pickWaitDelay } from "../lib/reaction";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
 
-type Phase = 'idle' | 'waiting' | 'ready' | 'tooEarly' | 'done';
+type Phase = "idle" | "waiting" | "ready" | "tooEarly" | "done";
 
 export default function ReactionGame() {
-  const [phase, setPhase] = useState<Phase>('idle');
+  const [phase, setPhase] = useState<Phase>("idle");
   const [reactionMs, setReactionMs] = useState<number | null>(null);
   const [best, setBest] = useLocalStorage<number | null>(
     STORAGE_KEYS.REACTION_BEST,
     ReactionBestSchema,
     null,
   );
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const timeoutRef = useRef<number | null>(null);
   const readyAtRef = useRef<number>(0);
   const { vibrate } = useVibration();
@@ -40,33 +40,33 @@ export default function ReactionGame() {
   const startWaiting = useCallback(() => {
     clearPending();
     setReactionMs(null);
-    setPhase('waiting');
+    setPhase("waiting");
     const delay = pickWaitDelay();
     timeoutRef.current = window.setTimeout(() => {
       readyAtRef.current = performance.now();
-      setPhase('ready');
+      setPhase("ready");
       vibrate(20);
       sfx.match();
     }, delay);
   }, [clearPending, vibrate, sfx]);
 
   const handleTap = useCallback(() => {
-    if (phase === 'idle' || phase === 'done' || phase === 'tooEarly') {
+    if (phase === "idle" || phase === "done" || phase === "tooEarly") {
       startWaiting();
       return;
     }
-    if (phase === 'waiting') {
+    if (phase === "waiting") {
       clearPending();
-      setPhase('tooEarly');
-      setAnnounce('Zu früh!');
+      setPhase("tooEarly");
+      setAnnounce("Zu früh!");
       vibrate([60, 40, 60]);
       sfx.error();
       return;
     }
-    if (phase === 'ready') {
+    if (phase === "ready") {
       const ms = Math.round(performance.now() - readyAtRef.current);
       setReactionMs(ms);
-      setPhase('done');
+      setPhase("done");
       setAnnounce(`${ms} Millisekunden`);
       const newBest = computeBest(ms, best);
       if (newBest !== null) setBest(newBest);
@@ -77,35 +77,35 @@ export default function ReactionGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === ' ' || e.key === 'Enter') {
+      if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         handleTap();
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [handleTap]);
 
   const surface =
-    phase === 'idle'
-      ? 'bg-slate-200 dark:bg-slate-800'
-      : phase === 'waiting'
-        ? 'bg-red-500'
-        : phase === 'ready'
-          ? 'bg-emerald-500'
-          : phase === 'tooEarly'
-            ? 'bg-amber-500'
-            : 'bg-sky-500';
+    phase === "idle"
+      ? "bg-slate-200 dark:bg-slate-800"
+      : phase === "waiting"
+        ? "bg-red-500"
+        : phase === "ready"
+          ? "bg-emerald-500"
+          : phase === "tooEarly"
+            ? "bg-amber-500"
+            : "bg-sky-500";
 
   const message =
-    phase === 'idle'
-      ? 'Tippe um zu starten'
-      : phase === 'waiting'
-        ? 'Warte auf Grün …'
-        : phase === 'ready'
-          ? 'JETZT!'
-          : phase === 'tooEarly'
-            ? 'Zu früh! Tippe nochmal'
+    phase === "idle"
+      ? "Tippe um zu starten"
+      : phase === "waiting"
+        ? "Warte auf Grün …"
+        : phase === "ready"
+          ? "JETZT!"
+          : phase === "tooEarly"
+            ? "Zu früh! Tippe nochmal"
             : `${reactionMs} ms`;
 
   return (
@@ -114,14 +114,14 @@ export default function ReactionGame() {
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
         <div>
-          Letzte:{' '}
+          Letzte:{" "}
           <span className="font-semibold tabular-nums">
-            {reactionMs !== null ? `${reactionMs} ms` : '—'}
+            {reactionMs !== null ? `${reactionMs} ms` : "—"}
           </span>
         </div>
         <div className="text-right">
-          Best:{' '}
-          <span className="font-semibold tabular-nums">{best !== null ? `${best} ms` : '—'}</span>
+          Best:{" "}
+          <span className="font-semibold tabular-nums">{best !== null ? `${best} ms` : "—"}</span>
         </div>
       </div>
 

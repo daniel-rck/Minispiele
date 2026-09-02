@@ -1,5 +1,5 @@
-import ClickerTimer from '../components/ClickerTimer';
-import GameLayout from '../components/GameLayout';
+import ClickerTimer from "../components/ClickerTimer";
+import GameLayout from "../components/GameLayout";
 
 export default function Timer() {
   return (

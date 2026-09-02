@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   applyMove,
   COLOR_FLOOD_COLORS,
@@ -8,7 +8,7 @@ import {
   floodedCells,
   floodPercent,
   isWon,
-} from './colorFlood';
+} from "./colorFlood";
 
 function seededRng(values: number[]): () => number {
   let i = 0;
@@ -19,8 +19,8 @@ function seededRng(values: number[]): () => number {
   };
 }
 
-describe('colorFlood', () => {
-  it('createInitialState produces a grid of N*N cells with valid colour indices', () => {
+describe("colorFlood", () => {
+  it("createInitialState produces a grid of N*N cells with valid colour indices", () => {
     const state = createInitialState();
     expect(state.grid.length).toBe(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE);
     expect(state.moves).toBe(0);
@@ -32,14 +32,14 @@ describe('colorFlood', () => {
     }
   });
 
-  it('isWon recognises a uniformly coloured grid', () => {
+  it("isWon recognises a uniformly coloured grid", () => {
     expect(isWon(new Array(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(2))).toBe(true);
     const mixed = new Array(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(2);
     mixed[5] = 1;
     expect(isWon(mixed)).toBe(false);
   });
 
-  it('floodedCells counts only the connected blob touching the origin', () => {
+  it("floodedCells counts only the connected blob touching the origin", () => {
     const size = COLOR_FLOOD_SIZE;
     const grid = new Array<number>(size * size).fill(1);
     grid[0] = 0;
@@ -50,12 +50,12 @@ describe('colorFlood', () => {
     expect(floodedCells(grid)).toBe(3);
   });
 
-  it('floodPercent returns 100 for a uniform grid', () => {
+  it("floodPercent returns 100 for a uniform grid", () => {
     const grid = new Array<number>(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(4);
     expect(floodPercent(grid)).toBe(100);
   });
 
-  it('applyMove repaints the connected region from (0,0) to the new colour', () => {
+  it("applyMove repaints the connected region from (0,0) to the new colour", () => {
     const size = COLOR_FLOOD_SIZE;
     const grid = new Array<number>(size * size).fill(1);
     grid[0] = 0;
@@ -68,14 +68,14 @@ describe('colorFlood', () => {
     expect(next.grid[0]).toBe(1);
   });
 
-  it('applyMove ignores moves that pick the current colour', () => {
+  it("applyMove ignores moves that pick the current colour", () => {
     const state = createInitialState(seededRng([0]));
     const colour = state.grid[0] ?? 0;
     const next = applyMove(state, colour);
     expect(next).toBe(state);
   });
 
-  it('applyMove flags lost once the move budget is exhausted without a win', () => {
+  it("applyMove flags lost once the move budget is exhausted without a win", () => {
     const size = COLOR_FLOOD_SIZE;
     // Row 0 = colour 0, row 1 acts as a colour-2 wall, the rest stays colour 0.
     // Applying colour 1 only repaints row 0 — the grid stays multicoloured.
@@ -88,7 +88,7 @@ describe('colorFlood', () => {
     expect(state.lost).toBe(true);
   });
 
-  it('applyMove is a no-op once the game ended', () => {
+  it("applyMove is a no-op once the game ended", () => {
     const state = {
       grid: new Array<number>(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(0),
       moves: 1,

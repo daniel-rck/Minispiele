@@ -1,15 +1,15 @@
-import { Suspense, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { BRAND_NAME } from '../lib/brand';
-import { ROUTES } from '../lib/routes.ts';
-import { AppHeader, InstallButton } from '../lib/ui';
-import { useSettings } from '../lib/useSettings';
-import ErrorBoundary from './ErrorBoundary';
-import OfflineIndicator from './OfflineIndicator';
-import SettingsSheet from './SettingsSheet';
-import UpdateBanner from './UpdateBanner';
-import IconButton from './ui/IconButton';
-import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from './ui/icons';
+import { Suspense, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { BRAND_NAME } from "../lib/brand";
+import { ROUTES } from "../lib/routes.ts";
+import { AppHeader, InstallButton } from "../lib/ui";
+import { useSettings } from "../lib/useSettings";
+import ErrorBoundary from "./ErrorBoundary";
+import OfflineIndicator from "./OfflineIndicator";
+import SettingsSheet from "./SettingsSheet";
+import UpdateBanner from "./UpdateBanner";
+import IconButton from "./ui/IconButton";
+import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from "./ui/icons";
 
 function RouteFallback() {
   return (
@@ -53,7 +53,7 @@ export default function AppShellRoute() {
             <InstallButton />
             <IconButton
               icon={settings.sound ? <Volume2Icon /> : <VolumeXIcon />}
-              label={settings.sound ? 'Töne ausschalten' : 'Töne einschalten'}
+              label={settings.sound ? "Töne ausschalten" : "Töne einschalten"}
               pressed={!settings.sound}
               onClick={() => setSound(!settings.sound)}
               variant="ghost"

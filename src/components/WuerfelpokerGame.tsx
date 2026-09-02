@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type WuerfelpokerScores, WuerfelpokerScoresSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type WuerfelpokerScores, WuerfelpokerScoresSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
-const PIPS = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+const PIPS = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 const EMPTY_SCORES: WuerfelpokerScores = { you: 0, ai: 0, draws: 0 };
 
 interface Hand {
@@ -22,18 +22,18 @@ function evaluateHand(dice: readonly number[]): Hand {
   for (const d of dice) counts[d] = (counts[d] ?? 0) + 1;
   const vals = Object.values(counts).sort((a, b) => b - a);
   const isStraight = (sorted[4] ?? 0) - (sorted[0] ?? 0) === 4 && new Set(sorted).size === 5;
-  const joined = sorted.join('');
-  const isStraightLow = joined === '12345';
-  const isStraightHigh = joined === '23456';
+  const joined = sorted.join("");
+  const isStraightLow = joined === "12345";
+  const isStraightHigh = joined === "23456";
   const top = sorted[4] ?? 0;
-  if (vals[0] === 5) return { rank: 7, name: 'Fünfling', val: top };
-  if (vals[0] === 4) return { rank: 6, name: 'Viererpasch', val: sorted[2] ?? 0 };
-  if (vals[0] === 3 && vals[1] === 2) return { rank: 5, name: 'Full House', val: sorted[2] ?? 0 };
-  if (isStraight || isStraightLow || isStraightHigh) return { rank: 4, name: 'Straße', val: top };
-  if (vals[0] === 3) return { rank: 3, name: 'Drilling', val: sorted[2] ?? 0 };
-  if (vals[0] === 2 && vals[1] === 2) return { rank: 2, name: 'Zwei Paare', val: top };
-  if (vals[0] === 2) return { rank: 1, name: 'Paar', val: top };
-  return { rank: 0, name: 'Nichts', val: top };
+  if (vals[0] === 5) return { rank: 7, name: "Fünfling", val: top };
+  if (vals[0] === 4) return { rank: 6, name: "Viererpasch", val: sorted[2] ?? 0 };
+  if (vals[0] === 3 && vals[1] === 2) return { rank: 5, name: "Full House", val: sorted[2] ?? 0 };
+  if (isStraight || isStraightLow || isStraightHigh) return { rank: 4, name: "Straße", val: top };
+  if (vals[0] === 3) return { rank: 3, name: "Drilling", val: sorted[2] ?? 0 };
+  if (vals[0] === 2 && vals[1] === 2) return { rank: 2, name: "Zwei Paare", val: top };
+  if (vals[0] === 2) return { rank: 1, name: "Paar", val: top };
+  return { rank: 0, name: "Nichts", val: top };
 }
 
 function shouldHold(dice: readonly number[], i: number): boolean {
@@ -54,7 +54,7 @@ export default function WuerfelpokerGame() {
     WuerfelpokerScoresSchema,
     EMPTY_SCORES,
   );
-  const [announcement, setAnnouncement] = useState('Würfle und halte die besten Würfel.');
+  const [announcement, setAnnouncement] = useState("Würfle und halte die besten Würfel.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -65,7 +65,7 @@ export default function WuerfelpokerGame() {
     setHeld([false, false, false, false, false]);
     setRollsLeft(3);
     setOver(false);
-    setAnnouncement('Neue Runde. Würfle.');
+    setAnnouncement("Neue Runde. Würfle.");
   }, []);
 
   const roll = useCallback(() => {
@@ -150,10 +150,10 @@ export default function WuerfelpokerGame() {
             <div
               key={i}
               role="img"
-              aria-label={`KI-Würfel ${i + 1}${over ? `: ${d}` : ': verdeckt'}`}
+              aria-label={`KI-Würfel ${i + 1}${over ? `: ${d}` : ": verdeckt"}`}
               className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-700 text-2xl text-amber-200"
             >
-              {over && d ? PIPS[d] : '?'}
+              {over && d ? PIPS[d] : "?"}
             </div>
           ))}
         </div>
@@ -173,13 +173,13 @@ export default function WuerfelpokerGame() {
               type="button"
               onClick={() => toggleHold(i)}
               disabled={rollsLeft === 3 || over}
-              aria-label={`Würfel ${i + 1}${d ? `: ${d}` : ''}${held[i] ? ' gehalten' : ''}`}
+              aria-label={`Würfel ${i + 1}${d ? `: ${d}` : ""}${held[i] ? " gehalten" : ""}`}
               aria-pressed={held[i]}
               className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${
-                held[i] ? 'bg-amber-300 ring-4 ring-amber-500' : 'bg-white text-slate-900'
+                held[i] ? "bg-amber-300 ring-4 ring-amber-500" : "bg-white text-slate-900"
               }`}
             >
-              {d ? PIPS[d] : '-'}
+              {d ? PIPS[d] : "-"}
             </button>
           ))}
         </div>

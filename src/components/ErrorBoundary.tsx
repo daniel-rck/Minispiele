@@ -1,4 +1,4 @@
-import { Component, createRef, type ErrorInfo, type ReactNode } from 'react';
+import { Component, createRef, type ErrorInfo, type ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -18,8 +18,8 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error(`ErrorBoundary[${this.props.label ?? 'root'}]`, error, info);
-    if (typeof window !== 'undefined') {
+    console.error(`ErrorBoundary[${this.props.label ?? "root"}]`, error, info);
+    if (typeof window !== "undefined") {
       window.requestAnimationFrame(() => this.alertRef.current?.focus());
     }
   }
@@ -29,7 +29,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   };
 
   private handleReload = (): void => {
-    if (typeof window !== 'undefined') window.location.reload();
+    if (typeof window !== "undefined") window.location.reload();
   };
 
   render(): ReactNode {

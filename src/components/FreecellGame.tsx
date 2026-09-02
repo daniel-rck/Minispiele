@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   autoMoveToFoundation,
   type Card,
@@ -14,19 +14,19 @@ import {
   rankLabel,
   SUITS,
   undo,
-} from '../lib/freecell';
-import { FreecellBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/freecell";
+import { FreecellBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 function CardView({
   card,
   onClick,
   selected,
-  className = '',
+  className = "",
   small = false,
 }: {
   card: Card | null;
@@ -53,8 +53,8 @@ function CardView({
       onClick={onClick}
       aria-label={`${rankLabel(card.rank)} ${card.suit}`}
       className={`flex items-center justify-center rounded-md border-2 bg-white font-bold dark:bg-slate-50 ${
-        selected ? 'border-brand-500 ring-2 ring-brand-300' : 'border-slate-300'
-      } ${small ? 'text-xs' : 'text-sm'} ${card.red ? 'text-red-600' : 'text-slate-900'} ${className}`}
+        selected ? "border-brand-500 ring-2 ring-brand-300" : "border-slate-300"
+      } ${small ? "text-xs" : "text-sm"} ${card.red ? "text-red-600" : "text-slate-900"} ${className}`}
     >
       <span>
         {rankLabel(card.rank)}
@@ -74,7 +74,7 @@ export default function FreecellGame() {
   const [selected, setSelected] = useState<MoveSource | null>(null);
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -122,13 +122,13 @@ export default function FreecellGame() {
 
   const handleSource = (src: MoveSource) => {
     const card =
-      src.type === 'free'
+      src.type === "free"
         ? (state.freeCells[src.index] ?? null)
         : (state.tableau[src.index]![state.tableau[src.index]!.length - 1] ?? null);
     if (!card) {
       // try moving selected to empty tableau column
-      if (src.type === 'tableau' && selected)
-        trySelectOrMove({ type: 'tableau', index: src.index });
+      if (src.type === "tableau" && selected)
+        trySelectOrMove({ type: "tableau", index: src.index });
       return;
     }
     if (selected && selected.type === src.type && selected.index === src.index) {
@@ -144,7 +144,7 @@ export default function FreecellGame() {
 
   const handleFoundation = (idx: number) => {
     if (!selected) return;
-    trySelectOrMove({ type: 'foundation', index: idx });
+    trySelectOrMove({ type: "foundation", index: idx });
   };
 
   const sendToFoundation = () => {
@@ -192,8 +192,8 @@ export default function FreecellGame() {
             key={`free-${i}`}
             card={c}
             small
-            selected={selected?.type === 'free' && selected.index === i}
-            onClick={() => handleSource({ type: 'free', index: i })}
+            selected={selected?.type === "free" && selected.index === i}
+            onClick={() => handleSource({ type: "free", index: i })}
             className="aspect-[3/4]"
           />
         ))}
@@ -207,8 +207,8 @@ export default function FreecellGame() {
               onClick={() => handleFoundation(i)}
               aria-label={`Foundation ${s}`}
               className={`flex aspect-[3/4] items-center justify-center rounded-md border-2 bg-amber-50 text-base font-bold dark:bg-amber-100 ${
-                top ? '' : 'border-dashed text-amber-700'
-              } ${top?.red ? 'text-red-600' : 'text-slate-900'} border-amber-300`}
+                top ? "" : "border-dashed text-amber-700"
+              } ${top?.red ? "text-red-600" : "text-slate-900"} border-amber-300`}
             >
               {top ? `${rankLabel(top.rank)}${s}` : s}
             </button>
@@ -218,13 +218,13 @@ export default function FreecellGame() {
 
       <div className="grid w-full max-w-xl grid-cols-8 gap-1">
         {state.tableau.map((stack, ci) => {
-          const isSelected = selected?.type === 'tableau' && selected.index === ci;
+          const isSelected = selected?.type === "tableau" && selected.index === ci;
           return (
             <div key={ci} className="flex flex-col gap-0.5">
               {stack.length === 0 ? (
                 <button
                   type="button"
-                  onClick={() => handleSource({ type: 'tableau', index: ci })}
+                  onClick={() => handleSource({ type: "tableau", index: ci })}
                   aria-label={`Leere Spalte ${ci + 1}`}
                   className="flex aspect-[3/4] items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-xs text-slate-400 dark:border-slate-700"
                 >
@@ -239,8 +239,8 @@ export default function FreecellGame() {
                       card={card}
                       small
                       selected={isSelected && isTop}
-                      onClick={() => isTop && handleSource({ type: 'tableau', index: ci })}
-                      className={`aspect-[3/4] ${!isTop ? 'opacity-75 pointer-events-none' : ''}`}
+                      onClick={() => isTop && handleSource({ type: "tableau", index: ci })}
+                      className={`aspect-[3/4] ${!isTop ? "opacity-75 pointer-events-none" : ""}`}
                     />
                   );
                 })
@@ -301,7 +301,7 @@ export default function FreecellGame() {
 function canMoveToFoundation(state: FreecellState, src: MoveSource | null): boolean {
   if (!src) return false;
   const card =
-    src.type === 'free'
+    src.type === "free"
       ? (state.freeCells[src.index] ?? null)
       : (state.tableau[src.index]![state.tableau[src.index]!.length - 1] ?? null);
   if (!card) return false;

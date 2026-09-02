@@ -1,5 +1,5 @@
-import FreecellGame from '../components/FreecellGame';
-import GameLayout from '../components/GameLayout';
+import FreecellGame from "../components/FreecellGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Freecell() {
   return (

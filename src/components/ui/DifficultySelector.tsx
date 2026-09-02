@@ -10,7 +10,7 @@ export default function DifficultySelector<T extends string>({
   value,
   options,
   onChange,
-  label = 'Schwierigkeit:',
+  label = "Schwierigkeit:",
   disabled = false,
 }: DifficultySelectorProps<T>) {
   const keys = Object.keys(options) as T[];

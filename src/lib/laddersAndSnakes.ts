@@ -32,14 +32,14 @@ export const SNAKES: Readonly<Record<number, number>> = {
   99: 80,
 };
 
-export type Player = 'human' | 'ai';
+export type Player = "human" | "ai";
 
 export interface GameState {
   positions: number[];
   current: number;
   /** Roll currently displayed in the die UI (0 when none rolled yet this turn). */
   lastRoll: number;
-  status: 'rolling' | 'idle' | 'won';
+  status: "rolling" | "idle" | "won";
   /** Index of the winner once status === 'won'. */
   winner: number | null;
   /** Total turns the human player has taken. */
@@ -51,7 +51,7 @@ export function createInitialState(): GameState {
     positions: new Array(PLAYER_COUNT).fill(0),
     current: 0,
     lastRoll: 0,
-    status: 'idle',
+    status: "idle",
     winner: null,
     humanTurns: 0,
   };
@@ -68,11 +68,11 @@ export function applyDieRoll(position: number, roll: number): number {
   return candidate;
 }
 
-export function resolveSpecial(cell: number): { dest: number; via: 'ladder' | 'snake' | null } {
+export function resolveSpecial(cell: number): { dest: number; via: "ladder" | "snake" | null } {
   const ladder = LADDERS[cell];
-  if (ladder !== undefined) return { dest: ladder, via: 'ladder' };
+  if (ladder !== undefined) return { dest: ladder, via: "ladder" };
   const snake = SNAKES[cell];
-  if (snake !== undefined) return { dest: snake, via: 'snake' };
+  if (snake !== undefined) return { dest: snake, via: "snake" };
   return { dest: cell, via: null };
 }
 

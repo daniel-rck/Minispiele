@@ -1,10 +1,10 @@
-export type TrafficJamDifficulty = 'easy' | 'medium' | 'hard';
-export type Orientation = 'h' | 'v';
-export type Direction = 'up' | 'down' | 'left' | 'right';
+export type TrafficJamDifficulty = "easy" | "medium" | "hard";
+export type Orientation = "h" | "v";
+export type Direction = "up" | "down" | "left" | "right";
 
 export const BOARD_SIZE = 6;
 export const EXIT_ROW = 2;
-export const TARGET_ID = 'A';
+export const TARGET_ID = "A";
 
 export interface Car {
   id: string;
@@ -37,103 +37,103 @@ interface PuzzleDef {
 export const PUZZLES: Record<TrafficJamDifficulty, PuzzleDef[]> = {
   easy: [
     {
-      id: 'easy-01',
-      encoded: '...C..' + '...C..' + 'AA.C..' + '......' + '......' + '......',
-      facings: { A: 'right', C: 'down' },
+      id: "easy-01",
+      encoded: "...C.." + "...C.." + "AA.C.." + "......" + "......" + "......",
+      facings: { A: "right", C: "down" },
     },
     {
-      id: 'easy-02',
-      encoded: '..B..C' + '..B..C' + 'AAB..C' + '......' + '......' + '......',
-      facings: { A: 'right', B: 'down', C: 'down' },
+      id: "easy-02",
+      encoded: "..B..C" + "..B..C" + "AAB..C" + "......" + "......" + "......",
+      facings: { A: "right", B: "down", C: "down" },
     },
     {
-      id: 'easy-03',
-      encoded: 'DD....' + '...B..' + 'AA.B..' + '...B..' + '......' + '......',
-      facings: { A: 'right', B: 'down', D: 'right' },
+      id: "easy-03",
+      encoded: "DD...." + "...B.." + "AA.B.." + "...B.." + "......" + "......",
+      facings: { A: "right", B: "down", D: "right" },
     },
     {
-      id: 'easy-04',
-      encoded: '..B...' + '..B...' + 'AAC...' + '..C...' + '......' + '......',
-      facings: { A: 'right', B: 'up', C: 'down' },
+      id: "easy-04",
+      encoded: "..B..." + "..B..." + "AAC..." + "..C..." + "......" + "......",
+      facings: { A: "right", B: "up", C: "down" },
     },
     {
-      id: 'easy-05',
-      encoded: 'BB.C.D' + '...C.D' + 'AA.C.D' + '......' + '.EE...' + '......',
-      facings: { A: 'right', B: 'right', C: 'down', D: 'down', E: 'right' },
+      id: "easy-05",
+      encoded: "BB.C.D" + "...C.D" + "AA.C.D" + "......" + ".EE..." + "......",
+      facings: { A: "right", B: "right", C: "down", D: "down", E: "right" },
     },
   ],
   medium: [
     {
-      id: 'medium-01',
-      encoded: 'BB.C..' + '...C..' + 'AA.C.D' + '.....D' + '.....D' + 'EE....',
-      facings: { A: 'right', B: 'right', C: 'down', D: 'down', E: 'right' },
+      id: "medium-01",
+      encoded: "BB.C.." + "...C.." + "AA.C.D" + ".....D" + ".....D" + "EE....",
+      facings: { A: "right", B: "right", C: "down", D: "down", E: "right" },
     },
     {
-      id: 'medium-02',
+      id: "medium-02",
       // C wants to descend but row 5 col 3 is blocked by E — E must drive left first.
-      encoded: '...C..' + '...C..' + 'AA.C.D' + '.....D' + '.....D' + '...EE.',
-      facings: { A: 'right', C: 'down', D: 'down', E: 'left' },
+      encoded: "...C.." + "...C.." + "AA.C.D" + ".....D" + ".....D" + "...EE.",
+      facings: { A: "right", C: "down", D: "down", E: "left" },
     },
     {
-      id: 'medium-03',
-      encoded: '..BCD.' + '..BCD.' + 'AABCD.' + '......' + 'EE....' + '......',
-      facings: { A: 'right', B: 'down', C: 'down', D: 'down', E: 'right' },
+      id: "medium-03",
+      encoded: "..BCD." + "..BCD." + "AABCD." + "......" + "EE...." + "......",
+      facings: { A: "right", B: "down", C: "down", D: "down", E: "right" },
     },
     {
-      id: 'medium-04',
-      encoded: 'BB....' + '...C..' + 'AA.C.D' + '...C.D' + '....ED' + '....E.',
-      facings: { A: 'right', B: 'right', C: 'down', D: 'down', E: 'down' },
+      id: "medium-04",
+      encoded: "BB...." + "...C.." + "AA.C.D" + "...C.D" + "....ED" + "....E.",
+      facings: { A: "right", B: "right", C: "down", D: "down", E: "down" },
     },
     {
-      id: 'medium-05',
-      encoded: '..B..C' + '..B..C' + 'AA...C' + '..D...' + '..D...' + '..D...',
-      facings: { A: 'right', B: 'up', C: 'down', D: 'down' },
+      id: "medium-05",
+      encoded: "..B..C" + "..B..C" + "AA...C" + "..D..." + "..D..." + "..D...",
+      facings: { A: "right", B: "up", C: "down", D: "down" },
     },
   ],
   hard: [
     {
-      id: 'hard-01',
-      encoded: 'BB.C..' + '...C.D' + 'AA.C.D' + '.....D' + '.FF...' + '......',
-      facings: { A: 'right', B: 'right', C: 'down', D: 'down', F: 'right' },
+      id: "hard-01",
+      encoded: "BB.C.." + "...C.D" + "AA.C.D" + ".....D" + ".FF..." + "......",
+      facings: { A: "right", B: "right", C: "down", D: "down", F: "right" },
     },
     {
-      id: 'hard-02',
+      id: "hard-02",
       // F must drive left to free col 2 row 5, then B can descend.
       // G must drive left to free col 5 row 5, then D can descend.
-      encoded: '..B.CC' + '..B...' + 'AAB..D' + '.....D' + 'EE...D' + '..FFGG',
-      facings: { A: 'right', B: 'down', C: 'right', D: 'down', E: 'right', F: 'left', G: 'left' },
+      encoded: "..B.CC" + "..B..." + "AAB..D" + ".....D" + "EE...D" + "..FFGG",
+      facings: { A: "right", B: "down", C: "right", D: "down", E: "right", F: "left", G: "left" },
     },
     {
-      id: 'hard-03',
-      encoded: 'BBC..E' + '..C..E' + 'AAC..E' + '.F....' + '.F....' + 'GG.HH.',
+      id: "hard-03",
+      encoded: "BBC..E" + "..C..E" + "AAC..E" + ".F...." + ".F...." + "GG.HH.",
       facings: {
-        A: 'right',
-        B: 'right',
-        C: 'down',
-        E: 'down',
-        F: 'down',
-        G: 'right',
-        H: 'right',
+        A: "right",
+        B: "right",
+        C: "down",
+        E: "down",
+        F: "down",
+        G: "right",
+        H: "right",
       },
     },
     {
-      id: 'hard-04',
+      id: "hard-04",
       // E must drive left to free col 4 row 4, then F can drive left to free
       // col 5 row 4, then D can descend.
-      encoded: '..BBB.' + 'C....D' + 'CAA..D' + 'C....D' + '..EEFF' + 'GG....',
-      facings: { A: 'right', B: 'right', C: 'down', D: 'down', E: 'left', F: 'left', G: 'right' },
+      encoded: "..BBB." + "C....D" + "CAA..D" + "C....D" + "..EEFF" + "GG....",
+      facings: { A: "right", B: "right", C: "down", D: "down", E: "left", F: "left", G: "right" },
     },
     {
-      id: 'hard-05',
+      id: "hard-05",
       // F must drive right to clear col 2 row 5; D drives down (col 5 free).
-      encoded: '..B.CC' + '..B...' + 'AAB..D' + '.....D' + '.E...D' + '.E....',
-      facings: { A: 'right', B: 'down', C: 'right', D: 'down', E: 'down' },
+      encoded: "..B.CC" + "..B..." + "AAB..D" + ".....D" + ".E...D" + ".E....",
+      facings: { A: "right", B: "down", C: "right", D: "down", E: "down" },
     },
   ],
 };
 
 function defaultFacingFor(orientation: Orientation): Direction {
-  return orientation === 'h' ? 'right' : 'down';
+  return orientation === "h" ? "right" : "down";
 }
 
 export function parsePuzzle(encoded: string, facings: Record<string, Direction> = {}): Car[] {
@@ -146,7 +146,7 @@ export function parsePuzzle(encoded: string, facings: Record<string, Direction> 
   const cars: Car[] = [];
   for (let i = 0; i < encoded.length; i++) {
     const ch = encoded[i];
-    if (!ch || ch === '.') continue;
+    if (!ch || ch === ".") continue;
     if (seen.has(ch)) continue;
     if (!/^[A-Z]$/.test(ch)) {
       throw new Error(`Invalid puzzle char "${ch}" at index ${i}`);
@@ -156,11 +156,11 @@ export function parsePuzzle(encoded: string, facings: Record<string, Direction> 
     const rightChar = col + 1 < BOARD_SIZE ? encoded[i + 1] : undefined;
     const downChar = row + 1 < BOARD_SIZE ? encoded[i + BOARD_SIZE] : undefined;
     let orientation: Orientation;
-    if (rightChar === ch) orientation = 'h';
-    else if (downChar === ch) orientation = 'v';
+    if (rightChar === ch) orientation = "h";
+    else if (downChar === ch) orientation = "v";
     else throw new Error(`Car "${ch}" has no neighbor — minimum length is 2`);
     let length = 1;
-    if (orientation === 'h') {
+    if (orientation === "h") {
       while (col + length < BOARD_SIZE && encoded[i + length] === ch) length++;
     } else {
       while (row + length < BOARD_SIZE && encoded[i + length * BOARD_SIZE] === ch) length++;
@@ -170,16 +170,16 @@ export function parsePuzzle(encoded: string, facings: Record<string, Direction> 
     }
     const isTarget = ch === TARGET_ID;
     if (isTarget) {
-      if (orientation !== 'h' || length !== 2 || row !== EXIT_ROW) {
+      if (orientation !== "h" || length !== 2 || row !== EXIT_ROW) {
         throw new Error(`Target car "${TARGET_ID}" must be horizontal length-2 in row ${EXIT_ROW}`);
       }
     }
     const facing = facings[ch] ?? defaultFacingFor(orientation);
     // Validate facing matches orientation
-    if (orientation === 'h' && facing !== 'left' && facing !== 'right') {
+    if (orientation === "h" && facing !== "left" && facing !== "right") {
       throw new Error(`Horizontal car "${ch}" cannot face "${facing}"`);
     }
-    if (orientation === 'v' && facing !== 'up' && facing !== 'down') {
+    if (orientation === "v" && facing !== "up" && facing !== "down") {
       throw new Error(`Vertical car "${ch}" cannot face "${facing}"`);
     }
     cars.push({
@@ -199,7 +199,7 @@ export function parsePuzzle(encoded: string, facings: Record<string, Direction> 
   // Reject disconnected duplicates.
   const counts = new Map<string, number>();
   for (const ch of encoded) {
-    if (ch === '.') continue;
+    if (ch === ".") continue;
     counts.set(ch, (counts.get(ch) ?? 0) + 1);
   }
   for (const car of cars) {
@@ -217,8 +217,8 @@ export function buildGrid(cars: readonly Car[]): (string | null)[] {
   const grid: (string | null)[] = Array.from({ length: BOARD_SIZE * BOARD_SIZE }, () => null);
   for (const car of cars) {
     for (let k = 0; k < car.length; k++) {
-      const r = car.orientation === 'v' ? car.row + k : car.row;
-      const c = car.orientation === 'h' ? car.col + k : car.col;
+      const r = car.orientation === "v" ? car.row + k : car.row;
+      const c = car.orientation === "h" ? car.col + k : car.col;
       grid[r * BOARD_SIZE + c] = car.id;
     }
   }
@@ -229,8 +229,8 @@ export function isBlocked(cars: readonly Car[], r: number, c: number, excludeId:
   for (const car of cars) {
     if (car.id === excludeId) continue;
     for (let k = 0; k < car.length; k++) {
-      const cr = car.orientation === 'v' ? car.row + k : car.row;
-      const cc = car.orientation === 'h' ? car.col + k : car.col;
+      const cr = car.orientation === "v" ? car.row + k : car.row;
+      const cc = car.orientation === "h" ? car.col + k : car.col;
       if (cr === r && cc === c) return true;
     }
   }
@@ -246,17 +246,17 @@ function shiftOne(
 ): { cars: Car[]; exited: boolean } | null {
   const car = cars.find((c) => c.id === carId);
   if (!car) return null;
-  const axisH = car.orientation === 'h';
-  const wrongAxis = axisH ? dir !== 'left' && dir !== 'right' : dir !== 'up' && dir !== 'down';
+  const axisH = car.orientation === "h";
+  const wrongAxis = axisH ? dir !== "left" && dir !== "right" : dir !== "up" && dir !== "down";
   if (wrongAxis) return null;
 
-  const dr = dir === 'up' ? -1 : dir === 'down' ? 1 : 0;
-  const dc = dir === 'left' ? -1 : dir === 'right' ? 1 : 0;
+  const dr = dir === "up" ? -1 : dir === "down" ? 1 : 0;
+  const dc = dir === "left" ? -1 : dir === "right" ? 1 : 0;
   const newRow = car.row + dr;
   const newCol = car.col + dc;
 
   // Target exit: the right edge slides off the board.
-  if (car.isTarget && dir === 'right' && newCol + car.length > BOARD_SIZE) {
+  if (car.isTarget && dir === "right" && newCol + car.length > BOARD_SIZE) {
     if (car.col + car.length !== BOARD_SIZE) return null;
     return { cars: cars.filter((c) => c.id !== carId), exited: true };
   }
@@ -345,7 +345,7 @@ export function pickRandomPuzzleIndex(
 
 export function encodeBoard(cars: readonly Car[]): string {
   const grid = buildGrid(cars);
-  return grid.map((cell) => cell ?? '.').join('');
+  return grid.map((cell) => cell ?? ".").join("");
 }
 
 // BFS solver: returns the minimum number of clicks (drive actions) to solve,

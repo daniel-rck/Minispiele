@@ -12,7 +12,7 @@ export interface MastermindState {
   guesses: number[][];
   feedback: Feedback[];
   current: number[];
-  done: 'won' | 'lost' | null;
+  done: "won" | "lost" | null;
 }
 
 export function generateCode(rng: () => number = Math.random): number[] {
@@ -74,8 +74,8 @@ export function submit(state: MastermindState): MastermindState {
   const fb = evaluateGuess(state.code, guess);
   const guesses = [...state.guesses, guess];
   const feedback = [...state.feedback, fb];
-  let done: MastermindState['done'] = null;
-  if (fb.black === CODE_LENGTH) done = 'won';
-  else if (guesses.length >= MAX_GUESSES) done = 'lost';
+  let done: MastermindState["done"] = null;
+  if (fb.black === CODE_LENGTH) done = "won";
+  else if (guesses.length >= MAX_GUESSES) done = "lost";
   return { ...state, guesses, feedback, current: [], done };
 }

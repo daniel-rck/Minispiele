@@ -1,6 +1,6 @@
-import { formatHundredths, formatRemaining } from '../lib/clickerTimer';
-import type { TimerDisplayMode } from '../lib/persistedSchemas';
-import FlipDigit from './FlipDigit';
+import { formatHundredths, formatRemaining } from "../lib/clickerTimer";
+import type { TimerDisplayMode } from "../lib/persistedSchemas";
+import FlipDigit from "./FlipDigit";
 
 interface Props {
   mode: TimerDisplayMode;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function TimerDisplay({ mode, ms, animate = true }: Props) {
-  if (mode === 'continuous') {
+  if (mode === "continuous") {
     const hundredths = formatHundredths(ms);
     return (
       <span className="tabular-nums" role="img" aria-label={`${hundredths} verbleibend`}>
@@ -23,12 +23,12 @@ export default function TimerDisplay({ mode, ms, animate = true }: Props) {
   return (
     <span
       className="inline-flex items-baseline tabular-nums"
-      style={{ perspective: '600px' }}
+      style={{ perspective: "600px" }}
       role="img"
       aria-label={`${text} verbleibend`}
     >
-      {text.split('').map((ch, idx) =>
-        ch === ':' ? (
+      {text.split("").map((ch, idx) =>
+        ch === ":" ? (
           <span key={idx} aria-hidden>
             {ch}
           </span>

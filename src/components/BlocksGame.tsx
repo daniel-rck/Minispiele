@@ -1,6 +1,6 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useHoldRepeat } from '../hooks/useHoldRepeat';
-import { useVibration } from '../hooks/useVibration';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useHoldRepeat } from "../hooks/useHoldRepeat";
+import { useVibration } from "../hooks/useVibration";
 import {
   BLOCKS_COLORS as COLORS,
   BLOCKS_COLS as COLS,
@@ -17,14 +17,14 @@ import {
   randomType,
   spawnPiece,
   tryRotate,
-} from '../lib/blocks';
-import { STORAGE_KEYS } from '../lib/constants';
-import { BlocksBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/blocks";
+import { STORAGE_KEYS } from "../lib/constants";
+import { BlocksBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 interface GameState {
   board: number[];
@@ -33,7 +33,7 @@ interface GameState {
   score: number;
   level: number;
   lines: number;
-  status: 'idle' | 'playing' | 'over';
+  status: "idle" | "playing" | "over";
   flashingRows: number[];
 }
 
@@ -45,12 +45,12 @@ export default function BlocksGame() {
     score: 0,
     level: 0,
     lines: 0,
-    status: 'idle',
+    status: "idle",
     flashingRows: [],
   });
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.BLOCKS_BEST, BlocksBestSchema, 0);
   const [doneOpen, setDoneOpen] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const tickRef = useRef<number | null>(null);
   const clearTimerRef = useRef<number | null>(null);
   const finishedRef = useRef(false);
@@ -81,7 +81,7 @@ export default function BlocksGame() {
           board: cleared,
           piece: null,
           nextType: newNextType,
-          status: 'over',
+          status: "over",
           flashingRows: [],
         };
       }
@@ -100,7 +100,7 @@ export default function BlocksGame() {
 
   const tick = useCallback(() => {
     setState((s) => {
-      if (s.status !== 'playing' || !s.piece) return s;
+      if (s.status !== "playing" || !s.piece) return s;
       if (s.flashingRows.length > 0) return s; // hold while line-sweep plays
       const moved: Piece = { ...s.piece, y: s.piece.y + 1 };
       if (fits(s.board, moved)) return { ...s, piece: moved };
@@ -117,14 +117,14 @@ export default function BlocksGame() {
       const nextPiece = spawnPiece(s.nextType);
       const newNextType = randomType();
       if (!fits(merged, nextPiece)) {
-        return { ...s, board: merged, piece: null, nextType: newNextType, status: 'over' };
+        return { ...s, board: merged, piece: null, nextType: newNextType, status: "over" };
       }
       return { ...s, board: merged, piece: nextPiece, nextType: newNextType };
     });
   }, [vibrate, finalizeClear, sfx]);
 
   useEffect(() => {
-    if (state.status !== 'playing') return;
+    if (state.status !== "playing") return;
     if (tickRef.current !== null) window.clearInterval(tickRef.current);
     tickRef.current = window.setInterval(tick, intervalForLevel(state.level));
     return () => {
@@ -133,7 +133,7 @@ export default function BlocksGame() {
   }, [state.status, state.level, tick]);
 
   useEffect(() => {
-    if (state.status === 'over' && !finishedRef.current) {
+    if (state.status === "over" && !finishedRef.current) {
       finishedRef.current = true;
       if (state.score > best) setBest(state.score);
       setAnnounce(`Spiel vorbei. ${state.score} Punkte`);
@@ -158,14 +158,14 @@ export default function BlocksGame() {
       score: 0,
       level: 0,
       lines: 0,
-      status: 'playing',
+      status: "playing",
       flashingRows: [],
     });
   };
 
   const move = useCallback((dx: number) => {
     setState((s) => {
-      if (!s.piece || s.status !== 'playing') return s;
+      if (!s.piece || s.status !== "playing") return s;
       const moved: Piece = { ...s.piece, x: s.piece.x + dx };
       return fits(s.board, moved) ? { ...s, piece: moved } : s;
     });
@@ -173,7 +173,7 @@ export default function BlocksGame() {
 
   const rotate = useCallback(() => {
     setState((s) => {
-      if (!s.piece || s.status !== 'playing') return s;
+      if (!s.piece || s.status !== "playing") return s;
       const candidate = tryRotate(s.board, s.piece);
       return candidate ? { ...s, piece: candidate } : s;
     });
@@ -183,7 +183,7 @@ export default function BlocksGame() {
 
   const hardDrop = useCallback(() => {
     setState((s) => {
-      if (!s.piece || s.status !== 'playing' || s.flashingRows.length > 0) return s;
+      if (!s.piece || s.status !== "playing" || s.flashingRows.length > 0) return s;
       let p = s.piece;
       let dropDistance = 0;
       while (fits(s.board, { ...p, y: p.y + 1 })) {
@@ -207,11 +207,11 @@ export default function BlocksGame() {
       }
       const next = spawnPiece(s.nextType);
       const newNextType = randomType();
-      const status = fits(merged, next) ? 'playing' : 'over';
+      const status = fits(merged, next) ? "playing" : "over";
       return {
         ...s,
         board: merged,
-        piece: status === 'playing' ? next : null,
+        piece: status === "playing" ? next : null,
         nextType: newNextType,
         status,
         score: s.score + scoreAdd,
@@ -226,34 +226,34 @@ export default function BlocksGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (state.status !== 'playing') return;
+      if (state.status !== "playing") return;
       switch (e.key) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           e.preventDefault();
           move(-1);
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           e.preventDefault();
           move(1);
           break;
-        case 'ArrowUp':
-        case 'x':
-        case 'X':
+        case "ArrowUp":
+        case "x":
+        case "X":
           e.preventDefault();
           rotate();
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           softDrop();
           break;
-        case ' ':
+        case " ":
           e.preventDefault();
           hardDrop();
           break;
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [state.status, move, rotate, softDrop, hardDrop]);
 
   const displayBoard = state.board.slice();
@@ -307,7 +307,7 @@ export default function BlocksGame() {
               <div
                 key={i}
                 className="h-2.5 w-2.5 rounded-sm"
-                style={{ background: v === 0 ? 'transparent' : COLORS[v] }}
+                style={{ background: v === 0 ? "transparent" : COLORS[v] }}
               />
             ))}
           </div>
@@ -317,7 +317,7 @@ export default function BlocksGame() {
       <div className="fit-area mx-auto w-full max-w-xs">
         <div
           className="relative fit-box touch-none overflow-hidden rounded-2xl bg-slate-900 p-1 dark:bg-slate-950"
-          style={{ '--fit-ar': COLS / ROWS } as CSSProperties}
+          style={{ "--fit-ar": COLS / ROWS } as CSSProperties}
         >
           <div
             className="grid h-full w-full gap-px"
@@ -331,14 +331,14 @@ export default function BlocksGame() {
               return (
                 <div
                   key={i}
-                  className={`rounded-[2px] ${flashing ? 'blocks-line-sweep' : ''}`}
-                  style={{ background: v === 0 ? 'rgba(255,255,255,0.04)' : COLORS[v] }}
+                  className={`rounded-[2px] ${flashing ? "blocks-line-sweep" : ""}`}
+                  style={{ background: v === 0 ? "rgba(255,255,255,0.04)" : COLORS[v] }}
                   aria-hidden
                 />
               );
             })}
           </div>
-          {state.status === 'idle' && (
+          {state.status === "idle" && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
               <Button variant="primary" onClick={start}>
                 Starten

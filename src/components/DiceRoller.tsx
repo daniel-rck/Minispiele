@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { ANIMATION, HAPTICS, STORAGE_KEYS } from "../lib/constants";
 import {
   buildPreset,
   createDie,
@@ -21,9 +21,9 @@ import {
   setDieType,
   sumValues,
   toggleHeld,
-} from '../lib/dice';
-import { parseNotation } from '../lib/diceNotation';
-import { DiceSound } from '../lib/diceSound';
+} from "../lib/dice";
+import { parseNotation } from "../lib/diceNotation";
+import { DiceSound } from "../lib/diceSound";
 import {
   type DiceHistory,
   type DiceHistoryEntry,
@@ -32,11 +32,11 @@ import {
   DiceRollDurationSchema,
   PersistedDiceSchema,
   type PersistedDie,
-} from '../lib/persistedSchemas';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/persistedSchemas";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const D6_PIP_POSITIONS: Record<number, ReadonlyArray<readonly [number, number]>> = {
   1: [[1, 1]],
@@ -86,11 +86,11 @@ function hydrateDice(persisted: readonly PersistedDie[]): Die[] {
 function defaultDice(): Die[] {
   const preset = DICE_PRESETS[0];
   if (preset) return buildPreset(preset);
-  return [createDie('d6', DICE_COLOR_PALETTE[0] ?? '#f8fafc')];
+  return [createDie("d6", DICE_COLOR_PALETTE[0] ?? "#f8fafc")];
 }
 
 function loadDice(): Die[] | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.DICE_STATE);
     if (!raw) return null;
@@ -105,7 +105,7 @@ function loadDice(): Die[] | null {
 }
 
 function persistDice(dice: readonly Die[]): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
   try {
     const slim: PersistedDie[] = dice.map((d) => ({
       type: d.type,
@@ -115,7 +115,7 @@ function persistDice(dice: readonly Die[]): void {
     }));
     window.localStorage.setItem(STORAGE_KEYS.DICE_STATE, JSON.stringify(slim));
   } catch (err) {
-    console.warn('persistDice: write failed', err);
+    console.warn("persistDice: write failed", err);
   }
 }
 
@@ -129,18 +129,18 @@ function buildHistoryEntry(dice: readonly Die[], modifier: number): DiceHistoryE
 }
 
 function formatModifier(modifier: number): string {
-  if (modifier === 0) return '';
+  if (modifier === 0) return "";
   return modifier > 0 ? ` +${modifier}` : ` ${modifier}`;
 }
 
 function modeLabel(mode: RollMode): string {
   switch (mode) {
-    case 'advantage':
-      return 'Vorteil';
-    case 'disadvantage':
-      return 'Nachteil';
+    case "advantage":
+      return "Vorteil";
+    case "disadvantage":
+      return "Nachteil";
     default:
-      return 'Normal';
+      return "Normal";
   }
 }
 
@@ -170,9 +170,9 @@ function DieFace({
   return (
     <div className="dice-perspective">
       <div
-        key={rolling ? `roll-${rollDurationMs}` : 'idle'}
+        key={rolling ? `roll-${rollDurationMs}` : "idle"}
         className={`relative flex aspect-square w-full items-center justify-center rounded-2xl border border-black/10 shadow-inner dark:border-white/10 ${
-          rolling ? 'dice-tumble' : ''
+          rolling ? "dice-tumble" : ""
         }`}
         style={{
           backgroundColor: die.color,
@@ -181,7 +181,7 @@ function DieFace({
         role="img"
         aria-label={`Würfel ${die.type}: ${die.value}`}
       >
-        {die.type === 'd6' ? (
+        {die.type === "d6" ? (
           <div className="h-3/4 w-3/4" style={{ color: fg }}>
             <D6Pips value={displayValue} color={fg} />
           </div>
@@ -205,8 +205,8 @@ export default function DiceRoller() {
   const [dice, setDice] = useState<Die[]>(() => loadDice() ?? defaultDice());
   const [rollingIds, setRollingIds] = useState<ReadonlySet<string>>(new Set());
   const [cycleValues, setCycleValues] = useState<ReadonlyMap<string, number>>(new Map());
-  const [mode, setMode] = useState<RollMode>('normal');
-  const [notationInput, setNotationInput] = useState('');
+  const [mode, setMode] = useState<RollMode>("normal");
+  const [notationInput, setNotationInput] = useState("");
   const [notationError, setNotationError] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -225,7 +225,7 @@ export default function DiceRoller() {
     DiceHistorySchema,
     [],
   );
-  const [lastAnnouncement, setLastAnnouncement] = useState('');
+  const [lastAnnouncement, setLastAnnouncement] = useState("");
   const { vibrate } = useVibration();
 
   const rollTimeoutsRef = useRef<Map<string, number>>(new Map());
@@ -339,7 +339,7 @@ export default function DiceRoller() {
       const next = rollAllWithMode(prev, mode);
       animateRoll(next.filter((d, i) => d !== prev[i]).map((d) => d.id));
       recordHistory(next);
-      if (mode !== 'normal') setMode('normal');
+      if (mode !== "normal") setMode("normal");
       return next;
     });
   }, [animateRoll, mode, recordHistory, vibrate]);
@@ -351,7 +351,7 @@ export default function DiceRoller() {
         const next = prev.map((d) => {
           if (d.id !== id) return d;
           changed = true;
-          return mode === 'normal' ? rollDie(d) : rollWithMode(d, mode);
+          return mode === "normal" ? rollDie(d) : rollWithMode(d, mode);
         });
         if (changed) {
           vibrate(HAPTICS.DICE_TAP);
@@ -380,8 +380,8 @@ export default function DiceRoller() {
     setDice((prev) => {
       if (prev.length >= MAX_DICE) return prev;
       const last = prev[prev.length - 1];
-      const type = last?.type ?? 'd6';
-      const color = last?.color ?? DICE_COLOR_PALETTE[0] ?? '#f8fafc';
+      const type = last?.type ?? "d6";
+      const color = last?.color ?? DICE_COLOR_PALETTE[0] ?? "#f8fafc";
       return [...prev, createDie(type, color)];
     });
   }, []);
@@ -407,15 +407,15 @@ export default function DiceRoller() {
   const handleNotationApply = useCallback(() => {
     const parsed = parseNotation(notationInput);
     if (!parsed) {
-      setNotationError('Ungültig — z. B. 3d6+2, d20');
+      setNotationError("Ungültig — z. B. 3d6+2, d20");
       return;
     }
-    const color = DICE_COLOR_PALETTE[0] ?? '#f8fafc';
+    const color = DICE_COLOR_PALETTE[0] ?? "#f8fafc";
     const next: Die[] = Array.from({ length: parsed.count }, () => createDie(parsed.type, color));
     setDice(next);
     setModifier(parsed.modifier);
     setNotationError(null);
-    setNotationInput('');
+    setNotationInput("");
   }, [notationInput, setModifier]);
 
   const handleClearHistory = useCallback(() => {
@@ -452,7 +452,7 @@ export default function DiceRoller() {
               onClick={() => handlePreset(p.id)}
               className="min-h-11 shrink-0 snap-start rounded-lg border border-slate-300 px-3 py-1.5 text-sm whitespace-nowrap hover:border-brand-300 dark:border-slate-700"
             >
-              <span className="font-medium">{p.label}</span>{' '}
+              <span className="font-medium">{p.label}</span>{" "}
               <span className="text-slate-500 dark:text-slate-400">({p.description})</span>
             </button>
           ))}
@@ -468,7 +468,7 @@ export default function DiceRoller() {
                 setNotationError(null);
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleNotationApply();
+                if (e.key === "Enter") handleNotationApply();
               }}
               placeholder="3d6+2"
               inputMode="text"
@@ -569,8 +569,8 @@ export default function DiceRoller() {
               key={die.id}
               className={`flex flex-col gap-2 rounded-2xl border-2 bg-white p-3 transition dark:bg-slate-900 ${
                 die.held
-                  ? 'border-brand-500 ring-2 ring-brand-500/30'
-                  : 'border-slate-200 dark:border-slate-800'
+                  ? "border-brand-500 ring-2 ring-brand-500/30"
+                  : "border-slate-200 dark:border-slate-800"
               }`}
             >
               <button
@@ -634,8 +634,8 @@ export default function DiceRoller() {
                         aria-hidden
                         className={`h-7 w-7 rounded-full border ${
                           active
-                            ? 'border-brand-500 ring-2 ring-brand-500/40'
-                            : 'border-slate-300 dark:border-slate-700'
+                            ? "border-brand-500 ring-2 ring-brand-500/40"
+                            : "border-slate-300 dark:border-slate-700"
                         }`}
                         style={{ backgroundColor: c }}
                       />
@@ -651,7 +651,7 @@ export default function DiceRoller() {
                     className="h-7 w-7 rounded-full border border-slate-300 dark:border-slate-700"
                     style={{
                       background:
-                        'conic-gradient(from 90deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444)',
+                        "conic-gradient(from 90deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444)",
                     }}
                   />
                   <input
@@ -670,7 +670,7 @@ export default function DiceRoller() {
 
       <div
         className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="mx-auto max-w-3xl px-4 py-3">
           <div
@@ -678,7 +678,7 @@ export default function DiceRoller() {
             aria-label="Wurfmodus"
             className="mb-2 flex justify-center gap-1 text-xs"
           >
-            {(['normal', 'advantage', 'disadvantage'] as const).map((m) => (
+            {(["normal", "advantage", "disadvantage"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
@@ -687,8 +687,8 @@ export default function DiceRoller() {
                 onClick={() => setMode(m)}
                 className={`min-h-9 rounded-full border px-3 py-1 ${
                   mode === m
-                    ? 'border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200'
-                    : 'border-slate-300 hover:border-brand-300 dark:border-slate-700'
+                    ? "border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200"
+                    : "border-slate-300 hover:border-brand-300 dark:border-slate-700"
                 }`}
               >
                 {modeLabel(m)}
@@ -702,7 +702,7 @@ export default function DiceRoller() {
             className="touch-manipulation"
             onClick={handleRollAll}
           >
-            🎲 Würfeln{mode !== 'normal' ? ` · ${modeLabel(mode)}` : ''}
+            🎲 Würfeln{mode !== "normal" ? ` · ${modeLabel(mode)}` : ""}
           </Button>
         </div>
       </div>
@@ -731,9 +731,9 @@ export default function DiceRoller() {
             <div className="mt-2 flex flex-wrap gap-2">
               {(
                 [
-                  ['Schnell', 400],
-                  ['Normal', ANIMATION.DICE_ROLL_DEFAULT_MS],
-                  ['Langsam', 1600],
+                  ["Schnell", 400],
+                  ["Normal", ANIMATION.DICE_ROLL_DEFAULT_MS],
+                  ["Langsam", 1600],
                 ] as const
               ).map(([label, ms]) => {
                 const active = rollDuration === ms;
@@ -745,8 +745,8 @@ export default function DiceRoller() {
                     aria-pressed={active}
                     className={`min-h-9 rounded-full border px-3 py-1 text-xs ${
                       active
-                        ? 'border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200'
-                        : 'border-slate-300 hover:border-brand-300 dark:border-slate-700'
+                        ? "border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200"
+                        : "border-slate-300 hover:border-brand-300 dark:border-slate-700"
                     }`}
                   >
                     {label}
@@ -783,7 +783,7 @@ export default function DiceRoller() {
                   <span className="text-slate-600 dark:text-slate-300">
                     {entry.dice.map((d, i) => (
                       <span key={i} className="mr-1.5">
-                        <span className="text-xs text-slate-400">{d.type}</span>{' '}
+                        <span className="text-xs text-slate-400">{d.type}</span>{" "}
                         <span className="font-medium tabular-nums">{d.value}</span>
                       </span>
                     ))}

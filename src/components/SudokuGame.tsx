@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   SudokuBestSchema,
   SudokuDifficultySchema,
   type SudokuState,
   SudokuStateSchema,
-} from '../lib/persistedSchemas';
+} from "../lib/persistedSchemas";
 import {
   conflictsAt,
   generatePuzzle,
@@ -15,19 +15,19 @@ import {
   SUDOKU_SIZE,
   type SudokuCell,
   type SudokuDifficulty,
-} from '../lib/sudoku';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import DifficultySelector from './ui/DifficultySelector';
-import Sheet from './ui/Sheet';
+} from "../lib/sudoku";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration, useGameTimer } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import DifficultySelector from "./ui/DifficultySelector";
+import Sheet from "./ui/Sheet";
 
 const LABELS: Record<SudokuDifficulty, string> = {
-  easy: 'Leicht',
-  medium: 'Mittel',
-  hard: 'Schwer',
+  easy: "Leicht",
+  medium: "Mittel",
+  hard: "Schwer",
 };
 
 interface GameSnapshot {
@@ -54,7 +54,7 @@ export default function SudokuGame() {
   const [difficulty, setDifficulty] = useLocalStorage<SudokuDifficulty>(
     STORAGE_KEYS.SUDOKU_DIFFICULTY,
     SudokuDifficultySchema,
-    'easy',
+    "easy",
   );
   const [bestMap, setBestMap] = useLocalStorage<Record<string, number>>(
     STORAGE_KEYS.SUDOKU_BEST,
@@ -80,14 +80,14 @@ export default function SudokuGame() {
   const [winOpen, setWinOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const [shakeIdx, setShakeIdx] = useState<number | null>(null);
   const timer = useGameTimer(restoredOnMount.current?.seconds ?? 0);
   const startedRef = useRef(false);
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
-  useWakeLock(timer.status === 'running');
+  useWakeLock(timer.status === "running");
 
   const elapsedRef = useRef(timer.elapsedSeconds);
   elapsedRef.current = timer.elapsedSeconds;
@@ -97,7 +97,7 @@ export default function SudokuGame() {
   const wonStateRef = useRef(false);
 
   useEffect(() => {
-    if (timer.status === 'idle' && !startedRef.current) {
+    if (timer.status === "idle" && !startedRef.current) {
       timer.start();
       startedRef.current = true;
     }
@@ -136,8 +136,8 @@ export default function SudokuGame() {
         setSavedState(snapshotToState(gameRef.current, elapsedRef.current));
       }
     };
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [setSavedState]);
 
   // Clear shake highlight after the wordle-shake animation finishes.
@@ -220,7 +220,7 @@ export default function SudokuGame() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (helpOpen || winOpen) return; // Sheet handles its own keyboard while open
-      if (e.key === 'n' || e.key === 'N') {
+      if (e.key === "n" || e.key === "N") {
         e.preventDefault();
         setNotesMode((m) => !m);
         return;
@@ -229,34 +229,34 @@ export default function SudokuGame() {
       if (/^[1-9]$/.test(e.key)) {
         e.preventDefault();
         setValueRef.current(selected, Number(e.key));
-      } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+      } else if (e.key === "Backspace" || e.key === "Delete" || e.key === "0") {
         e.preventDefault();
         setValueRef.current(selected, 0);
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === "ArrowRight") {
         setSelected(Math.min(80, selected + 1));
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === "ArrowLeft") {
         setSelected(Math.max(0, selected - 1));
-      } else if (e.key === 'ArrowDown') {
+      } else if (e.key === "ArrowDown") {
         setSelected(Math.min(80, selected + 9));
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === "ArrowUp") {
         setSelected(Math.max(0, selected - 9));
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [selected, helpOpen, winOpen]);
 
   const handleShare = async () => {
     const sec = timer.elapsedSeconds;
     const text = `Sudoku (${LABELS[game.difficulty]}) gelöst in ${formatDuration(sec)} 🧩`;
     try {
-      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-        await navigator.share({ title: 'Minispiele · Sudoku', text });
+      if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+        await navigator.share({ title: "Minispiele · Sudoku", text });
         return;
       }
-      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      if (typeof navigator !== "undefined" && navigator.clipboard) {
         await navigator.clipboard.writeText(text);
-        setAnnounce('Ergebnis in die Zwischenablage kopiert');
+        setAnnounce("Ergebnis in die Zwischenablage kopiert");
       }
     } catch {
       // user cancelled the share sheet, or unsupported — silent.
@@ -291,7 +291,7 @@ export default function SudokuGame() {
 
       <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
         <div>
-          Zeit:{' '}
+          Zeit:{" "}
           <span className="font-semibold tabular-nums">{formatDuration(timer.elapsedSeconds)}</span>
         </div>
         <div className="text-right">
@@ -327,28 +327,28 @@ export default function SudokuGame() {
               Math.floor(row / 3) === Math.floor(Math.floor(selected / SUDOKU_SIZE) / 3) &&
               Math.floor(col / 3) === Math.floor((selected % SUDOKU_SIZE) / 3);
             const conflict = conflictsAt(game.cells, idx);
-            const borderRight = col % 3 === 2 && col !== SUDOKU_SIZE - 1 ? 'mr-[2px]' : '';
-            const borderBottom = row % 3 === 2 && row !== SUDOKU_SIZE - 1 ? 'mb-[2px]' : '';
+            const borderRight = col % 3 === 2 && col !== SUDOKU_SIZE - 1 ? "mr-[2px]" : "";
+            const borderBottom = row % 3 === 2 && row !== SUDOKU_SIZE - 1 ? "mb-[2px]" : "";
             return (
               <button
                 key={idx}
                 type="button"
                 onClick={() => handleCellPress(idx)}
-                aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? 'leer' : cell.value}${conflict ? ', Konflikt' : ''}`}
+                aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? "leer" : cell.value}${conflict ? ", Konflikt" : ""}`}
                 aria-invalid={conflict || undefined}
                 className={`relative text-base font-semibold tabular-nums transition-colors duration-150 sm:text-lg ${borderRight} ${borderBottom} ${
                   isSelected
-                    ? 'bg-brand-200 dark:bg-brand-900/60'
+                    ? "bg-brand-200 dark:bg-brand-900/60"
                     : sameValue
-                      ? 'bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)]/40'
+                      ? "bg-[var(--color-warning-100)] dark:bg-[var(--color-warning-900)]/40"
                       : sameRow || sameCol || sameBox
-                        ? 'bg-slate-100 dark:bg-slate-800'
-                        : 'bg-white dark:bg-slate-900'
-                } ${cell.given ? 'text-slate-900 dark:text-slate-100' : 'text-brand-700 dark:text-brand-300'} ${
+                        ? "bg-slate-100 dark:bg-slate-800"
+                        : "bg-white dark:bg-slate-900"
+                } ${cell.given ? "text-slate-900 dark:text-slate-100" : "text-brand-700 dark:text-brand-300"} ${
                   conflict
-                    ? 'text-[var(--color-danger-600)] underline decoration-2 underline-offset-2 dark:text-[var(--color-danger-400)]'
-                    : ''
-                } ${shakeIdx === idx ? 'wordle-shake' : ''}`}
+                    ? "text-[var(--color-danger-600)] underline decoration-2 underline-offset-2 dark:text-[var(--color-danger-400)]"
+                    : ""
+                } ${shakeIdx === idx ? "wordle-shake" : ""}`}
               >
                 {cell.value !== 0 ? (
                   <>
@@ -366,7 +366,7 @@ export default function SudokuGame() {
                   <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0 p-[1px] text-[8px] leading-tight text-slate-500 sm:text-[10px] dark:text-slate-400">
                     {Array.from({ length: 9 }, (_, n) => (
                       <span key={n} className="flex items-center justify-center">
-                        {cell.notes.includes(n + 1) ? n + 1 : ''}
+                        {cell.notes.includes(n + 1) ? n + 1 : ""}
                       </span>
                     ))}
                   </div>
@@ -402,8 +402,8 @@ export default function SudokuGame() {
           aria-keyshortcuts="n"
           className={`min-h-12 flex-1 rounded-xl px-3 text-sm font-medium transition-colors ${
             notesMode
-              ? 'bg-[var(--color-warning-500)] text-white'
-              : 'border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+              ? "bg-[var(--color-warning-500)] text-white"
+              : "border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
           }`}
         >
           Notizen
@@ -460,7 +460,7 @@ export default function SudokuGame() {
             Backspace, Delete oder „Löschen" entfernst du eine Ziffer.
           </p>
           <p>
-            <strong>Notizen:</strong> Wechsle mit „Notizen" (oder Taste{' '}
+            <strong>Notizen:</strong> Wechsle mit „Notizen" (oder Taste{" "}
             <kbd className="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-semibold dark:bg-slate-800">
               N
             </kbd>
@@ -474,18 +474,18 @@ export default function SudokuGame() {
                 Die ausgewählte Zelle ist <span className="font-semibold">türkis</span> hinterlegt.
               </li>
               <li>
-                Zellen mit derselben Ziffer wie die Auswahl sind{' '}
+                Zellen mit derselben Ziffer wie die Auswahl sind{" "}
                 <span className="font-semibold text-[var(--color-warning-700)] dark:text-[var(--color-warning-400)]">
                   gelb
-                </span>{' '}
+                </span>{" "}
                 markiert.
               </li>
               <li>Zeile, Spalte und 3×3-Block der Auswahl sind dezent grau betont.</li>
               <li>
-                Konflikte zeigen sich{' '}
+                Konflikte zeigen sich{" "}
                 <span className="font-semibold text-[var(--color-danger-600)] dark:text-[var(--color-danger-400)]">
                   rot ⚠
-                </span>{' '}
+                </span>{" "}
                 und kurz wackelnd — dann steht die Ziffer schon woanders in Zeile, Spalte oder
                 Block.
               </li>
