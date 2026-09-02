@@ -225,7 +225,7 @@ export default function Home() {
       </section>
 
       {/* Category chips */}
-      <div role="group" aria-label="Nach Kategorie filtern" className="mb-5 flex flex-wrap gap-2">
+      <fieldset aria-label="Nach Kategorie filtern" className="mb-5 flex flex-wrap gap-2">
         <Chip active={filter === "all"} onClick={() => setFilter("all")}>
           Alle{" "}
           <Badge variant={filter === "all" ? "highlight" : "neutral"} size="sm">
@@ -245,7 +245,7 @@ export default function Home() {
             </Chip>
           );
         })}
-      </div>
+      </fieldset>
 
       {/* Main grid */}
       {noResults ? (

@@ -279,7 +279,7 @@ export default function TrafficJamGame() {
           options={difficultyLabels}
           onChange={onDifficultyChange}
         />
-        <span className="text-xs text-slate-500 dark:text-slate-400">
+        <span className="text-xs text-fg-muted">
           Rätsel {state.puzzleIndex + 1} / {pool.length}
         </span>
       </div>
@@ -321,7 +321,7 @@ export default function TrafficJamGame() {
               →
             </span>
             <div
-              className="grid touch-none gap-1 rounded-2xl border-2 border-slate-300 bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800"
+              className="grid touch-none gap-1 rounded-2xl border-2 border-border bg-slate-100 p-2 dark:bg-slate-800"
               style={{
                 gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
                 gridTemplateRows: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
@@ -379,7 +379,7 @@ export default function TrafficJamGame() {
         </div>
       </div>
 
-      <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+      <p className="text-center text-xs text-fg-muted">
         Tipp ein Auto an — es fährt automatisch in seine Fahrtrichtung (Pfeil am Scheinwerfer), so
         weit es kommt. Befreie das rote Auto bis zur rechten Ausfahrt.
       </p>
@@ -403,7 +403,7 @@ export default function TrafficJamGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Gelöst in {state.moves} Klicks, Zeit {formatDuration(timer.elapsedSeconds)}.
           </p>
           <div className="flex flex-col gap-2">

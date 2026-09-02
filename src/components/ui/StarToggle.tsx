@@ -26,7 +26,7 @@ export default function StarToggle({ active, onToggle, label }: StarToggleProps)
       onClick={handleClick}
       aria-pressed={active}
       aria-label={label}
-      className="absolute right-2 top-2 inline-flex size-10 items-center justify-center rounded-full bg-white/85 backdrop-blur-sm transition-colors hover:bg-white dark:bg-surface-900/70 dark:hover:bg-surface-900"
+      className="absolute right-2 top-2 inline-flex size-10 items-center justify-center rounded-full bg-white/85 backdrop-blur-sm transition-colors hover:bg-surface/70 dark:hover:bg-surface-900"
     >
       <svg
         width="22"

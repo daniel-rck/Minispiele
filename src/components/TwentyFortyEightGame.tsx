@@ -188,7 +188,7 @@ export default function TwentyFortyEightGame() {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
           onTouchCancel={onTouchCancel}
-          className="fit-box rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
+          className="fit-box rounded-2xl border-2 border-border bg-slate-200 p-2 dark:bg-slate-800"
           style={{ touchAction: "none" }}
         >
           <div
@@ -224,14 +224,14 @@ export default function TwentyFortyEightGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             🏆
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Du hast die 2048-Kachel erreicht! Du kannst weiter spielen oder neu starten.
           </p>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setWinShown(false)}
-              className="min-h-12 flex-1 rounded-xl border border-slate-300 px-4 text-sm font-medium hover:border-brand-300 dark:border-slate-700"
+              className="min-h-12 flex-1 rounded-xl border border-border px-4 text-sm font-medium hover:border-brand-300"
             >
               Weiterspielen
             </button>
@@ -244,7 +244,7 @@ export default function TwentyFortyEightGame() {
 
       <Sheet open={gameOver && !state.won} onClose={restart} title="Spiel vorbei">
         <div className="text-center">
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Keine Züge mehr möglich. Score: {state.score}.
           </p>
           <Button variant="primary" block onClick={restart}>

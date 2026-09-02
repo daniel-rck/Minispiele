@@ -35,8 +35,8 @@ const NUMBER_COLOR: Readonly<Record<number, string>> = {
   4: "text-indigo-700 dark:text-indigo-300",
   5: "text-amber-700 dark:text-amber-400",
   6: "text-cyan-600 dark:text-cyan-300",
-  7: "text-slate-900 dark:text-slate-100",
-  8: "text-slate-600 dark:text-slate-400",
+  7: "text-fg",
+  8: "text-fg-muted",
 };
 
 const HEX_NUMBER_FILL: Readonly<Record<number, string>> = {
@@ -276,7 +276,7 @@ export default function MinesweeperGame() {
         <div
           role="group"
           aria-label="Spielmodus"
-          className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-900"
+          className="inline-flex rounded-lg border border-border bg-white p-0.5 dark:bg-slate-900"
         >
           {(["rect", "hex"] as const).map((m) => (
             <button
@@ -287,7 +287,7 @@ export default function MinesweeperGame() {
               className={`min-h-11 rounded-md px-3 text-sm font-medium transition-colors ${
                 mode === m
                   ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                  : "text-slate-700 dark:text-slate-200"
+                  : "text-fg"
               }`}
             >
               {m === "rect" ? "Rechteck" : "Hex"}
@@ -449,7 +449,6 @@ export default function MinesweeperGame() {
                         textAnchor="middle"
                         dominantBaseline="central"
                         fontSize={HEX_R * 0.9}
-                        aria-hidden="true"
                       >
                         💣
                       </text>
@@ -462,7 +461,6 @@ export default function MinesweeperGame() {
                         fontSize={HEX_R * 0.85}
                         fontWeight={700}
                         fill={HEX_NUMBER_FILL[cell.adjacent] ?? "#0f172a"}
-                        aria-hidden="true"
                       >
                         {cell.adjacent}
                       </text>
@@ -473,7 +471,6 @@ export default function MinesweeperGame() {
                         textAnchor="middle"
                         dominantBaseline="central"
                         fontSize={HEX_R * 0.9}
-                        aria-hidden="true"
                       >
                         🚩
                       </text>
@@ -495,7 +492,7 @@ export default function MinesweeperGame() {
           className={`min-h-12 min-w-12 rounded-xl px-3 text-base ${
             flagMode
               ? "bg-amber-500 text-white"
-              : "border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              : "border border-border bg-white text-fg dark:bg-slate-900"
           }`}
         >
           🚩
@@ -515,7 +512,7 @@ export default function MinesweeperGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
           <Button variant="primary" block onClick={() => restart()}>
@@ -529,9 +526,7 @@ export default function MinesweeperGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             💥
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Auf eine Mine getreten. Beim nächsten Mal!
-          </p>
+          <p className="mb-4 text-sm text-fg-muted">Auf eine Mine getreten. Beim nächsten Mal!</p>
           <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
           </Button>

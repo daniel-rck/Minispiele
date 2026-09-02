@@ -215,7 +215,7 @@ export default function SnakeGame() {
           type="button"
           aria-label="Nach oben"
           onClick={() => handleDirection("up")}
-          className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
+          className="min-h-12 rounded-lg border border-border bg-white py-2 text-lg dark:bg-slate-900"
         >
           ↑
         </button>
@@ -224,7 +224,7 @@ export default function SnakeGame() {
           type="button"
           aria-label="Nach links"
           onClick={() => handleDirection("left")}
-          className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
+          className="min-h-12 rounded-lg border border-border bg-white py-2 text-lg dark:bg-slate-900"
         >
           ←
         </button>
@@ -232,7 +232,7 @@ export default function SnakeGame() {
           type="button"
           aria-label="Nach unten"
           onClick={() => handleDirection("down")}
-          className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
+          className="min-h-12 rounded-lg border border-border bg-white py-2 text-lg dark:bg-slate-900"
         >
           ↓
         </button>
@@ -240,7 +240,7 @@ export default function SnakeGame() {
           type="button"
           aria-label="Nach rechts"
           onClick={() => handleDirection("right")}
-          className="min-h-12 rounded-lg border border-slate-300 bg-white py-2 text-lg dark:border-slate-700 dark:bg-slate-900"
+          className="min-h-12 rounded-lg border border-border bg-white py-2 text-lg dark:bg-slate-900"
         >
           →
         </button>

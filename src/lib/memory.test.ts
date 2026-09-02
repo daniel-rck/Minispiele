@@ -20,8 +20,8 @@ describe("memory.createInitialState", () => {
   it("places each symbol exactly twice", () => {
     const state = createInitialState("medium", 42);
     const counts = new Map<string, number>();
-    state.cards.forEach((c) => counts.set(c.symbol, (counts.get(c.symbol) ?? 0) + 1));
-    counts.forEach((n) => expect(n).toBe(2));
+    for (const c of state.cards) counts.set(c.symbol, (counts.get(c.symbol) ?? 0) + 1);
+    for (const n of counts.values()) expect(n).toBe(2);
   });
 
   it("is deterministic with a seed", () => {

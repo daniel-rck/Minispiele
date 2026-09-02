@@ -443,7 +443,7 @@ export default function BubblesGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
         </div>
@@ -460,6 +460,7 @@ export default function BubblesGame() {
           aria-label="Blasenschießen-Spielfeld"
         >
           <svg
+            role="presentation"
             ref={svgRef}
             viewBox={`0 0 ${FIELD_W} ${FIELD_H}`}
             className="absolute inset-0 h-full w-full"
@@ -539,9 +540,7 @@ export default function BubblesGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             💥
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Du erreichst {state.score} Punkte.
-          </p>
+          <p className="mb-4 text-sm text-fg-muted">Du erreichst {state.score} Punkte.</p>
           <Button variant="primary" block onClick={restart}>
             Nochmal spielen
           </Button>

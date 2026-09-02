@@ -289,7 +289,7 @@ export default function SudokuGame() {
         </Button>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Zeit:{" "}
           <span className="font-semibold tabular-nums">{formatDuration(timer.elapsedSeconds)}</span>
@@ -344,7 +344,7 @@ export default function SudokuGame() {
                       : sameRow || sameCol || sameBox
                         ? "bg-slate-100 dark:bg-slate-800"
                         : "bg-white dark:bg-slate-900"
-                } ${cell.given ? "text-slate-900 dark:text-slate-100" : "text-brand-700 dark:text-brand-300"} ${
+                } ${cell.given ? "text-fg" : "text-brand-700 dark:text-brand-300"} ${
                   conflict
                     ? "text-[var(--color-danger-600)] underline decoration-2 underline-offset-2 dark:text-[var(--color-danger-400)]"
                     : ""
@@ -363,7 +363,7 @@ export default function SudokuGame() {
                     )}
                   </>
                 ) : cell.notes.length > 0 ? (
-                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0 p-[1px] text-[8px] leading-tight text-slate-500 sm:text-[10px] dark:text-slate-400">
+                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-0 p-[1px] text-[8px] leading-tight text-fg-muted sm:text-[10px]">
                     {Array.from({ length: 9 }, (_, n) => (
                       <span key={n} className="flex items-center justify-center">
                         {cell.notes.includes(n + 1) ? n + 1 : ""}
@@ -403,7 +403,7 @@ export default function SudokuGame() {
           className={`min-h-12 flex-1 rounded-xl px-3 text-sm font-medium transition-colors ${
             notesMode
               ? "bg-[var(--color-warning-500)] text-white"
-              : "border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              : "border border-border bg-white text-fg dark:bg-slate-900"
           }`}
         >
           Notizen
@@ -411,7 +411,7 @@ export default function SudokuGame() {
         <button
           type="button"
           onClick={handleErase}
-          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 transition-colors dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          className="min-h-12 flex-1 rounded-xl border border-border bg-white px-3 text-sm font-medium text-fg transition-colors dark:bg-slate-900"
         >
           Löschen
         </button>
@@ -434,7 +434,7 @@ export default function SudokuGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
           <div className="flex flex-col gap-2">
@@ -449,7 +449,7 @@ export default function SudokuGame() {
       </Sheet>
 
       <Sheet open={helpOpen} onClose={() => setHelpOpen(false)} title="Wie spielt man?">
-        <div className="space-y-3 text-sm text-slate-700 dark:text-slate-200">
+        <div className="space-y-3 text-sm text-fg">
           <p>
             <strong>Ziel:</strong> Fülle das 9×9-Gitter so, dass jede Ziffer 1 – 9 in jeder Zeile,
             Spalte und jedem 3×3-Block genau einmal vorkommt.

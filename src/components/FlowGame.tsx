@@ -158,11 +158,11 @@ export default function FlowGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Level:</span>
+          <span className="text-fg-muted">Level:</span>
           <select
             value={levelIdx}
             onChange={(e) => changeLevel(Number(e.target.value))}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {LEVELS.map((lvl, i) => (
               <option key={i} value={i}>
@@ -173,7 +173,7 @@ export default function FlowGame() {
         </label>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Züge: <span className="font-semibold tabular-nums">{moves}</span>
         </div>
@@ -250,9 +250,7 @@ export default function FlowGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Level in {moves} Zügen gelöst.
-          </p>
+          <p className="mb-4 text-sm text-fg-muted">Level in {moves} Zügen gelöst.</p>
           <Button
             variant="primary"
             block

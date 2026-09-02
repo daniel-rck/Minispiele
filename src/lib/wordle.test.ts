@@ -151,10 +151,10 @@ describe("wordle keyboardStatus", () => {
     s = submitGuess(s, "FUNKE").state; // F=present, U=absent, N=absent, K=absent, E=present
     s = submitGuess(s, "BLITZ").state; // B,L,I,T,Z (L is in target → present)
     const map = keyboardStatus(s);
-    expect(map["F"]).toBe("present");
-    expect(map["U"]).toBe("absent");
-    expect(map["L"]).toBe("present");
-    expect(map["Z"]).toBe("absent");
+    expect(map.F).toBe("present");
+    expect(map.U).toBe("absent");
+    expect(map.L).toBe("present");
+    expect(map.Z).toBe("absent");
   });
 
   it("upgrades present to correct if a later guess places the letter correctly", () => {
@@ -162,8 +162,8 @@ describe("wordle keyboardStatus", () => {
     s = submitGuess(s, "FLECK").state; // F,L,E present (each in APFEL at different positions)
     s = submitGuess(s, "TAFEL").state; // F,E,L all in correct positions of APFEL
     const map = keyboardStatus(s);
-    expect(map["F"]).toBe("correct");
-    expect(map["L"]).toBe("correct");
-    expect(map["E"]).toBe("correct");
+    expect(map.F).toBe("correct");
+    expect(map.L).toBe("correct");
+    expect(map.E).toBe("correct");
   });
 });

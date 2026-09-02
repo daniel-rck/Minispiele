@@ -261,7 +261,7 @@ export default function TypingTestGame() {
         setCharIndex((i) => i + 1);
       }
       if (charIndex >= text.length - 40) {
-        setText((t) => t + " " + generateText(50));
+        setText((t) => `${t} ${generateText(50)}`);
       }
     },
     [finished, running, charIndex, text, vibrate],

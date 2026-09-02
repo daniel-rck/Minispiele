@@ -1,4 +1,4 @@
-import { ROUTES } from "./routes.ts";
+import type { ROUTES } from "./routes.ts";
 
 export type Category = "logik" | "wort" | "action" | "gehirntraining" | "karten" | "werkzeuge";
 

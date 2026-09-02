@@ -176,14 +176,14 @@ export default function MemoryGame() {
                     ? "border-emerald-400 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30"
                     : revealed
                       ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
-                      : "border-slate-300 bg-white hover:border-brand-300 dark:border-slate-700 dark:bg-slate-900"
+                      : "border-border bg-white hover:border-brand-300 dark:bg-slate-900"
                 }`}
               >
                 <span aria-hidden className={revealed ? "opacity-100" : "opacity-0"}>
                   {card.symbol}
                 </span>
                 {!revealed && (
-                  <span aria-hidden className="text-2xl text-slate-400 dark:text-slate-600">
+                  <span aria-hidden className="text-2xl text-fg-subtle">
                     ?
                   </span>
                 )}

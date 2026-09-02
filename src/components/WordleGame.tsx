@@ -26,9 +26,8 @@ function cellClass(state: LetterState | undefined, filled: boolean): string {
   if (state === "present") return "bg-amber-400 text-white border-amber-500";
   if (state === "absent")
     return "bg-slate-400 text-white border-slate-500 dark:bg-slate-700 dark:border-slate-800";
-  if (filled)
-    return "border-slate-400 bg-white text-slate-900 dark:border-slate-500 dark:bg-slate-900 dark:text-slate-100";
-  return "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900";
+  if (filled) return "border-slate-400 bg-white text-fg dark:border-slate-500 dark:bg-slate-900";
+  return "border-border bg-white dark:bg-slate-900";
 }
 
 function updateStats(stats: WordleStats, outcome: "won" | "lost", guessCount: number): WordleStats {

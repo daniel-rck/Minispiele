@@ -278,7 +278,9 @@ export default function DiceRoller() {
   useEffect(() => {
     const timeouts = rollTimeoutsRef.current;
     return () => {
-      timeouts.forEach((t) => window.clearTimeout(t));
+      timeouts.forEach((t) => {
+        window.clearTimeout(t);
+      });
       timeouts.clear();
       if (settleTimeoutRef.current !== null) {
         window.clearTimeout(settleTimeoutRef.current);
@@ -296,7 +298,9 @@ export default function DiceRoller() {
       soundRef.current?.playRoll(rollDuration, ids.length);
       setRollingIds((prev) => {
         const next = new Set(prev);
-        ids.forEach((id) => next.add(id));
+        ids.forEach((id) => {
+          next.add(id);
+        });
         return next;
       });
       ids.forEach((id) => {
@@ -432,14 +436,14 @@ export default function DiceRoller() {
     <div className="flex flex-col gap-4 pb-32">
       <AriaLive message={lastAnnouncement} />
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-2xl border border-border bg-surface p-3">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-500 uppercase">Vorlagen</span>
+          <span className="text-xs font-medium text-fg-muted uppercase">Vorlagen</span>
           <button
             type="button"
             onClick={handleAddDie}
             disabled={dice.length >= MAX_DICE}
-            className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 disabled:opacity-50 dark:border-slate-700"
+            className="min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300 disabled:opacity-50"
           >
             + Würfel
           </button>
@@ -450,16 +454,16 @@ export default function DiceRoller() {
               key={p.id}
               type="button"
               onClick={() => handlePreset(p.id)}
-              className="min-h-11 shrink-0 snap-start rounded-lg border border-slate-300 px-3 py-1.5 text-sm whitespace-nowrap hover:border-brand-300 dark:border-slate-700"
+              className="min-h-11 shrink-0 snap-start rounded-lg border border-border px-3 py-1.5 text-sm whitespace-nowrap hover:border-brand-300"
             >
               <span className="font-medium">{p.label}</span>{" "}
-              <span className="text-slate-500 dark:text-slate-400">({p.description})</span>
+              <span className="text-fg-muted">({p.description})</span>
             </button>
           ))}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <label className="flex flex-1 items-center gap-2 text-sm">
-            <span className="text-slate-600 dark:text-slate-300">Notation:</span>
+            <span className="text-fg-muted">Notation:</span>
             <input
               type="text"
               value={notationInput}
@@ -476,7 +480,7 @@ export default function DiceRoller() {
               autoCapitalize="off"
               autoCorrect="off"
               spellCheck={false}
-              className="min-h-11 min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-base dark:border-slate-700 dark:bg-slate-900"
+              className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 py-1.5 text-base"
             />
           </label>
           <button
@@ -495,11 +499,11 @@ export default function DiceRoller() {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+      <div className="flex flex-wrap items-center gap-3 text-sm text-fg-muted">
         <div>
           Summe: <span className="font-semibold tabular-nums">{sum}</span>
           {modifier !== 0 && (
-            <span className="ml-1 text-xs text-slate-500">
+            <span className="ml-1 text-xs text-fg-muted">
               ({rawSum}
               {formatModifier(modifier)})
             </span>
@@ -535,14 +539,14 @@ export default function DiceRoller() {
           type="button"
           onClick={handleReleaseAll}
           disabled={heldCount === 0}
-          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 disabled:opacity-50 dark:border-slate-700"
+          className="min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300 disabled:opacity-50"
         >
           Alle freigeben
         </button>
         <button
           type="button"
           onClick={() => setHistoryOpen(true)}
-          className="ml-auto min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+          className="ml-auto min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300"
         >
           Verlauf
           {history.length > 0 && (
@@ -555,7 +559,7 @@ export default function DiceRoller() {
           type="button"
           onClick={() => setSettingsOpen(true)}
           aria-label="Einstellungen"
-          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+          className="min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300"
         >
           ⚙︎
         </button>
@@ -568,9 +572,7 @@ export default function DiceRoller() {
             <li
               key={die.id}
               className={`flex flex-col gap-2 rounded-2xl border-2 bg-white p-3 transition dark:bg-slate-900 ${
-                die.held
-                  ? "border-brand-500 ring-2 ring-brand-500/30"
-                  : "border-slate-200 dark:border-slate-800"
+                die.held ? "border-brand-500 ring-2 ring-brand-500/30" : "border-border"
               }`}
             >
               <button
@@ -587,7 +589,7 @@ export default function DiceRoller() {
                 />
               </button>
               <div className="flex flex-wrap items-center gap-2">
-                <label className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-300">
+                <label className="flex items-center gap-1 text-xs text-fg-muted">
                   <input
                     type="checkbox"
                     checked={die.held}
@@ -600,7 +602,7 @@ export default function DiceRoller() {
                   value={die.type}
                   onChange={(e) => handleTypeChange(die.id, e.target.value as DieType)}
                   aria-label="Würfeltyp"
-                  className="rounded-md border border-slate-300 bg-white px-1 py-0.5 text-xs dark:border-slate-700 dark:bg-slate-900"
+                  className="rounded-md border border-border bg-surface px-1 py-0.5 text-xs"
                 >
                   {DIE_TYPES.map((t) => (
                     <option key={t} value={t}>
@@ -613,7 +615,7 @@ export default function DiceRoller() {
                   onClick={() => handleRemoveDie(die.id)}
                   disabled={dice.length <= 1}
                   aria-label="Würfel entfernen"
-                  className="ml-auto rounded-md border border-slate-300 px-1.5 py-0.5 text-xs hover:border-red-400 disabled:opacity-50 dark:border-slate-700"
+                  className="ml-auto rounded-md border border-border px-1.5 py-0.5 text-xs hover:border-red-400 disabled:opacity-50"
                 >
                   ✕
                 </button>
@@ -633,9 +635,7 @@ export default function DiceRoller() {
                       <span
                         aria-hidden
                         className={`h-7 w-7 rounded-full border ${
-                          active
-                            ? "border-brand-500 ring-2 ring-brand-500/40"
-                            : "border-slate-300 dark:border-slate-700"
+                          active ? "border-brand-500 ring-2 ring-brand-500/40" : "border-border"
                         }`}
                         style={{ backgroundColor: c }}
                       />
@@ -648,7 +648,7 @@ export default function DiceRoller() {
                 >
                   <span
                     aria-hidden
-                    className="h-7 w-7 rounded-full border border-slate-300 dark:border-slate-700"
+                    className="h-7 w-7 rounded-full border border-border"
                     style={{
                       background:
                         "conic-gradient(from 90deg, #ef4444, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #ef4444)",
@@ -669,7 +669,7 @@ export default function DiceRoller() {
       </ul>
 
       <div
-        className="fixed inset-x-0 bottom-0 z-10 border-t border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95"
+        className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-white/95 backdrop-blur dark:bg-slate-950/95"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="mx-auto max-w-3xl px-4 py-3">
@@ -688,7 +688,7 @@ export default function DiceRoller() {
                 className={`min-h-9 rounded-full border px-3 py-1 ${
                   mode === m
                     ? "border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200"
-                    : "border-slate-300 hover:border-brand-300 dark:border-slate-700"
+                    : "border-border hover:border-brand-300"
                 }`}
               >
                 {modeLabel(m)}
@@ -714,7 +714,7 @@ export default function DiceRoller() {
               <label htmlFor="dice-roll-duration" className="text-sm font-medium">
                 Würfel-Animation
               </label>
-              <span className="text-xs tabular-nums text-slate-500">
+              <span className="text-xs tabular-nums text-fg-muted">
                 {(rollDuration / 1000).toFixed(1)}s
               </span>
             </div>
@@ -746,7 +746,7 @@ export default function DiceRoller() {
                     className={`min-h-9 rounded-full border px-3 py-1 text-xs ${
                       active
                         ? "border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200"
-                        : "border-slate-300 hover:border-brand-300 dark:border-slate-700"
+                        : "border-border hover:border-brand-300"
                     }`}
                   >
                     {label}
@@ -774,16 +774,16 @@ export default function DiceRoller() {
         title={`Verlauf (${history.length})`}
       >
         {history.length === 0 ? (
-          <p className="py-6 text-center text-sm text-slate-500">Noch keine Würfe.</p>
+          <p className="py-6 text-center text-sm text-fg-muted">Noch keine Würfe.</p>
         ) : (
           <>
-            <ul className="max-h-[60vh] divide-y divide-slate-200 overflow-y-auto dark:divide-slate-800">
+            <ul className="max-h-[60vh] divide-y divide-border overflow-y-auto">
               {history.map((entry) => (
                 <li key={entry.id} className="flex items-center justify-between py-2 text-sm">
-                  <span className="text-slate-600 dark:text-slate-300">
+                  <span className="text-fg-muted">
                     {entry.dice.map((d, i) => (
                       <span key={i} className="mr-1.5">
-                        <span className="text-xs text-slate-400">{d.type}</span>{" "}
+                        <span className="text-xs text-fg-subtle">{d.type}</span>{" "}
                         <span className="font-medium tabular-nums">{d.value}</span>
                       </span>
                     ))}

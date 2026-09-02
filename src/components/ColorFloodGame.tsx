@@ -82,7 +82,7 @@ export default function ColorFloodGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Züge:{" "}
           <span className="font-semibold tabular-nums">
@@ -170,7 +170,7 @@ export default function ColorFloodGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             {state.won
               ? `Feld einfarbig in ${state.moves} Zügen.`
               : `Das Feld blieb mehrfarbig (${percent} % geflutet).`}

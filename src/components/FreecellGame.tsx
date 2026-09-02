@@ -170,7 +170,7 @@ export default function FreecellGame() {
     <div className="flex flex-col items-center gap-2 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-xl grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-xl grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
         </div>
@@ -226,7 +226,7 @@ export default function FreecellGame() {
                   type="button"
                   onClick={() => handleSource({ type: "tableau", index: ci })}
                   aria-label={`Leere Spalte ${ci + 1}`}
-                  className="flex aspect-[3/4] items-center justify-center rounded-md border-2 border-dashed border-slate-300 text-xs text-slate-400 dark:border-slate-700"
+                  className="flex aspect-[3/4] items-center justify-center rounded-md border-2 border-dashed border-border text-xs text-slate-400"
                 >
                   ·
                 </button>
@@ -262,7 +262,7 @@ export default function FreecellGame() {
         <button
           type="button"
           onClick={handleUndo}
-          className="min-h-12 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          className="min-h-12 rounded-xl border border-border bg-white px-3 text-sm font-medium text-fg dark:bg-slate-900"
         >
           ↩ Rückgängig
         </button>
@@ -286,9 +286,7 @@ export default function FreecellGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            FreeCell in {state.moves} Zügen gelöst.
-          </p>
+          <p className="mb-4 text-sm text-fg-muted">FreeCell in {state.moves} Zügen gelöst.</p>
           <Button variant="primary" block onClick={restart}>
             Neue Partie
           </Button>

@@ -112,7 +112,7 @@ export default function ReactionGame() {
     <div className="flex flex-col items-center gap-4 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Letzte:{" "}
           <span className="font-semibold tabular-nums">

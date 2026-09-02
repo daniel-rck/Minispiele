@@ -22,12 +22,13 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
   ref,
 ) {
   return (
-    <div role="search" className={`relative ${className}`.trim()}>
+    <search className={`relative ${className}`.trim()}>
       <span
         aria-hidden
         className="pointer-events-none absolute inset-y-0 left-3.5 inline-flex items-center text-surface-500 dark:text-surface-400"
       >
         <svg
+          role="presentation"
           width="20"
           height="20"
           viewBox="0 0 24 24"
@@ -48,7 +49,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
         value={value}
         onChange={(e) => onValueChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full min-h-12 rounded-2xl border-2 border-surface-200 bg-white pl-11 pr-12 text-sm font-medium text-surface-900 placeholder:text-surface-400 focus:border-primary-400 focus:outline-none dark:border-surface-700 dark:bg-surface-900 dark:text-surface-50 dark:placeholder:text-surface-500"
+        className="w-full min-h-12 rounded-2xl border-2 border-border bg-surface pl-11 pr-12 text-sm font-medium text-surface-900 placeholder:text-surface-400 focus:border-primary-400 focus:outline-none dark:border-surface-700 dark:bg-surface-900 dark:text-surface-50 dark:placeholder:text-surface-500"
         {...rest}
       />
       {value ? (
@@ -59,6 +60,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
           className="absolute inset-y-0 right-2 my-auto inline-flex size-9 items-center justify-center rounded-full text-surface-500 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-800"
         >
           <svg
+            role="presentation"
             width="18"
             height="18"
             viewBox="0 0 24 24"
@@ -71,7 +73,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
           </svg>
         </button>
       ) : null}
-    </div>
+    </search>
   );
 });
 

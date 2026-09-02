@@ -23,7 +23,7 @@ const variantClasses: Record<IconButtonVariant, string> = {
     "bg-transparent text-surface-700 hover:bg-surface-100 dark:text-surface-200 dark:hover:bg-surface-800",
   soft: "bg-surface-100 text-surface-800 hover:bg-surface-200 dark:bg-surface-800 dark:text-surface-100 dark:hover:bg-surface-700",
   solid:
-    "bg-primary-500 text-white shadow-[0_3px_0_0_var(--color-primary-700)] hover:bg-primary-400 active:translate-y-0.5 active:shadow-[0_0_0_0_var(--color-primary-700)]",
+    "bg-primary-500 text-fg-on-accent shadow-[0_3px_0_0_var(--color-primary-700)] hover:bg-primary-400 active:translate-y-0.5 active:shadow-[0_0_0_0_var(--color-primary-700)]",
 };
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(

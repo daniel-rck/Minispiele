@@ -970,7 +970,7 @@ function UpgradeSheet({ open, onClose, save, onBuy, onSwitchTheme }: UpgradeShee
             const def = UPGRADES[id];
             const lvl = save.upgrades[id];
             const maxed = lvl >= def.maxLevel;
-            const cost = maxed ? 0 : Math.ceil(def.baseCost * Math.pow(def.costGrowth, lvl));
+            const cost = maxed ? 0 : Math.ceil(def.baseCost * def.costGrowth ** lvl);
             const afford = !maxed && save.coins >= cost;
             return (
               <button

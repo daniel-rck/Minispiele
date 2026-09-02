@@ -41,7 +41,7 @@ describe("nonogram", () => {
     expect(isSolved(puzzle, matching)).toBe(true);
     // Marks (2) on empty cells are fine, on filled cells they are not.
     const wrong = matching.slice();
-    const firstFilled = puzzle.solution.findIndex((v) => v === 1);
+    const firstFilled = puzzle.solution.indexOf(1);
     if (firstFilled >= 0) {
       wrong[firstFilled] = 2;
       expect(isSolved(puzzle, wrong)).toBe(false);

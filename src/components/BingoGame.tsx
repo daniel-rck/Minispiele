@@ -101,7 +101,7 @@ export default function BingoGame() {
         </Button>
       </div>
 
-      <div className="flex w-full max-w-md justify-between gap-3 text-sm text-slate-600 dark:text-slate-300">
+      <div className="flex w-full max-w-md justify-between gap-3 text-sm text-fg-muted">
         <span>
           Gezogen:{" "}
           <span className="font-semibold tabular-nums">
@@ -134,7 +134,7 @@ export default function BingoGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Karte {(state.winningCard ?? 0) + 1} hat Bingo nach {state.drawn.length} gezogenen
             Zahlen.
           </p>
@@ -161,7 +161,7 @@ function CardView({
       className={`rounded-2xl border-2 p-3 transition-colors ${
         winning
           ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30"
-          : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900"
+          : "border-border bg-white dark:bg-slate-900"
       }`}
     >
       <div className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-slate-500">
@@ -191,7 +191,7 @@ function CardView({
                   ? "bg-amber-300 text-xs text-slate-900"
                   : isMarked
                     ? "bg-amber-400 text-slate-900"
-                    : "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    : "bg-slate-200 text-fg dark:bg-slate-800"
               }`}
             >
               {isFree ? "FREI" : n}

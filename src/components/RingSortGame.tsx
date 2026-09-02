@@ -193,9 +193,9 @@ export default function RingSortGame() {
             type="checkbox"
             checked={state.allowColorMix}
             onChange={(e) => onMixToggle(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 dark:border-slate-700"
+            className="h-4 w-4 rounded border-border"
           />
-          <span className="text-slate-600 dark:text-slate-300">Farbmix erlaubt</span>
+          <span className="text-fg-muted">Farbmix erlaubt</span>
         </label>
       </div>
 
@@ -265,7 +265,7 @@ export default function RingSortGame() {
           type="button"
           onClick={handleUndo}
           disabled={history.length === 0 || state.won}
-          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium hover:border-brand-300 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
+          className="min-h-12 flex-1 rounded-xl border border-border bg-white px-3 text-sm font-medium hover:border-brand-300 disabled:opacity-50 dark:bg-slate-900"
         >
           ↶ Zurück
         </button>
@@ -293,7 +293,7 @@ export default function RingSortGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Sortiert in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
           </p>
           {currentBest && !scoreIsNew && (

@@ -42,7 +42,7 @@ export default function SettingsSheet({ open, onClose }: SettingsSheetProps) {
                 className={`flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-2xl border-2 px-3 py-2 text-sm font-bold transition-colors ${
                   selected
                     ? "border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-400 dark:bg-primary-900/40 dark:text-primary-100"
-                    : "border-surface-200 bg-white text-surface-700 hover:border-primary-300 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-200"
+                    : "border-border bg-surface text-surface-700 hover:border-primary-300 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-200"
                 }`}
               >
                 <Icon size={22} />

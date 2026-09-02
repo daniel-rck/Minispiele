@@ -16,12 +16,12 @@ export default function DifficultySelector<T extends string>({
   const keys = Object.keys(options) as T[];
   return (
     <label className="flex items-center gap-2 text-sm">
-      <span className="text-slate-600 dark:text-slate-300">{label}</span>
+      <span className="text-fg-muted">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
         disabled={disabled}
-        className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900"
+        className="min-h-11 rounded-lg border border-border bg-surface px-2 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-50"
       >
         {keys.map((d) => (
           <option key={d} value={d}>

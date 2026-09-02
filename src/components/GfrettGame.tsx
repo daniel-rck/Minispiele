@@ -267,11 +267,11 @@ export default function GfrettGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Level:</span>
+          <span className="text-fg-muted">Level:</span>
           <select
             value={levelIdx}
             onChange={(e) => changeLevel(Number(e.target.value))}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {LEVELS.map((_, i) => (
               <option key={i} value={i}>
@@ -282,7 +282,7 @@ export default function GfrettGame() {
         </label>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
         </div>
@@ -328,7 +328,7 @@ export default function GfrettGame() {
 
       <MatchAreaView slots={state.matchArea.slots} capacity={state.matchArea.capacity} />
 
-      <div className="text-xs text-slate-500 dark:text-slate-400">
+      <div className="text-xs text-fg-muted">
         Belegt: {filledSlots} / {state.matchArea.capacity}
       </div>
 
@@ -354,7 +354,7 @@ export default function GfrettGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Level {state.level + 1} in {state.moves} Zügen geschafft.
           </p>
           <Button variant="primary" block onClick={nextLevel}>
@@ -368,7 +368,7 @@ export default function GfrettGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             🚧
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             {state.status === "gridlock"
               ? "Die Match-Leiste ist voll und kein Dreier mehr möglich."
               : "Zuglimit erreicht."}
@@ -547,7 +547,7 @@ function MatchAreaView({
   }, [slots, capacity]);
   return (
     <div
-      className="flex w-full max-w-md flex-wrap items-center justify-center gap-1 rounded-2xl border border-slate-300 bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800"
+      className="flex w-full max-w-md flex-wrap items-center justify-center gap-1 rounded-2xl border border-border bg-slate-100 p-2 dark:bg-slate-800"
       role="list"
       aria-label="Match-Leiste"
     >
@@ -621,7 +621,7 @@ function PowerUpButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="relative flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-100 px-3 text-sm font-bold text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-100"
+      className="relative flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-100 px-3 text-sm font-bold text-fg disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800"
       aria-label={`${label}, ${count} übrig`}
     >
       <span aria-hidden className="text-base">

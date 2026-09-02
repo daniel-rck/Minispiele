@@ -78,7 +78,7 @@ export default function StroopGame() {
     <div className="flex flex-col items-center gap-4 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Zeit: <span className="font-semibold tabular-nums">{timeLeft}s</span>
         </div>
@@ -90,7 +90,7 @@ export default function StroopGame() {
         </div>
       </div>
 
-      <div className="flex aspect-video w-full max-w-md items-center justify-center rounded-2xl border-2 border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex aspect-video w-full max-w-md items-center justify-center rounded-2xl border-2 border-border bg-white p-6 dark:bg-slate-900">
         {phase === "idle" && (
           <Button variant="primary" onClick={startRound}>
             Starten

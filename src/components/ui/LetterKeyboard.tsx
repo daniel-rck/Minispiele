@@ -20,7 +20,7 @@ export default function LetterKeyboard({
   className = "grid w-full max-w-lg grid-cols-7 gap-1.5 sm:grid-cols-9",
 }: LetterKeyboardProps) {
   return (
-    <div className={className} role="group" aria-label={label}>
+    <fieldset className={className} aria-label={label}>
       {alphabet.map((ch) => {
         const s = status[ch];
         const used = s !== undefined;
@@ -38,13 +38,13 @@ export default function LetterKeyboard({
                 ? "border-emerald-600 bg-emerald-500 text-white"
                 : wrong
                   ? "border-slate-500 bg-slate-400 text-white dark:bg-slate-700"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-brand-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  : "border-border bg-surface text-fg hover:bg-brand-50 dark:hover:bg-slate-800"
             }`}
           >
             {ch}
           </button>
         );
       })}
-    </div>
+    </fieldset>
   );
 }

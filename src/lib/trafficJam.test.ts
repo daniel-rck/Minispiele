@@ -100,23 +100,22 @@ describe("PUZZLES pool", () => {
     expect(occupied).toHaveLength(expectedCells);
   });
 
-  it.each(ALL_PUZZLES)("$difficulty/$id is solvable via BFS", ({
-    difficulty,
-    encoded,
-    facings,
-  }) => {
-    const cars = parsePuzzle(encoded, facings);
-    const state = {
-      cars,
-      difficulty,
-      puzzleIndex: 0,
-      moves: 0,
-      won: false,
-    };
-    const solution = solveBFS(state);
-    expect(solution).not.toBeNull();
-    expect(solution).toBeGreaterThan(0);
-  });
+  it.each(ALL_PUZZLES)(
+    "$difficulty/$id is solvable via BFS",
+    ({ difficulty, encoded, facings }) => {
+      const cars = parsePuzzle(encoded, facings);
+      const state = {
+        cars,
+        difficulty,
+        puzzleIndex: 0,
+        moves: 0,
+        won: false,
+      };
+      const solution = solveBFS(state);
+      expect(solution).not.toBeNull();
+      expect(solution).toBeGreaterThan(0);
+    },
+  );
 });
 
 describe("driveCar", () => {

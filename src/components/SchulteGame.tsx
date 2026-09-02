@@ -101,11 +101,11 @@ export default function SchulteGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Größe:</span>
+          <span className="text-fg-muted">Größe:</span>
           <select
             value={size}
             onChange={(e) => changeSize(Number(e.target.value) as SchulteSize)}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {SCHULTE_SIZES.map((s) => (
               <option key={s} value={s}>
@@ -116,7 +116,7 @@ export default function SchulteGame() {
         </label>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Nächste: <span className="font-semibold tabular-nums">{next}</span>
         </div>
@@ -153,7 +153,7 @@ export default function SchulteGame() {
                 className={`flex aspect-square items-center justify-center rounded-lg text-base font-bold tabular-nums sm:text-xl md:text-2xl ${
                   done
                     ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
-                    : "bg-white text-slate-800 hover:bg-brand-50 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                    : "bg-white text-fg hover:bg-brand-50 dark:bg-slate-900 dark:hover:bg-slate-800"
                 }`}
               >
                 {value}

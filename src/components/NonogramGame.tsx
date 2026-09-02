@@ -119,11 +119,11 @@ export default function NonogramGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Größe:</span>
+          <span className="text-fg-muted">Größe:</span>
           <select
             value={puzzle.size}
             onChange={(e) => changeSize(Number(e.target.value))}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {SIZES.map((s) => (
               <option key={s} value={s}>
@@ -134,7 +134,7 @@ export default function NonogramGame() {
         </label>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Zeit:{" "}
           <span className="font-semibold tabular-nums">{formatDuration(timer.elapsedSeconds)}</span>
@@ -169,7 +169,7 @@ export default function NonogramGame() {
           {puzzle.colHints.map((hints, c) => (
             <div
               key={`ch-${c}`}
-              className="flex min-w-[24px] flex-col items-center justify-end pb-1 text-[10px] font-bold text-slate-700 sm:text-xs dark:text-slate-200"
+              className="flex min-w-[24px] flex-col items-center justify-end pb-1 text-[10px] font-bold text-fg sm:text-xs"
             >
               {hints.map((h, i) => (
                 <span key={i}>{h}</span>
@@ -178,7 +178,7 @@ export default function NonogramGame() {
           ))}
           {puzzle.rowHints.map((hints, r) => (
             <Fragment key={`row-${r}`}>
-              <div className="flex min-w-[24px] items-center justify-end gap-1 pr-1 text-[10px] font-bold text-slate-700 sm:text-xs dark:text-slate-200">
+              <div className="flex min-w-[24px] items-center justify-end gap-1 pr-1 text-[10px] font-bold text-fg sm:text-xs">
                 {hints.map((h, i) => (
                   <span key={i}>{h}</span>
                 ))}
@@ -247,7 +247,7 @@ export default function NonogramGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Rätsel gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
           <Button variant="primary" block onClick={() => restart()}>

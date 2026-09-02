@@ -38,11 +38,7 @@ function isLost(state: HangmanState): boolean {
 function HangmanFigure({ mistakes }: { mistakes: number }) {
   const stroke = "currentColor";
   return (
-    <svg
-      viewBox="0 0 120 140"
-      className="h-32 w-full max-w-[220px] text-slate-700 dark:text-slate-200"
-      aria-hidden
-    >
+    <svg viewBox="0 0 120 140" className="h-32 w-full max-w-[220px] text-fg" aria-hidden>
       <line x1="10" y1="135" x2="110" y2="135" stroke={stroke} strokeWidth="3" />
       {mistakes >= 1 && <line x1="30" y1="135" x2="30" y2="10" stroke={stroke} strokeWidth="3" />}
       {mistakes >= 2 && <line x1="28" y1="10" x2="80" y2="10" stroke={stroke} strokeWidth="3" />}
@@ -149,7 +145,7 @@ export default function HangmanGame() {
     <div className="flex flex-col items-center gap-4 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Fehler:{" "}
           <span className="font-semibold tabular-nums">
@@ -177,7 +173,7 @@ export default function HangmanGame() {
             <span
               key={i}
               className={`inline-flex h-10 w-7 items-end justify-center border-b-2 text-2xl font-bold uppercase ${
-                shown ? "border-slate-500 text-slate-900 dark:text-slate-100" : "border-slate-400"
+                shown ? "border-slate-500 text-fg" : "border-slate-400"
               } ${!shown ? "text-transparent" : ""}`}
               role="img"
               aria-label={shown ? ch : "verborgen"}
@@ -209,7 +205,7 @@ export default function HangmanGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             {won ? "🎉" : "💀"}
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             {won ? (
               <>
                 Wort gefunden: <span className="font-bold uppercase">{state.word}</span>

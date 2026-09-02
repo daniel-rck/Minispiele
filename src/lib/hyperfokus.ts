@@ -135,7 +135,7 @@ export function prestigeBonus(crystals: number): number {
 
 export function upgradeCost(id: UpgradeId, currentLevel: number): number {
   const def = UPGRADES[id];
-  return Math.ceil(def.baseCost * Math.pow(def.costGrowth, currentLevel));
+  return Math.ceil(def.baseCost * def.costGrowth ** currentLevel);
 }
 
 export function maxLevel(id: UpgradeId): number {
@@ -479,13 +479,13 @@ export function computeOfflineIncome(save: HyperfokusSave, nowMs: number): numbe
 }
 
 export function formatNumber(n: number): string {
-  if (!isFinite(n)) return "∞";
+  if (!Number.isFinite(n)) return "∞";
   const abs = Math.abs(n);
   if (abs < 1_000) return Math.floor(n).toString();
-  if (abs < 1_000_000) return (n / 1_000).toFixed(n < 10_000 ? 2 : 1) + "k";
-  if (abs < 1_000_000_000) return (n / 1_000_000).toFixed(2) + "M";
-  if (abs < 1_000_000_000_000) return (n / 1_000_000_000).toFixed(2) + "B";
-  return (n / 1_000_000_000_000).toFixed(2) + "T";
+  if (abs < 1_000_000) return `${(n / 1_000).toFixed(n < 10_000 ? 2 : 1)}k`;
+  if (abs < 1_000_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (abs < 1_000_000_000_000) return `${(n / 1_000_000_000).toFixed(2)}B`;
+  return `${(n / 1_000_000_000_000).toFixed(2)}T`;
 }
 
 export function prefersReducedMotion(): boolean {

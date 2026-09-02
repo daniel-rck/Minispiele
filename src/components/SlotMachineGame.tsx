@@ -147,7 +147,7 @@ export default function SlotMachineGame() {
               className={`flex h-24 w-20 items-center justify-center rounded-xl border-2 text-5xl transition-colors ${
                 winningReels.includes(i)
                   ? "border-amber-400 bg-amber-100 shadow-[0_0_15px_rgba(251,191,36,0.5)] dark:bg-amber-900/40"
-                  : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+                  : "border-border bg-white dark:bg-slate-950"
               }`}
             >
               {sym}
@@ -155,14 +155,14 @@ export default function SlotMachineGame() {
           ))}
         </div>
 
-        <div className="mb-3 flex items-center justify-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+        <div className="mb-3 flex items-center justify-center gap-3 text-sm text-fg">
           <span>Einsatz:</span>
           <button
             type="button"
             onClick={() => adjustBet(-SLOT_BET_STEP)}
             disabled={spinning || bet <= SLOT_MIN_BET}
             aria-label="Einsatz verringern"
-            className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white text-lg font-bold disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800"
+            className="min-h-11 min-w-11 rounded-lg border border-border bg-white text-lg font-bold disabled:opacity-40 dark:bg-slate-800"
           >
             −
           </button>
@@ -174,7 +174,7 @@ export default function SlotMachineGame() {
             onClick={() => adjustBet(SLOT_BET_STEP)}
             disabled={spinning || bet >= SLOT_MAX_BET || bet >= balance}
             aria-label="Einsatz erhöhen"
-            className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white text-lg font-bold disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800"
+            className="min-h-11 min-w-11 rounded-lg border border-border bg-white text-lg font-bold disabled:opacity-40 dark:bg-slate-800"
           >
             +
           </button>
@@ -185,7 +185,7 @@ export default function SlotMachineGame() {
         </Button>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Guthaben:{" "}
           <span className="font-semibold tabular-nums text-amber-600 dark:text-amber-400">
@@ -204,10 +204,8 @@ export default function SlotMachineGame() {
         Neu starten
       </Button>
 
-      <details className="w-full max-w-md rounded-xl border border-slate-300 bg-white p-3 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-        <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
-          Gewinntabelle
-        </summary>
+      <details className="w-full max-w-md rounded-xl border border-border bg-white p-3 text-xs text-fg-muted dark:bg-slate-900">
+        <summary className="cursor-pointer text-sm font-semibold text-fg">Gewinntabelle</summary>
         <ul className="mt-2 space-y-0.5">
           <li>3× 💎 = 50× Einsatz</li>
           <li>3× 7️⃣ = 30× Einsatz</li>

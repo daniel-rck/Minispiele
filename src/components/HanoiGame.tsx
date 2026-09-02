@@ -95,11 +95,11 @@ export default function HanoiGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Scheiben:</span>
+          <span className="text-fg-muted">Scheiben:</span>
           <select
             value={state.disks}
             onChange={(e) => changeDisks(Number(e.target.value))}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {DISK_OPTIONS.map((n) => (
               <option key={n} value={n}>
@@ -110,7 +110,7 @@ export default function HanoiGame() {
         </label>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
         </div>
@@ -187,7 +187,7 @@ export default function HanoiGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             {state.disks} Scheiben in {state.moves} Zügen (Optimum: {optimal}).
           </p>
           <Button variant="primary" block onClick={() => restart()}>

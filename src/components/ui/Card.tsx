@@ -45,7 +45,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   ref,
 ) {
   const base = "block rounded-2xl overflow-hidden transition-[transform,box-shadow]";
-  const bg = accent ? accentBg[accent] : "bg-white dark:bg-surface-900";
+  const bg = accent ? accentBg[accent] : "bg-surface";
   const border = accent
     ? `border border-surface-200/60 border-l-4 ${accentBorder[accent]} dark:border-surface-700`
     : "border border-surface-200 dark:border-surface-800";

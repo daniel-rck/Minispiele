@@ -51,7 +51,7 @@ export default function GameLayout({
               className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-xl transition ${
                 fav
                   ? "text-amber-500 dark:text-amber-400"
-                  : "text-slate-400 hover:text-amber-500 dark:text-slate-500 dark:hover:text-amber-400"
+                  : "text-fg-subtle hover:text-amber-500 dark:hover:text-amber-400"
               }`}
             >
               <span aria-hidden>{fav ? "★" : "☆"}</span>
@@ -60,7 +60,7 @@ export default function GameLayout({
         </div>
       </div>
       {description ? (
-        <div className="mb-2 hidden shrink-0 text-sm text-slate-600 sm:mb-3 [@media(min-height:600px)]:block dark:text-slate-300">
+        <div className="mb-2 hidden shrink-0 text-sm text-fg-muted sm:mb-3 [@media(min-height:600px)]:block">
           {description}
         </div>
       ) : null}

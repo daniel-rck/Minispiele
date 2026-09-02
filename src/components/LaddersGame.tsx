@@ -309,7 +309,7 @@ export default function LaddersGame() {
         </Button>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Züge: <span className="font-semibold tabular-nums">{state.humanTurns}</span>
         </div>
@@ -337,7 +337,7 @@ export default function LaddersGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             {state.winner === 0
               ? `Du hast in ${state.humanTurns} Zügen gewonnen.`
               : `${PLAYER_NAMES[state.winner ?? 0]} war schneller.`}

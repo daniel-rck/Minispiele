@@ -124,7 +124,7 @@ export default function MastermindGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Versuch:{" "}
           <span className="font-semibold tabular-nums">
@@ -143,7 +143,7 @@ export default function MastermindGame() {
       </div>
 
       <div
-        className="flex min-h-0 w-full max-w-md flex-1 flex-col gap-1.5 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900"
+        className="flex min-h-0 w-full max-w-md flex-1 flex-col gap-1.5 overflow-y-auto rounded-2xl border border-border bg-white p-3 dark:bg-slate-900"
         role="group"
         aria-label="Mastermind-Versuche"
       >
@@ -157,7 +157,7 @@ export default function MastermindGame() {
                   aria-label={p === null ? "leer" : COLOR_NAMES[p]}
                   className={`h-7 w-7 rounded-full border ${
                     p === null
-                      ? "border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+                      ? "border-dashed border-border bg-slate-50 dark:bg-slate-800"
                       : `border-slate-300 dark:border-slate-700 ${COLOR_CLASSES[p]}`
                   }`}
                 />
@@ -199,7 +199,7 @@ export default function MastermindGame() {
           type="button"
           onClick={handleErase}
           disabled={!!state.done || state.current.length === 0}
-          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          className="min-h-12 flex-1 rounded-xl border border-border bg-white text-sm font-medium text-fg disabled:opacity-50 dark:bg-slate-900"
         >
           Zurück
         </button>
@@ -233,7 +233,7 @@ export default function MastermindGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-2 text-sm text-fg-muted">
             {state.done === "won" ? (
               <>In {state.guesses.length} Versuchen geknackt.</>
             ) : (

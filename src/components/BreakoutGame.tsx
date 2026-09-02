@@ -499,7 +499,7 @@ export default function BreakoutGame() {
     <div className="flex flex-col items-center gap-3 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-4 gap-1 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-4 gap-1 text-sm text-fg-muted">
         <div>
           Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
         </div>
@@ -531,7 +531,11 @@ export default function BreakoutGame() {
         role="application"
         aria-label="Breakout-Spielfeld"
       >
-        <svg viewBox={`0 0 ${FIELD_W} ${FIELD_H}`} className="absolute inset-0 h-full w-full">
+        <svg
+          viewBox={`0 0 ${FIELD_W} ${FIELD_H}`}
+          className="absolute inset-0 h-full w-full"
+          role="presentation"
+        >
           {state.bricks.map(
             (b, i) =>
               b.alive && (
@@ -629,7 +633,7 @@ export default function BreakoutGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             💔
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Du erreichst {state.score} Punkte in Level {state.level}.
           </p>
           <Button variant="primary" block onClick={start}>

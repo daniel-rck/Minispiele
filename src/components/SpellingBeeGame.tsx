@@ -152,7 +152,7 @@ export default function SpellingBeeGame() {
           autoCapitalize="characters"
           autoCorrect="off"
           spellCheck={false}
-          className="min-h-12 flex-1 rounded-2xl border-2 border-slate-300 bg-white px-4 text-center text-lg font-bold uppercase tracking-widest text-slate-900 outline-none focus:border-amber-500 dark:border-slate-700 dark:bg-slate-900 dark:text-amber-300"
+          className="min-h-12 flex-1 rounded-2xl border-2 border-border bg-white px-4 text-center text-lg font-bold uppercase tracking-widest text-slate-900 outline-none focus:border-amber-500 dark:bg-slate-900 dark:text-amber-300"
         />
         <Button variant="secondary" onClick={backspace} aria-label="Letzten Buchstaben entfernen">
           ⌫
@@ -176,7 +176,7 @@ export default function SpellingBeeGame() {
             style={{ width: `${percent}%` }}
           />
         </div>
-        <div className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-300">
+        <div className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-sm text-fg-muted">
           <span>
             Punkte: <span className="font-semibold tabular-nums">{progress.score}</span>
           </span>
@@ -202,7 +202,7 @@ export default function SpellingBeeGame() {
             <span
               key={w}
               role="listitem"
-              className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-fg dark:bg-slate-800"
             >
               {w}
             </span>
@@ -242,7 +242,7 @@ function HexRow({ letters, centerIndex, onPick }: HexRowProps) {
             className={`flex h-14 w-14 items-center justify-center text-xl font-extrabold transition-transform active:scale-95 ${
               isCenter
                 ? "bg-amber-400 text-slate-900 dark:bg-amber-400 dark:text-slate-900"
-                : "bg-slate-200 text-slate-800 hover:bg-amber-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
+                : "bg-slate-200 text-fg hover:bg-amber-200 dark:bg-slate-700 dark:hover:bg-slate-600"
             }`}
             style={{ clipPath: HEX_CLIP }}
           >

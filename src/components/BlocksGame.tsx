@@ -278,7 +278,7 @@ export default function BlocksGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
-      <div className="flex w-full max-w-xs items-center justify-between gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="flex w-full max-w-xs items-center justify-between gap-2 text-sm text-fg-muted">
         <div className="grid flex-1 grid-cols-3 gap-2">
           <div>
             Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
@@ -295,9 +295,7 @@ export default function BlocksGame() {
           role="img"
           aria-label="Nächster Block"
         >
-          <span className="mb-1 text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Nächster
-          </span>
+          <span className="mb-1 text-[10px] uppercase tracking-wide text-fg-muted">Nächster</span>
           <div
             className="grid gap-px"
             style={{ gridTemplateColumns: `repeat(${nextMaxX + 1}, 0.6rem)` }}
@@ -396,7 +394,7 @@ export default function BlocksGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             🧱
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Du erreichst {state.score} Punkte ({state.lines} Reihen).
           </p>
           <Button variant="primary" block onClick={start}>

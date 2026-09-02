@@ -49,7 +49,7 @@ export default function QuizGame() {
       <div
         role="group"
         aria-label="Quiz-Modus"
-        className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-900"
+        className="inline-flex rounded-lg border border-border bg-white p-0.5 dark:bg-slate-900"
       >
         {(["classic", "millionaire"] as const).map((m) => (
           <button
@@ -60,7 +60,7 @@ export default function QuizGame() {
             className={`min-h-11 rounded-md px-3 text-sm font-medium transition-colors ${
               mode === m
                 ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                : "text-slate-700 dark:text-slate-200"
+                : "text-fg"
             }`}
           >
             {m === "classic" ? "Klassisch" : "Millionär"}

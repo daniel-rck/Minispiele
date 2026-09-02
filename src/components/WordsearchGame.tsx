@@ -117,7 +117,7 @@ export default function WordsearchGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Gefunden:{" "}
           <span className="font-semibold tabular-nums">
@@ -166,7 +166,7 @@ export default function WordsearchGame() {
                     ? "bg-emerald-300 text-emerald-900 dark:bg-emerald-700 dark:text-emerald-100"
                     : isCandidate
                       ? "bg-brand-200 dark:bg-brand-900/60"
-                      : "bg-white text-slate-800 dark:bg-slate-900 dark:text-slate-100"
+                      : "bg-white text-fg dark:bg-slate-900"
                 }`}
               >
                 {ch}
@@ -183,7 +183,7 @@ export default function WordsearchGame() {
             className={`rounded-lg px-2 py-1 text-center text-sm font-medium ${
               found.has(w.word)
                 ? "bg-emerald-100 text-emerald-700 line-through dark:bg-emerald-900/40 dark:text-emerald-200"
-                : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                : "bg-slate-100 text-fg-muted dark:bg-slate-800"
             }`}
           >
             {w.word}
@@ -210,7 +210,7 @@ export default function WordsearchGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Alle {puzzle.words.length} Wörter in {formatDuration(timer.elapsedSeconds)} gefunden.
           </p>
           <Button variant="primary" block onClick={restart}>

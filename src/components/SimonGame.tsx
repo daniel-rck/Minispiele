@@ -188,7 +188,7 @@ export default function SimonGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-4 pb-2">
       <AriaLive message={announcement} />
 
-      <div className="grid w-full grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Level: <span className="font-semibold tabular-nums">{Math.max(1, state.level)}</span>
         </div>
@@ -242,7 +242,7 @@ export default function SimonGame() {
               Neue Bestmarke!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Du hast Level {Math.max(0, state.level - 1)} erreicht.
           </p>
           <Button variant="primary" block onClick={handleStart}>

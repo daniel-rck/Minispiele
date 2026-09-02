@@ -42,7 +42,7 @@ export default function AnagramGame() {
       const tile = prev.find((t) => t.id === tileId);
       if (!tile || tile.placed) return prev;
       setSlots((cur) => {
-        const slotIdx = cur.findIndex((s) => s === null);
+        const slotIdx = cur.indexOf(null);
         if (slotIdx === -1) return cur;
         const next = cur.slice();
         next[slotIdx] = { ...tile, placed: true };
@@ -105,7 +105,7 @@ export default function AnagramGame() {
     <div className="flex flex-col items-center gap-4 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
           Länge: <span className="font-semibold tabular-nums">{word.length}</span>
         </div>
@@ -123,7 +123,7 @@ export default function AnagramGame() {
             ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30"
             : feedback === "wrong"
               ? "border-red-500 bg-red-50 dark:bg-red-900/30"
-              : "border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900"
+              : "border-border bg-white dark:bg-slate-900"
         }`}
         role="group"
         aria-label="Lösung"
@@ -145,7 +145,7 @@ export default function AnagramGame() {
               key={i}
               role="img"
               aria-label="leerer Slot"
-              className="inline-block h-12 w-9 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700"
+              className="inline-block h-12 w-9 rounded-lg border-2 border-dashed border-border"
             />
           ),
         )}
@@ -166,7 +166,7 @@ export default function AnagramGame() {
             className={`h-12 w-9 rounded-lg border text-xl font-bold uppercase ${
               t.placed
                 ? "invisible"
-                : "border-slate-300 bg-white text-slate-800 hover:bg-brand-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                : "border-border bg-white text-fg hover:bg-brand-50 dark:bg-slate-900 dark:hover:bg-slate-800"
             }`}
           >
             {t.letter}
@@ -179,7 +179,7 @@ export default function AnagramGame() {
           type="button"
           onClick={clear}
           disabled={feedback === "correct"}
-          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          className="min-h-12 flex-1 rounded-xl border border-border bg-white text-sm font-medium text-fg dark:bg-slate-900"
         >
           Leeren
         </button>

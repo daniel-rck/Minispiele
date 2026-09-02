@@ -11,9 +11,9 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 const variantClasses: Record<BadgeVariant, string> = {
   neutral: "bg-surface-100 text-surface-700 dark:bg-surface-800 dark:text-surface-200",
   primary: "bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-200",
-  highlight: "bg-highlight-500 text-white",
-  success: "bg-success-500 text-white",
-  danger: "bg-danger-500 text-white",
+  highlight: "bg-highlight-500 text-fg-on-accent",
+  success: "bg-success-500 text-fg-on-accent",
+  danger: "bg-danger-500 text-fg-on-accent",
 };
 
 const sizeClasses: Record<BadgeSize, string> = {

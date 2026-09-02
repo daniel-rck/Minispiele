@@ -214,7 +214,7 @@ export default function ClickerTimer() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-2xl border border-border bg-surface p-3">
         <div className="flex items-end justify-center gap-3">
           <StepperInput
             label="Min"
@@ -222,7 +222,7 @@ export default function ClickerTimer() {
             onChange={(v) => setDuration(joinSeconds(v, seconds))}
             max={Math.floor(MAX_TIMER_SECONDS / 60)}
           />
-          <span className="pb-2 text-2xl font-bold text-slate-400">:</span>
+          <span className="pb-2 text-2xl font-bold text-fg-subtle">:</span>
           <StepperInput
             label="Sek"
             value={seconds}
@@ -241,7 +241,7 @@ export default function ClickerTimer() {
               className={`min-h-11 shrink-0 snap-start rounded-lg border px-3 py-1.5 text-sm whitespace-nowrap transition ${
                 duration === p
                   ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
-                  : "border-slate-300 hover:border-brand-300 dark:border-slate-700"
+                  : "border-border hover:border-brand-300"
               }`}
             >
               {p < 60 ? `${p}s` : `${p / 60}m`}
@@ -265,7 +265,7 @@ export default function ClickerTimer() {
                 type="button"
                 onClick={() => handleRemovePreset(p)}
                 aria-label={`Preset ${formatRemaining(p * 1000)} entfernen`}
-                className="absolute top-1/2 right-1 -translate-y-1/2 rounded p-0.5 text-xs text-slate-400 hover:text-red-500"
+                className="absolute top-1/2 right-1 -translate-y-1/2 rounded p-0.5 text-xs text-fg-subtle hover:text-red-500"
               >
                 ✕
               </button>
@@ -276,15 +276,15 @@ export default function ClickerTimer() {
             onClick={handleSavePreset}
             disabled={userPresets.includes(duration) || userPresets.length >= MAX_USER_PRESETS}
             aria-label="Aktuelle Dauer als Preset speichern"
-            className="min-h-11 shrink-0 snap-start rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-sm whitespace-nowrap text-slate-500 hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700"
+            className="min-h-11 shrink-0 snap-start rounded-lg border border-dashed border-border px-3 py-1.5 text-sm whitespace-nowrap text-fg-muted hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50"
           >
             + speichern
           </button>
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="text-xs text-slate-500 dark:text-slate-400">Anzeige</span>
-          <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 text-xs dark:border-slate-700 dark:bg-slate-900">
+          <span className="text-xs text-fg-muted">Anzeige</span>
+          <div className="inline-flex rounded-lg border border-border bg-surface p-0.5 text-xs">
             <button
               type="button"
               aria-pressed={displayMode === "flip"}
@@ -293,7 +293,7 @@ export default function ClickerTimer() {
               className={`min-h-9 rounded-md px-3 py-1 transition ${
                 displayMode === "flip"
                   ? "bg-brand-600 text-white"
-                  : "text-slate-600 hover:text-brand-600 dark:text-slate-300"
+                  : "text-fg-muted hover:text-brand-600"
               }`}
             >
               Sekunden
@@ -306,7 +306,7 @@ export default function ClickerTimer() {
               className={`min-h-9 rounded-md px-3 py-1 transition ${
                 displayMode === "continuous"
                   ? "bg-brand-600 text-white"
-                  : "text-slate-600 hover:text-brand-600 dark:text-slate-300"
+                  : "text-fg-muted hover:text-brand-600"
               }`}
             >
               Hundertstel
@@ -332,7 +332,7 @@ export default function ClickerTimer() {
                 ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
                 : status === "paused"
                   ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30"
-                  : "border-slate-300 bg-white hover:border-brand-300 dark:border-slate-700 dark:bg-slate-900"
+                  : "border-border bg-surface hover:border-brand-300"
           }`}
         >
           <div
@@ -349,7 +349,7 @@ export default function ClickerTimer() {
           <div className="relative z-10 text-7xl font-bold tabular-nums sm:text-8xl">
             <TimerDisplay mode={displayMode} ms={remainingMs} />
           </div>
-          <div className="relative z-10 mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <div className="relative z-10 mt-2 text-sm text-fg-muted">
             {buttonLabel}
             {status !== "idle" && status !== "alarming" && " · lang halten = neu starten"}
           </div>
@@ -360,14 +360,14 @@ export default function ClickerTimer() {
             type="button"
             onClick={handleRestart}
             aria-label="Neu starten"
-            className="absolute top-2 right-2 min-h-11 min-w-11 rounded-full bg-white/80 text-slate-600 shadow-sm hover:bg-white hover:text-brand-600 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="absolute top-2 right-2 min-h-11 min-w-11 rounded-full bg-white/80 text-fg-muted shadow-sm hover:bg-surface hover:text-brand-600 dark:bg-slate-800/80"
           >
             ↺
           </button>
         )}
       </div>
 
-      <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+      <div className="flex items-center justify-between text-sm text-fg-muted">
         <div>
           Status:{" "}
           <span className="font-medium">
@@ -383,14 +383,14 @@ export default function ClickerTimer() {
         <button
           type="button"
           onClick={() => adjustDuration(-10)}
-          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+          className="min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300"
         >
           −10s
         </button>
         <button
           type="button"
           onClick={() => adjustDuration(10)}
-          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+          className="min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300"
         >
           +10s
         </button>
@@ -411,13 +411,13 @@ function StepperInput({ label, value, onChange, max }: StepperInputProps) {
   const inc = () => onChange(Math.min(max, value + 1));
   return (
     <div className="flex flex-col items-center">
-      <span className="mb-1 text-xs text-slate-500">{label}</span>
+      <span className="mb-1 text-xs text-fg-muted">{label}</span>
       <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={dec}
           aria-label={`${label} minus eins`}
-          className="min-h-12 min-w-12 rounded-lg border border-slate-300 text-lg font-medium hover:border-brand-300 dark:border-slate-700"
+          className="min-h-12 min-w-12 rounded-lg border border-border text-lg font-medium hover:border-brand-300"
         >
           −
         </button>
@@ -430,13 +430,13 @@ function StepperInput({ label, value, onChange, max }: StepperInputProps) {
           inputMode="numeric"
           pattern="[0-9]*"
           aria-label={label}
-          className="w-16 min-h-12 rounded-lg border border-slate-300 bg-white text-center text-2xl font-semibold tabular-nums dark:border-slate-700 dark:bg-slate-900"
+          className="w-16 min-h-12 rounded-lg border border-border bg-surface text-center text-2xl font-semibold tabular-nums"
         />
         <button
           type="button"
           onClick={inc}
           aria-label={`${label} plus eins`}
-          className="min-h-12 min-w-12 rounded-lg border border-slate-300 text-lg font-medium hover:border-brand-300 dark:border-slate-700"
+          className="min-h-12 min-w-12 rounded-lg border border-border text-lg font-medium hover:border-brand-300"
         >
           +
         </button>

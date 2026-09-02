@@ -161,6 +161,7 @@ export default function Sheet({
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full text-surface-500 hover:bg-surface-100 dark:hover:bg-surface-800"
           >
             <svg
+              role="presentation"
               width="20"
               height="20"
               viewBox="0 0 24 24"

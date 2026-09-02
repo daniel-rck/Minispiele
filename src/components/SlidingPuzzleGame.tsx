@@ -160,7 +160,7 @@ export default function SlidingPuzzleGame() {
 
       <div className="fit-area mx-auto w-full max-w-md sm:max-w-lg">
         <div
-          className="grid fit-box gap-2 rounded-2xl border-2 border-slate-300 bg-slate-200 p-2 dark:border-slate-700 dark:bg-slate-800"
+          className="grid fit-box gap-2 rounded-2xl border-2 border-border bg-slate-200 p-2 dark:bg-slate-800"
           style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
         >
           {state.board.map((value, i) => {
@@ -208,7 +208,7 @@ export default function SlidingPuzzleGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Gelöst in {state.moves} Zügen, Zeit {formatDuration(timer.elapsedSeconds)}.
           </p>
           <Button variant="primary" block onClick={() => restart()}>
