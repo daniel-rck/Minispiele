@@ -1,4 +1,4 @@
-import type { LetterState } from '../lib/wordle';
+import type { LetterState } from "../lib/wordle";
 
 interface Props {
   status: Record<string, LetterState>;
@@ -8,20 +8,20 @@ interface Props {
   disabled?: boolean;
 }
 
-const ROW1 = ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P'];
-const ROW2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
-const ROW3 = ['Y', 'X', 'C', 'V', 'B', 'N', 'M'];
+const ROW1 = ["Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P"];
+const ROW2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
+const ROW3 = ["Y", "X", "C", "V", "B", "N", "M"];
 
 function keyClass(state: LetterState | undefined): string {
   switch (state) {
-    case 'correct':
-      return 'bg-emerald-500 text-white border-emerald-600';
-    case 'present':
-      return 'bg-amber-400 text-white border-amber-500';
-    case 'absent':
-      return 'bg-slate-400 text-white border-slate-500 dark:bg-slate-700 dark:border-slate-800';
+    case "correct":
+      return "bg-emerald-500 text-white border-emerald-600";
+    case "present":
+      return "bg-amber-400 text-white border-amber-500";
+    case "absent":
+      return "bg-slate-400 text-white border-slate-500 dark:bg-slate-700 dark:border-slate-800";
     default:
-      return 'bg-slate-200 text-slate-900 border-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-700';
+      return "bg-surface-sunken text-fg border-border";
   }
 }
 
@@ -46,11 +46,7 @@ export default function WordleKeyboard({
   );
 
   return (
-    <div
-      className="flex w-full max-w-md flex-col gap-1 sm:max-w-lg"
-      role="group"
-      aria-label="Tastatur"
-    >
+    <fieldset className="flex w-full max-w-md flex-col gap-1 sm:max-w-lg" aria-label="Tastatur">
       <div className="flex gap-1">{ROW1.map(renderKey)}</div>
       <div className="flex gap-1 px-3">{ROW2.map(renderKey)}</div>
       <div className="flex gap-1">
@@ -59,7 +55,7 @@ export default function WordleKeyboard({
           onClick={onEnter}
           disabled={disabled}
           aria-label="Eingabe absenden"
-          className="min-h-10 flex-[1.5] rounded border border-slate-300 bg-slate-200 text-xs font-semibold text-slate-900 disabled:opacity-60 sm:min-h-12 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          className="min-h-10 flex-[1.5] rounded border border-border bg-surface-sunken text-xs font-semibold text-fg disabled:opacity-60 sm:min-h-12"
         >
           ↵
         </button>
@@ -69,11 +65,11 @@ export default function WordleKeyboard({
           onClick={onBackspace}
           disabled={disabled}
           aria-label="Zeichen löschen"
-          className="min-h-10 flex-[1.5] rounded border border-slate-300 bg-slate-200 text-xs font-semibold text-slate-900 disabled:opacity-60 sm:min-h-12 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          className="min-h-10 flex-[1.5] rounded border border-border bg-surface-sunken text-xs font-semibold text-fg disabled:opacity-60 sm:min-h-12"
         >
           ⌫
         </button>
       </div>
-    </div>
+    </fieldset>
   );
 }

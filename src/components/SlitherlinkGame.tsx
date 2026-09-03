@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type SlitherlinkSize, SlitherlinkSizeSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type SlitherlinkSize, SlitherlinkSizeSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const SIZES: readonly SlitherlinkSize[] = [4, 5, 6];
 
@@ -80,7 +80,7 @@ export default function SlitherlinkGame() {
   );
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(size));
   const [announcement, setAnnouncement] = useState(
-    'Klicke auf Kanten. Rechtsklick = X (keine Linie).',
+    "Klicke auf Kanten. Rechtsklick = X (keine Linie).",
   );
 
   const sfx = useGameSfx();
@@ -88,7 +88,7 @@ export default function SlitherlinkGame() {
 
   const restart = useCallback((n: SlitherlinkSize) => {
     setPuzzle(generate(n));
-    setAnnouncement('Neues Rätsel.');
+    setAnnouncement("Neues Rätsel.");
   }, []);
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function SlitherlinkGame() {
   }, [size, puzzle.n, restart]);
 
   const cycleEdge = useCallback(
-    (kind: 'h' | 'v', r: number, c: number, toX: boolean) => {
+    (kind: "h" | "v", r: number, c: number, toX: boolean) => {
       vibrate(10);
       setPuzzle((p) => {
         const next: Puzzle = {
@@ -104,12 +104,12 @@ export default function SlitherlinkGame() {
           hEdges: p.hEdges.map((row) => [...row] as EdgeState[]),
           vEdges: p.vEdges.map((row) => [...row] as EdgeState[]),
         };
-        const arr = kind === 'h' ? next.hEdges : next.vEdges;
+        const arr = kind === "h" ? next.hEdges : next.vEdges;
         const cur = arr[r]?.[c] ?? 0;
         const target: EdgeState = toX ? (cur === 2 ? 0 : 2) : cur === 1 ? 0 : 1;
         arr[r]![c] = target;
         if (isSolved(next)) {
-          setAnnouncement('Gelöst! Alle Regeln erfüllt.');
+          setAnnouncement("Gelöst! Alle Regeln erfüllt.");
           sfx.win();
           vibrate([60, 40, 120]);
         }
@@ -119,10 +119,10 @@ export default function SlitherlinkGame() {
     [sfx, vibrate],
   );
 
-  const renderEdge = (kind: 'h' | 'v', r: number, c: number) => {
-    const v = (kind === 'h' ? puzzle.hEdges[r]?.[c] : puzzle.vEdges[r]?.[c]) ?? 0;
+  const renderEdge = (kind: "h" | "v", r: number, c: number) => {
+    const v = (kind === "h" ? puzzle.hEdges[r]?.[c] : puzzle.vEdges[r]?.[c]) ?? 0;
     const lineCls =
-      v === 1 ? 'bg-amber-400' : v === 2 ? 'bg-transparent' : 'bg-slate-700 hover:bg-slate-500';
+      v === 1 ? "bg-amber-400" : v === 2 ? "bg-transparent" : "bg-slate-700 hover:bg-slate-500";
     return (
       <button
         key={`${kind}-${r}-${c}`}
@@ -132,13 +132,13 @@ export default function SlitherlinkGame() {
           e.preventDefault();
           cycleEdge(kind, r, c, true);
         }}
-        aria-label={`Kante ${kind === 'h' ? 'waagerecht' : 'senkrecht'} ${r},${c}: ${
-          v === 1 ? 'Linie' : v === 2 ? 'X' : 'leer'
+        aria-label={`Kante ${kind === "h" ? "waagerecht" : "senkrecht"} ${r},${c}: ${
+          v === 1 ? "Linie" : v === 2 ? "X" : "leer"
         }`}
         className={`relative ${
-          kind === 'h' ? 'col-span-1 mx-1 h-1.5' : 'row-span-1 my-1 w-1.5'
+          kind === "h" ? "col-span-1 mx-1 h-1.5" : "row-span-1 my-1 w-1.5"
         } rounded ${lineCls}`}
-        style={kind === 'h' ? { width: '32px' } : { height: '32px' }}
+        style={kind === "h" ? { width: "32px" } : { height: "32px" }}
       >
         {v === 2 && (
           <span
@@ -194,14 +194,14 @@ export default function SlitherlinkGame() {
                   className="block h-3 w-3 rounded-full bg-amber-500"
                   aria-hidden
                 >
-                  {c < puzzle.n ? renderEdge('h', r, c) : null}
+                  {c < puzzle.n ? renderEdge("h", r, c) : null}
                 </span>
               ))}
             </div>
             <div className="flex items-center">
               {Array.from({ length: puzzle.n + 1 }).map((__, c) => (
                 <span key={`v-${r}-${c}`} className="flex flex-col items-center">
-                  {renderEdge('v', r, c)}
+                  {renderEdge("v", r, c)}
                   {c < puzzle.n && (
                     <span
                       className="flex h-8 w-8 items-center justify-center text-sm font-bold"
@@ -209,14 +209,14 @@ export default function SlitherlinkGame() {
                     >
                       {(() => {
                         const clue = puzzle.clues[r]?.[c] ?? -1;
-                        if (clue < 0) return '';
+                        if (clue < 0) return "";
                         const sides = countSides(puzzle, r, c);
                         const color =
                           sides > clue
-                            ? 'text-rose-400'
+                            ? "text-rose-400"
                             : sides === clue
-                              ? 'text-emerald-400'
-                              : 'text-slate-400';
+                              ? "text-emerald-400"
+                              : "text-slate-400";
                         return <span className={color}>{clue}</span>;
                       })()}
                     </span>
@@ -229,7 +229,7 @@ export default function SlitherlinkGame() {
         <div className="flex items-center">
           {Array.from({ length: puzzle.n + 1 }).map((__, c) => (
             <span key={`bdot-${c}`} className="block h-3 w-3 rounded-full bg-amber-500" aria-hidden>
-              {c < puzzle.n ? renderEdge('h', puzzle.n, c) : null}
+              {c < puzzle.n ? renderEdge("h", puzzle.n, c) : null}
             </span>
           ))}
         </div>

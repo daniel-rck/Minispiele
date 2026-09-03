@@ -1,5 +1,5 @@
-import AnagramGame from '../components/AnagramGame';
-import GameLayout from '../components/GameLayout';
+import AnagramGame from "../components/AnagramGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Anagram() {
   return (

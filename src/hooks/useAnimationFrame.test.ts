@@ -1,8 +1,8 @@
-import { renderHook } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useAnimationFrame } from './useAnimationFrame';
+import { renderHook } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useAnimationFrame } from "./useAnimationFrame";
 
-describe('useAnimationFrame', () => {
+describe("useAnimationFrame", () => {
   let now = 0;
   let nextHandle = 1;
   let callbacks: Map<number, FrameRequestCallback>;
@@ -11,13 +11,13 @@ describe('useAnimationFrame', () => {
     now = 0;
     nextHandle = 1;
     callbacks = new Map();
-    vi.spyOn(performance, 'now').mockImplementation(() => now);
-    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+    vi.spyOn(performance, "now").mockImplementation(() => now);
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
       const id = nextHandle++;
       callbacks.set(id, cb);
       return id;
     });
-    vi.stubGlobal('cancelAnimationFrame', (id: number) => {
+    vi.stubGlobal("cancelAnimationFrame", (id: number) => {
       callbacks.delete(id);
     });
   });
@@ -27,7 +27,7 @@ describe('useAnimationFrame', () => {
     vi.restoreAllMocks();
   });
 
-  it('calls back each frame with delta time', () => {
+  it("calls back each frame with delta time", () => {
     const cb = vi.fn();
     renderHook(() => useAnimationFrame(cb, true));
 
@@ -53,7 +53,7 @@ describe('useAnimationFrame', () => {
     expect(cb).toHaveBeenLastCalledWith(20);
   });
 
-  it('clamps a large delta (e.g. after the tab was hidden) to 100ms', () => {
+  it("clamps a large delta (e.g. after the tab was hidden) to 100ms", () => {
     const cb = vi.fn();
     renderHook(() => useAnimationFrame(cb, true));
 
@@ -69,14 +69,14 @@ describe('useAnimationFrame', () => {
     expect(cb).toHaveBeenLastCalledWith(100);
   });
 
-  it('does not schedule when inactive', () => {
+  it("does not schedule when inactive", () => {
     const cb = vi.fn();
     renderHook(() => useAnimationFrame(cb, false));
     expect(callbacks.size).toBe(0);
     expect(cb).not.toHaveBeenCalled();
   });
 
-  it('stops scheduling after unmount', () => {
+  it("stops scheduling after unmount", () => {
     const cb = vi.fn();
     const { unmount } = renderHook(() => useAnimationFrame(cb, true));
     expect(callbacks.size).toBe(1);

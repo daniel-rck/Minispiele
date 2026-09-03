@@ -1,13 +1,13 @@
-export type DieType = 'd4' | 'd6' | 'd8' | 'd10' | 'd12' | 'd20' | 'd100';
+export type DieType = "d4" | "d6" | "d8" | "d10" | "d12" | "d20" | "d100";
 
 export const DIE_TYPES: readonly DieType[] = [
-  'd4',
-  'd6',
-  'd8',
-  'd10',
-  'd12',
-  'd20',
-  'd100',
+  "d4",
+  "d6",
+  "d8",
+  "d10",
+  "d12",
+  "d20",
+  "d100",
 ] as const;
 
 export const DIE_FACES: Record<DieType, number> = {
@@ -29,16 +29,16 @@ export interface Die {
 }
 
 export const DICE_COLOR_PALETTE: readonly string[] = [
-  '#ef4444',
-  '#f97316',
-  '#eab308',
-  '#22c55e',
-  '#06b6d4',
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
-  '#f8fafc',
-  '#1e293b',
+  "#ef4444",
+  "#f97316",
+  "#eab308",
+  "#22c55e",
+  "#06b6d4",
+  "#3b82f6",
+  "#8b5cf6",
+  "#ec4899",
+  "#f8fafc",
+  "#1e293b",
 ] as const;
 
 export const MAX_DICE = 20;
@@ -81,13 +81,13 @@ export function setDieType(die: Die, type: DieType): Die {
   return { ...die, type, value: Math.min(die.value, faces) };
 }
 
-export type RollMode = 'normal' | 'advantage' | 'disadvantage';
+export type RollMode = "normal" | "advantage" | "disadvantage";
 
 export function rollWithMode(die: Die, mode: RollMode, rand?: (faces: number) => number): Die {
-  if (mode === 'normal') return rollDie(die, rand);
+  if (mode === "normal") return rollDie(die, rand);
   const a = rollValue(die.type, rand);
   const b = rollValue(die.type, rand);
-  const value = mode === 'advantage' ? Math.max(a, b) : Math.min(a, b);
+  const value = mode === "advantage" ? Math.max(a, b) : Math.min(a, b);
   return { ...die, value };
 }
 
@@ -128,28 +128,28 @@ export interface DicePreset {
 
 export const DICE_PRESETS: readonly DicePreset[] = [
   {
-    id: 'kniffel',
-    label: 'Kniffel',
-    description: '5 × W6',
+    id: "kniffel",
+    label: "Kniffel",
+    description: "5 × W6",
     count: 5,
-    type: 'd6',
-    color: '#f8fafc',
+    type: "d6",
+    color: "#f8fafc",
   },
   {
-    id: 'maexle',
-    label: 'Mäxle',
-    description: '2 × W6',
+    id: "maexle",
+    label: "Mäxle",
+    description: "2 × W6",
     count: 2,
-    type: 'd6',
-    color: '#ef4444',
+    type: "d6",
+    color: "#ef4444",
   },
   {
-    id: 'dnd',
-    label: 'D&D',
-    description: '1 × W20',
+    id: "dnd",
+    label: "D&D",
+    description: "1 × W20",
     count: 1,
-    type: 'd20',
-    color: '#8b5cf6',
+    type: "d20",
+    color: "#8b5cf6",
   },
 ];
 
@@ -158,11 +158,11 @@ export function buildPreset(preset: DicePreset, rand?: (faces: number) => number
 }
 
 export function readableTextColor(bgHex: string): string {
-  const hex = bgHex.replace('#', '');
-  if (hex.length !== 6) return '#0f172a';
+  const hex = bgHex.replace("#", "");
+  if (hex.length !== 6) return "#0f172a";
   const r = parseInt(hex.slice(0, 2), 16);
   const g = parseInt(hex.slice(2, 4), 16);
   const b = parseInt(hex.slice(4, 6), 16);
   const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return lum > 0.6 ? '#0f172a' : '#f8fafc';
+  return lum > 0.6 ? "#0f172a" : "#f8fafc";
 }

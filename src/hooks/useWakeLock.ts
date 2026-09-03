@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from "react";
 
 function getWakeLock(): WakeLock | null {
-  if (typeof navigator === 'undefined') return null;
-  return ('wakeLock' in navigator ? navigator.wakeLock : null) ?? null;
+  if (typeof navigator === "undefined") return null;
+  return ("wakeLock" in navigator ? navigator.wakeLock : null) ?? null;
 }
 
 export function useWakeLock(active: boolean): { isSupported: boolean } {
@@ -15,7 +15,7 @@ export function useWakeLock(active: boolean): { isSupported: boolean } {
     if (!api) return;
     if (sentinelRef.current && !sentinelRef.current.released) return;
     try {
-      const sentinel = await api.request('screen');
+      const sentinel = await api.request("screen");
       // The hook may have switched to inactive while the request was pending.
       // Release the freshly acquired sentinel right away instead of keeping
       // the screen awake against the caller's wishes.
@@ -24,11 +24,11 @@ export function useWakeLock(active: boolean): { isSupported: boolean } {
         return;
       }
       sentinelRef.current = sentinel;
-      sentinel.addEventListener('release', () => {
+      sentinel.addEventListener("release", () => {
         sentinelRef.current = null;
       });
     } catch (err) {
-      console.warn('useWakeLock: request failed', err);
+      console.warn("useWakeLock: request failed", err);
     }
   }, []);
 
@@ -38,7 +38,7 @@ export function useWakeLock(active: boolean): { isSupported: boolean } {
     try {
       await sentinel.release();
     } catch (err) {
-      console.warn('useWakeLock: release failed', err);
+      console.warn("useWakeLock: release failed", err);
     } finally {
       sentinelRef.current = null;
     }
@@ -54,14 +54,14 @@ export function useWakeLock(active: boolean): { isSupported: boolean } {
 
   // Re-acquire when the tab becomes visible again (Page Visibility API releases the lock automatically).
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === "undefined") return;
     const onVisible = () => {
-      if (document.visibilityState === 'visible' && desiredRef.current) {
+      if (document.visibilityState === "visible" && desiredRef.current) {
         void acquire();
       }
     };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [acquire]);
 
   useEffect(

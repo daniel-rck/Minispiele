@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useGameSfx } from '../lib/useGameSfx';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useGameSfx } from "../lib/useGameSfx";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
-const SHAPES = ['●', '◆', '■', '★', '▲', '✚'];
+const SHAPES = ["●", "◆", "■", "★", "▲", "✚"];
 const COLOR_CLASSES = [
-  'text-rose-500',
-  'text-sky-500',
-  'text-emerald-500',
-  'text-amber-400',
-  'text-violet-500',
-  'text-orange-500',
+  "text-rose-500",
+  "text-sky-500",
+  "text-emerald-500",
+  "text-amber-400",
+  "text-violet-500",
+  "text-orange-500",
 ];
 const BOARD_SIZE = 11; // 11×11 fixed
 const CENTER = Math.floor(BOARD_SIZE / 2);
@@ -80,7 +80,7 @@ interface State {
   selected: number | null;
   scoreP: number;
   scoreAi: number;
-  turn: 'player' | 'ai';
+  turn: "player" | "ai";
   gameOver: boolean;
 }
 
@@ -103,21 +103,21 @@ function makeInitial(): State {
     selected: null,
     scoreP: 0,
     scoreAi: 0,
-    turn: 'player',
+    turn: "player",
     gameOver: false,
   };
 }
 
 export default function QwirkleGame() {
   const [state, setState] = useState<State>(() => makeInitial());
-  const [announcement, setAnnouncement] = useState('Wähle einen Stein und platziere ihn.');
+  const [announcement, setAnnouncement] = useState("Wähle einen Stein und platziere ihn.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
 
   const restart = useCallback(() => {
     setState(makeInitial());
-    setAnnouncement('Neues Spiel. Du bist dran.');
+    setAnnouncement("Neues Spiel. Du bist dran.");
   }, []);
 
   const selectTile = useCallback((i: number) => {
@@ -126,7 +126,7 @@ export default function QwirkleGame() {
 
   const placeAt = useCallback(
     (r: number, c: number) => {
-      if (state.gameOver || state.turn !== 'player' || state.selected === null) return;
+      if (state.gameOver || state.turn !== "player" || state.selected === null) return;
       if (state.board[r]?.[c] || state.placements.some((p) => p.r === r && p.c === c)) return;
       const isFirstMove = state.board.flat().every((cell) => cell === null);
       const hasNeighbor = adjacentHas(state.board, state.placements, r, c);
@@ -177,10 +177,10 @@ export default function QwirkleGame() {
         bag: newBag,
         placements: [],
         scoreP: s.scoreP + s.placements.length,
-        turn: 'ai',
+        turn: "ai",
       };
     });
-    setAnnouncement('KI ist dran …');
+    setAnnouncement("KI ist dran …");
   }, [state.placements.length, sfx, vibrate]);
 
   const passTurn = useCallback(() => {
@@ -191,14 +191,14 @@ export default function QwirkleGame() {
         hand: [...s.hand, ...returned],
         placements: [],
         selected: null,
-        turn: 'ai',
+        turn: "ai",
       };
     });
-    setAnnouncement('Du passt. KI ist dran.');
+    setAnnouncement("Du passt. KI ist dran.");
   }, []);
 
   useEffect(() => {
-    if (state.turn !== 'ai' || state.gameOver) return;
+    if (state.turn !== "ai" || state.gameOver) return;
     const id = window.setTimeout(() => {
       setState((s) => {
         const next: Board = s.board.map((row) => [...row]);
@@ -234,7 +234,7 @@ export default function QwirkleGame() {
           }
         }
         if (candidates.length === 0 || s.aiHand.length === 0) {
-          return { ...s, turn: 'player' };
+          return { ...s, turn: "player" };
         }
         const target = candidates[0]!;
         const tile = s.aiHand[0]!;
@@ -252,11 +252,11 @@ export default function QwirkleGame() {
           aiHand,
           bag: newBag,
           scoreAi: s.scoreAi + 1,
-          turn: gameOver ? 'player' : 'player',
+          turn: gameOver ? "player" : "player",
           gameOver,
         };
       });
-      setAnnouncement('Du bist dran.');
+      setAnnouncement("Du bist dran.");
     }, 500);
     return () => window.clearTimeout(id);
   }, [state.turn, state.gameOver]);
@@ -309,14 +309,14 @@ export default function QwirkleGame() {
                   key={`${r}-${c}`}
                   type="button"
                   onClick={() => placeAt(r, c)}
-                  disabled={!!cell || state.turn !== 'player' || state.selected === null}
-                  aria-label={`Brettfeld ${r + 1},${c + 1}${tile ? ` ${SHAPES[tile.shape]}` : ''}`}
+                  disabled={!!cell || state.turn !== "player" || state.selected === null}
+                  aria-label={`Brettfeld ${r + 1},${c + 1}${tile ? ` ${SHAPES[tile.shape]}` : ""}`}
                   className={`flex aspect-square items-center justify-center rounded text-xl font-bold ${
                     tile
                       ? isTemp
-                        ? 'bg-amber-100 ring-2 ring-amber-400 dark:bg-amber-900/40'
-                        : 'bg-slate-800'
-                      : 'bg-slate-800/30 disabled:cursor-not-allowed'
+                        ? "bg-amber-100 ring-2 ring-amber-400 dark:bg-amber-900/40"
+                        : "bg-slate-800"
+                      : "bg-slate-800/30 disabled:cursor-not-allowed"
                   }`}
                 >
                   {tile && (
@@ -348,7 +348,7 @@ export default function QwirkleGame() {
         >
           Zurück
         </Button>
-        <Button variant="ghost" size="sm" onClick={passTurn} disabled={state.turn !== 'player'}>
+        <Button variant="ghost" size="sm" onClick={passTurn} disabled={state.turn !== "player"}>
           Passen
         </Button>
         <Button variant="ghost" size="sm" onClick={restart}>
@@ -362,11 +362,11 @@ export default function QwirkleGame() {
             key={`hand-${i}`}
             type="button"
             onClick={() => selectTile(i)}
-            disabled={state.turn !== 'player'}
+            disabled={state.turn !== "player"}
             aria-pressed={state.selected === i}
             aria-label={`Stein ${SHAPES[tile.shape]} Farbe ${tile.color + 1}`}
             className={`flex min-h-12 min-w-12 items-center justify-center rounded-xl bg-slate-800 text-2xl font-bold disabled:cursor-not-allowed ${
-              state.selected === i ? 'ring-4 ring-amber-300' : ''
+              state.selected === i ? "ring-4 ring-amber-300" : ""
             }`}
           >
             <span className={COLOR_CLASSES[tile.color]} aria-hidden>

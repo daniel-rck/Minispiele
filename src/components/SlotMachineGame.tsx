@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SlotMachineBestSchema } from '../lib/persistedSchemas';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { SlotMachineBestSchema } from "../lib/persistedSchemas";
 import {
   clampBet,
   evaluatePayout,
@@ -13,11 +13,11 @@ import {
   SLOT_SYMBOLS,
   type SlotSymbol,
   spinReels,
-} from '../lib/slotMachine';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+} from "../lib/slotMachine";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 type ReelState = [SlotSymbol, SlotSymbol, SlotSymbol];
 
@@ -27,12 +27,12 @@ const REEL_STOP_DELAYS = [600, 1000, 1400] as const;
 export default function SlotMachineGame() {
   const [balance, setBalance] = useState(SLOT_INITIAL_BALANCE);
   const [bet, setBet] = useState(10);
-  const [reels, setReels] = useState<ReelState>(['🍒', '🍋', '🍒']);
+  const [reels, setReels] = useState<ReelState>(["🍒", "🍋", "🍒"]);
   const [winningReels, setWinningReels] = useState<number[]>([]);
   const [spinning, setSpinning] = useState(false);
-  const [message, setMessage] = useState('Drücke SPIN!');
+  const [message, setMessage] = useState("Drücke SPIN!");
   const [lastWin, setLastWin] = useState(0);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const [maxBalance, setMaxBalance] = useLocalStorage<number>(
     STORAGE_KEYS.SLOT_MACHINE_BEST,
     SlotMachineBestSchema,
@@ -64,7 +64,7 @@ export default function SlotMachineGame() {
   const spin = useCallback(() => {
     if (spinning) return;
     if (balance < bet) {
-      setMessage('Nicht genug Guthaben.');
+      setMessage("Nicht genug Guthaben.");
       return;
     }
     cleanup();
@@ -73,7 +73,7 @@ export default function SlotMachineGame() {
     setSpinning(true);
     setBalance((b) => b - currentBet);
     setWinningReels([]);
-    setMessage('…');
+    setMessage("…");
     setLastWin(0);
     vibrate(15);
 
@@ -106,7 +106,7 @@ export default function SlotMachineGame() {
             vibrate(payout.multiplier >= 15 ? [60, 30, 60, 30, 60] : 30);
             sfx.win();
           } else {
-            setMessage('Kein Gewinn.');
+            setMessage("Kein Gewinn.");
           }
         }
       }, delay);
@@ -118,12 +118,12 @@ export default function SlotMachineGame() {
     cleanup();
     setBalance(SLOT_INITIAL_BALANCE);
     setBet(10);
-    setReels(['🍒', '🍋', '🍒']);
+    setReels(["🍒", "🍋", "🍒"]);
     setWinningReels([]);
     setSpinning(false);
-    setMessage('Drücke SPIN!');
+    setMessage("Drücke SPIN!");
     setLastWin(0);
-    setAnnounce('Guthaben zurückgesetzt.');
+    setAnnounce("Guthaben zurückgesetzt.");
   };
 
   const canSpin = !spinning && balance >= bet;
@@ -146,8 +146,8 @@ export default function SlotMachineGame() {
               title={`Walze ${i + 1}: ${sym}`}
               className={`flex h-24 w-20 items-center justify-center rounded-xl border-2 text-5xl transition-colors ${
                 winningReels.includes(i)
-                  ? 'border-amber-400 bg-amber-100 shadow-[0_0_15px_rgba(251,191,36,0.5)] dark:bg-amber-900/40'
-                  : 'border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950'
+                  ? "border-amber-400 bg-amber-100 shadow-[0_0_15px_rgba(251,191,36,0.5)] dark:bg-amber-900/40"
+                  : "border-border bg-white dark:bg-slate-950"
               }`}
             >
               {sym}
@@ -155,14 +155,14 @@ export default function SlotMachineGame() {
           ))}
         </div>
 
-        <div className="mb-3 flex items-center justify-center gap-3 text-sm text-slate-700 dark:text-slate-200">
+        <div className="mb-3 flex items-center justify-center gap-3 text-sm text-fg">
           <span>Einsatz:</span>
           <button
             type="button"
             onClick={() => adjustBet(-SLOT_BET_STEP)}
             disabled={spinning || bet <= SLOT_MIN_BET}
             aria-label="Einsatz verringern"
-            className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white text-lg font-bold disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800"
+            className="min-h-11 min-w-11 rounded-lg border border-border bg-white text-lg font-bold disabled:opacity-40 dark:bg-slate-800"
           >
             −
           </button>
@@ -174,20 +174,20 @@ export default function SlotMachineGame() {
             onClick={() => adjustBet(SLOT_BET_STEP)}
             disabled={spinning || bet >= SLOT_MAX_BET || bet >= balance}
             aria-label="Einsatz erhöhen"
-            className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white text-lg font-bold disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800"
+            className="min-h-11 min-w-11 rounded-lg border border-border bg-white text-lg font-bold disabled:opacity-40 dark:bg-slate-800"
           >
             +
           </button>
         </div>
 
         <Button variant="primary" onClick={spin} disabled={!canSpin}>
-          {spinning ? '…' : 'SPIN'}
+          {spinning ? "…" : "SPIN"}
         </Button>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
-          Guthaben:{' '}
+          Guthaben:{" "}
           <span className="font-semibold tabular-nums text-amber-600 dark:text-amber-400">
             {balance}
           </span>
@@ -204,10 +204,8 @@ export default function SlotMachineGame() {
         Neu starten
       </Button>
 
-      <details className="w-full max-w-md rounded-xl border border-slate-300 bg-white p-3 text-xs text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
-        <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
-          Gewinntabelle
-        </summary>
+      <details className="w-full max-w-md rounded-xl border border-border bg-white p-3 text-xs text-fg-muted dark:bg-slate-900">
+        <summary className="cursor-pointer text-sm font-semibold text-fg">Gewinntabelle</summary>
         <ul className="mt-2 space-y-0.5">
           <li>3× 💎 = 50× Einsatz</li>
           <li>3× 7️⃣ = 30× Einsatz</li>
@@ -220,7 +218,7 @@ export default function SlotMachineGame() {
           <li>2× 7️⃣ = 3× Einsatz</li>
           <li>Doppelkirsche (irgendwo) = 2× Einsatz</li>
         </ul>
-        <p className="mt-2 text-slate-500">Symbol-Vorrat: {SLOT_SYMBOLS.join(' ')}</p>
+        <p className="mt-2 text-slate-500">Symbol-Vorrat: {SLOT_SYMBOLS.join(" ")}</p>
       </details>
     </div>
   );

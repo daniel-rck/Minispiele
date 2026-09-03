@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SlidingPuzzleGame from '../components/SlidingPuzzleGame';
+import GameLayout from "../components/GameLayout";
+import SlidingPuzzleGame from "../components/SlidingPuzzleGame";
 
 export default function SlidingPuzzle() {
   return (

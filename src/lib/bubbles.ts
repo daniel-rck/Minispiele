@@ -1,7 +1,7 @@
 export const BUBBLES_ROWS = 9;
 export const BUBBLES_COLS = 8;
 export const BUBBLES_COLOR_COUNT = 5;
-export const BUBBLES_COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7'];
+export const BUBBLES_COLORS = ["#ef4444", "#3b82f6", "#22c55e", "#f59e0b", "#a855f7"];
 
 // Logical coordinate system: 100 wide, ROWS+1 tall in same proportion as render box.
 export const BUBBLES_FIELD_W = 100;

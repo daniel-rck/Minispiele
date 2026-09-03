@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId } from "react";
 
 interface SwitchProps {
   checked: boolean;
@@ -47,12 +47,12 @@ export default function Switch({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-[var(--ease-snappy)] disabled:cursor-not-allowed disabled:opacity-50 ${
-          checked ? 'bg-primary-500' : 'bg-surface-300 dark:bg-surface-700'
+          checked ? "bg-primary-500" : "bg-surface-300 dark:bg-surface-700"
         }`}
       >
         <span
           className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-[var(--ease-snappy)] ${
-            checked ? 'translate-x-5' : 'translate-x-0.5'
+            checked ? "translate-x-5" : "translate-x-0.5"
           }`}
         />
       </button>

@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import MemoryGame from '../components/MemoryGame';
+import GameLayout from "../components/GameLayout";
+import MemoryGame from "../components/MemoryGame";
 
 export default function Memory() {
   return (

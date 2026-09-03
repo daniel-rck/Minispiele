@@ -1,24 +1,24 @@
-import { useCallback, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useGameSfx } from '../lib/useGameSfx';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useGameSfx } from "../lib/useGameSfx";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const COLS = 10;
 const ROWS = 6;
 const COLORS = [
-  'bg-rose-500',
-  'bg-sky-500',
-  'bg-emerald-500',
-  'bg-amber-400',
-  'bg-violet-500',
-  'bg-orange-500',
-  'bg-cyan-500',
-  'bg-pink-500',
-  'bg-teal-500',
-  'bg-yellow-500',
-  'bg-lime-500',
-  'bg-stone-500',
+  "bg-rose-500",
+  "bg-sky-500",
+  "bg-emerald-500",
+  "bg-amber-400",
+  "bg-violet-500",
+  "bg-orange-500",
+  "bg-cyan-500",
+  "bg-pink-500",
+  "bg-teal-500",
+  "bg-yellow-500",
+  "bg-lime-500",
+  "bg-stone-500",
 ];
 
 interface Pentomino {
@@ -30,7 +30,7 @@ interface Pentomino {
 
 const SHAPES: { name: string; cells: [number, number][] }[] = [
   {
-    name: 'F',
+    name: "F",
     cells: [
       [0, 1],
       [0, 2],
@@ -40,7 +40,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'I',
+    name: "I",
     cells: [
       [0, 0],
       [0, 1],
@@ -50,7 +50,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'L',
+    name: "L",
     cells: [
       [0, 0],
       [1, 0],
@@ -60,7 +60,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'N',
+    name: "N",
     cells: [
       [0, 0],
       [1, 0],
@@ -70,7 +70,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'P',
+    name: "P",
     cells: [
       [0, 0],
       [0, 1],
@@ -80,7 +80,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'T',
+    name: "T",
     cells: [
       [0, 0],
       [0, 1],
@@ -90,7 +90,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'U',
+    name: "U",
     cells: [
       [0, 0],
       [0, 2],
@@ -100,7 +100,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'V',
+    name: "V",
     cells: [
       [0, 0],
       [1, 0],
@@ -110,7 +110,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'W',
+    name: "W",
     cells: [
       [0, 0],
       [1, 0],
@@ -120,7 +120,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'X',
+    name: "X",
     cells: [
       [0, 1],
       [1, 0],
@@ -130,7 +130,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'Y',
+    name: "Y",
     cells: [
       [0, 0],
       [1, 0],
@@ -140,7 +140,7 @@ const SHAPES: { name: string; cells: [number, number][] }[] = [
     ],
   },
   {
-    name: 'Z',
+    name: "Z",
     cells: [
       [0, 0],
       [0, 1],
@@ -170,7 +170,7 @@ function makePieces(): Pentomino[] {
   return SHAPES.map((s, i) => ({
     name: s.name,
     cells: s.cells.map((c) => [...c] as [number, number]),
-    color: COLORS[i] ?? 'bg-slate-500',
+    color: COLORS[i] ?? "bg-slate-500",
     placed: false,
   }));
 }
@@ -182,7 +182,7 @@ export default function PentominoGame() {
   const [pieces, setPieces] = useState<Pentomino[]>(() => makePieces());
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState(
-    'Wähle ein Teil, klicke aufs Brett. Drehe oder spiegle es vorher.',
+    "Wähle ein Teil, klicke aufs Brett. Drehe oder spiegle es vorher.",
   );
 
   const sfx = useGameSfx();
@@ -192,7 +192,7 @@ export default function PentominoGame() {
     setGrid(Array.from({ length: ROWS }, () => Array<number>(COLS).fill(-1)));
     setPieces(makePieces());
     setSelectedIdx(null);
-    setAnnouncement('Wähle ein Teil, klicke aufs Brett.');
+    setAnnouncement("Wähle ein Teil, klicke aufs Brett.");
   }, []);
 
   const placedCount = pieces.filter((p) => p.placed).length;
@@ -209,7 +209,7 @@ export default function PentominoGame() {
         if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS || grid[nr]?.[nc] !== -1) {
           sfx.error();
           vibrate(40);
-          setAnnouncement('Hier passt das Teil nicht.');
+          setAnnouncement("Hier passt das Teil nicht.");
           return;
         }
       }
@@ -226,7 +226,7 @@ export default function PentominoGame() {
       setPieces((ps) => ps.map((p, i) => (i === selectedIdx ? { ...p, placed: true } : p)));
       setSelectedIdx(null);
       if (placedCount + 1 === SHAPES.length) {
-        setAnnouncement('Gelöst! Alle Teile platziert.');
+        setAnnouncement("Gelöst! Alle Teile platziert.");
         sfx.win();
         vibrate([60, 40, 120]);
       }
@@ -285,7 +285,7 @@ export default function PentominoGame() {
         {grid.flatMap((row, r) =>
           row.map((value, c) => {
             const filled = value >= 0;
-            const color = filled ? (COLORS[value] ?? 'bg-slate-500') : 'bg-slate-800';
+            const color = filled ? (COLORS[value] ?? "bg-slate-500") : "bg-slate-800";
             return (
               <button
                 key={`${r}-${c}`}
@@ -318,7 +318,7 @@ export default function PentominoGame() {
               onClick={() => setSelectedIdx(isSelected ? null : i)}
               aria-label={`Teil ${p.name}`}
               aria-pressed={isSelected}
-              className={`grid gap-[1px] rounded p-1 ${isSelected ? 'bg-amber-300 dark:bg-amber-900/40' : 'bg-surface-100 dark:bg-surface-800'}`}
+              className={`grid gap-[1px] rounded p-1 ${isSelected ? "bg-amber-300 dark:bg-amber-900/40" : "bg-surface-100 dark:bg-surface-800"}`}
               style={{ gridTemplateColumns: `repeat(${maxC}, 12px)` }}
             >
               {Array.from({ length: maxR }).flatMap((_, r) =>
@@ -328,7 +328,7 @@ export default function PentominoGame() {
                     <span
                       key={`${r}-${c}`}
                       aria-hidden
-                      className={`block h-3 w-3 ${isFilled ? p.color : 'bg-transparent'}`}
+                      className={`block h-3 w-3 ${isFilled ? p.color : "bg-transparent"}`}
                     />
                   );
                 }),

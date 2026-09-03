@@ -1,14 +1,14 @@
 export const BLOCKS_COLS = 10;
 export const BLOCKS_ROWS = 18;
 export const BLOCKS_COLORS = [
-  '',
-  '#22c55e',
-  '#3b82f6',
-  '#a855f7',
-  '#f59e0b',
-  '#ef4444',
-  '#06b6d4',
-  '#ec4899',
+  "",
+  "#22c55e",
+  "#3b82f6",
+  "#a855f7",
+  "#f59e0b",
+  "#ef4444",
+  "#06b6d4",
+  "#ec4899",
 ];
 
 // SRS-style wall-kick offsets tried in order when a basic rotation does not fit.

@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import { ANIMATION } from '../lib/constants';
+import { useEffect, useState } from "react";
+import { ANIMATION } from "../lib/constants";
 
 interface Props {
   message: string;
-  politeness?: 'polite' | 'assertive';
+  politeness?: "polite" | "assertive";
 }
 
-export default function AriaLive({ message, politeness = 'polite' }: Props) {
-  const [debounced, setDebounced] = useState('');
+export default function AriaLive({ message, politeness = "polite" }: Props) {
+  const [debounced, setDebounced] = useState("");
 
   useEffect(() => {
     if (!message) {
-      setDebounced('');
+      setDebounced("");
       return;
     }
     const id = window.setTimeout(() => setDebounced(message), ANIMATION.ARIA_LIVE_DEBOUNCE_MS);

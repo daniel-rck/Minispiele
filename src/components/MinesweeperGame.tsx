@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { ANIMATION, STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { ANIMATION, STORAGE_KEYS } from "../lib/constants";
 import {
   configFor,
   createInitialState,
@@ -8,7 +8,7 @@ import {
   type MinesweeperState,
   reveal,
   toggleFlag,
-} from '../lib/minesweeper';
+} from "../lib/minesweeper";
 import {
   EMPTY_MINES_HIGHSCORES,
   type MinesDifficulty,
@@ -17,42 +17,42 @@ import {
   MinesHighscoresSchema,
   type MinesMode,
   MinesModeSchema,
-} from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import DifficultySelector from './ui/DifficultySelector';
-import GameFooter from './ui/GameFooter';
-import GameStats from './ui/GameStats';
-import Sheet from './ui/Sheet';
+} from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration, useGameTimer } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import DifficultySelector from "./ui/DifficultySelector";
+import GameFooter from "./ui/GameFooter";
+import GameStats from "./ui/GameStats";
+import Sheet from "./ui/Sheet";
 
 const NUMBER_COLOR: Readonly<Record<number, string>> = {
-  1: 'text-blue-600 dark:text-blue-400',
-  2: 'text-emerald-600 dark:text-emerald-400',
-  3: 'text-red-600 dark:text-red-400',
-  4: 'text-indigo-700 dark:text-indigo-300',
-  5: 'text-amber-700 dark:text-amber-400',
-  6: 'text-cyan-600 dark:text-cyan-300',
-  7: 'text-slate-900 dark:text-slate-100',
-  8: 'text-slate-600 dark:text-slate-400',
+  1: "text-blue-600 dark:text-blue-400",
+  2: "text-emerald-600 dark:text-emerald-400",
+  3: "text-red-600 dark:text-red-400",
+  4: "text-indigo-700 dark:text-indigo-300",
+  5: "text-amber-700 dark:text-amber-400",
+  6: "text-cyan-600 dark:text-cyan-300",
+  7: "text-fg",
+  8: "text-fg-muted",
 };
 
 const HEX_NUMBER_FILL: Readonly<Record<number, string>> = {
-  1: '#2563eb',
-  2: '#059669',
-  3: '#dc2626',
-  4: '#4338ca',
-  5: '#b45309',
-  6: '#0891b2',
-  7: '#0f172a',
-  8: '#475569',
+  1: "#2563eb",
+  2: "#059669",
+  3: "#dc2626",
+  4: "#4338ca",
+  5: "#b45309",
+  6: "#0891b2",
+  7: "#0f172a",
+  8: "#475569",
 };
 
 function labelFor(mode: MinesMode, difficulty: MineDifficulty): string {
   const cfg = configFor(mode, difficulty);
-  const base = difficulty === 'easy' ? 'Leicht' : difficulty === 'medium' ? 'Mittel' : 'Schwer';
+  const base = difficulty === "easy" ? "Leicht" : difficulty === "medium" ? "Mittel" : "Schwer";
   return `${base} (${cfg.cols}×${cfg.rows}, ${cfg.mines})`;
 }
 
@@ -80,19 +80,19 @@ function hexPoints(cx: number, cy: number): string {
     const y = cy + (HEX_R - 0.5) * Math.sin(angle);
     pts.push(`${x.toFixed(2)},${y.toFixed(2)}`);
   }
-  return pts.join(' ');
+  return pts.join(" ");
 }
 
 export default function MinesweeperGame() {
   const [mode, setMode] = useLocalStorage<MinesMode>(
     STORAGE_KEYS.MINES_MODE,
     MinesModeSchema,
-    'rect',
+    "rect",
   );
   const [difficulty, setDifficulty] = useLocalStorage<MinesDifficulty>(
     STORAGE_KEYS.MINES_DIFFICULTY,
     MinesDifficultySchema,
-    'easy',
+    "easy",
   );
   const [rectHighscores, setRectHighscores] = useLocalStorage(
     STORAGE_KEYS.MINES_HIGHSCORES,
@@ -110,7 +110,7 @@ export default function MinesweeperGame() {
   const [winOpen, setWinOpen] = useState(false);
   const [lostOpen, setLostOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncement] = useState("");
 
   const timer = useGameTimer();
   const longPressRef = useRef<number | null>(null);
@@ -120,14 +120,14 @@ export default function MinesweeperGame() {
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
 
-  const highscores = state.mode === 'hex' ? hexHighscores : rectHighscores;
-  const setHighscores = state.mode === 'hex' ? setHexHighscores : setRectHighscores;
+  const highscores = state.mode === "hex" ? hexHighscores : rectHighscores;
+  const setHighscores = state.mode === "hex" ? setHexHighscores : setRectHighscores;
 
   const difficultyLabels = useMemo<Record<MinesDifficulty, string>>(
     () => ({
-      easy: labelFor(state.mode, 'easy'),
-      medium: labelFor(state.mode, 'medium'),
-      hard: labelFor(state.mode, 'hard'),
+      easy: labelFor(state.mode, "easy"),
+      medium: labelFor(state.mode, "medium"),
+      hard: labelFor(state.mode, "hard"),
     }),
     [state.mode],
   );
@@ -135,7 +135,7 @@ export default function MinesweeperGame() {
   useEffect(() => {
     if (state.firstClick) return;
     if (state.won || state.lost) return;
-    if (timer.status === 'idle') timer.start();
+    if (timer.status === "idle") timer.start();
   }, [state.firstClick, state.won, state.lost, timer]);
 
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function MinesweeperGame() {
         setScoreIsNew(false);
       }
       setWinOpen(true);
-      setAnnouncement('Gewonnen!');
+      setAnnouncement("Gewonnen!");
       sfx.win();
     }
     prevWonRef.current = state.won;
@@ -161,7 +161,7 @@ export default function MinesweeperGame() {
       timer.stop();
       vibrate([80, 60, 80]);
       setLostOpen(true);
-      setAnnouncement('Verloren — auf eine Mine getreten');
+      setAnnouncement("Verloren — auf eine Mine getreten");
       sfx.lose();
     }
     prevLostRef.current = state.lost;
@@ -242,10 +242,10 @@ export default function MinesweeperGame() {
 
   const onCellKeyDown = (e: React.KeyboardEvent, idx: number) => {
     if (state.lost || state.won) return;
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleCellAction(idx, flagMode);
-    } else if (e.key === 'f' || e.key === 'F') {
+    } else if (e.key === "f" || e.key === "F") {
       e.preventDefault();
       handleCellAction(idx, true);
     }
@@ -262,7 +262,7 @@ export default function MinesweeperGame() {
   const best = highscores[state.difficulty];
 
   const hexViewBox = useMemo(() => {
-    if (state.mode !== 'hex') return null;
+    if (state.mode !== "hex") return null;
     const width = HEX_PAD * 2 + state.cols * HEX_W + HEX_W / 2;
     const height = HEX_PAD * 2 + (state.rows - 1) * HEX_R * 1.5 + HEX_R * 2;
     return { width, height };
@@ -276,9 +276,9 @@ export default function MinesweeperGame() {
         <div
           role="group"
           aria-label="Spielmodus"
-          className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-900"
+          className="inline-flex rounded-lg border border-border bg-white p-0.5 dark:bg-slate-900"
         >
-          {(['rect', 'hex'] as const).map((m) => (
+          {(["rect", "hex"] as const).map((m) => (
             <button
               key={m}
               type="button"
@@ -286,11 +286,11 @@ export default function MinesweeperGame() {
               aria-pressed={mode === m}
               className={`min-h-11 rounded-md px-3 text-sm font-medium transition-colors ${
                 mode === m
-                  ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
-                  : 'text-slate-700 dark:text-slate-200'
+                  ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                  : "text-fg"
               }`}
             >
-              {m === 'rect' ? 'Rechteck' : 'Hex'}
+              {m === "rect" ? "Rechteck" : "Hex"}
             </button>
           ))}
         </div>
@@ -306,10 +306,10 @@ export default function MinesweeperGame() {
 
       <GameStats
         items={[
-          { label: '🚩', value: minesRemaining },
-          { label: '⏱', value: formatDuration(timer.elapsedSeconds) },
+          { label: "🚩", value: minesRemaining },
+          { label: "⏱", value: formatDuration(timer.elapsedSeconds) },
           {
-            label: 'Best',
+            label: "Best",
             value: best ? (
               formatDuration(best.seconds)
             ) : (
@@ -319,7 +319,7 @@ export default function MinesweeperGame() {
         ]}
       />
 
-      {state.mode === 'rect' ? (
+      {state.mode === "rect" ? (
         <div className="mx-auto w-full max-w-md overflow-x-auto sm:max-w-lg">
           <div
             className="grid gap-[2px] rounded-lg bg-slate-300 p-[2px] dark:bg-slate-700"
@@ -356,17 +356,17 @@ export default function MinesweeperGame() {
                     revealed
                       ? showMine
                         ? isLosingMine
-                          ? 'bg-red-500 text-white'
-                          : 'bg-red-300 text-red-900 dark:bg-red-900 dark:text-red-100'
-                        : 'bg-slate-100 dark:bg-slate-800'
-                      : 'bg-slate-200 hover:bg-slate-100 active:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600'
-                  } ${wrongFlag ? 'ring-2 ring-red-500 ring-inset' : ''}`}
+                          ? "bg-red-500 text-white"
+                          : "bg-red-300 text-red-900 dark:bg-red-900 dark:text-red-100"
+                        : "bg-slate-100 dark:bg-slate-800"
+                      : "bg-slate-200 hover:bg-slate-100 active:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600"
+                  } ${wrongFlag ? "ring-2 ring-red-500 ring-inset" : ""}`}
                 >
                   {revealed ? (
                     cell.mine ? (
                       <span aria-hidden>💣</span>
                     ) : cell.adjacent > 0 ? (
-                      <span aria-hidden className={NUMBER_COLOR[cell.adjacent] ?? ''}>
+                      <span aria-hidden className={NUMBER_COLOR[cell.adjacent] ?? ""}>
                         {cell.adjacent}
                       </span>
                     ) : null
@@ -405,15 +405,15 @@ export default function MinesweeperGame() {
                         : `Zelle ${idx + 1}, ${cell.adjacent}`
                     : `Zelle ${idx + 1}, verdeckt`;
 
-                let fill = '#cbd5e1';
+                let fill = "#cbd5e1";
                 if (revealed) {
                   if (showMine) {
-                    fill = isLosingMine ? '#ef4444' : '#fca5a5';
+                    fill = isLosingMine ? "#ef4444" : "#fca5a5";
                   } else {
-                    fill = '#f1f5f9';
+                    fill = "#f1f5f9";
                   }
                 }
-                const strokeColor = wrongFlag ? '#ef4444' : 'rgba(15,23,42,0.25)';
+                const strokeColor = wrongFlag ? "#ef4444" : "rgba(15,23,42,0.25)";
                 const strokeWidth = wrongFlag ? 2 : 1;
 
                 return (
@@ -432,8 +432,8 @@ export default function MinesweeperGame() {
                     onKeyDown={(e) => onCellKeyDown(e, idx)}
                     className="focus:outline-none focus-visible:[outline:2px_solid_#2563eb]"
                     style={{
-                      cursor: state.lost || state.won ? 'default' : 'pointer',
-                      touchAction: 'manipulation',
+                      cursor: state.lost || state.won ? "default" : "pointer",
+                      touchAction: "manipulation",
                     }}
                   >
                     <polygon
@@ -449,7 +449,6 @@ export default function MinesweeperGame() {
                         textAnchor="middle"
                         dominantBaseline="central"
                         fontSize={HEX_R * 0.9}
-                        aria-hidden="true"
                       >
                         💣
                       </text>
@@ -461,8 +460,7 @@ export default function MinesweeperGame() {
                         dominantBaseline="central"
                         fontSize={HEX_R * 0.85}
                         fontWeight={700}
-                        fill={HEX_NUMBER_FILL[cell.adjacent] ?? '#0f172a'}
-                        aria-hidden="true"
+                        fill={HEX_NUMBER_FILL[cell.adjacent] ?? "#0f172a"}
                       >
                         {cell.adjacent}
                       </text>
@@ -473,7 +471,6 @@ export default function MinesweeperGame() {
                         textAnchor="middle"
                         dominantBaseline="central"
                         fontSize={HEX_R * 0.9}
-                        aria-hidden="true"
                       >
                         🚩
                       </text>
@@ -491,11 +488,11 @@ export default function MinesweeperGame() {
           type="button"
           onClick={() => setFlagMode((m) => !m)}
           aria-pressed={flagMode}
-          aria-label={flagMode ? 'Flaggen-Modus aktiv (umschalten)' : 'Flaggen-Modus einschalten'}
+          aria-label={flagMode ? "Flaggen-Modus aktiv (umschalten)" : "Flaggen-Modus einschalten"}
           className={`min-h-12 min-w-12 rounded-xl px-3 text-base ${
             flagMode
-              ? 'bg-amber-500 text-white'
-              : 'border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+              ? "bg-amber-500 text-white"
+              : "border border-border bg-white text-fg dark:bg-slate-900"
           }`}
         >
           🚩
@@ -515,7 +512,7 @@ export default function MinesweeperGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Gelöst in {formatDuration(timer.elapsedSeconds)}.
           </p>
           <Button variant="primary" block onClick={() => restart()}>
@@ -529,9 +526,7 @@ export default function MinesweeperGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             💥
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Auf eine Mine getreten. Beim nächsten Mal!
-          </p>
+          <p className="mb-4 text-sm text-fg-muted">Auf eine Mine getreten. Beim nächsten Mal!</p>
           <Button variant="primary" block onClick={() => restart()}>
             Nochmal spielen
           </Button>

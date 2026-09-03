@@ -1,5 +1,5 @@
-import ColorFloodGame from '../components/ColorFloodGame';
-import GameLayout from '../components/GameLayout';
+import ColorFloodGame from "../components/ColorFloodGame";
+import GameLayout from "../components/GameLayout";
 
 export default function ColorFlood() {
   return (

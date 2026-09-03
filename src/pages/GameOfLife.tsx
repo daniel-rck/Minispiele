@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import GameOfLifeGame from '../components/GameOfLifeGame';
+import GameLayout from "../components/GameLayout";
+import GameOfLifeGame from "../components/GameOfLifeGame";
 
 export default function GameOfLife() {
   return (

@@ -7,8 +7,8 @@ export const APP_BUILD_DATE: string = __APP_BUILD_DATE__;
 export function formatBuildDate(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat('de-DE', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+  return new Intl.DateTimeFormat("de-DE", {
+    dateStyle: "medium",
+    timeStyle: "short",
   }).format(d);
 }

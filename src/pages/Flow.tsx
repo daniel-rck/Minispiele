@@ -1,5 +1,5 @@
-import FlowGame from '../components/FlowGame';
-import GameLayout from '../components/GameLayout';
+import FlowGame from "../components/FlowGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Flow() {
   return (

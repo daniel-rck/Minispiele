@@ -1,12 +1,12 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { FlappyBirdBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { FlappyBirdBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const W = 400;
 const H = 550;
@@ -21,7 +21,7 @@ const GROUND_H = 60;
 // Reference frame duration: physics constants are tuned in px per 60fps frame.
 const BASE_FRAME_MS = 1000 / 60;
 
-type Phase = 'ready' | 'playing' | 'dead';
+type Phase = "ready" | "playing" | "dead";
 
 interface Bird {
   x: number;
@@ -51,7 +51,7 @@ function createInitial(): State {
     bird: { x: 80, y: H / 2 - 50, vy: 0, rotation: 0 },
     pipes: [],
     score: 0,
-    phase: 'ready',
+    phase: "ready",
     flashTimer: 0,
     groundX: 0,
   };
@@ -66,9 +66,9 @@ function spawnPipe(score: number): Pipe {
 }
 
 function medalFor(score: number): string | null {
-  if (score >= 50) return '🥇';
-  if (score >= 25) return '🥈';
-  if (score >= 10) return '🥉';
+  if (score >= 50) return "🥇";
+  if (score >= 25) return "🥈";
+  if (score >= 10) return "🥉";
   return null;
 }
 
@@ -76,8 +76,8 @@ export default function FlappyBirdGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<State>(createInitial());
   const [scoreDisplay, setScoreDisplay] = useState(0);
-  const [phaseDisplay, setPhaseDisplay] = useState<Phase>('ready');
-  const [announcement, setAnnouncement] = useState('Tippe zum Start.');
+  const [phaseDisplay, setPhaseDisplay] = useState<Phase>("ready");
+  const [announcement, setAnnouncement] = useState("Tippe zum Start.");
   const [best, setBest] = useLocalStorage<number>(
     STORAGE_KEYS.FLAPPY_BIRD_BEST,
     FlappyBirdBestSchema,
@@ -90,23 +90,23 @@ export default function FlappyBirdGame() {
   const restart = useCallback(() => {
     stateRef.current = createInitial();
     setScoreDisplay(0);
-    setPhaseDisplay('ready');
-    setAnnouncement('Tippe zum Start.');
+    setPhaseDisplay("ready");
+    setAnnouncement("Tippe zum Start.");
   }, []);
 
   const flap = useCallback(() => {
     const s = stateRef.current;
-    if (s.phase === 'dead') {
+    if (s.phase === "dead") {
       restart();
       return;
     }
-    if (s.phase === 'ready') {
-      s.phase = 'playing';
+    if (s.phase === "ready") {
+      s.phase = "playing";
       s.pipes.push(spawnPipe(s.score));
-      setPhaseDisplay('playing');
+      setPhaseDisplay("playing");
       sfx.match();
     }
-    if (s.phase === 'playing') {
+    if (s.phase === "playing") {
       s.bird.vy = FLAP_FORCE;
       sfx.pop();
     }
@@ -116,8 +116,8 @@ export default function FlappyBirdGame() {
     const s = stateRef.current;
     const frames = deltaMs / BASE_FRAME_MS;
 
-    if (s.phase !== 'playing') {
-      if (s.phase === 'ready') {
+    if (s.phase !== "playing") {
+      if (s.phase === "ready") {
         s.bird.y = H / 2 - 50 + Math.sin(Date.now() / 300) * 8;
       }
       s.groundX -= 1 * frames;
@@ -165,9 +165,9 @@ export default function FlappyBirdGame() {
       }
 
       if (died) {
-        s.phase = 'dead';
+        s.phase = "dead";
         s.flashTimer = 8;
-        setPhaseDisplay('dead');
+        setPhaseDisplay("dead");
         sfx.lose();
         vibrate([120, 60, 80]);
         const finalScore = s.score;
@@ -176,8 +176,8 @@ export default function FlappyBirdGame() {
         const medal = medalFor(finalScore);
         setAnnouncement(
           isBest
-            ? `Vorbei. Neue Bestmarke ${finalScore} Punkte${medal ? ` ${medal}` : ''}`
-            : `Vorbei. ${finalScore} Punkte${medal ? ` ${medal}` : ''}`,
+            ? `Vorbei. Neue Bestmarke ${finalScore} Punkte${medal ? ` ${medal}` : ""}`
+            : `Vorbei. ${finalScore} Punkte${medal ? ` ${medal}` : ""}`,
         );
       }
     }
@@ -185,37 +185,37 @@ export default function FlappyBirdGame() {
     if (scoreDisplay !== s.score) setScoreDisplay(s.score);
 
     // Draw
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
 
     const grad = ctx.createLinearGradient(0, 0, 0, H - GROUND_H);
-    grad.addColorStop(0, '#0a0a1e');
-    grad.addColorStop(1, '#1a1a3e');
+    grad.addColorStop(0, "#0a0a1e");
+    grad.addColorStop(1, "#1a1a3e");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H - GROUND_H);
 
     // pipes
     for (const p of s.pipes) {
-      ctx.fillStyle = '#0e7490';
+      ctx.fillStyle = "#0e7490";
       ctx.fillRect(p.x, 0, PIPE_W, p.topH);
-      ctx.fillStyle = '#06b6d4';
+      ctx.fillStyle = "#06b6d4";
       ctx.fillRect(p.x + 3, 0, PIPE_W - 6, p.topH - 2);
-      ctx.fillStyle = '#0e7490';
+      ctx.fillStyle = "#0e7490";
       ctx.fillRect(p.x - 4, p.topH - 16, PIPE_W + 8, 16);
 
       const botY = p.topH + p.gap;
-      ctx.fillStyle = '#0e7490';
+      ctx.fillStyle = "#0e7490";
       ctx.fillRect(p.x, botY, PIPE_W, H - botY);
-      ctx.fillStyle = '#06b6d4';
+      ctx.fillStyle = "#06b6d4";
       ctx.fillRect(p.x + 3, botY + 2, PIPE_W - 6, H - botY);
-      ctx.fillStyle = '#0e7490';
+      ctx.fillStyle = "#0e7490";
       ctx.fillRect(p.x - 4, botY, PIPE_W + 8, 16);
     }
 
     // ground
-    ctx.fillStyle = '#92400e';
+    ctx.fillStyle = "#92400e";
     ctx.fillRect(0, H - GROUND_H, W, GROUND_H);
-    ctx.fillStyle = '#78350f';
+    ctx.fillStyle = "#78350f";
     for (let x = s.groundX; x < W + 40; x += 40) {
       ctx.fillRect(x, H - GROUND_H, 20, 4);
     }
@@ -224,24 +224,24 @@ export default function FlappyBirdGame() {
     ctx.save();
     ctx.translate(s.bird.x, s.bird.y);
     ctx.rotate(s.bird.rotation);
-    ctx.fillStyle = '#fbbf24';
+    ctx.fillStyle = "#fbbf24";
     ctx.beginPath();
     ctx.ellipse(0, 0, BIRD_R, BIRD_R - 2, 0, 0, Math.PI * 2);
     ctx.fill();
     const wingY = Math.sin(Date.now() / 80) * 3;
-    ctx.fillStyle = '#d97706';
+    ctx.fillStyle = "#d97706";
     ctx.beginPath();
     ctx.ellipse(-3, wingY, 8, 4, -0.3, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = "#fff";
     ctx.beginPath();
     ctx.arc(6, -4, 4, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = "#0f172a";
     ctx.beginPath();
     ctx.arc(7, -4, 2, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#f97316';
+    ctx.fillStyle = "#f97316";
     ctx.beginPath();
     ctx.moveTo(BIRD_R - 2, -2);
     ctx.lineTo(BIRD_R + 6, 1);
@@ -249,11 +249,11 @@ export default function FlappyBirdGame() {
     ctx.fill();
     ctx.restore();
 
-    if (s.phase === 'playing') {
-      ctx.fillStyle = '#fff';
+    if (s.phase === "playing") {
+      ctx.fillStyle = "#fff";
       ctx.font = 'bold 36px "Segoe UI", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.shadowColor = '#000';
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#000";
       ctx.shadowBlur = 6;
       ctx.fillText(String(s.score), W / 2, 50);
       ctx.shadowBlur = 0;
@@ -268,13 +268,13 @@ export default function FlappyBirdGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === ' ' || e.key === 'Enter') {
+      if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         flap();
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [flap]);
 
   return (
@@ -291,7 +291,7 @@ export default function FlappyBirdGame() {
       </div>
 
       <div className="fit-area mx-auto w-full max-w-[400px]">
-        <div className="relative fit-box" style={{ '--fit-ar': W / H } as CSSProperties}>
+        <div className="relative fit-box" style={{ "--fit-ar": W / H } as CSSProperties}>
           <canvas
             ref={canvasRef}
             width={W}
@@ -303,24 +303,24 @@ export default function FlappyBirdGame() {
             aria-label="Flappy-Bird-Spielfeld"
             className="h-full w-full touch-none select-none rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
           />
-          {phaseDisplay !== 'playing' && (
+          {phaseDisplay !== "playing" && (
             <div
               role="status"
               className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-slate-900/70 text-center text-white"
             >
               <div className="text-2xl font-extrabold tracking-wide">
-                {phaseDisplay === 'ready' ? 'FLAPPY BIRD' : 'Vorbei'}
+                {phaseDisplay === "ready" ? "FLAPPY BIRD" : "Vorbei"}
               </div>
-              {phaseDisplay === 'dead' && (
+              {phaseDisplay === "dead" && (
                 <>
                   <div className="text-lg">
-                    {scoreDisplay} Punkte{' '}
+                    {scoreDisplay} Punkte{" "}
                     {medalFor(scoreDisplay) && <span aria-hidden>{medalFor(scoreDisplay)}</span>}
                   </div>
                   <div className="text-xs text-slate-300">Tippe zum Neustart</div>
                 </>
               )}
-              {phaseDisplay === 'ready' && (
+              {phaseDisplay === "ready" && (
                 <div className="text-xs text-slate-300">Leertaste, Klick oder Tap zum Flattern</div>
               )}
             </div>
@@ -329,7 +329,7 @@ export default function FlappyBirdGame() {
       </div>
 
       <Button variant="primary" onClick={flap}>
-        {phaseDisplay === 'dead' ? 'Neues Spiel' : phaseDisplay === 'ready' ? 'Starten' : 'Flap'}
+        {phaseDisplay === "dead" ? "Neues Spiel" : phaseDisplay === "ready" ? "Starten" : "Flap"}
       </Button>
 
       <p className="max-w-md text-center text-xs text-surface-500 dark:text-surface-400">

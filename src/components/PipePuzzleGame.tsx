@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type PipePuzzleSize, PipePuzzleSizeSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type PipePuzzleSize, PipePuzzleSizeSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const SIZES: readonly PipePuzzleSize[] = [5, 7, 9];
 
@@ -23,10 +23,10 @@ function generatePuzzle(n: number): Puzzle {
     Array.from({ length: n }, () => ({ top: false, right: false, bottom: false, left: false })),
   );
   const dirs: [number, number, keyof Conn, keyof Conn][] = [
-    [-1, 0, 'top', 'bottom'],
-    [0, 1, 'right', 'left'],
-    [1, 0, 'bottom', 'top'],
-    [0, -1, 'left', 'right'],
+    [-1, 0, "top", "bottom"],
+    [0, 1, "right", "left"],
+    [1, 0, "bottom", "top"],
+    [0, -1, "left", "right"],
   ];
   function dfs(r: number, c: number): void {
     const row = visited[r];
@@ -114,7 +114,7 @@ export default function PipePuzzleGame() {
   const [moves, setMoves] = useState(0);
   const [over, setOver] = useState(false);
   const [announcement, setAnnouncement] = useState(
-    'Klicke auf Rohre zum Drehen. Verbinde alle Rohre.',
+    "Klicke auf Rohre zum Drehen. Verbinde alle Rohre.",
   );
 
   const sfx = useGameSfx();
@@ -124,7 +124,7 @@ export default function PipePuzzleGame() {
     setPuzzle(generatePuzzle(n));
     setMoves(0);
     setOver(false);
-    setAnnouncement('Klicke Rohre zum Drehen.');
+    setAnnouncement("Klicke Rohre zum Drehen.");
   }, []);
 
   useEffect(() => {
@@ -207,20 +207,20 @@ export default function PipePuzzleGame() {
         aria-label="Pipe-Puzzle-Spielfeld"
         style={{
           gridTemplateColumns: `repeat(${puzzle.n}, minmax(0, 1fr))`,
-          maxWidth: '420px',
-          width: '100%',
+          maxWidth: "420px",
+          width: "100%",
         }}
       >
         {puzzle.grid.flatMap((row, r) =>
           row.map((pipe, c) => {
             const isConnected = connected[r]?.[c];
-            const color = isConnected ? 'bg-emerald-500' : 'bg-slate-500';
+            const color = isConnected ? "bg-emerald-500" : "bg-slate-500";
             return (
               <button
                 key={`${r}-${c}`}
                 type="button"
                 onClick={() => rotateCell(r, c)}
-                aria-label={`Rohr ${r + 1},${c + 1}${isConnected ? ' verbunden' : ''}`}
+                aria-label={`Rohr ${r + 1},${c + 1}${isConnected ? " verbunden" : ""}`}
                 className="relative aspect-square bg-slate-800"
               >
                 <span

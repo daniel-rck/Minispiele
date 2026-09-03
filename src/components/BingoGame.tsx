@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
 import {
   BINGO_COLUMNS,
   BINGO_FREE_INDEX,
@@ -9,14 +9,14 @@ import {
   columnFor,
   createInitialState,
   drawNumber,
-} from '../lib/bingo';
-import { STORAGE_KEYS } from '../lib/constants';
-import { BingoBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/bingo";
+import { STORAGE_KEYS } from "../lib/constants";
+import { BingoBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 export default function BingoGame() {
   const [state, setState] = useState<BingoState>(() => createInitialState(2));
@@ -27,7 +27,7 @@ export default function BingoGame() {
   );
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const prevWonRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -62,7 +62,7 @@ export default function BingoGame() {
     setWinOpen(false);
     setScoreIsNew(false);
     prevWonRef.current = false;
-    setAnnounce('Neue Runde gestartet.');
+    setAnnounce("Neue Runde gestartet.");
   }, []);
 
   return (
@@ -72,7 +72,7 @@ export default function BingoGame() {
       <div className="flex flex-col items-center gap-1">
         <div className="text-xs uppercase tracking-widest text-slate-500">Gezogen</div>
         <div className="min-h-12 text-4xl font-extrabold text-amber-500 dark:text-amber-400 tabular-nums">
-          {lastDrawn !== undefined ? `${BINGO_COLUMNS[columnFor(lastDrawn)]} ${lastDrawn}` : '—'}
+          {lastDrawn !== undefined ? `${BINGO_COLUMNS[columnFor(lastDrawn)]} ${lastDrawn}` : "—"}
         </div>
       </div>
 
@@ -94,28 +94,28 @@ export default function BingoGame() {
           onClick={draw}
           disabled={state.won || state.pool.length === 0}
         >
-          {state.pool.length === 0 ? 'Pool leer' : 'Ziehen'}
+          {state.pool.length === 0 ? "Pool leer" : "Ziehen"}
         </Button>
         <Button variant="secondary" onClick={restart}>
           Neu
         </Button>
       </div>
 
-      <div className="flex w-full max-w-md justify-between gap-3 text-sm text-slate-600 dark:text-slate-300">
+      <div className="flex w-full max-w-md justify-between gap-3 text-sm text-fg-muted">
         <span>
-          Gezogen:{' '}
+          Gezogen:{" "}
           <span className="font-semibold tabular-nums">
             {state.drawn.length}/{state.pool.length + state.drawn.length}
           </span>
         </span>
         <span>
-          Best: <span className="font-semibold tabular-nums">{best !== null ? best : '—'}</span>
+          Best: <span className="font-semibold tabular-nums">{best !== null ? best : "—"}</span>
         </span>
       </div>
 
       {state.drawn.length > 0 && (
         <p className="max-w-md text-center text-xs text-slate-500 break-words">
-          Bisherige Zahlen: {state.drawn.join(', ')}
+          Bisherige Zahlen: {state.drawn.join(", ")}
         </p>
       )}
 
@@ -134,7 +134,7 @@ export default function BingoGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Karte {(state.winningCard ?? 0) + 1} hat Bingo nach {state.drawn.length} gezogenen
             Zahlen.
           </p>
@@ -160,8 +160,8 @@ function CardView({
     <div
       className={`rounded-2xl border-2 p-3 transition-colors ${
         winning
-          ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
-          : 'border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900'
+          ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30"
+          : "border-border bg-white dark:bg-slate-900"
       }`}
     >
       <div className="mb-2 text-center text-xs font-bold uppercase tracking-widest text-slate-500">
@@ -185,16 +185,16 @@ function CardView({
           return (
             <div
               key={`cell-${i}`}
-              title={isFree ? 'Freifeld' : `${n}${isMarked ? ' (markiert)' : ''}`}
+              title={isFree ? "Freifeld" : `${n}${isMarked ? " (markiert)" : ""}`}
               className={`flex aspect-square items-center justify-center rounded-md text-sm font-semibold tabular-nums transition-colors ${
                 isFree
-                  ? 'bg-amber-300 text-xs text-slate-900'
+                  ? "bg-amber-300 text-xs text-slate-900"
                   : isMarked
-                    ? 'bg-amber-400 text-slate-900'
-                    : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                    ? "bg-amber-400 text-slate-900"
+                    : "bg-slate-200 text-fg dark:bg-slate-800"
               }`}
             >
-              {isFree ? 'FREI' : n}
+              {isFree ? "FREI" : n}
             </div>
           );
         })}

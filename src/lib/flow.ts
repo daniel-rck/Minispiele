@@ -3,7 +3,7 @@ export interface FlowLevel {
   endpoints: { color: number; cells: [number, number] }[]; // pair of indices
 }
 
-const COLORS_HEX = ['#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+const COLORS_HEX = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
 
 export function colorHex(idx: number): string {
   return COLORS_HEX[idx % COLORS_HEX.length]!;

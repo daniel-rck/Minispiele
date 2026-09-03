@@ -1,12 +1,12 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useGameSfx } from '../lib/useGameSfx';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useGameSfx } from "../lib/useGameSfx";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const ROWS = 30;
 const COLS = 50;
 
-type PatternName = 'glider' | 'blinker' | 'toad' | 'beacon' | 'pulsar' | 'pentadecathlon';
+type PatternName = "glider" | "blinker" | "toad" | "beacon" | "pulsar" | "pentadecathlon";
 
 const PATTERNS: Record<PatternName, readonly [number, number][]> = {
   glider: [
@@ -104,12 +104,12 @@ const PATTERNS: Record<PatternName, readonly [number, number][]> = {
 };
 
 const PATTERN_LABELS: Record<PatternName, string> = {
-  glider: 'Glider',
-  blinker: 'Blinker',
-  toad: 'Toad',
-  beacon: 'Beacon',
-  pulsar: 'Pulsar',
-  pentadecathlon: 'Pentadekathlon',
+  glider: "Glider",
+  blinker: "Blinker",
+  toad: "Toad",
+  beacon: "Beacon",
+  pulsar: "Pulsar",
+  pentadecathlon: "Pentadekathlon",
 };
 
 function emptyGrid(): Uint8Array {
@@ -154,7 +154,7 @@ export default function GameOfLifeGame() {
   const [wrap, setWrap] = useState(true);
   const [speed, setSpeed] = useState(10);
   const [generation, setGeneration] = useState(0);
-  const [announcement, setAnnouncement] = useState('Klicke Zellen oder lade ein Muster.');
+  const [announcement, setAnnouncement] = useState("Klicke Zellen oder lade ein Muster.");
 
   const sfx = useGameSfx();
   const wrapRef = useRef(wrap);
@@ -195,7 +195,7 @@ export default function GameOfLifeGame() {
     setRunning(false);
     gridRef.current = emptyGrid();
     setGeneration(0);
-    setAnnouncement('Gitter geleert.');
+    setAnnouncement("Gitter geleert.");
     forceRender();
   }, [forceRender]);
 
@@ -205,7 +205,7 @@ export default function GameOfLifeGame() {
     for (let i = 0; i < g.length; i++) g[i] = Math.random() < 0.3 ? 1 : 0;
     gridRef.current = g;
     setGeneration(0);
-    setAnnouncement('Zufallsbevölkerung erzeugt.');
+    setAnnouncement("Zufallsbevölkerung erzeugt.");
     forceRender();
   }, [forceRender]);
 
@@ -240,7 +240,7 @@ export default function GameOfLifeGame() {
   const toggleRun = useCallback(() => {
     setRunning((r) => {
       const next = !r;
-      setAnnouncement(next ? 'Simulation läuft.' : 'Pausiert.');
+      setAnnouncement(next ? "Simulation läuft." : "Pausiert.");
       return next;
     });
   }, []);
@@ -255,7 +255,7 @@ export default function GameOfLifeGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-2">
         <Button variant="primary" size="sm" onClick={toggleRun}>
-          {running ? 'Pause' : 'Start'}
+          {running ? "Pause" : "Start"}
         </Button>
         <Button variant="secondary" size="sm" onClick={oneStep} disabled={running}>
           Schritt
@@ -294,9 +294,9 @@ export default function GameOfLifeGame() {
           Muster:
           <select
             onChange={(e) => {
-              const v = e.target.value as PatternName | '';
+              const v = e.target.value as PatternName | "";
               if (v) loadPattern(v);
-              e.target.value = '';
+              e.target.value = "";
             }}
             defaultValue=""
             className="min-h-11 rounded-lg border border-surface-300 bg-surface-50 px-3 text-sm dark:border-surface-700 dark:bg-surface-900"
@@ -313,7 +313,7 @@ export default function GameOfLifeGame() {
 
       <div
         className="flex items-center justify-between text-sm text-surface-700 dark:text-surface-200"
-        style={{ width: 'min(95vw, 700px)' }}
+        style={{ width: "min(95vw, 700px)" }}
       >
         <div>
           Generation: <span className="font-semibold tabular-nums">{generation}</span>
@@ -331,7 +331,7 @@ export default function GameOfLifeGame() {
           style={
             {
               gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))`,
-              '--fit-ar': COLS / ROWS,
+              "--fit-ar": COLS / ROWS,
             } as CSSProperties
           }
         >
@@ -343,8 +343,8 @@ export default function GameOfLifeGame() {
                 key={i}
                 type="button"
                 onClick={() => toggleCell(r, c)}
-                aria-label={`Zelle ${r + 1},${c + 1} ${alive ? 'lebt' : 'leer'}`}
-                className={`aspect-square ${alive ? 'bg-amber-400' : 'bg-slate-800/40 hover:bg-slate-700/60'}`}
+                aria-label={`Zelle ${r + 1},${c + 1} ${alive ? "lebt" : "leer"}`}
+                className={`aspect-square ${alive ? "bg-amber-400" : "bg-slate-800/40 hover:bg-slate-700/60"}`}
               />
             );
           })}

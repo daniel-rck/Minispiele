@@ -45,6 +45,13 @@ jobs:
           path: dist/stats.html
           if-no-files-found: ignore
 
+  # Bricht den Build, wenn ein *owned* web-base-Baustein von der Basis
+  # abgewichen ist. Scaffold-Nähte (theme.css-Akzent, Routen, Worker) bleiben
+  # unangetastet. Pin auf @main statt auf einen Version-Tag, bis v0.3.0 auf
+  # web-bases main getaggt ist; danach @v0.3.0.
+  web-base-check:
+    uses: daniel-rck/web-base/.github/workflows/web-base-check.yml@main
+
   e2e:
     runs-on: ubuntu-latest
     needs: check

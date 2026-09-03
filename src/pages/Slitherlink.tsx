@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SlitherlinkGame from '../components/SlitherlinkGame';
+import GameLayout from "../components/GameLayout";
+import SlitherlinkGame from "../components/SlitherlinkGame";
 
 export default function Slitherlink() {
   return (

@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import TypingTestGame from '../components/TypingTestGame';
+import GameLayout from "../components/GameLayout";
+import TypingTestGame from "../components/TypingTestGame";
 
 export default function TypingTest() {
   return (

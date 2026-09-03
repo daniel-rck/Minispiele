@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { GameSfx } from './gameSfx';
+import { useEffect, useRef } from "react";
+import { GameSfx } from "./gameSfx";
 
 /** Lazy-creates a single GameSfx instance per component and disposes it on unmount. */
 export function useGameSfx(): GameSfx {

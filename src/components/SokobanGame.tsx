@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSwipeDetection } from '../hooks/useSwipeDetection';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { SokobanBestSchema, SokobanLevelSchema } from '../lib/persistedSchemas';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useSwipeDetection } from "../hooks/useSwipeDetection";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { SokobanBestSchema, SokobanLevelSchema } from "../lib/persistedSchemas";
 import {
   isSolved,
   LEVELS,
@@ -11,12 +11,12 @@ import {
   type SokobanDirection,
   type SokobanState,
   undo,
-} from '../lib/sokoban';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/sokoban";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 export default function SokobanGame() {
   const [levelIdx, setLevelIdx] = useLocalStorage<number>(
@@ -32,7 +32,7 @@ export default function SokobanGame() {
   const [state, setState] = useState<SokobanState>(() => loadLevel(levelIdx));
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -93,30 +93,30 @@ export default function SokobanGame() {
     const onKey = (e: KeyboardEvent) => {
       let dir: SokobanDirection | null = null;
       switch (e.key) {
-        case 'ArrowUp':
-        case 'w':
-        case 'W':
-          dir = 'up';
+        case "ArrowUp":
+        case "w":
+        case "W":
+          dir = "up";
           break;
-        case 'ArrowDown':
-        case 's':
-        case 'S':
-          dir = 'down';
+        case "ArrowDown":
+        case "s":
+        case "S":
+          dir = "down";
           break;
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-          dir = 'left';
+        case "ArrowLeft":
+        case "a":
+        case "A":
+          dir = "left";
           break;
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-          dir = 'right';
+        case "ArrowRight":
+        case "d":
+        case "D":
+          dir = "right";
           break;
-        case 'u':
-        case 'U':
-        case 'z':
-        case 'Z':
+        case "u":
+        case "U":
+        case "z":
+        case "Z":
           e.preventDefault();
           setState((s) => undo(s));
           return;
@@ -126,8 +126,8 @@ export default function SokobanGame() {
         handleMove(dir);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [handleMove]);
 
   const { onTouchStart, onTouchEnd, onTouchCancel } = useSwipeDetection({
@@ -143,11 +143,11 @@ export default function SokobanGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Level:</span>
+          <span className="text-fg-muted">Level:</span>
           <select
             value={levelIdx}
             onChange={(e) => changeLevel(Number(e.target.value))}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {LEVELS.map((_, i) => (
               <option key={i} value={i}>
@@ -158,7 +158,7 @@ export default function SokobanGame() {
         </label>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Züge: <span className="font-semibold tabular-nums">{state.moves}</span>
         </div>
@@ -190,23 +190,23 @@ export default function SokobanGame() {
             const target = state.targets[idx];
             const box = state.boxes[idx];
             const player = state.player === idx;
-            let content = '';
-            let cls = 'bg-amber-50 dark:bg-amber-900/20';
+            let content = "";
+            let cls = "bg-amber-50 dark:bg-amber-900/20";
             if (wall) {
-              cls = 'bg-slate-600 dark:bg-slate-700';
+              cls = "bg-slate-600 dark:bg-slate-700";
             } else if (player && target) {
-              content = '🙂';
-              cls = 'bg-emerald-200 dark:bg-emerald-900/40';
+              content = "🙂";
+              cls = "bg-emerald-200 dark:bg-emerald-900/40";
             } else if (player) {
-              content = '🙂';
+              content = "🙂";
             } else if (box && target) {
-              content = '🟩';
-              cls = 'bg-emerald-300 dark:bg-emerald-900/40';
+              content = "🟩";
+              cls = "bg-emerald-300 dark:bg-emerald-900/40";
             } else if (box) {
-              content = '📦';
+              content = "📦";
             } else if (target) {
-              content = '·';
-              cls = 'bg-emerald-100 dark:bg-emerald-900/30';
+              content = "·";
+              cls = "bg-emerald-100 dark:bg-emerald-900/30";
             }
             return (
               <div
@@ -214,7 +214,7 @@ export default function SokobanGame() {
                 className={`flex aspect-square min-w-[26px] items-center justify-center text-base sm:text-xl ${cls}`}
                 role="img"
                 aria-label={
-                  wall ? 'Wand' : player ? 'Spieler' : box ? 'Kiste' : target ? 'Ziel' : 'Boden'
+                  wall ? "Wand" : player ? "Spieler" : box ? "Kiste" : target ? "Ziel" : "Boden"
                 }
               >
                 {content}
@@ -228,7 +228,7 @@ export default function SokobanGame() {
         <span />
         <button
           type="button"
-          onClick={() => handleMove('up')}
+          onClick={() => handleMove("up")}
           className="min-h-12 rounded-xl bg-slate-100 text-lg font-bold dark:bg-slate-800"
           aria-label="Hoch"
         >
@@ -237,7 +237,7 @@ export default function SokobanGame() {
         <span />
         <button
           type="button"
-          onClick={() => handleMove('left')}
+          onClick={() => handleMove("left")}
           className="min-h-12 rounded-xl bg-slate-100 text-lg font-bold dark:bg-slate-800"
           aria-label="Links"
         >
@@ -253,7 +253,7 @@ export default function SokobanGame() {
         </button>
         <button
           type="button"
-          onClick={() => handleMove('right')}
+          onClick={() => handleMove("right")}
           className="min-h-12 rounded-xl bg-slate-100 text-lg font-bold dark:bg-slate-800"
           aria-label="Rechts"
         >
@@ -262,7 +262,7 @@ export default function SokobanGame() {
         <span />
         <button
           type="button"
-          onClick={() => handleMove('down')}
+          onClick={() => handleMove("down")}
           className="min-h-12 rounded-xl bg-slate-100 text-lg font-bold dark:bg-slate-800"
           aria-label="Runter"
         >
@@ -285,7 +285,7 @@ export default function SokobanGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Level {levelIdx + 1} in {state.moves} Zügen geschafft.
           </p>
           <Button variant="primary" block onClick={nextLevel}>

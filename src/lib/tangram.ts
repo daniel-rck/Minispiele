@@ -16,8 +16,8 @@ const U = TANGRAM_UNIT;
 export const PIECE_DEFS: PieceDef[] = [
   {
     id: 0,
-    name: 'Großes Dreieck rot',
-    color: '#ef4444',
+    name: "Großes Dreieck rot",
+    color: "#ef4444",
     points: [
       [0, 0],
       [4 * U, 0],
@@ -26,8 +26,8 @@ export const PIECE_DEFS: PieceDef[] = [
   },
   {
     id: 1,
-    name: 'Großes Dreieck blau',
-    color: '#3b82f6',
+    name: "Großes Dreieck blau",
+    color: "#3b82f6",
     points: [
       [0, 0],
       [4 * U, 0],
@@ -36,8 +36,8 @@ export const PIECE_DEFS: PieceDef[] = [
   },
   {
     id: 2,
-    name: 'Mittleres Dreieck grün',
-    color: '#10b981',
+    name: "Mittleres Dreieck grün",
+    color: "#10b981",
     points: [
       [0, 0],
       [2 * U, 0],
@@ -46,8 +46,8 @@ export const PIECE_DEFS: PieceDef[] = [
   },
   {
     id: 3,
-    name: 'Kleines Dreieck gelb',
-    color: '#f59e0b',
+    name: "Kleines Dreieck gelb",
+    color: "#f59e0b",
     points: [
       [0, 0],
       [2 * U, 0],
@@ -56,8 +56,8 @@ export const PIECE_DEFS: PieceDef[] = [
   },
   {
     id: 4,
-    name: 'Kleines Dreieck violett',
-    color: '#a855f7',
+    name: "Kleines Dreieck violett",
+    color: "#a855f7",
     points: [
       [0, 0],
       [2 * U, 0],
@@ -66,8 +66,8 @@ export const PIECE_DEFS: PieceDef[] = [
   },
   {
     id: 5,
-    name: 'Quadrat türkis',
-    color: '#06b6d4',
+    name: "Quadrat türkis",
+    color: "#06b6d4",
     points: [
       [U, 0],
       [2 * U, U],
@@ -77,8 +77,8 @@ export const PIECE_DEFS: PieceDef[] = [
   },
   {
     id: 6,
-    name: 'Parallelogramm pink',
-    color: '#ec4899',
+    name: "Parallelogramm pink",
+    color: "#ec4899",
     points: [
       [0, 0],
       [2 * U, 0],
@@ -96,7 +96,7 @@ export interface Puzzle {
 
 export const PUZZLES: Puzzle[] = [
   {
-    name: 'Quadrat',
+    name: "Quadrat",
     poly: [
       [0, 0],
       [4, 0],
@@ -105,7 +105,7 @@ export const PUZZLES: Puzzle[] = [
     ],
   },
   {
-    name: 'Dreieck',
+    name: "Dreieck",
     poly: [
       [0, 4],
       [4, 0],
@@ -113,7 +113,7 @@ export const PUZZLES: Puzzle[] = [
     ],
   },
   {
-    name: 'Rechteck',
+    name: "Rechteck",
     poly: [
       [0, 0],
       [8, 0],
@@ -122,7 +122,7 @@ export const PUZZLES: Puzzle[] = [
     ],
   },
   {
-    name: 'Haus',
+    name: "Haus",
     poly: [
       [0, 4],
       [0, 1],
@@ -132,7 +132,7 @@ export const PUZZLES: Puzzle[] = [
     ],
   },
   {
-    name: 'Boot',
+    name: "Boot",
     poly: [
       [0, 3],
       [2, 0],

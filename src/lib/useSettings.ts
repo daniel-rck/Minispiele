@@ -5,10 +5,10 @@ import {
   useCallback,
   useContext,
   useEffect,
-} from 'react';
-import { STORAGE_KEYS } from './constants';
-import { DEFAULT_SETTINGS, type Settings, SettingsSchema, type Theme } from './crossGameSchemas';
-import { useLocalStorage } from './useLocalStorage';
+} from "react";
+import { STORAGE_KEYS } from "./constants";
+import { DEFAULT_SETTINGS, type Settings, SettingsSchema, type Theme } from "./crossGameSchemas";
+import { useLocalStorage } from "./useLocalStorage";
 
 export interface SettingsContextValue {
   settings: Settings;
@@ -19,24 +19,22 @@ export interface SettingsContextValue {
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
-function prefersDarkScheme(): boolean {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
-  try {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  } catch {
-    return false;
-  }
-}
-
+/**
+ * Express the theme as `data-theme` on <html>: absent means "follow the OS",
+ * "dark"/"light" mean forced. A class cannot say "follow the OS" without
+ * JavaScript, so with the old `.dark` toggle every forced choice flashed the
+ * wrong colors until React mounted. Keep in sync with public/theme-init.js,
+ * which applies the same rule before first paint.
+ */
 function applyTheme(theme: Theme): void {
-  if (typeof document === 'undefined') return;
+  if (typeof document === "undefined") return;
   const root = document.documentElement;
-  const dark = theme === 'dark' || (theme === 'system' && prefersDarkScheme());
-  root.classList.toggle('dark', dark);
+  if (theme === "system") root.removeAttribute("data-theme");
+  else root.setAttribute("data-theme", theme);
 }
 
 function readStoredTheme(): Theme {
-  if (typeof window === 'undefined') return DEFAULT_SETTINGS.theme;
+  if (typeof window === "undefined") return DEFAULT_SETTINGS.theme;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (raw === null) return DEFAULT_SETTINGS.theme;
@@ -61,12 +59,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     applyTheme(settings.theme);
-    if (settings.theme !== 'system') return;
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = () => applyTheme('system');
-    mq.addEventListener?.('change', handler);
-    return () => mq.removeEventListener?.('change', handler);
   }, [settings.theme]);
 
   const setTheme = useCallback(

@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SchulteGame from '../components/SchulteGame';
+import GameLayout from "../components/GameLayout";
+import SchulteGame from "../components/SchulteGame";
 
 export default function Schulte() {
   return (

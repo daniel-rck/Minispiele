@@ -1,4 +1,4 @@
-export const BINGO_COLUMNS = ['B', 'I', 'N', 'G', 'O'] as const;
+export const BINGO_COLUMNS = ["B", "I", "N", "G", "O"] as const;
 export const BINGO_SIZE = 5;
 export const BINGO_NUMBERS_PER_COLUMN = 15;
 export const BINGO_TOTAL_NUMBERS = BINGO_NUMBERS_PER_COLUMN * BINGO_SIZE;

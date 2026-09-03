@@ -1,4 +1,4 @@
-import { type DBSchema, type IDBPDatabase, openDB } from 'idb';
+import { type DBSchema, type IDBPDatabase, openDB } from "idb";
 
 // Replace this interface with your app's schema. Each store gets a
 // `key`/`value` shape and (optionally) named indexes.
@@ -12,7 +12,7 @@ export interface AppSchema extends DBSchema {
   [storeName: string]: { key: IDBValidKey; value: unknown };
 }
 
-const DB_NAME = 'app';
+const DB_NAME = "app";
 const DB_VERSION = 1;
 
 let dbPromise: Promise<IDBPDatabase<AppSchema>> | null = null;
@@ -38,16 +38,16 @@ export async function clearAll(): Promise<void> {
   const db = await getDB();
   const storeNames = Array.from(db.objectStoreNames);
   if (storeNames.length === 0) return;
-  const tx = db.transaction(storeNames, 'readwrite');
+  const tx = db.transaction(storeNames, "readwrite");
   await Promise.all(storeNames.map((name) => tx.objectStore(name).clear()));
   await tx.done;
-  notifyMutation('*');
+  notifyMutation("*");
 }
 
 /** Notify subscribers of mutations. Channels are per-store. */
 export function notifyMutation(storeName: string): void {
-  if (typeof BroadcastChannel === 'undefined') return;
+  if (typeof BroadcastChannel === "undefined") return;
   const channel = new BroadcastChannel(`db:${storeName}`);
-  channel.postMessage({ type: 'mutation', at: Date.now() });
+  channel.postMessage({ type: "mutation", at: Date.now() });
   channel.close();
 }

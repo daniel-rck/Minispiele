@@ -1,19 +1,19 @@
-import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { expectNoA11yViolations } from '../test/a11y';
-import ClickerTimer from './ClickerTimer';
+import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { expectNoA11yViolations } from "../test/a11y";
+import ClickerTimer from "./ClickerTimer";
 
 beforeEach(() => {
   window.localStorage.clear();
   // Stub the AudioContext so AlarmAudio reports available without sound.
   class StubAudioContext {
-    state = 'running';
+    state = "running";
     currentTime = 0;
     destination = {};
     createOscillator() {
       return {
-        type: 'sine',
+        type: "sine",
         frequency: { value: 0 },
         connect: () => ({ connect: () => undefined }),
         start: () => undefined,
@@ -37,65 +37,65 @@ beforeEach(() => {
       return Promise.resolve();
     }
   }
-  vi.stubGlobal('AudioContext', StubAudioContext);
+  vi.stubGlobal("AudioContext", StubAudioContext);
 });
 
-describe('ClickerTimer', () => {
-  it('renders the duration display and a start button', () => {
+describe("ClickerTimer", () => {
+  it("renders the duration display and a start button", () => {
     render(<ClickerTimer />);
     expect(screen.getByLabelText(/01:00 verbleibend/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Starten/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Starten/i })).toBeInTheDocument();
   });
 
-  it('switches to the continuous (hundredths) display mode', async () => {
+  it("switches to the continuous (hundredths) display mode", async () => {
     const user = userEvent.setup();
     render(<ClickerTimer />);
-    await user.click(screen.getByRole('button', { name: /Hundertstel-Sekunden/i }));
-    expect(screen.getByLabelText(/01:00\.00 verbleibend/)).toHaveTextContent('01:00.00');
+    await user.click(screen.getByRole("button", { name: /Hundertstel-Sekunden/i }));
+    expect(screen.getByLabelText(/01:00\.00 verbleibend/)).toHaveTextContent("01:00.00");
   });
 
-  it('starts the timer when the big button is pressed', async () => {
+  it("starts the timer when the big button is pressed", async () => {
     const user = userEvent.setup();
     render(<ClickerTimer />);
-    await user.click(screen.getByRole('button', { name: /Starten/i }));
+    await user.click(screen.getByRole("button", { name: /Starten/i }));
     expect(screen.getByText(/Status:/i).textContent).toMatch(/läuft/);
   });
 
-  it('toggles to paused when running and tapped again', async () => {
+  it("toggles to paused when running and tapped again", async () => {
     const user = userEvent.setup();
     render(<ClickerTimer />);
-    await user.click(screen.getByRole('button', { name: /Starten/i }));
-    await user.click(screen.getByRole('button', { name: /Pause/i }));
+    await user.click(screen.getByRole("button", { name: /Starten/i }));
+    await user.click(screen.getByRole("button", { name: /Pause/i }));
     expect(screen.getByText(/Status:/i).textContent).toMatch(/pausiert/);
   });
 
-  it('Neu-starten button restarts the timer immediately', async () => {
+  it("Neu-starten button restarts the timer immediately", async () => {
     const user = userEvent.setup();
     render(<ClickerTimer />);
-    await user.click(screen.getByRole('button', { name: /Starten/i }));
+    await user.click(screen.getByRole("button", { name: /Starten/i }));
     expect(screen.getByText(/Status:/i).textContent).toMatch(/läuft/);
-    const restartBtn = screen.getByRole('button', { name: /^Neu starten$/i });
+    const restartBtn = screen.getByRole("button", { name: /^Neu starten$/i });
     await user.click(restartBtn);
     // Status stays 'läuft' because handleRestart calls startFresh immediately.
     expect(screen.getByText(/Status:/i).textContent).toMatch(/läuft/);
   });
 
-  it('saves a user preset and re-applies it', async () => {
+  it("saves a user preset and re-applies it", async () => {
     const user = userEvent.setup();
     render(<ClickerTimer />);
     // Increment seconds to 61 (-> 01:01) so it does not collide with the 01:00 built-in label.
-    await user.click(screen.getByRole('button', { name: /sek plus eins/i }));
-    await user.click(screen.getByRole('button', { name: /als preset speichern/i }));
+    await user.click(screen.getByRole("button", { name: /sek plus eins/i }));
+    await user.click(screen.getByRole("button", { name: /als preset speichern/i }));
     // Find the user preset button: it has the formatted label and a remove sibling.
-    const saved = screen.getByRole('button', { name: /^01:01$/ });
+    const saved = screen.getByRole("button", { name: /^01:01$/ });
     // Switch to 30s built-in
-    await user.click(screen.getByRole('button', { name: /^30s$/ }));
+    await user.click(screen.getByRole("button", { name: /^30s$/ }));
     // Re-apply user preset
     await user.click(saved);
     expect(saved).toBeInTheDocument();
   });
 
-  it('passes axe-core checks on default render', async () => {
+  it("passes axe-core checks on default render", async () => {
     const { container } = render(<ClickerTimer />);
     // The big button has its own labels and the structure has no headings, which axe wouldn't flag.
     await act(async () => {

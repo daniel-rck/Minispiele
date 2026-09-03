@@ -1,25 +1,25 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   MILLIONAER_QUESTIONS,
   type MillionaerQuestion,
   PRIZES,
   SAFE_LEVELS,
-} from '../lib/millionaerQuestions';
+} from "../lib/millionaerQuestions";
 import {
   MillionaerBestSchema,
   QuizBestSchema,
   type QuizMode,
   QuizModeSchema,
-} from '../lib/persistedSchemas';
-import { QUIZ_QUESTIONS, type QuizQuestion } from '../lib/quizQuestions';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+} from "../lib/persistedSchemas";
+import { QUIZ_QUESTIONS, type QuizQuestion } from "../lib/quizQuestions";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
-const LETTERS = ['A', 'B', 'C', 'D'] as const;
+const LETTERS = ["A", "B", "C", "D"] as const;
 const CLASSIC_TOTAL = 10;
 const MILLIONAIRE_TOTAL = 15;
 
@@ -41,7 +41,7 @@ export default function QuizGame() {
   const [mode, setMode] = useLocalStorage<QuizMode>(
     STORAGE_KEYS.QUIZ_MODE,
     QuizModeSchema,
-    'classic',
+    "classic",
   );
 
   return (
@@ -49,9 +49,9 @@ export default function QuizGame() {
       <div
         role="group"
         aria-label="Quiz-Modus"
-        className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-900"
+        className="inline-flex rounded-lg border border-border bg-white p-0.5 dark:bg-slate-900"
       >
-        {(['classic', 'millionaire'] as const).map((m) => (
+        {(["classic", "millionaire"] as const).map((m) => (
           <button
             key={m}
             type="button"
@@ -59,16 +59,16 @@ export default function QuizGame() {
             aria-pressed={mode === m}
             className={`min-h-11 rounded-md px-3 text-sm font-medium transition-colors ${
               mode === m
-                ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
-                : 'text-slate-700 dark:text-slate-200'
+                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                : "text-fg"
             }`}
           >
-            {m === 'classic' ? 'Klassisch' : 'Millionär'}
+            {m === "classic" ? "Klassisch" : "Millionär"}
           </button>
         ))}
       </div>
 
-      {mode === 'classic' ? <ClassicQuiz key="classic" /> : <MillionaireQuiz key="millionaire" />}
+      {mode === "classic" ? <ClassicQuiz key="classic" /> : <MillionaireQuiz key="millionaire" />}
     </div>
   );
 }
@@ -82,7 +82,7 @@ function ClassicQuiz() {
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
   const [over, setOver] = useState(false);
-  const [announcement, setAnnouncement] = useState('Wähle die richtige Antwort.');
+  const [announcement, setAnnouncement] = useState("Wähle die richtige Antwort.");
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.QUIZ_BEST, QuizBestSchema, 0);
 
   const sfx = useGameSfx();
@@ -95,7 +95,7 @@ function ClassicQuiz() {
     setSelected(null);
     setAnswered(false);
     setOver(false);
-    setAnnouncement('Wähle die richtige Antwort.');
+    setAnnouncement("Wähle die richtige Antwort.");
   }, []);
 
   const question = questions[current];
@@ -110,7 +110,7 @@ function ClassicQuiz() {
       if (isCorrect) {
         setCorrect((c) => c + 1);
         sfx.match();
-        setAnnouncement('Richtig.');
+        setAnnouncement("Richtig.");
       } else {
         sfx.error();
         setAnnouncement(`Falsch. Richtig: ${question.a[question.c]}.`);
@@ -124,7 +124,7 @@ function ClassicQuiz() {
             const finalCorrect = correct + (isCorrect ? 1 : 0);
             if (finalCorrect > best) setBest(finalCorrect);
             if (finalCorrect === CLASSIC_TOTAL) {
-              setAnnouncement('Perfekt! Alle richtig.');
+              setAnnouncement("Perfekt! Alle richtig.");
               sfx.win();
               vibrate([60, 40, 120]);
             } else {
@@ -142,23 +142,23 @@ function ClassicQuiz() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (answered || over) return;
-      if (e.key >= '1' && e.key <= '4') selectAnswer(Number(e.key) - 1);
+      if (e.key >= "1" && e.key <= "4") selectAnswer(Number(e.key) - 1);
       const k = e.key.toLowerCase();
-      if (k === 'a') selectAnswer(0);
-      if (k === 'b') selectAnswer(1);
-      if (k === 'c') selectAnswer(2);
-      if (k === 'd') selectAnswer(3);
+      if (k === "a") selectAnswer(0);
+      if (k === "b") selectAnswer(1);
+      if (k === "c") selectAnswer(2);
+      if (k === "d") selectAnswer(3);
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [answered, over, selectAnswer]);
 
   if (over) {
-    let msg = 'Da geht noch mehr.';
-    if (correct === CLASSIC_TOTAL) msg = 'Perfekt! Alle richtig.';
-    else if (correct >= 8) msg = 'Ausgezeichnet!';
-    else if (correct >= 6) msg = 'Gut gemacht.';
-    else if (correct >= 4) msg = 'Nicht schlecht.';
+    let msg = "Da geht noch mehr.";
+    if (correct === CLASSIC_TOTAL) msg = "Perfekt! Alle richtig.";
+    else if (correct >= 8) msg = "Ausgezeichnet!";
+    else if (correct >= 6) msg = "Gut gemacht.";
+    else if (correct >= 4) msg = "Nicht schlecht.";
     return (
       <div className="flex w-full flex-col items-center gap-4">
         <AriaLive message={announcement} />
@@ -167,7 +167,7 @@ function ClassicQuiz() {
         </div>
         <p className="text-surface-700 dark:text-surface-200">{msg}</p>
         <p className="text-sm text-surface-500 dark:text-surface-400">
-          Rekord:{' '}
+          Rekord:{" "}
           <span className="font-semibold">
             {best}/{CLASSIC_TOTAL}
           </span>
@@ -218,10 +218,10 @@ function ClassicQuiz() {
           const isCorrect = answered && i === question.c;
           const isWrong = answered && selected === i && i !== question.c;
           const bg = isCorrect
-            ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100'
+            ? "border-emerald-500 bg-emerald-100 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100"
             : isWrong
-              ? 'border-rose-500 bg-rose-100 text-rose-900 dark:bg-rose-900/30 dark:text-rose-100'
-              : 'border-surface-300 bg-surface-100 text-surface-900 hover:border-amber-400 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100';
+              ? "border-rose-500 bg-rose-100 text-rose-900 dark:bg-rose-900/30 dark:text-rose-100"
+              : "border-surface-300 bg-surface-100 text-surface-900 hover:border-amber-400 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100";
           return (
             <button
               key={i}
@@ -257,7 +257,7 @@ function MillionaireQuiz() {
   const [over, setOver] = useState(false);
   const [hidden, setHidden] = useState<Set<number>>(() => new Set());
   const [jokers, setJokers] = useState({ fifty: false, audience: false, phone: false });
-  const [hint, setHint] = useState<string>('');
+  const [hint, setHint] = useState<string>("");
   const [announcement, setAnnouncement] = useState(`Frage 1 von ${MILLIONAIRE_TOTAL}.`);
   const [best, setBest] = useLocalStorage<number>(
     STORAGE_KEYS.MILLIONAER_BEST,
@@ -278,7 +278,7 @@ function MillionaireQuiz() {
     setOver(false);
     setHidden(new Set());
     setJokers({ fifty: false, audience: false, phone: false });
-    setHint('');
+    setHint("");
     setAnnouncement(`Frage 1 von ${MILLIONAIRE_TOTAL}.`);
   }, []);
 
@@ -290,13 +290,13 @@ function MillionaireQuiz() {
       vibrate(15);
       if (idx === question.c) {
         sfx.match();
-        setAnnouncement(`Richtig. Du hast ${PRIZES[level]?.toLocaleString('de-DE')} Punkte.`);
+        setAnnouncement(`Richtig. Du hast ${PRIZES[level]?.toLocaleString("de-DE")} Punkte.`);
         window.setTimeout(() => {
           if (level + 1 >= MILLIONAIRE_TOTAL) {
             setOver(true);
             const prize = PRIZES[MILLIONAIRE_TOTAL - 1] ?? 0;
             if (prize > best) setBest(prize);
-            setAnnouncement('MILLIONÄR! Alle 15 Fragen richtig.');
+            setAnnouncement("MILLIONÄR! Alle 15 Fragen richtig.");
             sfx.win();
             vibrate([60, 40, 120]);
             return;
@@ -305,7 +305,7 @@ function MillionaireQuiz() {
           setSelected(null);
           setAnswered(false);
           setHidden(new Set());
-          setHint('');
+          setHint("");
         }, 1000);
       } else {
         sfx.lose();
@@ -313,7 +313,7 @@ function MillionaireQuiz() {
         const safeLevel = SAFE_LEVELS.filter((s) => s < level).pop();
         const prize = safeLevel !== undefined ? (PRIZES[safeLevel] ?? 0) : 0;
         if (prize > best) setBest(prize);
-        setAnnouncement(`Falsch. Du gehst mit ${prize.toLocaleString('de-DE')} Punkten heim.`);
+        setAnnouncement(`Falsch. Du gehst mit ${prize.toLocaleString("de-DE")} Punkten heim.`);
         setOver(true);
       }
     },
@@ -356,7 +356,7 @@ function MillionaireQuiz() {
     if (jokers.phone || over || !question) return;
     const sure = Math.random() < 0.7;
     const answer = sure ? question.c : Math.floor(Math.random() * 4);
-    setHint(`Telefonjoker: „Ich ${sure ? 'bin sicher' : 'glaube'}, es ist ${LETTERS[answer]}."`);
+    setHint(`Telefonjoker: „Ich ${sure ? "bin sicher" : "glaube"}, es ist ${LETTERS[answer]}."`);
     setJokers((j) => ({ ...j, phone: true }));
   }, [jokers.phone, over, question]);
 
@@ -369,7 +369,7 @@ function MillionaireQuiz() {
           Frage: <span className="font-semibold tabular-nums">{level + 1}</span>/{MILLIONAIRE_TOTAL}
         </div>
         <div>
-          Rekord: <span className="font-semibold tabular-nums">{best.toLocaleString('de-DE')}</span>
+          Rekord: <span className="font-semibold tabular-nums">{best.toLocaleString("de-DE")}</span>
         </div>
       </div>
 
@@ -387,16 +387,16 @@ function MillionaireQuiz() {
               key={i}
               className={`flex w-full max-w-md items-center justify-between rounded px-3 py-1 text-xs ${
                 isCurrent
-                  ? 'bg-amber-300 font-bold text-slate-900'
+                  ? "bg-amber-300 font-bold text-slate-900"
                   : isDone
-                    ? 'bg-emerald-700/40 text-emerald-100'
+                    ? "bg-emerald-700/40 text-emerald-100"
                     : isSafe
-                      ? 'bg-amber-700/40 text-amber-100'
-                      : 'bg-slate-700 text-slate-300'
+                      ? "bg-amber-700/40 text-amber-100"
+                      : "bg-slate-700 text-slate-300"
               }`}
             >
               <span>{i + 1}</span>
-              <span>{p.toLocaleString('de-DE')}</span>
+              <span>{p.toLocaleString("de-DE")}</span>
             </div>
           );
         })}
@@ -414,10 +414,10 @@ function MillionaireQuiz() {
               const isCorrect = answered && i === question.c;
               const isWrong = answered && selected === i && i !== question.c;
               const bg = isCorrect
-                ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100'
+                ? "border-emerald-500 bg-emerald-100 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100"
                 : isWrong
-                  ? 'border-rose-500 bg-rose-100 text-rose-900 dark:bg-rose-900/30 dark:text-rose-100'
-                  : 'border-surface-300 bg-surface-100 text-surface-900 hover:border-amber-400 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100';
+                  ? "border-rose-500 bg-rose-100 text-rose-900 dark:bg-rose-900/30 dark:text-rose-100"
+                  : "border-surface-300 bg-surface-100 text-surface-900 hover:border-amber-400 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100";
               return (
                 <button
                   key={i}
@@ -426,13 +426,13 @@ function MillionaireQuiz() {
                   disabled={answered || isHidden}
                   aria-label={`${LETTERS[i]}: ${a}`}
                   className={`flex min-h-12 items-center gap-3 rounded-xl border-2 px-3 text-left text-sm font-medium transition disabled:cursor-not-allowed ${
-                    isHidden ? 'opacity-30' : bg
+                    isHidden ? "opacity-30" : bg
                   }`}
                 >
                   <span className="grid h-7 w-7 place-items-center rounded-full bg-amber-500 text-xs font-bold text-white">
                     {LETTERS[i]}
                   </span>
-                  {isHidden ? '—' : a}
+                  {isHidden ? "—" : a}
                 </button>
               );
             })}

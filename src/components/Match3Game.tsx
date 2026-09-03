@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { Match3BestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { Match3BestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const N = 8;
 const COLOR_COUNT = 6;
 const MOVES = 30;
 const COLORS = [
-  'bg-sky-500',
-  'bg-rose-500',
-  'bg-emerald-500',
-  'bg-amber-400',
-  'bg-violet-500',
-  'bg-orange-500',
+  "bg-sky-500",
+  "bg-rose-500",
+  "bg-emerald-500",
+  "bg-amber-400",
+  "bg-violet-500",
+  "bg-orange-500",
 ];
 
 type Grid = number[][];
@@ -87,7 +87,7 @@ function removeAndFill(g: Grid): { changed: boolean; cleared: number } {
   const matches = findMatches(g);
   if (matches.size === 0) return { changed: false, cleared: 0 };
   for (const key of matches) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(",").map(Number);
     if (r !== undefined && c !== undefined) g[r]![c] = -1;
   }
   for (let c = 0; c < N; c++) {
@@ -112,7 +112,7 @@ export default function Match3Game() {
   const [moves, setMoves] = useState(MOVES);
   const [over, setOver] = useState(false);
   const [animating, setAnimating] = useState(false);
-  const [announcement, setAnnouncement] = useState('Tippe zwei benachbarte Steine zum Tauschen.');
+  const [announcement, setAnnouncement] = useState("Tippe zwei benachbarte Steine zum Tauschen.");
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.MATCH3_BEST, Match3BestSchema, 0);
 
   const sfx = useGameSfx();
@@ -135,7 +135,7 @@ export default function Match3Game() {
     setOver(false);
     setSelected(null);
     setAnimating(false);
-    setAnnouncement('Tippe zwei benachbarte Steine zum Tauschen.');
+    setAnnouncement("Tippe zwei benachbarte Steine zum Tauschen.");
   }, [clearTimeouts]);
 
   const cascade = useCallback(
@@ -177,7 +177,7 @@ export default function Match3Game() {
     if (!hasAnyMove(grid)) {
       setGrid(randomGrid());
       setSelected(null);
-      setAnnouncement('Keine Züge möglich — Feld neu gemischt.');
+      setAnnouncement("Keine Züge möglich — Feld neu gemischt.");
     }
   }, [grid, over, animating, moves]);
 
@@ -257,8 +257,8 @@ export default function Match3Game() {
                 >
                   <span
                     aria-hidden
-                    className={`block h-full w-full rounded-full ${COLORS[value] ?? 'bg-slate-700'} ${
-                      isSelected ? 'ring-4 ring-amber-300' : ''
+                    className={`block h-full w-full rounded-full ${COLORS[value] ?? "bg-slate-700"} ${
+                      isSelected ? "ring-4 ring-amber-300" : ""
                     }`}
                   />
                 </button>

@@ -4,10 +4,10 @@ export interface StroopColor {
 }
 
 export const STROOP_COLORS: readonly StroopColor[] = [
-  { key: 'red', label: 'Rot' },
-  { key: 'green', label: 'Grün' },
-  { key: 'blue', label: 'Blau' },
-  { key: 'yellow', label: 'Gelb' },
+  { key: "red", label: "Rot" },
+  { key: "green", label: "Grün" },
+  { key: "blue", label: "Blau" },
+  { key: "yellow", label: "Gelb" },
 ];
 
 export const STROOP_ROUND_SECONDS = 30;
@@ -31,6 +31,6 @@ export function nextChallenge(
   return { word: STROOP_COLORS[0]!, ink: STROOP_COLORS[1]! };
 }
 
-export function scoreAnswer(challenge: StroopChallenge, answerKey: string): 'correct' | 'wrong' {
-  return answerKey === challenge.ink.key ? 'correct' : 'wrong';
+export function scoreAnswer(challenge: StroopChallenge, answerKey: string): "correct" | "wrong" {
+  return answerKey === challenge.ink.key ? "correct" : "wrong";
 }

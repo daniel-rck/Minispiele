@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import MastermindGame from '../components/MastermindGame';
+import GameLayout from "../components/GameLayout";
+import MastermindGame from "../components/MastermindGame";
 
 export default function Mastermind() {
   return (

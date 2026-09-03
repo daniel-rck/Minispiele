@@ -1,13 +1,13 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { DoodleJumpBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { DoodleJumpBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const W = 400;
 const H = 600;
@@ -19,7 +19,7 @@ const SPRING_VELOCITY = -18;
 // Reference frame duration: physics constants are tuned in px per 60fps frame.
 const BASE_FRAME_MS = 1000 / 60;
 
-type PlatformType = 'normal' | 'moving' | 'fragile' | 'spring';
+type PlatformType = "normal" | "moving" | "fragile" | "spring";
 
 interface Platform {
   x: number;
@@ -49,7 +49,7 @@ function createInitial(): State {
   for (let i = 0; i < 8; i++) {
     platforms.push(makePlatform(Math.random() * (W - 70), H - i * 80, 0));
   }
-  platforms.push({ x: W / 2 - 35, y: H - 40, w: 70, type: 'normal', vx: 0 });
+  platforms.push({ x: W / 2 - 35, y: H - 40, w: 70, type: "normal", vx: 0 });
   return {
     player: { x: W / 2, y: H - 100, vy: 0 },
     platforms,
@@ -61,17 +61,17 @@ function createInitial(): State {
 
 function makePlatform(x: number, y: number, score: number): Platform {
   const r = Math.random();
-  let type: PlatformType = 'normal';
+  let type: PlatformType = "normal";
   let vx = 0;
-  if (r < 0.15 && score > 500) type = 'fragile';
+  if (r < 0.15 && score > 500) type = "fragile";
   else if (r < 0.3 && score > 200) {
-    type = 'moving';
+    type = "moving";
     vx = 1 + Math.random() * 1.5;
-  } else if (r < 0.38 && score > 800) type = 'spring';
+  } else if (r < 0.38 && score > 800) type = "spring";
   return { x, y, w: 70, type, vx };
 }
 
-type ControlKey = 'left' | 'right';
+type ControlKey = "left" | "right";
 
 export default function DoodleJumpGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -80,7 +80,7 @@ export default function DoodleJumpGame() {
   const [scoreDisplay, setScoreDisplay] = useState(0);
   const [overOpen, setOverOpen] = useState(false);
   const [isNewBest, setIsNewBest] = useState(false);
-  const [announcement, setAnnouncement] = useState('Pfeiltasten links / rechts. Tippe zum Start.');
+  const [announcement, setAnnouncement] = useState("Pfeiltasten links / rechts. Tippe zum Start.");
   const [best, setBest] = useLocalStorage<number>(
     STORAGE_KEYS.DOODLE_JUMP_BEST,
     DoodleJumpBestSchema,
@@ -95,7 +95,7 @@ export default function DoodleJumpGame() {
     setScoreDisplay(0);
     setOverOpen(false);
     setIsNewBest(false);
-    setAnnouncement('Pfeiltasten links / rechts. Tippe zum Start.');
+    setAnnouncement("Pfeiltasten links / rechts. Tippe zum Start.");
   }, []);
 
   const handleGameOver = useCallback(
@@ -104,7 +104,7 @@ export default function DoodleJumpGame() {
       if (newBest) setBest(finalScore);
       setIsNewBest(newBest);
       setOverOpen(true);
-      setAnnouncement(newBest ? `Vorbei. Neue Bestmarke ${finalScore} m.` : 'Vorbei.');
+      setAnnouncement(newBest ? `Vorbei. Neue Bestmarke ${finalScore} m.` : "Vorbei.");
       sfx.lose();
       vibrate([120, 60, 120]);
     },
@@ -145,12 +145,12 @@ export default function DoodleJumpGame() {
             prevBottom <= p.y + 12 &&
             s.player.y + PLAYER_H > p.y
           ) {
-            if (p.type === 'fragile') {
+            if (p.type === "fragile") {
               p.broken = true;
               sfx.pop();
               continue;
             }
-            if (p.type === 'spring') {
+            if (p.type === "spring") {
               s.player.vy = SPRING_VELOCITY;
               sfx.match();
               vibrate(20);
@@ -163,7 +163,7 @@ export default function DoodleJumpGame() {
       }
 
       for (const p of s.platforms) {
-        if (p.type === 'moving') {
+        if (p.type === "moving") {
           p.x += p.vx * frames;
           if (p.x < 0 || p.x + p.w > W) p.vx *= -1;
         }
@@ -192,16 +192,16 @@ export default function DoodleJumpGame() {
 
     if (scoreDisplay !== s.score) setScoreDisplay(s.score);
 
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, W, H);
 
     const colors: Record<PlatformType, string> = {
-      normal: '#10b981',
-      moving: '#0ea5e9',
-      fragile: '#92400e',
-      spring: '#f43f5e',
+      normal: "#10b981",
+      moving: "#0ea5e9",
+      fragile: "#92400e",
+      spring: "#f43f5e",
     };
     for (const p of s.platforms) {
       if (p.broken) continue;
@@ -213,14 +213,14 @@ export default function DoodleJumpGame() {
       if (rrr.roundRect) rrr.roundRect(p.x, p.y, p.w, 10, 4);
       else ctx.rect(p.x, p.y, p.w, 10);
       ctx.fill();
-      if (p.type === 'spring') {
-        ctx.fillStyle = '#fbbf24';
+      if (p.type === "spring") {
+        ctx.fillStyle = "#fbbf24";
         ctx.fillRect(p.x + p.w / 2 - 4, p.y - 8, 8, 8);
       }
     }
 
     if (!s.gameOver) {
-      ctx.fillStyle = '#fbbf24';
+      ctx.fillStyle = "#fbbf24";
       ctx.beginPath();
       const rrr = ctx as CanvasRenderingContext2D & {
         roundRect?: (x: number, y: number, w: number, h: number, r: number) => void;
@@ -228,7 +228,7 @@ export default function DoodleJumpGame() {
       if (rrr.roundRect) rrr.roundRect(s.player.x, s.player.y, PLAYER_W, PLAYER_H, 6);
       else ctx.rect(s.player.x, s.player.y, PLAYER_W, PLAYER_H);
       ctx.fill();
-      ctx.fillStyle = '#0f172a';
+      ctx.fillStyle = "#0f172a";
       ctx.beginPath();
       ctx.arc(s.player.x + 10, s.player.y + 12, 3, 0, Math.PI * 2);
       ctx.fill();
@@ -246,19 +246,19 @@ export default function DoodleJumpGame() {
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return;
       switch (e.key) {
-        case 'ArrowLeft':
-        case 'a':
-        case 'A':
-          setKey('left', true);
+        case "ArrowLeft":
+        case "a":
+        case "A":
+          setKey("left", true);
           startJump();
           break;
-        case 'ArrowRight':
-        case 'd':
-        case 'D':
-          setKey('right', true);
+        case "ArrowRight":
+        case "d":
+        case "D":
+          setKey("right", true);
           startJump();
           break;
-        case ' ':
+        case " ":
           e.preventDefault();
           if (stateRef.current.gameOver) restart();
           else startJump();
@@ -266,14 +266,14 @@ export default function DoodleJumpGame() {
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') setKey('left', false);
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') setKey('right', false);
+      if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") setKey("left", false);
+      if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") setKey("right", false);
     };
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("keyup", onKeyUp);
     return () => {
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keyup", onKeyUp);
     };
   }, [restart, setKey, startJump]);
 
@@ -308,7 +308,7 @@ export default function DoodleJumpGame() {
           height={H}
           aria-label="Doodle-Jump-Spielfeld"
           className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700 dark:bg-slate-950"
-          style={{ '--fit-ar': W / H } as CSSProperties}
+          style={{ "--fit-ar": W / H } as CSSProperties}
         />
       </div>
 
@@ -317,7 +317,7 @@ export default function DoodleJumpGame() {
           type="button"
           aria-label="Nach links"
           className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
-          {...touchHandlers('left')}
+          {...touchHandlers("left")}
         >
           ←
         </button>
@@ -325,7 +325,7 @@ export default function DoodleJumpGame() {
           type="button"
           aria-label="Nach rechts"
           className="flex min-h-14 touch-none select-none items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
-          {...touchHandlers('right')}
+          {...touchHandlers("right")}
         >
           →
         </button>

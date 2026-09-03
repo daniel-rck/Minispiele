@@ -1,6 +1,6 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef } from "react";
 
-export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
+export type SwipeDirection = "up" | "down" | "left" | "right";
 
 interface UseSwipeDetectionOptions {
   threshold?: number;
@@ -28,9 +28,9 @@ export function useSwipeDetection({ threshold = 24, onSwipe }: UseSwipeDetection
       const ady = Math.abs(dy);
       if (Math.max(adx, ady) < threshold) return;
       if (adx > ady) {
-        onSwipe(dx > 0 ? 'right' : 'left');
+        onSwipe(dx > 0 ? "right" : "left");
       } else {
-        onSwipe(dy > 0 ? 'down' : 'up');
+        onSwipe(dy > 0 ? "down" : "up");
       }
     },
     [threshold, onSwipe],

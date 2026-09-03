@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type FutoshikiSize, FutoshikiSizeSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type FutoshikiSize, FutoshikiSizeSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const SIZES: readonly FutoshikiSize[] = [4, 5, 6];
 
@@ -62,15 +62,15 @@ function generate(n: number): Puzzle {
       }
     }
   }
-  const ineqH: string[][] = Array.from({ length: n }, () => Array<string>(n - 1).fill(''));
-  const ineqV: string[][] = Array.from({ length: n - 1 }, () => Array<string>(n).fill(''));
+  const ineqH: string[][] = Array.from({ length: n }, () => Array<string>(n - 1).fill(""));
+  const ineqV: string[][] = Array.from({ length: n - 1 }, () => Array<string>(n).fill(""));
   for (let r = 0; r < n; r++) {
     for (let c = 0; c < n - 1; c++) {
       const row = ineqH[r];
       const v1 = solution[r]?.[c];
       const v2 = solution[r]?.[c + 1];
       if (row && v1 !== undefined && v2 !== undefined && Math.random() < 0.4) {
-        row[c] = v1 < v2 ? '<' : '>';
+        row[c] = v1 < v2 ? "<" : ">";
       }
     }
   }
@@ -80,7 +80,7 @@ function generate(n: number): Puzzle {
       const v1 = solution[r]?.[c];
       const v2 = solution[r + 1]?.[c];
       if (row && v1 !== undefined && v2 !== undefined && Math.random() < 0.4) {
-        row[c] = v1 < v2 ? '∧' : '∨';
+        row[c] = v1 < v2 ? "∧" : "∨";
       }
     }
   }
@@ -122,7 +122,7 @@ export default function FutoshikiGame() {
   );
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(size));
   const [active, setActive] = useState<[number, number] | null>(null);
-  const [announcement, setAnnouncement] = useState('Fülle das Gitter mit den Zahlen 1 bis N.');
+  const [announcement, setAnnouncement] = useState("Fülle das Gitter mit den Zahlen 1 bis N.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -158,11 +158,11 @@ export default function FutoshikiGame() {
     if (isSolved(puzzle)) {
       sfx.win();
       vibrate([60, 40, 120]);
-      setAnnouncement('Gelöst! Perfekt.');
+      setAnnouncement("Gelöst! Perfekt.");
     } else {
       sfx.error();
       vibrate(40);
-      setAnnouncement('Noch nicht korrekt. Prüfe die Regeln.');
+      setAnnouncement("Noch nicht korrekt. Prüfe die Regeln.");
     }
   }, [puzzle, sfx, vibrate]);
 
@@ -203,8 +203,8 @@ export default function FutoshikiGame() {
         aria-label="Futoshiki-Spielfeld"
         style={{
           gridTemplateColumns: Array.from({ length: puzzle.n * 2 - 1 }, (_, i) =>
-            i % 2 === 0 ? '44px' : '18px',
-          ).join(' '),
+            i % 2 === 0 ? "44px" : "18px",
+          ).join(" "),
         }}
       >
         {Array.from({ length: puzzle.n }).flatMap((_, r) => {
@@ -219,20 +219,20 @@ export default function FutoshikiGame() {
                 type="button"
                 onClick={() => setActive([r, c])}
                 disabled={isGiven}
-                aria-label={`Zelle Zeile ${r + 1} Spalte ${c + 1}${value ? `: ${value}` : ''}`}
+                aria-label={`Zelle Zeile ${r + 1} Spalte ${c + 1}${value ? `: ${value}` : ""}`}
                 className={`flex aspect-square min-h-11 min-w-11 items-center justify-center rounded-md text-base font-bold ${
                   isGiven
-                    ? 'bg-surface-300 text-surface-700 dark:bg-surface-700 dark:text-surface-100'
+                    ? "bg-surface-300 text-surface-700 dark:bg-surface-700 dark:text-surface-100"
                     : isActive
-                      ? 'bg-amber-200 text-amber-900 ring-2 ring-amber-500 dark:bg-amber-900/50 dark:text-amber-100'
-                      : 'bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100'
+                      ? "bg-amber-200 text-amber-900 ring-2 ring-amber-500 dark:bg-amber-900/50 dark:text-amber-100"
+                      : "bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100"
                 }`}
               >
-                {value || ''}
+                {value || ""}
               </button>,
             );
             if (c < puzzle.n - 1) {
-              const ch = puzzle.ineqH[r]?.[c] ?? '';
+              const ch = puzzle.ineqH[r]?.[c] ?? "";
               rowCells.push(
                 <span
                   key={`ih-${r}-${c}`}
@@ -246,7 +246,7 @@ export default function FutoshikiGame() {
           }
           if (r < puzzle.n - 1) {
             for (let c = 0; c < puzzle.n; c++) {
-              const ch = puzzle.ineqV[r]?.[c] ?? '';
+              const ch = puzzle.ineqV[r]?.[c] ?? "";
               rowCells.push(
                 <span
                   key={`iv-${r}-${c}`}

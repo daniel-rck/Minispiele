@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from "vitest";
 import {
   createInitialState,
   generatePuzzle,
@@ -6,7 +6,7 @@ import {
   LIGHTS_SIZE,
   press,
   toggleCell,
-} from './lightsOut';
+} from "./lightsOut";
 
 function seededRng(values: number[]): () => number {
   let i = 0;
@@ -17,8 +17,8 @@ function seededRng(values: number[]): () => number {
   };
 }
 
-describe('lightsOut', () => {
-  it('toggleCell flips the cell and its orthogonal neighbours', () => {
+describe("lightsOut", () => {
+  it("toggleCell flips the cell and its orthogonal neighbours", () => {
     const grid: boolean[] = new Array(LIGHTS_SIZE * LIGHTS_SIZE).fill(false);
     const next = toggleCell(grid, 12); // centre of a 5x5 grid
     expect(next[12]).toBe(true);
@@ -31,7 +31,7 @@ describe('lightsOut', () => {
     expect(next[18]).toBe(false);
   });
 
-  it('toggleCell on a corner only flips the cell and its two in-bounds neighbours', () => {
+  it("toggleCell on a corner only flips the cell and its two in-bounds neighbours", () => {
     const grid: boolean[] = new Array(LIGHTS_SIZE * LIGHTS_SIZE).fill(false);
     const next = toggleCell(grid, 0);
     expect(next.filter(Boolean).length).toBe(3);
@@ -40,18 +40,18 @@ describe('lightsOut', () => {
     expect(next[LIGHTS_SIZE]).toBe(true);
   });
 
-  it('isAllOff detects an empty grid', () => {
+  it("isAllOff detects an empty grid", () => {
     expect(isAllOff(new Array(25).fill(false))).toBe(true);
     expect(isAllOff(new Array(25).fill(true))).toBe(false);
   });
 
-  it('generatePuzzle yields a non-trivial board', () => {
+  it("generatePuzzle yields a non-trivial board", () => {
     const grid = generatePuzzle(5, seededRng([0.1, 0.3, 0.5, 0.7, 0.9, 0.2, 0.4, 0.6, 0.8]));
     expect(grid.length).toBe(LIGHTS_SIZE * LIGHTS_SIZE);
     expect(isAllOff(grid)).toBe(false);
   });
 
-  it('press toggles, counts moves and detects the solved state', () => {
+  it("press toggles, counts moves and detects the solved state", () => {
     const state = createInitialState(1, seededRng([0]));
     // First toggle was at index 0 → grid has lights at 0, 1, LIGHTS_SIZE.
     // Pressing index 0 again flips them all off → solved.
@@ -62,7 +62,7 @@ describe('lightsOut', () => {
     expect(press(afterPress, 5)).toBe(afterPress);
   });
 
-  it('createInitialState reports zero moves and an unsolved grid', () => {
+  it("createInitialState reports zero moves and an unsolved grid", () => {
     const state = createInitialState(3, seededRng([0.1, 0.3, 0.5]));
     expect(state.moves).toBe(0);
     expect(state.solved).toBe(false);

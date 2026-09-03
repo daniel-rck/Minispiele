@@ -1,5 +1,5 @@
-import DoodleJumpGame from '../components/DoodleJumpGame';
-import GameLayout from '../components/GameLayout';
+import DoodleJumpGame from "../components/DoodleJumpGame";
+import GameLayout from "../components/GameLayout";
 
 export default function DoodleJump() {
   return (

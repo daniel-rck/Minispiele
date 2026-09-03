@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SpellingBeeGame from '../components/SpellingBeeGame';
+import GameLayout from "../components/GameLayout";
+import SpellingBeeGame from "../components/SpellingBeeGame";
 
 export default function SpellingBee() {
   return (

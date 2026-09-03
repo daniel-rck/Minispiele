@@ -1,21 +1,21 @@
-export const SLOT_SYMBOLS = ['🍒', '🍋', '🍊', '🔔', '🍀', '7️⃣', '💎'] as const;
+export const SLOT_SYMBOLS = ["🍒", "🍋", "🍊", "🔔", "🍀", "7️⃣", "💎"] as const;
 export type SlotSymbol = (typeof SLOT_SYMBOLS)[number];
 const SLOT_WEIGHTS = [25, 20, 18, 15, 10, 8, 4] as const;
 const TOTAL_WEIGHT = SLOT_WEIGHTS.reduce((a, b) => a + b, 0);
 
 const PAYOUTS_3: Record<SlotSymbol, number> = {
-  '🍒': 5,
-  '🍋': 8,
-  '🍊': 10,
-  '🔔': 15,
-  '🍀': 20,
-  '7️⃣': 30,
-  '💎': 50,
+  "🍒": 5,
+  "🍋": 8,
+  "🍊": 10,
+  "🔔": 15,
+  "🍀": 20,
+  "7️⃣": 30,
+  "💎": 50,
 };
 
 const PAYOUTS_2: Partial<Record<SlotSymbol, number>> = {
-  '💎': 5,
-  '7️⃣': 3,
+  "💎": 5,
+  "7️⃣": 3,
 };
 
 export const SLOT_INITIAL_BALANCE = 500;
@@ -62,12 +62,12 @@ export function evaluatePayout(reels: readonly [SlotSymbol, SlotSymbol, SlotSymb
   }
   const cherryIndices: number[] = [];
   reels.forEach((s, i) => {
-    if (s === '🍒') cherryIndices.push(i);
+    if (s === "🍒") cherryIndices.push(i);
   });
   if (cherryIndices.length >= 2) {
-    return { multiplier: 2, winningReels: cherryIndices, label: 'Doppelkirsche' };
+    return { multiplier: 2, winningReels: cherryIndices, label: "Doppelkirsche" };
   }
-  return { multiplier: 0, winningReels: [], label: '' };
+  return { multiplier: 0, winningReels: [], label: "" };
 }
 
 export function clampBet(bet: number, balance: number): number {

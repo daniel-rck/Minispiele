@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import VierBilderGame from '../components/VierBilderGame';
+import GameLayout from "../components/GameLayout";
+import VierBilderGame from "../components/VierBilderGame";
 
 export default function VierBilder() {
   return (

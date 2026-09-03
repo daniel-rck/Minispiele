@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import PentominoGame from '../components/PentominoGame';
+import GameLayout from "../components/GameLayout";
+import PentominoGame from "../components/PentominoGame";
 
 export default function Pentomino() {
   return (

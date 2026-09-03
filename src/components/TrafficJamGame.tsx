@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { STORAGE_KEYS } from '../lib/constants';
-import { isBetter } from '../lib/highscores';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { STORAGE_KEYS } from "../lib/constants";
+import { isBetter } from "../lib/highscores";
 import {
   EMPTY_TRAFFIC_JAM_HIGHSCORES,
   type HighscoreEntry,
   TrafficJamDifficultySchema,
   TrafficJamHighscoresSchema,
-} from '../lib/persistedSchemas';
+} from "../lib/persistedSchemas";
 import {
   BOARD_SIZE,
   type Car,
@@ -20,40 +20,40 @@ import {
   pickRandomPuzzleIndex,
   type TrafficJamDifficulty,
   type TrafficJamState,
-} from '../lib/trafficJam';
-import { useGameSfx } from '../lib/useGameSfx';
-import { formatDuration, useGameTimer } from '../lib/useGameTimer';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import DifficultySelector from './ui/DifficultySelector';
-import GameFooter from './ui/GameFooter';
-import GameStats from './ui/GameStats';
-import Sheet from './ui/Sheet';
+} from "../lib/trafficJam";
+import { useGameSfx } from "../lib/useGameSfx";
+import { formatDuration, useGameTimer } from "../lib/useGameTimer";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import DifficultySelector from "./ui/DifficultySelector";
+import GameFooter from "./ui/GameFooter";
+import GameStats from "./ui/GameStats";
+import Sheet from "./ui/Sheet";
 
 const difficultyLabels: Record<TrafficJamDifficulty, string> = {
-  easy: 'Leicht',
-  medium: 'Mittel',
-  hard: 'Schwer',
+  easy: "Leicht",
+  medium: "Mittel",
+  hard: "Schwer",
 };
 
 // Stable colors per puzzle letter. 'A' is always red (target car).
 // All Tailwind class strings must appear statically so the JIT keeps them.
 const CAR_COLORS: Record<string, { body: string; roof: string; stroke: string }> = {
-  A: { body: '#ef4444', roof: '#7f1d1d', stroke: '#7f1d1d' },
-  B: { body: '#fbbf24', roof: '#92400e', stroke: '#92400e' },
-  C: { body: '#10b981', roof: '#065f46', stroke: '#065f46' },
-  D: { body: '#0ea5e9', roof: '#075985', stroke: '#075985' },
-  E: { body: '#8b5cf6', roof: '#4c1d95', stroke: '#4c1d95' },
-  F: { body: '#f97316', roof: '#7c2d12', stroke: '#7c2d12' },
-  G: { body: '#ec4899', roof: '#831843', stroke: '#831843' },
-  H: { body: '#14b8a6', roof: '#134e4a', stroke: '#134e4a' },
-  I: { body: '#84cc16', roof: '#365314', stroke: '#365314' },
-  J: { body: '#d946ef', roof: '#701a75', stroke: '#701a75' },
-  K: { body: '#06b6d4', roof: '#155e75', stroke: '#155e75' },
+  A: { body: "#ef4444", roof: "#7f1d1d", stroke: "#7f1d1d" },
+  B: { body: "#fbbf24", roof: "#92400e", stroke: "#92400e" },
+  C: { body: "#10b981", roof: "#065f46", stroke: "#065f46" },
+  D: { body: "#0ea5e9", roof: "#075985", stroke: "#075985" },
+  E: { body: "#8b5cf6", roof: "#4c1d95", stroke: "#4c1d95" },
+  F: { body: "#f97316", roof: "#7c2d12", stroke: "#7c2d12" },
+  G: { body: "#ec4899", roof: "#831843", stroke: "#831843" },
+  H: { body: "#14b8a6", roof: "#134e4a", stroke: "#134e4a" },
+  I: { body: "#84cc16", roof: "#365314", stroke: "#365314" },
+  J: { body: "#d946ef", roof: "#701a75", stroke: "#701a75" },
+  K: { body: "#06b6d4", roof: "#155e75", stroke: "#155e75" },
 };
 
-const FALLBACK_COLOR = { body: '#94a3b8', roof: '#334155', stroke: '#334155' };
+const FALLBACK_COLOR = { body: "#94a3b8", roof: "#334155", stroke: "#334155" };
 
 function colorFor(id: string) {
   return CAR_COLORS[id] ?? FALLBACK_COLOR;
@@ -64,7 +64,7 @@ function colorFor(id: string) {
 // so the SVG fills the button cleanly via preserveAspectRatio="none".
 function CarSVG({ car }: { car: Car }) {
   const c = colorFor(car.id);
-  const isH = car.orientation === 'h';
+  const isH = car.orientation === "h";
   const w = isH ? car.length * 100 : 100;
   const h = isH ? 100 : car.length * 100;
   const m = 10; // body margin from cell edge
@@ -83,10 +83,10 @@ function CarSVG({ car }: { car: Car }) {
   let wsH = bodyH - 2 * wsPad;
   if (isH) {
     wsW = wsThickness;
-    wsX = front === 'right' ? w - m - wsPad - wsThickness : m + wsPad;
+    wsX = front === "right" ? w - m - wsPad - wsThickness : m + wsPad;
   } else {
     wsH = wsThickness;
-    wsY = front === 'down' ? h - m - wsPad - wsThickness : m + wsPad;
+    wsY = front === "down" ? h - m - wsPad - wsThickness : m + wsPad;
   }
 
   // Wheels at the four corners — visible bands on the outside of the body.
@@ -102,17 +102,17 @@ function CarSVG({ car }: { car: Car }) {
   // Headlights at the front edge.
   const hlR = 5;
   let hl: { cx: number; cy: number }[];
-  if (front === 'right') {
+  if (front === "right") {
     hl = [
       { cx: w - m - 5, cy: h / 2 - 14 },
       { cx: w - m - 5, cy: h / 2 + 14 },
     ];
-  } else if (front === 'left') {
+  } else if (front === "left") {
     hl = [
       { cx: m + 5, cy: h / 2 - 14 },
       { cx: m + 5, cy: h / 2 + 14 },
     ];
-  } else if (front === 'down') {
+  } else if (front === "down") {
     hl = [
       { cx: w / 2 - 14, cy: h - m - 5 },
       { cx: w / 2 + 14, cy: h - m - 5 },
@@ -165,24 +165,24 @@ function CarSVG({ car }: { car: Car }) {
 }
 
 const facingArrow: Record<Direction, string> = {
-  right: '→',
-  left: '←',
-  down: '↓',
-  up: '↑',
+  right: "→",
+  left: "←",
+  down: "↓",
+  up: "↑",
 };
 
 const facingWord: Record<Direction, string> = {
-  right: 'rechts',
-  left: 'links',
-  down: 'unten',
-  up: 'oben',
+  right: "rechts",
+  left: "links",
+  down: "unten",
+  up: "oben",
 };
 
 export default function TrafficJamGame() {
   const [difficulty, setDifficulty] = useLocalStorage<TrafficJamDifficulty>(
     STORAGE_KEYS.TRAFFIC_JAM_DIFFICULTY,
     TrafficJamDifficultySchema,
-    'easy',
+    "easy",
   );
   const [highscores, setHighscores] = useLocalStorage(
     STORAGE_KEYS.TRAFFIC_JAM_HIGHSCORES,
@@ -193,9 +193,9 @@ export default function TrafficJamGame() {
   const [state, setState] = useState<TrafficJamState>(() => createInitialState(difficulty, 0));
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const timer = useGameTimer();
-  useWakeLock(timer.status === 'running');
+  useWakeLock(timer.status === "running");
   const prevMovesRef = useRef(0);
   const prevWonRef = useRef(false);
   const { vibrate } = useVibration();
@@ -232,7 +232,7 @@ export default function TrafficJamGame() {
       prevWonRef.current = false;
       setScoreIsNew(false);
       setWinOpen(false);
-      setAnnounce('');
+      setAnnounce("");
       setState(createInitialState(nextDifficulty, nextIndex));
     },
     [difficulty, timer],
@@ -279,21 +279,21 @@ export default function TrafficJamGame() {
           options={difficultyLabels}
           onChange={onDifficultyChange}
         />
-        <span className="text-xs text-slate-500 dark:text-slate-400">
+        <span className="text-xs text-fg-muted">
           Rätsel {state.puzzleIndex + 1} / {pool.length}
         </span>
       </div>
 
       <GameStats
         items={[
-          { label: 'Klicks', value: state.moves },
+          { label: "Klicks", value: state.moves },
           {
-            label: 'Zeit',
+            label: "Zeit",
             value: formatDuration(timer.elapsedSeconds),
-            valueAriaLabel: 'Spielzeit',
+            valueAriaLabel: "Spielzeit",
           },
           {
-            label: 'Best',
+            label: "Best",
             value: best ? (
               <>
                 {best.moves}K · {formatDuration(best.seconds)}
@@ -315,18 +315,18 @@ export default function TrafficJamGame() {
               className="pointer-events-none absolute right-0 text-2xl leading-none text-red-500 dark:text-red-400"
               style={{
                 top: `${((EXIT_ROW + 0.5) / BOARD_SIZE) * 100}%`,
-                transform: 'translateY(-50%)',
+                transform: "translateY(-50%)",
               }}
             >
               →
             </span>
             <div
-              className="grid touch-none gap-1 rounded-2xl border-2 border-slate-300 bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800"
+              className="grid touch-none gap-1 rounded-2xl border-2 border-border bg-slate-100 p-2 dark:bg-slate-800"
               style={{
                 gridTemplateColumns: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
                 gridTemplateRows: `repeat(${BOARD_SIZE}, minmax(0, 1fr))`,
-                aspectRatio: '1 / 1',
-                touchAction: 'none',
+                aspectRatio: "1 / 1",
+                touchAction: "none",
               }}
             >
               {/* Lane indicator background */}
@@ -339,8 +339,8 @@ export default function TrafficJamGame() {
                     aria-hidden
                     className={`rounded-md ${
                       isExitRow
-                        ? 'bg-slate-200 dark:bg-slate-700'
-                        : 'bg-slate-50 dark:bg-slate-900/40'
+                        ? "bg-slate-200 dark:bg-slate-700"
+                        : "bg-slate-50 dark:bg-slate-900/40"
                     }`}
                     style={{
                       gridColumn: `${(i % BOARD_SIZE) + 1} / span 1`,
@@ -351,11 +351,11 @@ export default function TrafficJamGame() {
               })}
 
               {state.cars.map((car) => {
-                const spanCol = car.orientation === 'h' ? car.length : 1;
-                const spanRow = car.orientation === 'v' ? car.length : 1;
+                const spanCol = car.orientation === "h" ? car.length : 1;
+                const spanRow = car.orientation === "v" ? car.length : 1;
                 const label = car.isTarget
                   ? `Rotes Zielauto, fährt nach ${facingWord[car.facing]}`
-                  : `Auto ${car.id}, ${car.length === 3 ? 'Lkw' : 'Pkw'}, fährt nach ${facingWord[car.facing]}`;
+                  : `Auto ${car.id}, ${car.length === 3 ? "Lkw" : "Pkw"}, fährt nach ${facingWord[car.facing]}`;
                 return (
                   <button
                     key={car.id}
@@ -379,7 +379,7 @@ export default function TrafficJamGame() {
         </div>
       </div>
 
-      <p className="text-center text-xs text-slate-500 dark:text-slate-400">
+      <p className="text-center text-xs text-fg-muted">
         Tipp ein Auto an — es fährt automatisch in seine Fahrtrichtung (Pfeil am Scheinwerfer), so
         weit es kommt. Befreie das rote Auto bis zur rechten Ausfahrt.
       </p>
@@ -403,7 +403,7 @@ export default function TrafficJamGame() {
               Neue Bestzeit!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Gelöst in {state.moves} Klicks, Zeit {formatDuration(timer.elapsedSeconds)}.
           </p>
           <div className="flex flex-col gap-2">

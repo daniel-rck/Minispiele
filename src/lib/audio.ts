@@ -1,6 +1,6 @@
-import { getAudioCtor } from './audioContext';
-import { isAudioEnabled } from './audioSettings';
-import { AUDIO } from './constants';
+import { getAudioCtor } from "./audioContext";
+import { isAudioEnabled } from "./audioSettings";
+import { AUDIO } from "./constants";
 
 export class AlarmAudio {
   private ctx: AudioContext | null = null;
@@ -14,14 +14,14 @@ export class AlarmAudio {
     try {
       this.ctx = new Ctor();
     } catch (err) {
-      console.warn('AlarmAudio: failed to create context', err);
+      console.warn("AlarmAudio: failed to create context", err);
       return false;
     }
     return true;
   }
 
   resume(): void {
-    if (this.ctx && this.ctx.state === 'suspended') {
+    if (this.ctx && this.ctx.state === "suspended") {
       void this.ctx.resume().catch(() => undefined);
     }
   }
@@ -68,7 +68,7 @@ export class AlarmAudio {
     try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = 'sine';
+      osc.type = "sine";
       osc.frequency.value = AUDIO.FREQUENCY_HZ;
       const now = ctx.currentTime;
       gain.gain.setValueAtTime(0, now);
@@ -78,7 +78,7 @@ export class AlarmAudio {
       osc.start(now);
       osc.stop(now + AUDIO.BEEP_DURATION_S + AUDIO.GAIN_TAIL_S);
     } catch (err) {
-      console.warn('AlarmAudio: beep failed', err);
+      console.warn("AlarmAudio: beep failed", err);
     }
   }
 }

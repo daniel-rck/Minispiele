@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SimonGame from '../components/SimonGame';
+import GameLayout from "../components/GameLayout";
+import SimonGame from "../components/SimonGame";
 
 export default function Simon() {
   return (

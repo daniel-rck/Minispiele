@@ -1,4 +1,4 @@
-import { registerSW } from 'virtual:pwa-register';
+import { registerSW } from "virtual:pwa-register";
 import {
   createContext,
   type ReactNode,
@@ -7,7 +7,7 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react';
+} from "react";
 
 export interface PwaUpdateContextValue {
   needRefresh: boolean;
@@ -27,8 +27,8 @@ export function PwaUpdateProvider({ children }: { children: ReactNode }) {
   const registrationRef = useRef<ServiceWorkerRegistration | undefined>(undefined);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!('serviceWorker' in navigator)) return;
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
 
     const update = registerSW({
       immediate: true,
@@ -45,17 +45,17 @@ export function PwaUpdateProvider({ children }: { children: ReactNode }) {
       registrationRef.current?.update().catch(() => undefined);
     };
     const interval = window.setInterval(tick, HOUR_MS);
-    window.addEventListener('focus', tick);
+    window.addEventListener("focus", tick);
     return () => {
       window.clearInterval(interval);
-      window.removeEventListener('focus', tick);
+      window.removeEventListener("focus", tick);
     };
   }, []);
 
   const applyUpdate = useCallback(async () => {
     if (updateRef.current) {
       await updateRef.current(true);
-    } else if (typeof window !== 'undefined') {
+    } else if (typeof window !== "undefined") {
       window.location.reload();
     }
   }, []);

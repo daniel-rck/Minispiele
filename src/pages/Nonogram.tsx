@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import NonogramGame from '../components/NonogramGame';
+import GameLayout from "../components/GameLayout";
+import NonogramGame from "../components/NonogramGame";
 
 export default function Nonogram() {
   return (

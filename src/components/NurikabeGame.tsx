@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type NurikabeSize, NurikabeSizeSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type NurikabeSize, NurikabeSizeSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const SIZES: readonly NurikabeSize[] = [5, 7, 9];
 
@@ -53,7 +53,7 @@ export default function NurikabeGame() {
     Array.from({ length: size }, () => Array<number>(size).fill(0)),
   );
   const [announcement, setAnnouncement] = useState(
-    'Klicke leere Felder, um Meer zu setzen. Inseln = Zahlen.',
+    "Klicke leere Felder, um Meer zu setzen. Inseln = Zahlen.",
   );
 
   const sfx = useGameSfx();
@@ -123,7 +123,7 @@ export default function NurikabeGame() {
         }
       }
       if (visited.size !== seaCount) {
-        setAnnouncement('Meer muss zusammenhängen.');
+        setAnnouncement("Meer muss zusammenhängen.");
         sfx.error();
         return;
       }
@@ -137,7 +137,7 @@ export default function NurikabeGame() {
           state[r]?.[c + 1] === 1 &&
           state[r + 1]?.[c + 1] === 1
         ) {
-          setAnnouncement('Keine 2×2-Meer-Blöcke.');
+          setAnnouncement("Keine 2×2-Meer-Blöcke.");
           sfx.error();
           return;
         }
@@ -145,11 +145,11 @@ export default function NurikabeGame() {
     }
     // check island sizes
     for (const [key, sz] of puzzle.clues) {
-      const parts = key.split(',').map(Number);
+      const parts = key.split(",").map(Number);
       const cr = parts[0] ?? 0;
       const cc = parts[1] ?? 0;
       if (state[cr]?.[cc] === 1) {
-        setAnnouncement('Zahlenfelder dürfen kein Meer sein.');
+        setAnnouncement("Zahlenfelder dürfen kein Meer sein.");
         sfx.error();
         return;
       }
@@ -182,7 +182,7 @@ export default function NurikabeGame() {
         return;
       }
     }
-    setAnnouncement('Gelöst! Alle Regeln erfüllt.');
+    setAnnouncement("Gelöst! Alle Regeln erfüllt.");
     sfx.win();
     vibrate([60, 40, 120]);
   }, [puzzle, state, sfx, vibrate]);
@@ -246,15 +246,15 @@ export default function NurikabeGame() {
                 key={key}
                 type="button"
                 onClick={() => toggleCell(r, c)}
-                aria-label={`Feld ${r + 1},${c + 1}: ${isSea ? 'Meer' : 'leer'}`}
+                aria-label={`Feld ${r + 1},${c + 1}: ${isSea ? "Meer" : "leer"}`}
                 aria-pressed={isSea}
                 className={`flex aspect-square items-center justify-center rounded-md text-base font-bold ${
                   isSea
-                    ? 'bg-sky-700 text-sky-100'
-                    : 'bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100'
+                    ? "bg-sky-700 text-sky-100"
+                    : "bg-surface-100 text-surface-900 dark:bg-surface-700 dark:text-surface-100"
                 }`}
               >
-                {isSea ? '~' : ''}
+                {isSea ? "~" : ""}
               </button>
             );
           }),

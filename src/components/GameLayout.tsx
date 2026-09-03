@@ -1,8 +1,8 @@
-import { type ReactNode, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useFavorites } from '../hooks/useFavorites';
-import { useRecentGames } from '../hooks/useRecentGames';
-import { findGameByPath } from '../lib/gamesCatalog';
+import { type ReactNode, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useFavorites } from "../hooks/useFavorites";
+import { useRecentGames } from "../hooks/useRecentGames";
+import { findGameByPath } from "../lib/gamesCatalog";
 
 interface GameLayoutProps {
   title: string;
@@ -15,7 +15,7 @@ interface GameLayoutProps {
    * - `'scroll'`: textlastige Spiele dürfen INNERHALB des Bereichs scrollen
    *   (die Seite selbst scrollt trotzdem nicht).
    */
-  fit?: 'fit' | 'scroll';
+  fit?: "fit" | "scroll";
 }
 
 export default function GameLayout({
@@ -23,7 +23,7 @@ export default function GameLayout({
   description,
   actions,
   children,
-  fit = 'fit',
+  fit = "fit",
 }: GameLayoutProps) {
   const { pathname } = useLocation();
   const game = findGameByPath(pathname);
@@ -50,23 +50,23 @@ export default function GameLayout({
               aria-label={fav ? `${title} aus Favoriten entfernen` : `${title} zu Favoriten`}
               className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-xl transition ${
                 fav
-                  ? 'text-amber-500 dark:text-amber-400'
-                  : 'text-slate-400 hover:text-amber-500 dark:text-slate-500 dark:hover:text-amber-400'
+                  ? "text-amber-500 dark:text-amber-400"
+                  : "text-fg-subtle hover:text-amber-500 dark:hover:text-amber-400"
               }`}
             >
-              <span aria-hidden>{fav ? '★' : '☆'}</span>
+              <span aria-hidden>{fav ? "★" : "☆"}</span>
             </button>
           ) : null}
         </div>
       </div>
       {description ? (
-        <div className="mb-2 hidden shrink-0 text-sm text-slate-600 sm:mb-3 [@media(min-height:600px)]:block dark:text-slate-300">
+        <div className="mb-2 hidden shrink-0 text-sm text-fg-muted sm:mb-3 [@media(min-height:600px)]:block">
           {description}
         </div>
       ) : null}
       <div
         data-game-fit={fit}
-        className={`flex min-h-0 flex-1 flex-col ${fit === 'scroll' ? 'overflow-y-auto' : 'overflow-hidden'}`}
+        className={`flex min-h-0 flex-1 flex-col ${fit === "scroll" ? "overflow-y-auto" : "overflow-hidden"}`}
       >
         {children}
       </div>

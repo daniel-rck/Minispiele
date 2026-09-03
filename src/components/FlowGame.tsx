@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   cellOwner,
   colorHex,
@@ -12,13 +12,13 @@ import {
   isSolved,
   LEVELS,
   startPath,
-} from '../lib/flow';
-import { FlowBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/flow";
+import { FlowBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 export default function FlowGame() {
   const [levelIdx, setLevelIdx] = useState(0);
@@ -32,7 +32,7 @@ export default function FlowGame() {
   const [moves, setMoves] = useState(0);
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const wonRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -112,7 +112,7 @@ export default function FlowGame() {
     (e: React.PointerEvent) => {
       if (drawing === null) return;
       const el = document.elementFromPoint(e.clientX, e.clientY);
-      const cell = el?.closest('[data-cell-idx]');
+      const cell = el?.closest("[data-cell-idx]");
       if (cell instanceof HTMLElement && cell.dataset.cellIdx !== undefined) {
         enterCell(Number(cell.dataset.cellIdx));
       }
@@ -124,11 +124,11 @@ export default function FlowGame() {
   useEffect(() => {
     if (drawing === null) return;
     const end = () => setDrawing(null);
-    window.addEventListener('pointerup', end);
-    window.addEventListener('pointercancel', end);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
     return () => {
-      window.removeEventListener('pointerup', end);
-      window.removeEventListener('pointercancel', end);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
     };
   }, [drawing]);
 
@@ -158,11 +158,11 @@ export default function FlowGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Level:</span>
+          <span className="text-fg-muted">Level:</span>
           <select
             value={levelIdx}
             onChange={(e) => changeLevel(Number(e.target.value))}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {LEVELS.map((lvl, i) => (
               <option key={i} value={i}>
@@ -173,7 +173,7 @@ export default function FlowGame() {
         </label>
       </div>
 
-      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-2 gap-2 text-sm text-fg-muted">
         <div>
           Züge: <span className="font-semibold tabular-nums">{moves}</span>
         </div>
@@ -210,7 +210,7 @@ export default function FlowGame() {
                   ? `Endpunkt Farbe ${(c.endpointColor ?? 0) + 1}`
                   : c.pathColor !== null
                     ? `Weg Farbe ${c.pathColor + 1}`
-                    : 'Leere Zelle'
+                    : "Leere Zelle"
               }
               className="relative flex aspect-square items-center justify-center rounded-md bg-slate-800 transition-colors"
             >
@@ -250,9 +250,7 @@ export default function FlowGame() {
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
-            Level in {moves} Zügen gelöst.
-          </p>
+          <p className="mb-4 text-sm text-fg-muted">Level in {moves} Zügen gelöst.</p>
           <Button
             variant="primary"
             block

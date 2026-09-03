@@ -1,12 +1,12 @@
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type PongDifficulty, PongDifficultySchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type PongDifficulty, PongDifficultySchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const W = 700;
 const H = 450;
@@ -19,9 +19,9 @@ const BASE_FRAME_MS = 1000 / 60;
 const AI_SPEED: Record<PongDifficulty, number> = { easy: 2.5, medium: 4.5, hard: 7 };
 const AI_REACT: Record<PongDifficulty, number> = { easy: 0.55, medium: 0.75, hard: 0.95 };
 const DIFF_LABEL: Record<PongDifficulty, string> = {
-  easy: 'Leicht',
-  medium: 'Mittel',
-  hard: 'Schwer',
+  easy: "Leicht",
+  medium: "Mittel",
+  hard: "Schwer",
 };
 
 interface Ball {
@@ -62,7 +62,7 @@ function makeInitial(): State {
     scoreR: 0,
     running: false,
     gameOver: false,
-    message: 'Leertaste oder Tap zum Starten. W/S oder Pfeiltasten steuern.',
+    message: "Leertaste oder Tap zum Starten. W/S oder Pfeiltasten steuern.",
   };
 }
 
@@ -73,16 +73,16 @@ export default function PongGame() {
   const [hud, setHud] = useState({
     scoreL: 0,
     scoreR: 0,
-    message: '',
+    message: "",
     running: false,
     gameOver: false,
   });
   const [difficulty, setDifficulty] = useLocalStorage<PongDifficulty>(
     STORAGE_KEYS.PONG_DIFFICULTY,
     PongDifficultySchema,
-    'medium',
+    "medium",
   );
-  const [announcement, setAnnouncement] = useState('Pong — Leertaste startet.');
+  const [announcement, setAnnouncement] = useState("Pong — Leertaste startet.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -101,7 +101,7 @@ export default function PongGame() {
   const restart = useCallback(() => {
     stateRef.current = makeInitial();
     syncHud();
-    setAnnouncement('Neues Spiel.');
+    setAnnouncement("Neues Spiel.");
   }, [syncHud]);
 
   const togglePlay = useCallback(() => {
@@ -111,7 +111,7 @@ export default function PongGame() {
       return;
     }
     s.running = !s.running;
-    s.message = s.running ? '' : 'Pausiert.';
+    s.message = s.running ? "" : "Pausiert.";
     syncHud();
   }, [restart, syncHud]);
 
@@ -194,8 +194,8 @@ export default function PongGame() {
           if (s.scoreR >= WIN_SCORE) {
             s.gameOver = true;
             s.running = false;
-            s.message = 'Computer gewinnt.';
-            setAnnouncement('Computer gewinnt.');
+            s.message = "Computer gewinnt.";
+            setAnnouncement("Computer gewinnt.");
             sfx.lose();
             vibrate([120, 60, 80]);
           } else {
@@ -210,8 +210,8 @@ export default function PongGame() {
           if (s.scoreL >= WIN_SCORE) {
             s.gameOver = true;
             s.running = false;
-            s.message = 'Du gewinnst!';
-            setAnnouncement('Du gewinnst!');
+            s.message = "Du gewinnst!";
+            setAnnouncement("Du gewinnst!");
             sfx.win();
             vibrate([60, 40, 120]);
           } else {
@@ -225,59 +225,59 @@ export default function PongGame() {
     }
 
     // draw
-    const ctx = canvasRef.current?.getContext('2d');
+    const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, W, H);
     ctx.setLineDash([8, 8]);
-    ctx.strokeStyle = '#1e293b';
+    ctx.strokeStyle = "#1e293b";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(W / 2, 0);
     ctx.lineTo(W / 2, H);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#fbbf24';
+    ctx.fillStyle = "#fbbf24";
     ctx.fillRect(20, s.leftY, PADDLE_W, PADDLE_H);
-    ctx.fillStyle = '#f43f5e';
+    ctx.fillStyle = "#f43f5e";
     ctx.fillRect(W - 20 - PADDLE_W, s.rightY, PADDLE_W, PADDLE_H);
-    ctx.fillStyle = '#fbbf24';
+    ctx.fillStyle = "#fbbf24";
     ctx.beginPath();
     ctx.arc(s.ball.x, s.ball.y, BALL_R, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.04)';
-    ctx.font = 'bold 100px sans-serif';
-    ctx.textAlign = 'center';
+    ctx.fillStyle = "rgba(255,255,255,0.04)";
+    ctx.font = "bold 100px sans-serif";
+    ctx.textAlign = "center";
     ctx.fillText(String(s.scoreL), W / 4, H / 2 + 35);
     ctx.fillText(String(s.scoreR), (3 * W) / 4, H / 2 + 35);
   });
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+      if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") {
         e.preventDefault();
         keysRef.current.up = true;
-      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+      } else if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") {
         e.preventDefault();
         keysRef.current.down = true;
-      } else if (e.key === ' ' || e.key === 'Enter') {
+      } else if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         togglePlay();
       }
     };
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keysRef.current.up = false;
-      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keysRef.current.down = false;
+      if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") keysRef.current.up = false;
+      if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") keysRef.current.down = false;
     };
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("keyup", onKeyUp);
     return () => {
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keyup", onKeyUp);
     };
   }, [togglePlay]);
 
-  const press = (key: 'up' | 'down', value: boolean) => () => {
+  const press = (key: "up" | "down", value: boolean) => () => {
     keysRef.current[key] = value;
   };
 
@@ -293,7 +293,7 @@ export default function PongGame() {
             onChange={(e) => setDifficulty(e.target.value as PongDifficulty)}
             className="min-h-11 rounded-lg border border-surface-300 bg-surface-50 px-3 text-sm dark:border-surface-700 dark:bg-surface-900"
           >
-            {(['easy', 'medium', 'hard'] as const).map((d) => (
+            {(["easy", "medium", "hard"] as const).map((d) => (
               <option key={d} value={d}>
                 {DIFF_LABEL[d]}
               </option>
@@ -301,7 +301,7 @@ export default function PongGame() {
           </select>
         </label>
         <Button variant="primary" size="sm" onClick={togglePlay}>
-          {hud.gameOver ? 'Neues Spiel' : hud.running ? 'Pause' : 'Start'}
+          {hud.gameOver ? "Neues Spiel" : hud.running ? "Pause" : "Start"}
         </Button>
       </div>
 
@@ -309,7 +309,7 @@ export default function PongGame() {
         <div>
           Du: <span className="font-semibold tabular-nums">{hud.scoreL}</span>
         </div>
-        <div className="font-semibold">{hud.message || 'Erster mit 11 gewinnt.'}</div>
+        <div className="font-semibold">{hud.message || "Erster mit 11 gewinnt."}</div>
         <div>
           PC: <span className="font-semibold tabular-nums">{hud.scoreR}</span>
         </div>
@@ -322,7 +322,7 @@ export default function PongGame() {
           height={H}
           aria-label="Pong-Spielfeld"
           className="fit-box rounded-lg bg-slate-900 ring-1 ring-slate-700"
-          style={{ '--fit-ar': W / H, touchAction: 'none' } as CSSProperties}
+          style={{ "--fit-ar": W / H, touchAction: "none" } as CSSProperties}
         />
       </div>
 
@@ -334,9 +334,9 @@ export default function PongGame() {
             e.preventDefault();
             keysRef.current.up = true;
           }}
-          onPointerUp={press('up', false)}
-          onPointerLeave={press('up', false)}
-          onPointerCancel={press('up', false)}
+          onPointerUp={press("up", false)}
+          onPointerLeave={press("up", false)}
+          onPointerCancel={press("up", false)}
           className="flex min-h-14 items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
         >
           ↑
@@ -348,9 +348,9 @@ export default function PongGame() {
             e.preventDefault();
             keysRef.current.down = true;
           }}
-          onPointerUp={press('down', false)}
-          onPointerLeave={press('down', false)}
-          onPointerCancel={press('down', false)}
+          onPointerUp={press("down", false)}
+          onPointerLeave={press("down", false)}
+          onPointerCancel={press("down", false)}
           className="flex min-h-14 items-center justify-center rounded-xl bg-surface-100 text-2xl active:bg-surface-200 dark:bg-surface-800 dark:active:bg-surface-700"
         >
           ↓

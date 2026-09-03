@@ -1,4 +1,4 @@
-export type Direction = 'up' | 'down' | 'left' | 'right';
+export type Direction = "up" | "down" | "left" | "right";
 
 export interface Point {
   x: number;
@@ -32,10 +32,10 @@ const DIR_DELTA: Readonly<Record<Direction, Point>> = {
 };
 
 const OPPOSITE: Readonly<Record<Direction, Direction>> = {
-  up: 'down',
-  down: 'up',
-  left: 'right',
-  right: 'left',
+  up: "down",
+  down: "up",
+  left: "right",
+  right: "left",
 };
 
 export function createInitialState(
@@ -53,7 +53,7 @@ export function createInitialState(
   const base: SnakeState = {
     snake,
     food: { x: 0, y: 0 },
-    dir: 'right',
+    dir: "right",
     dirQueue: [],
     cols,
     rows,

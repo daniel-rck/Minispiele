@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import HangmanGame from '../components/HangmanGame';
+import GameLayout from "../components/GameLayout";
+import HangmanGame from "../components/HangmanGame";
 
 export default function Hangman() {
   return (

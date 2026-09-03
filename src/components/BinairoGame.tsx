@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type BinairoSize, BinairoSizeSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type BinairoSize, BinairoSizeSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 type Cell = -1 | 0 | 1;
 type Board = Cell[][];
@@ -98,7 +98,7 @@ export default function BinairoGame() {
   );
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generatePuzzle(size));
   const [solved, setSolved] = useState(false);
-  const [announcement, setAnnouncement] = useState('Klicke: leer → 0 → 1 → leer.');
+  const [announcement, setAnnouncement] = useState("Klicke: leer → 0 → 1 → leer.");
 
   const sfx = useGameSfx();
   const { vibrate } = useVibration();
@@ -134,11 +134,11 @@ export default function BinairoGame() {
     const ok = cellEquals(puzzle.grid, puzzle.solution);
     if (ok) {
       setSolved(true);
-      setAnnouncement('Gelöst! Perfekt.');
+      setAnnouncement("Gelöst! Perfekt.");
       sfx.win();
       vibrate([60, 40, 120]);
     } else {
-      setAnnouncement('Noch nicht korrekt.');
+      setAnnouncement("Noch nicht korrekt.");
       sfx.error();
       vibrate(40);
     }
@@ -196,11 +196,11 @@ export default function BinairoGame() {
               const isGiven = puzzle.given[r]?.[c] === true;
               const base =
                 value === 0
-                  ? 'bg-sky-500 text-white'
+                  ? "bg-sky-500 text-white"
                   : value === 1
-                    ? 'bg-rose-500 text-white'
-                    : 'bg-slate-800 text-slate-300';
-              const givenRing = isGiven ? 'ring-2 ring-white/30' : '';
+                    ? "bg-rose-500 text-white"
+                    : "bg-slate-800 text-slate-300";
+              const givenRing = isGiven ? "ring-2 ring-white/30" : "";
               const disabled = isGiven || solved;
               return (
                 <button
@@ -211,11 +211,11 @@ export default function BinairoGame() {
                   aria-label={
                     isGiven
                       ? `Vorgabe ${value} Zeile ${r + 1} Spalte ${c + 1}`
-                      : `Feld Zeile ${r + 1} Spalte ${c + 1}: ${value === -1 ? 'leer' : value}`
+                      : `Feld Zeile ${r + 1} Spalte ${c + 1}: ${value === -1 ? "leer" : value}`
                   }
                   className={`flex aspect-square min-h-9 min-w-9 items-center justify-center rounded-full text-base font-bold transition disabled:cursor-not-allowed ${base} ${givenRing}`}
                 >
-                  {value === -1 ? '' : value}
+                  {value === -1 ? "" : value}
                 </button>
               );
             }),

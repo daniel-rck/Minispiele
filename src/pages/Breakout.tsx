@@ -1,5 +1,5 @@
-import BreakoutGame from '../components/BreakoutGame';
-import GameLayout from '../components/GameLayout';
+import BreakoutGame from "../components/BreakoutGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Breakout() {
   return (

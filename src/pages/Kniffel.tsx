@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import KniffelGame from '../components/KniffelGame';
+import GameLayout from "../components/GameLayout";
+import KniffelGame from "../components/KniffelGame";
 
 export default function Kniffel() {
   return (

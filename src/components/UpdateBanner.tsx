@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { usePwaUpdate } from '../lib/usePwaUpdate';
+import { useState } from "react";
+import { usePwaUpdate } from "../lib/usePwaUpdate";
 
 export default function UpdateBanner() {
   const { needRefresh, applyUpdate } = usePwaUpdate();

@@ -1,52 +1,52 @@
 export const WORD_BANK = [
-  'BAUM',
-  'BUCH',
-  'BLUME',
-  'BIENE',
-  'BRIEF',
-  'FISCH',
-  'FENSTER',
-  'FERIEN',
-  'FEUER',
-  'FREUND',
-  'GARTEN',
-  'GELD',
-  'GLAS',
-  'HUND',
-  'HAUS',
-  'HERZ',
-  'INSEL',
-  'KATZE',
-  'KIND',
-  'KOPF',
-  'LAMPE',
-  'LICHT',
-  'MOND',
-  'MUSIK',
-  'NEBEL',
-  'PAPIER',
-  'PILZ',
-  'REGEN',
-  'ROSE',
-  'SAFT',
-  'SCHIFF',
-  'SOMMER',
-  'SONNE',
-  'STADT',
-  'STERN',
-  'TISCH',
-  'TURM',
-  'UHR',
-  'VOGEL',
-  'WALD',
-  'WASSER',
-  'WIND',
-  'WOLKE',
-  'WURM',
-  'ZAHN',
+  "BAUM",
+  "BUCH",
+  "BLUME",
+  "BIENE",
+  "BRIEF",
+  "FISCH",
+  "FENSTER",
+  "FERIEN",
+  "FEUER",
+  "FREUND",
+  "GARTEN",
+  "GELD",
+  "GLAS",
+  "HUND",
+  "HAUS",
+  "HERZ",
+  "INSEL",
+  "KATZE",
+  "KIND",
+  "KOPF",
+  "LAMPE",
+  "LICHT",
+  "MOND",
+  "MUSIK",
+  "NEBEL",
+  "PAPIER",
+  "PILZ",
+  "REGEN",
+  "ROSE",
+  "SAFT",
+  "SCHIFF",
+  "SOMMER",
+  "SONNE",
+  "STADT",
+  "STERN",
+  "TISCH",
+  "TURM",
+  "UHR",
+  "VOGEL",
+  "WALD",
+  "WASSER",
+  "WIND",
+  "WOLKE",
+  "WURM",
+  "ZAHN",
 ];
 
-export type Direction = 'right' | 'down' | 'down-right' | 'down-left';
+export type Direction = "right" | "down" | "down-right" | "down-left";
 
 export interface PlacedWord {
   word: string;
@@ -65,8 +65,8 @@ export interface WordsearchPuzzle {
 const DIRS: Record<Direction, { dr: number; dc: number }> = {
   right: { dr: 0, dc: 1 },
   down: { dr: 1, dc: 0 },
-  'down-right': { dr: 1, dc: 1 },
-  'down-left': { dr: 1, dc: -1 },
+  "down-right": { dr: 1, dc: 1 },
+  "down-left": { dr: 1, dc: -1 },
 };
 
 function tryPlace(
@@ -75,7 +75,7 @@ function tryPlace(
   word: string,
   rng: () => number,
 ): PlacedWord | null {
-  const dirs: Direction[] = ['right', 'down', 'down-right', 'down-left'];
+  const dirs: Direction[] = ["right", "down", "down-right", "down-left"];
   for (let attempt = 0; attempt < 60; attempt++) {
     const dir = dirs[Math.floor(rng() * dirs.length)]!;
     const { dr, dc } = DIRS[dir];
@@ -91,7 +91,7 @@ function tryPlace(
       const cc = c + dc * i;
       const idx = rr * size + cc;
       const existing = grid[idx];
-      if (existing && existing !== '' && existing !== word[i]) {
+      if (existing && existing !== "" && existing !== word[i]) {
         ok = false;
         break;
       }
@@ -111,7 +111,7 @@ export function generate(
   wordCount: number,
   rng: () => number = Math.random,
 ): WordsearchPuzzle {
-  const grid: string[] = new Array(size * size).fill('');
+  const grid: string[] = new Array(size * size).fill("");
   const words: PlacedWord[] = [];
   const pool = WORD_BANK.filter((w) => w.length <= size).slice();
   // shuffle pool
@@ -125,7 +125,7 @@ export function generate(
     if (placed) words.push(placed);
   }
   // fill empty cells
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   for (let i = 0; i < grid.length; i++) {
     if (!grid[i]) grid[i] = letters[Math.floor(rng() * letters.length)]!;
   }
@@ -155,7 +155,7 @@ export function lineBetween(start: number, end: number, size: number): number[] 
 }
 
 export function matchWord(puzzle: WordsearchPuzzle, cells: number[]): PlacedWord | null {
-  const text = cells.map((i) => puzzle.grid[i]).join('');
+  const text = cells.map((i) => puzzle.grid[i]).join("");
   for (const w of puzzle.words) {
     if (w.cells.length !== cells.length) continue;
     const forward = w.cells.every((c, i) => c === cells[i]);

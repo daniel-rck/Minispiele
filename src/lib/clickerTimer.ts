@@ -13,7 +13,7 @@ export function formatRemaining(ms: number): string {
   const safe = Math.max(0, Math.ceil(ms / 1000));
   const m = Math.floor(safe / 60);
   const s = safe % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 export function formatHundredths(ms: number): string {
@@ -23,7 +23,7 @@ export function formatHundredths(ms: number): string {
   const totalSec = Math.floor(totalCs / 100);
   const s = totalSec % 60;
   const m = Math.floor(totalSec / 60);
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(cs).padStart(2, '0')}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
 }
 
 export function splitSeconds(seconds: number): { minutes: number; seconds: number } {

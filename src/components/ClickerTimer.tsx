@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { AlarmAudio } from '../lib/audio';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { useWakeLock } from "../hooks/useWakeLock";
+import { AlarmAudio } from "../lib/audio";
 import {
   formatRemaining,
   joinSeconds,
@@ -9,22 +9,22 @@ import {
   pauseTimer,
   resumeTimer,
   splitSeconds,
-} from '../lib/clickerTimer';
-import { ANIMATION, HAPTICS, STORAGE_KEYS } from '../lib/constants';
+} from "../lib/clickerTimer";
+import { ANIMATION, HAPTICS, STORAGE_KEYS } from "../lib/constants";
 import {
   DurationSchema,
   type TimerDisplayMode,
   TimerDisplayModeSchema,
   TimerUserPresetsSchema,
-} from '../lib/persistedSchemas';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import TimerDisplay from './TimerDisplay';
+} from "../lib/persistedSchemas";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import TimerDisplay from "./TimerDisplay";
 
 const BUILTIN_PRESETS: readonly number[] = [10, 30, 60, 180, 300, 600];
 const MAX_USER_PRESETS = 3;
 
-type Status = 'idle' | 'running' | 'paused' | 'alarming';
+type Status = "idle" | "running" | "paused" | "alarming";
 
 export default function ClickerTimer() {
   const [duration, setDuration] = useLocalStorage<number>(
@@ -40,12 +40,12 @@ export default function ClickerTimer() {
   const [displayMode, setDisplayMode] = useLocalStorage<TimerDisplayMode>(
     STORAGE_KEYS.TIMER_DISPLAY_MODE,
     TimerDisplayModeSchema,
-    'flip',
+    "flip",
   );
   const [remainingMs, setRemainingMs] = useState<number>(duration * 1000);
-  const [status, setStatus] = useState<Status>('idle');
+  const [status, setStatus] = useState<Status>("idle");
   const [audioAvailable, setAudioAvailable] = useState<boolean>(true);
-  const [announcement, setAnnouncement] = useState('');
+  const [announcement, setAnnouncement] = useState("");
 
   const endAtRef = useRef<number | null>(null);
   const alarmRef = useRef<AlarmAudio | null>(null);
@@ -57,18 +57,18 @@ export default function ClickerTimer() {
   }
 
   const { vibrate } = useVibration();
-  useWakeLock(status === 'running' || status === 'alarming');
+  useWakeLock(status === "running" || status === "alarming");
 
   useEffect(() => {
     setAudioAvailable(alarmRef.current?.isAvailable() ?? false);
   }, []);
 
   useEffect(() => {
-    if (status === 'idle') setRemainingMs(duration * 1000);
+    if (status === "idle") setRemainingMs(duration * 1000);
   }, [duration, status]);
 
   useEffect(() => {
-    if (status !== 'running') return;
+    if (status !== "running") return;
     let raf = 0;
     const tick = () => {
       const endAt = endAtRef.current;
@@ -76,11 +76,11 @@ export default function ClickerTimer() {
       const left = endAt - Date.now();
       if (left <= 0) {
         setRemainingMs(0);
-        setStatus('alarming');
+        setStatus("alarming");
         const started = alarmRef.current?.start() ?? false;
         if (!started) setAudioAvailable(false);
         vibrate([...HAPTICS.ALARM_PATTERN]);
-        setAnnouncement('Timer abgelaufen');
+        setAnnouncement("Timer abgelaufen");
         return;
       }
       setRemainingMs(left);
@@ -109,23 +109,23 @@ export default function ClickerTimer() {
     }
     endAtRef.current = Date.now() + duration * 1000;
     setRemainingMs(duration * 1000);
-    setStatus('running');
+    setStatus("running");
     setAnnouncement(`Timer gestartet: ${formatRemaining(duration * 1000)}`);
   }, [duration]);
 
   const togglePause = useCallback(() => {
-    if (status === 'running') {
+    if (status === "running") {
       const endAt = endAtRef.current;
       if (endAt === null) return;
       const left = pauseTimer(endAt, Date.now());
       setRemainingMs(left);
       endAtRef.current = null;
-      setStatus('paused');
-      setAnnouncement('Pausiert');
-    } else if (status === 'paused') {
+      setStatus("paused");
+      setAnnouncement("Pausiert");
+    } else if (status === "paused") {
       endAtRef.current = resumeTimer(remainingMs, Date.now());
-      setStatus('running');
-      setAnnouncement('Fortgesetzt');
+      setStatus("running");
+      setAnnouncement("Fortgesetzt");
     }
   }, [status, remainingMs]);
 
@@ -140,7 +140,7 @@ export default function ClickerTimer() {
       longPressFiredRef.current = false;
       return;
     }
-    if (status === 'idle' || status === 'alarming') {
+    if (status === "idle" || status === "alarming") {
       startFresh();
     } else {
       togglePause();
@@ -193,13 +193,13 @@ export default function ClickerTimer() {
   const totalMs = duration * 1000;
   const progress = totalMs === 0 ? 0 : 1 - Math.max(0, Math.min(1, remainingMs / totalMs));
   const buttonLabel =
-    status === 'idle'
-      ? 'Starten'
-      : status === 'running'
-        ? 'Pause'
-        : status === 'paused'
-          ? 'Fortsetzen'
-          : 'Neu starten';
+    status === "idle"
+      ? "Starten"
+      : status === "running"
+        ? "Pause"
+        : status === "paused"
+          ? "Fortsetzen"
+          : "Neu starten";
 
   return (
     <div className="flex flex-col gap-4 pb-4">
@@ -214,7 +214,7 @@ export default function ClickerTimer() {
         </div>
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-2xl border border-border bg-surface p-3">
         <div className="flex items-end justify-center gap-3">
           <StepperInput
             label="Min"
@@ -222,7 +222,7 @@ export default function ClickerTimer() {
             onChange={(v) => setDuration(joinSeconds(v, seconds))}
             max={Math.floor(MAX_TIMER_SECONDS / 60)}
           />
-          <span className="pb-2 text-2xl font-bold text-slate-400">:</span>
+          <span className="pb-2 text-2xl font-bold text-fg-subtle">:</span>
           <StepperInput
             label="Sek"
             value={seconds}
@@ -240,8 +240,8 @@ export default function ClickerTimer() {
               aria-pressed={duration === p}
               className={`min-h-11 shrink-0 snap-start rounded-lg border px-3 py-1.5 text-sm whitespace-nowrap transition ${
                 duration === p
-                  ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-                  : 'border-slate-300 hover:border-brand-300 dark:border-slate-700'
+                  ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
+                  : "border-border hover:border-brand-300"
               }`}
             >
               {p < 60 ? `${p}s` : `${p / 60}m`}
@@ -255,8 +255,8 @@ export default function ClickerTimer() {
                 aria-pressed={duration === p}
                 className={`min-h-11 snap-start rounded-lg border py-1.5 pr-7 pl-3 text-sm whitespace-nowrap transition ${
                   duration === p
-                    ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-                    : 'border-emerald-300 hover:border-emerald-500 dark:border-emerald-800'
+                    ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
+                    : "border-emerald-300 hover:border-emerald-500 dark:border-emerald-800"
                 }`}
               >
                 {formatRemaining(p * 1000)}
@@ -265,7 +265,7 @@ export default function ClickerTimer() {
                 type="button"
                 onClick={() => handleRemovePreset(p)}
                 aria-label={`Preset ${formatRemaining(p * 1000)} entfernen`}
-                className="absolute top-1/2 right-1 -translate-y-1/2 rounded p-0.5 text-xs text-slate-400 hover:text-red-500"
+                className="absolute top-1/2 right-1 -translate-y-1/2 rounded p-0.5 text-xs text-fg-subtle hover:text-red-500"
               >
                 ✕
               </button>
@@ -276,37 +276,37 @@ export default function ClickerTimer() {
             onClick={handleSavePreset}
             disabled={userPresets.includes(duration) || userPresets.length >= MAX_USER_PRESETS}
             aria-label="Aktuelle Dauer als Preset speichern"
-            className="min-h-11 shrink-0 snap-start rounded-lg border border-dashed border-slate-300 px-3 py-1.5 text-sm whitespace-nowrap text-slate-500 hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700"
+            className="min-h-11 shrink-0 snap-start rounded-lg border border-dashed border-border px-3 py-1.5 text-sm whitespace-nowrap text-fg-muted hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50"
           >
             + speichern
           </button>
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="text-xs text-slate-500 dark:text-slate-400">Anzeige</span>
-          <div className="inline-flex rounded-lg border border-slate-300 bg-white p-0.5 text-xs dark:border-slate-700 dark:bg-slate-900">
+          <span className="text-xs text-fg-muted">Anzeige</span>
+          <div className="inline-flex rounded-lg border border-border bg-surface p-0.5 text-xs">
             <button
               type="button"
-              aria-pressed={displayMode === 'flip'}
+              aria-pressed={displayMode === "flip"}
               aria-label="Anzeige: Sekunden mit Umklapp-Animation"
-              onClick={() => setDisplayMode('flip')}
+              onClick={() => setDisplayMode("flip")}
               className={`min-h-9 rounded-md px-3 py-1 transition ${
-                displayMode === 'flip'
-                  ? 'bg-brand-600 text-white'
-                  : 'text-slate-600 hover:text-brand-600 dark:text-slate-300'
+                displayMode === "flip"
+                  ? "bg-brand-600 text-white"
+                  : "text-fg-muted hover:text-brand-600"
               }`}
             >
               Sekunden
             </button>
             <button
               type="button"
-              aria-pressed={displayMode === 'continuous'}
+              aria-pressed={displayMode === "continuous"}
               aria-label="Anzeige: Hundertstel-Sekunden"
-              onClick={() => setDisplayMode('continuous')}
+              onClick={() => setDisplayMode("continuous")}
               className={`min-h-9 rounded-md px-3 py-1 transition ${
-                displayMode === 'continuous'
-                  ? 'bg-brand-600 text-white'
-                  : 'text-slate-600 hover:text-brand-600 dark:text-slate-300'
+                displayMode === "continuous"
+                  ? "bg-brand-600 text-white"
+                  : "text-fg-muted hover:text-brand-600"
               }`}
             >
               Hundertstel
@@ -326,71 +326,71 @@ export default function ClickerTimer() {
           onContextMenu={(e) => e.preventDefault()}
           aria-label={`${buttonLabel}. Lange halten, um neu zu starten.`}
           className={`relative w-full touch-manipulation overflow-hidden rounded-3xl border-2 px-6 py-16 text-center select-none transition motion-reduce:transition-none sm:py-20 ${
-            status === 'alarming'
-              ? 'animate-pulse border-red-500 bg-red-50 dark:bg-red-950/40'
-              : status === 'running'
-                ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30'
-                : status === 'paused'
-                  ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/30'
-                  : 'border-slate-300 bg-white hover:border-brand-300 dark:border-slate-700 dark:bg-slate-900'
+            status === "alarming"
+              ? "animate-pulse border-red-500 bg-red-50 dark:bg-red-950/40"
+              : status === "running"
+                ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
+                : status === "paused"
+                  ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30"
+                  : "border-border bg-surface hover:border-brand-300"
           }`}
         >
           <div
             aria-hidden
             className={`absolute inset-y-0 left-0 transition-[width] motion-reduce:transition-none ${
-              status === 'alarming'
-                ? 'bg-red-200/70 dark:bg-red-900/40'
-                : status === 'paused'
-                  ? 'bg-amber-200/60 dark:bg-amber-900/30'
-                  : 'bg-brand-100/80 dark:bg-brand-900/40'
+              status === "alarming"
+                ? "bg-red-200/70 dark:bg-red-900/40"
+                : status === "paused"
+                  ? "bg-amber-200/60 dark:bg-amber-900/30"
+                  : "bg-brand-100/80 dark:bg-brand-900/40"
             }`}
             style={{ width: `${progress * 100}%` }}
           />
           <div className="relative z-10 text-7xl font-bold tabular-nums sm:text-8xl">
             <TimerDisplay mode={displayMode} ms={remainingMs} />
           </div>
-          <div className="relative z-10 mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <div className="relative z-10 mt-2 text-sm text-fg-muted">
             {buttonLabel}
-            {status !== 'idle' && status !== 'alarming' && ' · lang halten = neu starten'}
+            {status !== "idle" && status !== "alarming" && " · lang halten = neu starten"}
           </div>
         </button>
 
-        {status !== 'idle' && (
+        {status !== "idle" && (
           <button
             type="button"
             onClick={handleRestart}
             aria-label="Neu starten"
-            className="absolute top-2 right-2 min-h-11 min-w-11 rounded-full bg-white/80 text-slate-600 shadow-sm hover:bg-white hover:text-brand-600 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="absolute top-2 right-2 min-h-11 min-w-11 rounded-full bg-white/80 text-fg-muted shadow-sm hover:bg-surface hover:text-brand-600 dark:bg-slate-800/80"
           >
             ↺
           </button>
         )}
       </div>
 
-      <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+      <div className="flex items-center justify-between text-sm text-fg-muted">
         <div>
-          Status:{' '}
+          Status:{" "}
           <span className="font-medium">
-            {status === 'idle'
-              ? 'bereit'
-              : status === 'running'
-                ? 'läuft'
-                : status === 'paused'
-                  ? 'pausiert'
-                  : 'Alarm'}
+            {status === "idle"
+              ? "bereit"
+              : status === "running"
+                ? "läuft"
+                : status === "paused"
+                  ? "pausiert"
+                  : "Alarm"}
           </span>
         </div>
         <button
           type="button"
           onClick={() => adjustDuration(-10)}
-          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+          className="min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300"
         >
           −10s
         </button>
         <button
           type="button"
           onClick={() => adjustDuration(10)}
-          className="min-h-9 rounded-lg border border-slate-300 px-2 py-1 text-xs hover:border-brand-300 dark:border-slate-700"
+          className="min-h-9 rounded-lg border border-border px-2 py-1 text-xs hover:border-brand-300"
         >
           +10s
         </button>
@@ -411,13 +411,13 @@ function StepperInput({ label, value, onChange, max }: StepperInputProps) {
   const inc = () => onChange(Math.min(max, value + 1));
   return (
     <div className="flex flex-col items-center">
-      <span className="mb-1 text-xs text-slate-500">{label}</span>
+      <span className="mb-1 text-xs text-fg-muted">{label}</span>
       <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={dec}
           aria-label={`${label} minus eins`}
-          className="min-h-12 min-w-12 rounded-lg border border-slate-300 text-lg font-medium hover:border-brand-300 dark:border-slate-700"
+          className="min-h-12 min-w-12 rounded-lg border border-border text-lg font-medium hover:border-brand-300"
         >
           −
         </button>
@@ -430,13 +430,13 @@ function StepperInput({ label, value, onChange, max }: StepperInputProps) {
           inputMode="numeric"
           pattern="[0-9]*"
           aria-label={label}
-          className="w-16 min-h-12 rounded-lg border border-slate-300 bg-white text-center text-2xl font-semibold tabular-nums dark:border-slate-700 dark:bg-slate-900"
+          className="w-16 min-h-12 rounded-lg border border-border bg-surface text-center text-2xl font-semibold tabular-nums"
         />
         <button
           type="button"
           onClick={inc}
           aria-label={`${label} plus eins`}
-          className="min-h-12 min-w-12 rounded-lg border border-slate-300 text-lg font-medium hover:border-brand-300 dark:border-slate-700"
+          className="min-h-12 min-w-12 rounded-lg border border-border text-lg font-medium hover:border-brand-300"
         >
           +
         </button>

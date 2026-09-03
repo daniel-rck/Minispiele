@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SlotMachineGame from '../components/SlotMachineGame';
+import GameLayout from "../components/GameLayout";
+import SlotMachineGame from "../components/SlotMachineGame";
 
 export default function SlotMachine() {
   return (

@@ -1,5 +1,5 @@
-import { type MouseEvent, useState } from 'react';
-import { useVibration } from '../../hooks/useVibration';
+import { type MouseEvent, useState } from "react";
+import { useVibration } from "../../hooks/useVibration";
 
 interface StarToggleProps {
   active: boolean;
@@ -26,17 +26,17 @@ export default function StarToggle({ active, onToggle, label }: StarToggleProps)
       onClick={handleClick}
       aria-pressed={active}
       aria-label={label}
-      className="absolute right-2 top-2 inline-flex size-10 items-center justify-center rounded-full bg-white/85 backdrop-blur-sm transition-colors hover:bg-white dark:bg-surface-900/70 dark:hover:bg-surface-900"
+      className="absolute right-2 top-2 inline-flex size-10 items-center justify-center rounded-full bg-white/85 backdrop-blur-sm transition-colors hover:bg-surface/70 dark:hover:bg-surface-900"
     >
       <svg
         width="22"
         height="22"
         viewBox="0 0 24 24"
-        fill={active ? 'var(--color-accent-500)' : 'none'}
-        stroke={active ? 'var(--color-accent-600)' : 'var(--color-surface-500)'}
+        fill={active ? "var(--color-accent-500)" : "none"}
+        stroke={active ? "var(--color-accent-600)" : "var(--color-surface-500)"}
         strokeWidth="2"
         strokeLinejoin="round"
-        className={pop ? 'star-pop' : ''}
+        className={pop ? "star-pop" : ""}
         onAnimationEnd={() => setPop(false)}
         aria-hidden
       >

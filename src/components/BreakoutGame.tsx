@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useAnimationFrame } from '../hooks/useAnimationFrame';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
-import { BreakoutBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { type Particle, particleOpacity, spawnBurst, stepParticles } from "../lib/particles";
+import { BreakoutBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 // Reference frame duration: speeds are tuned in px per 60fps frame.
 const BASE_FRAME_MS = 1000 / 60;
@@ -29,23 +29,23 @@ const BRICK_GAP = 2;
 const BRICK_W = (FIELD_W - 2 * BRICK_LEFT - BRICK_GAP * (BRICK_COLS - 1)) / BRICK_COLS;
 const BRICK_H = 14;
 
-const ROW_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
+const ROW_COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#8b5cf6", "#ec4899"];
 const ROW_POINTS = [70, 60, 50, 40, 30, 20, 10];
 
 const POWERUP_DROP_CHANCE = 0.22;
 const POWERUP_SPEED = 1.4;
 const POWERUP_R = 8;
 
-type PowerUpType = 'wide' | 'slow';
+type PowerUpType = "wide" | "slow";
 
 const POWERUP_COLORS: Record<PowerUpType, string> = {
-  wide: '#22c55e',
-  slow: '#f97316',
+  wide: "#22c55e",
+  slow: "#f97316",
 };
 
 const POWERUP_LABELS: Record<PowerUpType, string> = {
-  wide: 'W',
-  slow: 'S',
+  wide: "W",
+  slow: "S",
 };
 
 interface Brick {
@@ -67,7 +67,7 @@ interface PowerUp {
   type: PowerUpType;
 }
 
-type Status = 'idle' | 'ready' | 'playing' | 'lost';
+type Status = "idle" | "ready" | "playing" | "lost";
 
 interface State {
   paddleX: number;
@@ -114,7 +114,7 @@ function spawnBall(
   level: number,
   paddleX: number,
   paddleW: number,
-): Pick<State, 'ballX' | 'ballY' | 'vx' | 'vy' | 'stuck'> {
+): Pick<State, "ballX" | "ballY" | "vx" | "vy" | "stuck"> {
   const speed = baseSpeedForLevel(level);
   return {
     ballX: paddleX + paddleW / 2,
@@ -137,7 +137,7 @@ function createState(): State {
     score: 0,
     lives: 3,
     level: 1,
-    status: 'idle',
+    status: "idle",
   };
 }
 
@@ -151,7 +151,7 @@ export default function BreakoutGame() {
     0,
   );
   const [doneOpen, setDoneOpen] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const [trail, setTrail] = useState<{ x: number; y: number }[]>([]);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [paddleFlash, setPaddleFlash] = useState(false);
@@ -186,7 +186,7 @@ export default function BreakoutGame() {
   const step = useCallback(
     (now: number) => {
       const s = stateRef.current;
-      if (s.status !== 'playing') {
+      if (s.status !== "playing") {
         lastTimeRef.current = now;
         rafRef.current = window.requestAnimationFrame(step);
         return;
@@ -215,7 +215,7 @@ export default function BreakoutGame() {
       let stuck = false;
       const burstParticles: Particle[] = [];
 
-      for (let iter = 0; iter < iterations && status === 'playing'; iter++) {
+      for (let iter = 0; iter < iterations && status === "playing"; iter++) {
         // Move ball (unless stuck, but in 'playing' state it's never stuck)
         ballX += vx;
         ballY += vy;
@@ -285,7 +285,7 @@ export default function BreakoutGame() {
                 }),
               );
               if (Math.random() < POWERUP_DROP_CHANCE) {
-                const type: PowerUpType = Math.random() < 0.55 ? 'wide' : 'slow';
+                const type: PowerUpType = Math.random() < 0.55 ? "wide" : "slow";
                 newPowerUps.push({
                   id: powerUpIdSeed++,
                   x: b.x + BRICK_W / 2,
@@ -329,9 +329,9 @@ export default function BreakoutGame() {
           }
           powerUps = next;
         }
-        if (caughtThisStep === 'wide') {
+        if (caughtThisStep === "wide") {
           paddleW = Math.min(MAX_PADDLE_W, paddleW + 18);
-        } else if (caughtThisStep === 'slow') {
+        } else if (caughtThisStep === "slow") {
           vx *= 0.78;
           vy *= 0.78;
         }
@@ -340,7 +340,7 @@ export default function BreakoutGame() {
         if (ballY > FIELD_H + BALL_R) {
           lives -= 1;
           if (lives <= 0) {
-            status = 'lost';
+            status = "lost";
           } else {
             const respawn = spawnBall(level, s.paddleX, paddleW);
             ballX = respawn.ballX;
@@ -348,12 +348,12 @@ export default function BreakoutGame() {
             vx = respawn.vx;
             vy = respawn.vy;
             stuck = true;
-            status = 'ready';
+            status = "ready";
           }
         }
 
         // Level complete
-        if (status === 'playing' && !bricks.some((b) => b.alive)) {
+        if (status === "playing" && !bricks.some((b) => b.alive)) {
           level += 1;
           bricks = buildBricks(level);
           const respawn = spawnBall(level, s.paddleX, BASE_PADDLE_W);
@@ -364,7 +364,7 @@ export default function BreakoutGame() {
           paddleW = BASE_PADDLE_W;
           powerUps = [];
           stuck = true;
-          status = 'ready';
+          status = "ready";
         }
       }
 
@@ -409,7 +409,7 @@ export default function BreakoutGame() {
   }, particles.length > 0);
 
   useEffect(() => {
-    if (state.status === 'playing') {
+    if (state.status === "playing") {
       rafRef.current = window.requestAnimationFrame(step);
       return () => {
         if (rafRef.current !== null) window.cancelAnimationFrame(rafRef.current);
@@ -418,7 +418,7 @@ export default function BreakoutGame() {
   }, [state.status, step]);
 
   useEffect(() => {
-    if (state.status === 'lost' && !finishedRef.current) {
+    if (state.status === "lost" && !finishedRef.current) {
       finishedRef.current = true;
       if (state.score > best) setBest(state.score);
       setAnnounce(`Verloren mit ${state.score} Punkten in Level ${state.level}`);
@@ -430,7 +430,7 @@ export default function BreakoutGame() {
   }, [state.status, state.score, state.level, best, setBest, vibrate, sfx]);
 
   useEffect(() => {
-    if (state.level !== lastLevelRef.current && state.status === 'ready') {
+    if (state.level !== lastLevelRef.current && state.status === "ready") {
       lastLevelRef.current = state.level;
       if (state.level > 1) {
         setAnnounce(`Level ${state.level} erreicht`);
@@ -445,13 +445,13 @@ export default function BreakoutGame() {
     setParticles([]);
     setPaddleFlash(false);
     lastLevelRef.current = 1;
-    setState({ ...createState(), status: 'ready' });
+    setState({ ...createState(), status: "ready" });
   }, []);
 
   const launch = useCallback(() => {
     setState((s) => {
-      if (s.status !== 'ready') return s;
-      return { ...s, stuck: false, status: 'playing' };
+      if (s.status !== "ready") return s;
+      return { ...s, stuck: false, status: "playing" };
     });
   }, []);
 
@@ -472,34 +472,34 @@ export default function BreakoutGame() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const canSteer = state.status === 'playing' || state.status === 'ready';
-      if (e.key === 'ArrowLeft' && canSteer) {
+      const canSteer = state.status === "playing" || state.status === "ready";
+      if (e.key === "ArrowLeft" && canSteer) {
         setState((s) => {
           const px = Math.max(0, s.paddleX - 22);
           if (s.stuck) return { ...s, paddleX: px, ballX: px + s.paddleW / 2 };
           return { ...s, paddleX: px };
         });
-      } else if (e.key === 'ArrowRight' && canSteer) {
+      } else if (e.key === "ArrowRight" && canSteer) {
         setState((s) => {
           const px = Math.min(FIELD_W - s.paddleW, s.paddleX + 22);
           if (s.stuck) return { ...s, paddleX: px, ballX: px + s.paddleW / 2 };
           return { ...s, paddleX: px };
         });
-      } else if (e.key === ' ' || e.key === 'Enter') {
+      } else if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
-        if (state.status === 'idle' || state.status === 'lost') start();
-        else if (state.status === 'ready') launch();
+        if (state.status === "idle" || state.status === "lost") start();
+        else if (state.status === "ready") launch();
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [state.status, start, launch]);
 
   return (
     <div className="flex flex-col items-center gap-3 pb-4">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-4 gap-1 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-4 gap-1 text-sm text-fg-muted">
         <div>
           Punkte: <span className="font-semibold tabular-nums">{state.score}</span>
         </div>
@@ -523,15 +523,19 @@ export default function BreakoutGame() {
           // Capture, damit der Drag weiterläuft, wenn der Finger das Feld verlässt
           e.currentTarget.setPointerCapture?.(e.pointerId);
           movePaddle(e.clientX);
-          if (state.status === 'ready') launch();
+          if (state.status === "ready") launch();
         }}
         onPointerMove={(e) => {
-          if (e.buttons || e.pointerType === 'touch') movePaddle(e.clientX);
+          if (e.buttons || e.pointerType === "touch") movePaddle(e.clientX);
         }}
         role="application"
         aria-label="Breakout-Spielfeld"
       >
-        <svg viewBox={`0 0 ${FIELD_W} ${FIELD_H}`} className="absolute inset-0 h-full w-full">
+        <svg
+          viewBox={`0 0 ${FIELD_W} ${FIELD_H}`}
+          className="absolute inset-0 h-full w-full"
+          role="presentation"
+        >
           {state.bricks.map(
             (b, i) =>
               b.alive && (
@@ -542,7 +546,7 @@ export default function BreakoutGame() {
                     width={BRICK_W}
                     height={BRICK_H}
                     rx={2}
-                    fill={b.hp > 1 ? '#f1f5f9' : b.color}
+                    fill={b.hp > 1 ? "#f1f5f9" : b.color}
                   />
                   {b.hp > 1 && (
                     <rect
@@ -578,7 +582,7 @@ export default function BreakoutGame() {
             width={state.paddleW}
             height={PADDLE_H}
             rx={4}
-            fill={paddleFlash ? '#fde68a' : '#e2e8f0'}
+            fill={paddleFlash ? "#fde68a" : "#e2e8f0"}
           />
           {trail.map((p, i) => (
             <circle
@@ -602,14 +606,14 @@ export default function BreakoutGame() {
             />
           ))}
         </svg>
-        {state.status === 'idle' && (
+        {state.status === "idle" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
             <Button variant="primary" onClick={start}>
               Starten
             </Button>
           </div>
         )}
-        {state.status === 'ready' && state.lives > 0 && (
+        {state.status === "ready" && state.lives > 0 && (
           <div className="pointer-events-none absolute inset-x-0 bottom-12 flex justify-center">
             <span className="rounded-full bg-black/70 px-3 py-1 text-xs text-slate-100">
               Tippen oder Leertaste zum Starten
@@ -629,7 +633,7 @@ export default function BreakoutGame() {
           <div className="mb-2 text-4xl" aria-hidden>
             💔
           </div>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             Du erreichst {state.score} Punkte in Level {state.level}.
           </p>
           <Button variant="primary" block onClick={start}>

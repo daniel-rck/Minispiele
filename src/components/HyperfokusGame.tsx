@@ -1,6 +1,6 @@
-import { forwardRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
+import { forwardRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
 import {
   ACHIEVEMENTS,
   applyPrestige,
@@ -34,15 +34,15 @@ import {
   UPGRADES,
   type UpgradeId,
   upgradeCost,
-} from '../lib/hyperfokus';
-import { type Particle, particleOpacity, spawnBurst, stepParticles } from '../lib/particles';
-import type { HyperfokusSave, HyperfokusTheme } from '../lib/persistedSchemas';
-import { HyperfokusSaveSchema } from '../lib/persistedSchemas';
-import { ToneAudio } from '../lib/toneAudio';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/hyperfokus";
+import { type Particle, particleOpacity, spawnBurst, stepParticles } from "../lib/particles";
+import type { HyperfokusSave, HyperfokusTheme } from "../lib/persistedSchemas";
+import { HyperfokusSaveSchema } from "../lib/persistedSchemas";
+import { ToneAudio } from "../lib/toneAudio";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
 const PENTATONIC_HZ = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25];
 const CRIT_CHORD_HZ = [523.25, 659.25, 783.99];
@@ -55,7 +55,7 @@ interface Floater {
   x: number;
   y: number;
   text: string;
-  kind: CoinKind | 'crit';
+  kind: CoinKind | "crit";
   bornAt: number;
 }
 
@@ -67,24 +67,24 @@ interface ActiveEvent {
 }
 
 function eventBlurb(k: EventKind): string {
-  if (k === 'goldrausch') return '×3 für 10 Sek.';
-  if (k === 'frenzy') return '+8 Tipps/s';
-  if (k === 'zeitlupe') return 'Combo bleibt';
-  if (k === 'boss') return 'Tippe schnell!';
-  return '';
+  if (k === "goldrausch") return "×3 für 10 Sek.";
+  if (k === "frenzy") return "+8 Tipps/s";
+  if (k === "zeitlupe") return "Combo bleibt";
+  if (k === "boss") return "Tippe schnell!";
+  return "";
 }
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   });
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return;
-    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mql.addEventListener?.('change', onChange);
-    return () => mql.removeEventListener?.('change', onChange);
+    mql.addEventListener?.("change", onChange);
+    return () => mql.removeEventListener?.("change", onChange);
   }, []);
   return reduced;
 }
@@ -103,8 +103,8 @@ export default function HyperfokusGame() {
   const [floaters, setFloaters] = useState<Floater[]>([]);
   const [toasts, setToasts] = useState<{ id: number; text: string; sub: string }[]>([]);
   const [showUpgrades, setShowUpgrades] = useState(false);
-  const [coreFlash, setCoreFlash] = useState<'none' | 'crit' | 'tap' | 'boss'>('none');
-  const [announcement, setAnnouncement] = useState('');
+  const [coreFlash, setCoreFlash] = useState<"none" | "crit" | "tap" | "boss">("none");
+  const [announcement, setAnnouncement] = useState("");
   const [scoreDisplay, setScoreDisplay] = useState(save.coins);
   const [offlineGain, setOfflineGain] = useState(0);
 
@@ -117,7 +117,7 @@ export default function HyperfokusGame() {
   const eventRef = useRef<ActiveEvent | null>(null);
   eventRef.current = activeEvent;
   const audioRef = useRef<ToneAudio | null>(null);
-  if (audioRef.current === null && typeof window !== 'undefined') {
+  if (audioRef.current === null && typeof window !== "undefined") {
     audioRef.current = new ToneAudio();
   }
   const floaterIdRef = useRef(0);
@@ -143,7 +143,7 @@ export default function HyperfokusGame() {
     if (gain > 0) {
       setSave((s) => ({ ...s, coins: s.coins + gain, lastSavedAt: now }));
       setOfflineGain(gain);
-      pushToast(`Während du weg warst: +${formatNumber(gain)}`, 'Auto-Tapper');
+      pushToast(`Während du weg warst: +${formatNumber(gain)}`, "Auto-Tapper");
     } else {
       setSave((s) => ({ ...s, lastSavedAt: now }));
     }
@@ -161,7 +161,7 @@ export default function HyperfokusGame() {
       setSave((s) => ({ ...s, lastSavedAt: now }));
     };
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         // Auto-Tapper-Einkommen der versteckten Zeitspanne nachbuchen
         const now = Date.now();
         const gain = Math.floor(computeOfflineIncome(saveRef.current, now));
@@ -171,11 +171,11 @@ export default function HyperfokusGame() {
         stamp();
       }
     };
-    document.addEventListener('visibilitychange', onVisibility);
-    window.addEventListener('beforeunload', stamp);
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("beforeunload", stamp);
     return () => {
-      document.removeEventListener('visibilitychange', onVisibility);
-      window.removeEventListener('beforeunload', stamp);
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("beforeunload", stamp);
     };
   }, [setSave]);
 
@@ -286,7 +286,7 @@ export default function HyperfokusGame() {
   }, [activeEvent]);
 
   const pushFloater = useCallback(
-    (clientX: number, clientY: number, text: string, kind: Floater['kind']) => {
+    (clientX: number, clientY: number, text: string, kind: Floater["kind"]) => {
       if (reducedMotion) return;
       // Translate viewport coords → coords local to the floater container
       // so the rendered floater appears centered on the actual tap point.
@@ -334,7 +334,7 @@ export default function HyperfokusGame() {
       };
       setActiveEvent(ev);
       pushToast(def.name, eventBlurb(kind));
-      audioRef.current?.playTone(660, 220, { type: 'triangle' });
+      audioRef.current?.playTone(660, 220, { type: "triangle" });
     }, delay);
   }, [pushToast]);
 
@@ -355,8 +355,8 @@ export default function HyperfokusGame() {
   const spawnParticleBurst = useCallback(
     (x: number, y: number, reward: ReturnType<typeof rollTapReward>, bossKilled: boolean) => {
       const palette = themeDef.particles;
-      const color = palette[Math.floor(Math.random() * palette.length)] ?? '#fff';
-      const count = bossKilled ? 40 : reward.coinKind === 'mega' ? 26 : reward.isCrit ? 18 : 10;
+      const color = palette[Math.floor(Math.random() * palette.length)] ?? "#fff";
+      const count = bossKilled ? 40 : reward.coinKind === "mega" ? 26 : reward.isCrit ? 18 : 10;
       const rect = canvasRef.current?.getBoundingClientRect();
       const px = rect ? x - rect.left : x;
       const py = rect ? y - rect.top : y;
@@ -382,15 +382,15 @@ export default function HyperfokusGame() {
     if (isCrit) {
       for (let i = 0; i < CRIT_CHORD_HZ.length; i++) {
         const f = CRIT_CHORD_HZ[i];
-        if (typeof f === 'number') {
-          audio.playTone(f, 250, { type: 'triangle', peak: 0.18 });
+        if (typeof f === "number") {
+          audio.playTone(f, 250, { type: "triangle", peak: 0.18 });
         }
       }
       return;
     }
     const idx = Math.min(PENTATONIC_HZ.length - 1, Math.floor(comboValue / 6));
     const freq = PENTATONIC_HZ[idx] ?? 440;
-    audio.playTone(freq, 90, { type: 'sine', peak: 0.13 });
+    audio.playTone(freq, 90, { type: "sine", peak: 0.13 });
   }, []);
 
   const handleCoreTap = useCallback(
@@ -417,7 +417,7 @@ export default function HyperfokusGame() {
       // Boss tap mechanic: every tap during BOSS event hits HP, large reward on kill.
       let bossReward = 0;
       let bossKilled = false;
-      if (ev && ev.kind === 'boss' && ev.bossHp > 0) {
+      if (ev && ev.kind === "boss" && ev.bossHp > 0) {
         const nextHp = ev.bossHp - 1;
         if (nextHp <= 0) {
           bossKilled = true;
@@ -427,7 +427,7 @@ export default function HyperfokusGame() {
             prestigeBonus(saveRef.current.prestigeCrystals);
           setActiveEvent(null);
           scheduleNextEvent();
-          pushToast('BOSS BESIEGT!', `+${formatNumber(bossReward)}`);
+          pushToast("BOSS BESIEGT!", `+${formatNumber(bossReward)}`);
         } else {
           const updated = { ...ev, bossHp: nextHp };
           // Ref sofort nachziehen: zwei schnelle Taps vor dem Re-Render lasen
@@ -477,28 +477,28 @@ export default function HyperfokusGame() {
 
       // Floating number + flash + particles + sound.
       const label =
-        reward.coinKind === 'mega'
+        reward.coinKind === "mega"
           ? `MEGA +${formatNumber(gained)}`
-          : reward.coinKind === 'bonus'
+          : reward.coinKind === "bonus"
             ? `BONUS +${formatNumber(gained)}`
             : reward.isCrit
               ? `CRIT +${formatNumber(gained)}`
               : `+${formatNumber(gained)}`;
-      pushFloater(clientX, clientY, label, reward.isCrit ? 'crit' : reward.coinKind);
+      pushFloater(clientX, clientY, label, reward.isCrit ? "crit" : reward.coinKind);
       playTapSound(newCombo, reward.isCrit);
       vibrate(reward.isCrit ? 18 : 6);
 
       // Particle burst on crit / mega / bonus / boss kill.
       if (!reducedMotion) {
-        if (reward.isCrit || reward.coinKind !== 'normal' || bossKilled) {
+        if (reward.isCrit || reward.coinKind !== "normal" || bossKilled) {
           spawnParticleBurst(clientX, clientY, reward, bossKilled);
         }
       }
 
-      setCoreFlash(bossKilled ? 'boss' : reward.isCrit ? 'crit' : 'tap');
+      setCoreFlash(bossKilled ? "boss" : reward.isCrit ? "crit" : "tap");
       window.setTimeout(() => {
         if (!mountedRef.current) return;
-        setCoreFlash('none');
+        setCoreFlash("none");
       }, 120);
 
       if (newCombo === 1 || newCombo % 10 === 0) {
@@ -521,7 +521,7 @@ export default function HyperfokusGame() {
     if (reducedMotion) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const resize = () => {
@@ -532,7 +532,7 @@ export default function HyperfokusGame() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
     let raf = 0;
     let prev = performance.now();
@@ -555,7 +555,7 @@ export default function HyperfokusGame() {
     };
     raf = window.requestAnimationFrame(loop);
     return () => {
-      window.removeEventListener('resize', resize);
+      window.removeEventListener("resize", resize);
       window.cancelAnimationFrame(raf);
     };
   }, [reducedMotion]);
@@ -567,10 +567,10 @@ export default function HyperfokusGame() {
         if (e.target.closest('[role="dialog"]')) return;
         // Fokus liegt auf einem anderen Bedienelement (Upgrade-Button etc.):
         // Enter/Space soll dieses aktivieren, nicht zusätzlich den Kern tappen
-        const interactive = e.target.closest('button, a, input, select, textarea');
+        const interactive = e.target.closest("button, a, input, select, textarea");
         if (interactive && interactive !== coreRef.current) return;
       }
-      if (e.key === ' ' || e.key === 'Enter') {
+      if (e.key === " " || e.key === "Enter") {
         if (e.repeat) return;
         const rect = coreRef.current?.getBoundingClientRect();
         const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
@@ -579,8 +579,8 @@ export default function HyperfokusGame() {
         e.preventDefault();
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [handleCoreTap]);
 
   // ----- Upgrade actions -----
@@ -590,7 +590,7 @@ export default function HyperfokusGame() {
         if (!canAfford(s, id)) return s;
         return applyUpgrade(s, id);
       });
-      audioRef.current?.playTone(740, 120, { type: 'square', peak: 0.13 });
+      audioRef.current?.playTone(740, 120, { type: "square", peak: 0.13 });
     },
     [setSave],
   );
@@ -602,8 +602,8 @@ export default function HyperfokusGame() {
     setCombo(0);
     setActiveEvent(null);
     setShowUpgrades(false);
-    pushToast(`+${gained} Aurora-Kristall${gained === 1 ? '' : 'e'}`, 'Prestige aktiviert');
-    audioRef.current?.playTone(880, 600, { type: 'triangle', peak: 0.16 });
+    pushToast(`+${gained} Aurora-Kristall${gained === 1 ? "" : "e"}`, "Prestige aktiviert");
+    audioRef.current?.playTone(880, 600, { type: "triangle", peak: 0.16 });
   }, [setSave, pushToast]);
 
   const onSwitchTheme = useCallback(
@@ -627,10 +627,10 @@ export default function HyperfokusGame() {
 
   const accentByEvent = useMemo(() => {
     if (!activeEvent) return null;
-    if (activeEvent.kind === 'goldrausch') return 'oklch(0.85 0.18 80)';
-    if (activeEvent.kind === 'frenzy') return 'oklch(0.7 0.22 25)';
-    if (activeEvent.kind === 'boss') return 'oklch(0.62 0.22 25)';
-    return 'oklch(0.75 0.17 220)';
+    if (activeEvent.kind === "goldrausch") return "oklch(0.85 0.18 80)";
+    if (activeEvent.kind === "frenzy") return "oklch(0.7 0.22 25)";
+    if (activeEvent.kind === "boss") return "oklch(0.62 0.22 25)";
+    return "oklch(0.75 0.17 220)";
   }, [activeEvent]);
 
   const bgStyle = useMemo<React.CSSProperties>(
@@ -736,13 +736,13 @@ export default function HyperfokusGame() {
                 className="h-full"
                 style={{
                   width: `${eventLeftFrac * 100}%`,
-                  background: accentByEvent ?? '#fff',
-                  transition: 'width 220ms linear',
+                  background: accentByEvent ?? "#fff",
+                  transition: "width 220ms linear",
                 }}
                 aria-hidden
               />
             </div>
-            {activeEvent.kind === 'boss' && (
+            {activeEvent.kind === "boss" && (
               <div className="mt-2 text-xs">
                 HP: <span className="font-bold tabular-nums">{activeEvent.bossHp}</span>
               </div>
@@ -765,7 +765,7 @@ export default function HyperfokusGame() {
             to={themeDef.coreTo}
             flash={coreFlash}
             reducedMotion={reducedMotion}
-            isBoss={activeEvent?.kind === 'boss'}
+            isBoss={activeEvent?.kind === "boss"}
           />
           {/* Floaters */}
           <div
@@ -796,7 +796,7 @@ export default function HyperfokusGame() {
               <div>
                 <div className="text-sm font-extrabold text-amber-200">Prestige verfügbar</div>
                 <div className="text-xs text-amber-100/80">
-                  Reset für +{prestigeGain} Aurora-Kristall{prestigeGain === 1 ? '' : 'e'} ( +
+                  Reset für +{prestigeGain} Aurora-Kristall{prestigeGain === 1 ? "" : "e"} ( +
                   {Math.round(prestigeGain * 10)}% dauerhaft)
                 </div>
               </div>
@@ -819,8 +819,8 @@ export default function HyperfokusGame() {
             className="rounded-2xl border border-white/20 bg-white/5 px-3 py-2 text-left text-xs text-white/80"
             aria-label="Offline-Bonus schließen"
           >
-            Auto-Tapper hat während deiner Abwesenheit{' '}
-            <span className="font-bold text-amber-200">+{formatNumber(offlineGain)}</span>{' '}
+            Auto-Tapper hat während deiner Abwesenheit{" "}
+            <span className="font-bold text-amber-200">+{formatNumber(offlineGain)}</span>{" "}
             gesammelt. Tippe zum Ausblenden.
           </button>
         )}
@@ -855,7 +855,7 @@ interface CoreProps {
   theme: HyperfokusTheme;
   from: string;
   to: string;
-  flash: 'none' | 'crit' | 'tap' | 'boss';
+  flash: "none" | "crit" | "tap" | "boss";
   reducedMotion: boolean;
   isBoss: boolean;
 }
@@ -865,24 +865,24 @@ const Core = forwardRef<HTMLButtonElement, CoreProps>(function Core(
   ref,
 ) {
   const handlePointer = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     onTap(e.clientX, e.clientY);
   };
 
   const flashRing =
-    flash === 'crit'
-      ? 'shadow-[0_0_60px_18px_rgba(253,224,71,0.6)]'
-      : flash === 'boss'
-        ? 'shadow-[0_0_80px_28px_rgba(220,38,38,0.7)]'
-        : flash === 'tap'
-          ? 'shadow-[0_0_30px_8px_rgba(255,255,255,0.25)]'
-          : '';
+    flash === "crit"
+      ? "shadow-[0_0_60px_18px_rgba(253,224,71,0.6)]"
+      : flash === "boss"
+        ? "shadow-[0_0_80px_28px_rgba(220,38,38,0.7)]"
+        : flash === "tap"
+          ? "shadow-[0_0_30px_8px_rgba(255,255,255,0.25)]"
+          : "";
 
   const scaleClass = reducedMotion
-    ? ''
-    : flash === 'tap' || flash === 'crit' || flash === 'boss'
-      ? 'scale-95'
-      : 'scale-100';
+    ? ""
+    : flash === "tap" || flash === "crit" || flash === "boss"
+      ? "scale-95"
+      : "scale-100";
 
   return (
     <button
@@ -900,10 +900,10 @@ const Core = forwardRef<HTMLButtonElement, CoreProps>(function Core(
       <span className="pointer-events-none absolute inset-0 grid place-items-center text-center text-white/90">
         <span className="flex flex-col items-center gap-1">
           <span className="text-3xl font-extrabold tracking-widest drop-shadow sm:text-4xl">
-            {isBoss ? 'BOSS' : 'TIPP'}
+            {isBoss ? "BOSS" : "TIPP"}
           </span>
           <span className="text-xs text-white/70">
-            {isBoss ? 'schnell tippen!' : 'Space oder Enter'}
+            {isBoss ? "schnell tippen!" : "Space oder Enter"}
           </span>
         </span>
       </span>
@@ -912,17 +912,17 @@ const Core = forwardRef<HTMLButtonElement, CoreProps>(function Core(
 });
 
 function FloaterPip({ f }: { f: Floater }) {
-  const colorByKind: Record<Floater['kind'], string> = {
-    normal: 'text-white',
-    bonus: 'text-amber-300',
-    mega: 'text-fuchsia-300',
-    crit: 'text-yellow-200',
+  const colorByKind: Record<Floater["kind"], string> = {
+    normal: "text-white",
+    bonus: "text-amber-300",
+    mega: "text-fuchsia-300",
+    crit: "text-yellow-200",
   };
-  const sizeByKind: Record<Floater['kind'], string> = {
-    normal: 'text-base',
-    bonus: 'text-lg font-extrabold',
-    mega: 'text-2xl font-extrabold',
-    crit: 'text-xl font-extrabold',
+  const sizeByKind: Record<Floater["kind"], string> = {
+    normal: "text-base",
+    bonus: "text-lg font-extrabold",
+    mega: "text-2xl font-extrabold",
+    crit: "text-xl font-extrabold",
   };
   return (
     <div
@@ -931,7 +931,7 @@ function FloaterPip({ f }: { f: Floater }) {
         {
           left: f.x,
           top: f.y,
-          transform: 'translate(-50%, -50%)',
+          transform: "translate(-50%, -50%)",
         } as React.CSSProperties
       }
       aria-hidden
@@ -970,7 +970,7 @@ function UpgradeSheet({ open, onClose, save, onBuy, onSwitchTheme }: UpgradeShee
             const def = UPGRADES[id];
             const lvl = save.upgrades[id];
             const maxed = lvl >= def.maxLevel;
-            const cost = maxed ? 0 : Math.ceil(def.baseCost * Math.pow(def.costGrowth, lvl));
+            const cost = maxed ? 0 : Math.ceil(def.baseCost * def.costGrowth ** lvl);
             const afford = !maxed && save.coins >= cost;
             return (
               <button
@@ -1027,8 +1027,8 @@ function UpgradeSheet({ open, onClose, save, onBuy, onSwitchTheme }: UpgradeShee
                     aria-pressed={active}
                     className={`min-h-10 rounded-full border px-3 py-1 text-xs font-bold transition disabled:opacity-40 ${
                       active
-                        ? 'border-primary-500 bg-primary-500 text-white'
-                        : 'border-surface-300 bg-surface-50 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-200'
+                        ? "border-primary-500 bg-primary-500 text-white"
+                        : "border-surface-300 bg-surface-50 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-200"
                     }`}
                   >
                     {def.name}
@@ -1046,7 +1046,7 @@ function UpgradeSheet({ open, onClose, save, onBuy, onSwitchTheme }: UpgradeShee
           </div>
           <div className="text-xs text-surface-600 dark:text-surface-300">
             Chance {Math.round(critChance(save.upgrades.critChance) * 100)}% · Multi ×
-            {critMultiplier(save.upgrades.critMulti)} · Decay{' '}
+            {critMultiplier(save.upgrades.critMulti)} · Decay{" "}
             {comboDecaySec(save.upgrades.comboDecay).toFixed(2)}s · Events ×
             {eventRateMultiplier(save.upgrades.eventRate).toFixed(2)}
           </div>

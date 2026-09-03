@@ -1,4 +1,4 @@
-export type RingColor = 'red' | 'blue' | 'green';
+export type RingColor = "red" | "blue" | "green";
 
 export interface Ring {
   color: RingColor;
@@ -7,7 +7,7 @@ export interface Ring {
 }
 
 export type Peg = Ring[];
-export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Difficulty = "easy" | "medium" | "hard";
 
 export interface GameState {
   pegs: Peg[];
@@ -19,7 +19,7 @@ export interface GameState {
 }
 
 export const NUM_PEGS = 4;
-export const COLORS: readonly RingColor[] = ['red', 'blue', 'green'] as const;
+export const COLORS: readonly RingColor[] = ["red", "blue", "green"] as const;
 
 export const RINGS_PER_COLOR: Record<Difficulty, number> = {
   easy: 3,
@@ -185,7 +185,7 @@ export function undoMove(
 }
 
 function pegsKey(pegs: Peg[]): string {
-  return pegs.map((p) => p.map((r) => `${r.color[0]}${r.size}`).join(',')).join('|');
+  return pegs.map((p) => p.map((r) => `${r.color[0]}${r.size}`).join(",")).join("|");
 }
 
 function applyMove(pegs: Peg[], from: number, to: number): Peg[] | null {

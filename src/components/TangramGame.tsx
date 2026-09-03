@@ -5,10 +5,10 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { STORAGE_KEYS } from '../lib/constants';
-import { TangramLevelSchema } from '../lib/persistedSchemas';
+} from "react";
+import { useVibration } from "../hooks/useVibration";
+import { STORAGE_KEYS } from "../lib/constants";
+import { TangramLevelSchema } from "../lib/persistedSchemas";
 import {
   fitPuzzlePoints,
   initialPieces,
@@ -21,11 +21,11 @@ import {
   TANGRAM_UNIT,
   TANGRAM_VIEW_H,
   TANGRAM_VIEW_W,
-} from '../lib/tangram';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+} from "../lib/tangram";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const VIEW_W = TANGRAM_VIEW_W;
 const VIEW_H = TANGRAM_VIEW_H;
@@ -44,7 +44,7 @@ export default function TangramGame() {
   const [pieces, setPieces] = useState<PieceState[]>(initialPieces);
   const [order, setOrder] = useState<number[]>(() => PIECE_DEFS.map((p) => p.id));
   const [showSolution, setShowSolution] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -65,7 +65,7 @@ export default function TangramGame() {
   const resetPieces = useCallback(() => {
     setPieces(initialPieces());
     setOrder(PIECE_DEFS.map((p) => p.id));
-    setAnnounce('Teile zurückgesetzt');
+    setAnnounce("Teile zurückgesetzt");
   }, []);
 
   const nextPuzzle = useCallback(() => {
@@ -185,8 +185,7 @@ export default function TangramGame() {
     if (showSolution) sfx.pop();
   }, [showSolution, sfx]);
 
-  const puzzlePathD =
-    puzzlePoints.map(([x, y], i) => (i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`)).join(' ') + ' Z';
+  const puzzlePathD = `${puzzlePoints.map(([x, y], i) => (i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`)).join(" ")} Z`;
 
   // For "Lösung zeigen" overlay: draw the pieces arranged as the canonical square
   // (target = top-left at (220, 90) so the 160x160 square is centered horizontally).
@@ -199,7 +198,7 @@ export default function TangramGame() {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 dark:text-slate-300">Form:</span>
+          <span className="text-fg-muted">Form:</span>
           <select
             value={levelIdx}
             onChange={(e) => {
@@ -210,7 +209,7 @@ export default function TangramGame() {
               setShowSolution(false);
               setAnnounce(`Form: ${PUZZLES[idx]!.name}`);
             }}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900"
+            className="min-h-11 rounded-lg border border-border bg-white px-2 py-1 text-sm dark:bg-slate-900"
           >
             {PUZZLES.map((p, i) => (
               <option key={i} value={i}>
@@ -223,8 +222,8 @@ export default function TangramGame() {
 
       <div className="fit-area mx-auto w-full max-w-md">
         <div
-          className="relative fit-box overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
-          style={{ '--fit-ar': VIEW_W / VIEW_H } as CSSProperties}
+          className="relative fit-box overflow-hidden rounded-2xl border border-border bg-slate-50 dark:bg-slate-900"
+          style={{ "--fit-ar": VIEW_W / VIEW_H } as CSSProperties}
         >
           <svg
             ref={svgRef}
@@ -247,14 +246,12 @@ export default function TangramGame() {
               PIECE_DEFS.map((def) => (
                 <path
                   key={`sol-${def.id}`}
-                  d={
-                    def.points
-                      .map(
-                        ([x, y], i) =>
-                          `${i === 0 ? 'M' : 'L'} ${SOLUTION_OFFSET_X + x} ${SOLUTION_OFFSET_Y + y}`,
-                      )
-                      .join(' ') + ' Z'
-                  }
+                  d={`${def.points
+                    .map(
+                      ([x, y], i) =>
+                        `${i === 0 ? "M" : "L"} ${SOLUTION_OFFSET_X + x} ${SOLUTION_OFFSET_Y + y}`,
+                    )
+                    .join(" ")} Z`}
                   fill={def.color}
                   opacity={0.35}
                   stroke="white"
@@ -267,7 +264,7 @@ export default function TangramGame() {
               if (!state) return null;
               const points = rotatedPiece(def, state)
                 .map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`)
-                .join(' ');
+                .join(" ");
               return (
                 <polygon
                   key={id}
@@ -282,7 +279,7 @@ export default function TangramGame() {
               );
             })}
           </svg>
-          <p className="absolute right-3 top-3 rounded bg-white/80 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-800/80 dark:text-slate-200">
+          <p className="absolute right-3 top-3 rounded bg-white/80 px-2 py-0.5 text-xs text-fg dark:bg-slate-800/80">
             {puzzle.name}
           </p>
         </div>
@@ -319,16 +316,16 @@ export default function TangramGame() {
           aria-pressed={showSolution}
           className={`min-h-12 flex-1 rounded-xl px-3 text-sm font-medium ${
             showSolution
-              ? 'bg-amber-500 text-white'
-              : 'border border-slate-300 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200'
+              ? "bg-amber-500 text-white"
+              : "border border-border bg-white text-fg dark:bg-slate-900"
           }`}
         >
-          {showSolution ? 'Lösung an' : 'Lösung zeigen'}
+          {showSolution ? "Lösung an" : "Lösung zeigen"}
         </button>
         <button
           type="button"
           onClick={resetPieces}
-          className="min-h-12 flex-1 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          className="min-h-12 flex-1 rounded-xl border border-border bg-white px-3 text-sm font-medium text-fg dark:bg-slate-900"
         >
           Zurücksetzen
         </button>

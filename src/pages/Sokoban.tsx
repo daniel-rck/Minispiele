@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import SokobanGame from '../components/SokobanGame';
+import GameLayout from "../components/GameLayout";
+import SokobanGame from "../components/SokobanGame";
 
 export default function Sokoban() {
   return (

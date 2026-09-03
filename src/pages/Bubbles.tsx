@@ -1,5 +1,5 @@
-import BubblesGame from '../components/BubblesGame';
-import GameLayout from '../components/GameLayout';
+import BubblesGame from "../components/BubblesGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Bubbles() {
   return (

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
 import {
   applyMove,
   COLOR_FLOOD_MAX_MOVES,
@@ -8,16 +8,16 @@ import {
   type ColorFloodState,
   createInitialState,
   floodPercent,
-} from '../lib/colorFlood';
-import { STORAGE_KEYS } from '../lib/constants';
-import { ColorFloodBestSchema } from '../lib/persistedSchemas';
-import { useGameSfx } from '../lib/useGameSfx';
-import { useLocalStorage } from '../lib/useLocalStorage';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
-import Sheet from './ui/Sheet';
+} from "../lib/colorFlood";
+import { STORAGE_KEYS } from "../lib/constants";
+import { ColorFloodBestSchema } from "../lib/persistedSchemas";
+import { useGameSfx } from "../lib/useGameSfx";
+import { useLocalStorage } from "../lib/useLocalStorage";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
+import Sheet from "./ui/Sheet";
 
-const PALETTE_LABELS = ['Rot', 'Blau', 'Grün', 'Gelb', 'Lila', 'Orange'] as const;
+const PALETTE_LABELS = ["Rot", "Blau", "Grün", "Gelb", "Lila", "Orange"] as const;
 
 export default function ColorFloodGame() {
   const [state, setState] = useState<ColorFloodState>(() => createInitialState());
@@ -28,7 +28,7 @@ export default function ColorFloodGame() {
   );
   const [endOpen, setEndOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
-  const [announce, setAnnounce] = useState('');
+  const [announce, setAnnounce] = useState("");
   const prevDoneRef = useRef(false);
   const { vibrate } = useVibration();
   const sfx = useGameSfx();
@@ -56,7 +56,7 @@ export default function ColorFloodGame() {
       sfx.win();
     } else {
       setScoreIsNew(false);
-      setAnnounce('Vorbei – zu viele Züge.');
+      setAnnounce("Vorbei – zu viele Züge.");
       vibrate(120);
       sfx.lose();
     }
@@ -68,7 +68,7 @@ export default function ColorFloodGame() {
     setEndOpen(false);
     setScoreIsNew(false);
     prevDoneRef.current = false;
-    setAnnounce('Neue Runde gestartet.');
+    setAnnounce("Neue Runde gestartet.");
   }, []);
 
   const pick = (colorIdx: number) => {
@@ -82,9 +82,9 @@ export default function ColorFloodGame() {
     <div className="flex h-full min-h-0 flex-col items-center gap-3 pb-2">
       <AriaLive message={announce} />
 
-      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-slate-600 dark:text-slate-300">
+      <div className="grid w-full max-w-md grid-cols-3 gap-2 text-sm text-fg-muted">
         <div>
-          Züge:{' '}
+          Züge:{" "}
           <span className="font-semibold tabular-nums">
             {state.moves}
             <span className="text-slate-400">/{COLOR_FLOOD_MAX_MOVES}</span>
@@ -134,12 +134,12 @@ export default function ColorFloodGame() {
               type="button"
               onClick={() => pick(i)}
               disabled={done || isCurrent}
-              aria-label={`Farbe wählen: ${PALETTE_LABELS[i]}${isCurrent ? ' (aktiv)' : ''}`}
+              aria-label={`Farbe wählen: ${PALETTE_LABELS[i]}${isCurrent ? " (aktiv)" : ""}`}
               aria-pressed={isCurrent}
               className={`min-h-11 min-w-11 flex-1 rounded-xl border-4 transition-transform ${
                 isCurrent
-                  ? 'border-white opacity-50'
-                  : 'border-transparent hover:scale-110 active:scale-95'
+                  ? "border-white opacity-50"
+                  : "border-transparent hover:scale-110 active:scale-95"
               } disabled:cursor-default`}
               style={{ backgroundColor: hex }}
             />
@@ -152,25 +152,25 @@ export default function ColorFloodGame() {
       </Button>
 
       <p className="max-w-md text-center text-xs text-slate-500">
-        Wähle eine Farbe und färbe den Bereich oben links ein. Schaffe es in höchstens{' '}
+        Wähle eine Farbe und färbe den Bereich oben links ein. Schaffe es in höchstens{" "}
         {COLOR_FLOOD_MAX_MOVES} Zügen, das ganze Feld einfarbig zu machen.
       </p>
 
       <Sheet
         open={endOpen}
         onClose={() => setEndOpen(false)}
-        title={state.won ? 'Geschafft!' : 'Vorbei'}
+        title={state.won ? "Geschafft!" : "Vorbei"}
       >
         <div className="text-center">
           <div className="mb-2 text-4xl" aria-hidden>
-            {state.won ? '🎨' : '💧'}
+            {state.won ? "🎨" : "💧"}
           </div>
           {state.won && scoreIsNew && (
             <div className="mb-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
               Neue Bestleistung!
             </div>
           )}
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mb-4 text-sm text-fg-muted">
             {state.won
               ? `Feld einfarbig in ${state.moves} Zügen.`
               : `Das Feld blieb mehrfarbig (${percent} % geflutet).`}

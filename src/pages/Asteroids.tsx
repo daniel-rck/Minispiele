@@ -1,5 +1,5 @@
-import AsteroidsGame from '../components/AsteroidsGame';
-import GameLayout from '../components/GameLayout';
+import AsteroidsGame from "../components/AsteroidsGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Asteroids() {
   return (

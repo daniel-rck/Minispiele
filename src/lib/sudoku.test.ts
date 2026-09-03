@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { conflictsAt, generatePuzzle, isComplete, SUDOKU_SIZE } from './sudoku';
+import { describe, expect, it } from "vitest";
+import { conflictsAt, generatePuzzle, isComplete, SUDOKU_SIZE } from "./sudoku";
 
 function seededRng(seed: number): () => number {
   // Mulberry32-style PRNG so generatePuzzle is deterministic but varied enough.
@@ -13,9 +13,9 @@ function seededRng(seed: number): () => number {
   };
 }
 
-describe('sudoku', () => {
-  it('generatePuzzle produces a valid solution of the right size', () => {
-    const puzzle = generatePuzzle('easy', seededRng(1));
+describe("sudoku", () => {
+  it("generatePuzzle produces a valid solution of the right size", () => {
+    const puzzle = generatePuzzle("easy", seededRng(1));
     expect(puzzle.cells.length).toBe(SUDOKU_SIZE * SUDOKU_SIZE);
     expect(puzzle.solution.length).toBe(SUDOKU_SIZE * SUDOKU_SIZE);
 
@@ -41,14 +41,14 @@ describe('sudoku', () => {
     }
   });
 
-  it('isComplete is true when every cell matches the solution', () => {
-    const puzzle = generatePuzzle('hard', seededRng(7));
+  it("isComplete is true when every cell matches the solution", () => {
+    const puzzle = generatePuzzle("hard", seededRng(7));
     const full = puzzle.solution.map((v) => ({ value: v, given: true, notes: [] }));
     expect(isComplete(full, puzzle.solution)).toBe(true);
     expect(isComplete(puzzle.cells, puzzle.solution)).toBe(false);
   });
 
-  it('conflictsAt finds duplicates in row, column or box', () => {
+  it("conflictsAt finds duplicates in row, column or box", () => {
     const cells = Array.from({ length: SUDOKU_SIZE * SUDOKU_SIZE }, () => ({
       value: 0,
       given: false,
@@ -66,7 +66,7 @@ describe('sudoku', () => {
     expect(conflictsAt(cells, 0)).toBe(true);
   });
 
-  it('conflictsAt returns false for empty cells', () => {
+  it("conflictsAt returns false for empty cells", () => {
     const cells = Array.from({ length: SUDOKU_SIZE * SUDOKU_SIZE }, () => ({
       value: 0,
       given: false,

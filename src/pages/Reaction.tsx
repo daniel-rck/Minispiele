@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import ReactionGame from '../components/ReactionGame';
+import GameLayout from "../components/GameLayout";
+import ReactionGame from "../components/ReactionGame";
 
 export default function Reaction() {
   return (

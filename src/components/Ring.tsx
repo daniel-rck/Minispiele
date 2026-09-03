@@ -1,5 +1,5 @@
-import { useId } from 'react';
-import type { RingColor } from '../lib/ringSort';
+import { useId } from "react";
+import type { RingColor } from "../lib/ringSort";
 
 interface RingPalette {
   light: string;
@@ -9,9 +9,9 @@ interface RingPalette {
 }
 
 const palettes: Record<RingColor, RingPalette> = {
-  red: { light: '#fecaca', mid: '#ef4444', dark: '#991b1b', stroke: '#7f1d1d' },
-  blue: { light: '#bfdbfe', mid: '#3b82f6', dark: '#1e3a8a', stroke: '#172554' },
-  green: { light: '#a7f3d0', mid: '#10b981', dark: '#065f46', stroke: '#064e3b' },
+  red: { light: "#fecaca", mid: "#ef4444", dark: "#991b1b", stroke: "#7f1d1d" },
+  blue: { light: "#bfdbfe", mid: "#3b82f6", dark: "#1e3a8a", stroke: "#172554" },
+  green: { light: "#a7f3d0", mid: "#10b981", dark: "#065f46", stroke: "#064e3b" },
 };
 
 interface RingProps {
@@ -22,7 +22,7 @@ interface RingProps {
 
 export default function Ring({ color, widthPercent, lifted = false }: RingProps) {
   const p = palettes[color];
-  const uid = useId().replace(/:/g, '');
+  const uid = useId().replace(/:/g, "");
   const bodyId = `ring-body-${uid}`;
   const glossId = `ring-gloss-${uid}`;
   const holeId = `ring-hole-${uid}`;
@@ -30,7 +30,7 @@ export default function Ring({ color, widthPercent, lifted = false }: RingProps)
   return (
     <div
       className={`relative h-10 sm:h-12 md:h-14 lg:h-16 transition-transform ${
-        lifted ? '-translate-y-4 md:-translate-y-5' : ''
+        lifted ? "-translate-y-4 md:-translate-y-5" : ""
       }`}
       style={{ width: `${widthPercent}%` }}
     >

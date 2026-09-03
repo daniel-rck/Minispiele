@@ -1,15 +1,15 @@
-import { expect, test } from '@playwright/test';
-import { games } from './games';
+import { expect, test } from "@playwright/test";
+import { games } from "./games";
 
 /**
  * Kein Spiel darf die Seite (document) scrollen lassen – alles soll in den
  * Viewport passen. Läuft über alle Spiele × beide Projekte (Desktop + Pixel 5).
  */
-test.describe('Spiele erzeugen keine Seiten-Scrollbar', () => {
+test.describe("Spiele erzeugen keine Seiten-Scrollbar", () => {
   for (const game of games) {
     test(`${game.path} passt in den Viewport`, async ({ page }) => {
       await page.goto(game.path);
-      await expect(page.getByRole('heading', { name: game.title }).first()).toBeVisible();
+      await expect(page.getByRole("heading", { name: game.title }).first()).toBeVisible();
       // Auf Schriftladen + ein gerendertes Frame warten, statt fixem Timeout
       // (deterministischer, kein Flake durch ResizeObserver/Fonts).
       await page.evaluate(() =>
@@ -19,9 +19,9 @@ test.describe('Spiele erzeugen keine Seiten-Scrollbar', () => {
       );
 
       const m = await page.evaluate(() => {
-        const fitEl = document.querySelector<HTMLElement>('[data-game-fit]');
+        const fitEl = document.querySelector<HTMLElement>("[data-game-fit]");
         if (!fitEl) return { missing: true } as const;
-        const box = fitEl.querySelector<HTMLElement>('.fit-box');
+        const box = fitEl.querySelector<HTMLElement>(".fit-box");
         return {
           missing: false as const,
           scrollH: document.documentElement.scrollHeight,
@@ -35,7 +35,7 @@ test.describe('Spiele erzeugen keine Seiten-Scrollbar', () => {
           // durch falsch platzierte max-w-Caps zu erkennen.
           boxW: box?.offsetWidth ?? 0,
           boxH: box?.offsetHeight ?? 0,
-          boxAr: box ? Number(getComputedStyle(box).getPropertyValue('--fit-ar')) : null,
+          boxAr: box ? Number(getComputedStyle(box).getPropertyValue("--fit-ar")) : null,
         };
       });
 
@@ -45,7 +45,7 @@ test.describe('Spiele erzeugen keine Seiten-Scrollbar', () => {
       if (m.missing) return;
 
       // Der Fit-Modus muss zur Erwartung der Spielliste passen.
-      expect(m.fitMode, `falscher Fit-Modus auf ${game.path}`).toBe(game.scroll ? 'scroll' : 'fit');
+      expect(m.fitMode, `falscher Fit-Modus auf ${game.path}`).toBe(game.scroll ? "scroll" : "fit");
 
       // 1) Die Seite selbst darf nie scrollen (+1px Sub-Pixel-Toleranz).
       expect(m.scrollH, `vertikaler Seiten-Overflow auf ${game.path}`).toBeLessThanOrEqual(
@@ -57,7 +57,7 @@ test.describe('Spiele erzeugen keine Seiten-Scrollbar', () => {
 
       // 2) Bei `fit`-Spielen darf der Spielbereich nichts abschneiden
       //    (`scroll`-Spiele dürfen bewusst intern scrollen).
-      if (m.fitMode === 'fit') {
+      if (m.fitMode === "fit") {
         expect(
           m.fitScrollH,
           `Inhalt wird im Spielbereich abgeschnitten auf ${game.path}`,

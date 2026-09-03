@@ -1,5 +1,5 @@
-import BingoGame from '../components/BingoGame';
-import GameLayout from '../components/GameLayout';
+import BingoGame from "../components/BingoGame";
+import GameLayout from "../components/GameLayout";
 
 export default function Bingo() {
   return (

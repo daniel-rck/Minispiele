@@ -1,5 +1,5 @@
-import ConwayBattleGame from '../components/ConwayBattleGame';
-import GameLayout from '../components/GameLayout';
+import ConwayBattleGame from "../components/ConwayBattleGame";
+import GameLayout from "../components/GameLayout";
 
 export default function ConwayBattle() {
   return (

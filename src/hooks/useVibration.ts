@@ -1,11 +1,11 @@
-import { useCallback } from 'react';
-import { useSettings } from '../lib/useSettings';
+import { useCallback } from "react";
+import { useSettings } from "../lib/useSettings";
 
 export function useVibration(): {
   vibrate: (pattern: number | readonly number[]) => boolean;
   isSupported: boolean;
 } {
-  const isSupported = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function';
+  const isSupported = typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
   const { settings } = useSettings();
 
   const vibrate = useCallback(

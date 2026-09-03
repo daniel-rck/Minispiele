@@ -1,5 +1,5 @@
-import { getAudioCtor } from './audioContext';
-import { isAudioEnabled } from './audioSettings';
+import { getAudioCtor } from "./audioContext";
+import { isAudioEnabled } from "./audioSettings";
 
 const NOISE_DURATION_S = 0.2;
 
@@ -26,14 +26,14 @@ export class GameSfx {
     try {
       this.ctx = new Ctor();
     } catch (err) {
-      console.warn('GameSfx: failed to create context', err);
+      console.warn("GameSfx: failed to create context", err);
       return false;
     }
     return true;
   }
 
   resume(): void {
-    if (this.ctx && this.ctx.state === 'suspended') {
+    if (this.ctx && this.ctx.state === "suspended") {
       void this.ctx.resume().catch(() => undefined);
     }
   }
@@ -61,27 +61,27 @@ export class GameSfx {
   /** Three descending notes — defeat. */
   lose(): void {
     if (!this.ready()) return;
-    this.tone(392.0, { decayS: 0.18, peak: 0.22, type: 'triangle' });
-    this.tone(311.13, { decayS: 0.22, peak: 0.22, type: 'triangle' }, 0.11);
-    this.tone(261.63, { decayS: 0.4, peak: 0.22, type: 'triangle' }, 0.25);
+    this.tone(392.0, { decayS: 0.18, peak: 0.22, type: "triangle" });
+    this.tone(311.13, { decayS: 0.22, peak: 0.22, type: "triangle" }, 0.11);
+    this.tone(261.63, { decayS: 0.4, peak: 0.22, type: "triangle" }, 0.25);
   }
 
   /** Short bright ping — correct match / found word / hit. */
   match(): void {
     if (!this.ready()) return;
-    this.tone(880, { decayS: 0.14, peak: 0.2, type: 'sine' });
+    this.tone(880, { decayS: 0.14, peak: 0.2, type: "sine" });
   }
 
   /** Short low buzz — invalid / mistake. */
   error(): void {
     if (!this.ready()) return;
-    this.tone(120, { decayS: 0.18, peak: 0.18, type: 'sawtooth' });
+    this.tone(120, { decayS: 0.18, peak: 0.18, type: "sawtooth" });
   }
 
   /** Descending sweep — line cleared / word completed / area filled. */
   clear(): void {
     if (!this.ready()) return;
-    this.tone(880, { decayS: 0.3, peak: 0.22, type: 'sine', glideToHz: 440 });
+    this.tone(880, { decayS: 0.3, peak: 0.22, type: "sine", glideToHz: 440 });
   }
 
   /** Noise-based pop — bubble burst / brick hit. */
@@ -94,7 +94,7 @@ export class GameSfx {
       src.buffer = this.getNoiseBuffer(ctx);
       src.playbackRate.value = 0.9 + Math.random() * 0.3;
       const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
+      filter.type = "bandpass";
       filter.frequency.value = 1600 + Math.random() * 600;
       filter.Q.value = 4;
       const gain = ctx.createGain();
@@ -106,7 +106,7 @@ export class GameSfx {
       src.start(now);
       src.stop(now + 0.12);
     } catch (err) {
-      console.warn('GameSfx: pop failed', err);
+      console.warn("GameSfx: pop failed", err);
     }
   }
 
@@ -118,13 +118,13 @@ export class GameSfx {
     if (!this.ready()) return;
     const safe = Math.max(0, Math.min(rank, 11));
     const freq = 220 * 2 ** (safe / 6);
-    this.tone(freq, { decayS: 0.18, peak: 0.2, type: 'triangle' });
+    this.tone(freq, { decayS: 0.18, peak: 0.2, type: "triangle" });
   }
 
   /** Short high tick — slot machine reel stopping. */
   reelTick(): void {
     if (!this.ready()) return;
-    this.tone(1500, { decayS: 0.05, peak: 0.18, type: 'square' });
+    this.tone(1500, { decayS: 0.05, peak: 0.18, type: "square" });
   }
 
   private ready(): boolean {
@@ -147,7 +147,7 @@ export class GameSfx {
   private tone(freq: number, opts: ToneOptions = {}, delayS = 0): void {
     const ctx = this.ctx;
     if (!ctx) return;
-    const { type = 'sine', peak = 0.2, attackS = 0.005, decayS = 0.15, glideToHz } = opts;
+    const { type = "sine", peak = 0.2, attackS = 0.005, decayS = 0.15, glideToHz } = opts;
     try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -164,7 +164,7 @@ export class GameSfx {
       osc.start(start);
       osc.stop(start + decayS + 0.04);
     } catch (err) {
-      console.warn('GameSfx: tone failed', err);
+      console.warn("GameSfx: tone failed", err);
     }
   }
 }

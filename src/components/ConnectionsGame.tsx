@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useVibration } from '../hooks/useVibration';
-import { CONNECTIONS_PUZZLES, type ConnectionsGroup } from '../lib/connectionsPuzzles';
-import { useGameSfx } from '../lib/useGameSfx';
-import AriaLive from './AriaLive';
-import Button from './ui/Button';
+import { useCallback, useEffect, useState } from "react";
+import { useVibration } from "../hooks/useVibration";
+import { CONNECTIONS_PUZZLES, type ConnectionsGroup } from "../lib/connectionsPuzzles";
+import { useGameSfx } from "../lib/useGameSfx";
+import AriaLive from "./AriaLive";
+import Button from "./ui/Button";
 
 const MAX_MISTAKES = 4;
 const GROUP_SIZE = 4;
@@ -34,7 +34,7 @@ function shuffle<T>(arr: readonly T[]): T[] {
 function newState(): State {
   const puzzleIndex = Math.floor(Math.random() * CONNECTIONS_PUZZLES.length);
   const puzzle = CONNECTIONS_PUZZLES[puzzleIndex] ?? CONNECTIONS_PUZZLES[0];
-  if (!puzzle) throw new Error('No Connections puzzles available');
+  if (!puzzle) throw new Error("No Connections puzzles available");
   const words = puzzle.groups.flatMap((g) => g.words);
   return {
     puzzleIndex,
@@ -49,7 +49,7 @@ function newState(): State {
 export default function ConnectionsGame() {
   const [state, setState] = useState<State>(() => newState());
   const [announcement, setAnnouncement] = useState(
-    'Finde 4 Gruppen mit je 4 zusammengehörigen Wörtern.',
+    "Finde 4 Gruppen mit je 4 zusammengehörigen Wörtern.",
   );
 
   const sfx = useGameSfx();
@@ -57,12 +57,12 @@ export default function ConnectionsGame() {
 
   const restart = useCallback(() => {
     setState(newState());
-    setAnnouncement('Neues Rätsel gestartet.');
+    setAnnouncement("Neues Rätsel gestartet.");
   }, []);
 
   useEffect(() => {
     if (state.solved.length === 4 && !state.over) {
-      setAnnouncement('Alle Gruppen gefunden! Perfekt.');
+      setAnnouncement("Alle Gruppen gefunden! Perfekt.");
     }
   }, [state.over, state.solved.length]);
 
@@ -122,7 +122,7 @@ export default function ConnectionsGame() {
       });
       setAnnouncement(
         state.mistakes + 1 >= MAX_MISTAKES
-          ? 'Leider verloren. Hier die Lösung.'
+          ? "Leider verloren. Hier die Lösung."
           : `Falsch. Noch ${MAX_MISTAKES - state.mistakes - 1} Versuche.`,
       );
     }
@@ -146,7 +146,7 @@ export default function ConnectionsGame() {
               aria-label={g.label}
             >
               <div className="text-xs font-medium opacity-90">{g.label}</div>
-              <div className="font-bold">{g.words.join(', ')}</div>
+              <div className="font-bold">{g.words.join(", ")}</div>
             </div>
           ))}
         </div>
@@ -168,8 +168,8 @@ export default function ConnectionsGame() {
               aria-pressed={isSelected}
               className={`min-h-14 rounded-xl border-2 px-1 text-xs font-bold leading-tight transition disabled:cursor-not-allowed sm:text-sm ${
                 isSelected
-                  ? 'border-amber-400 bg-amber-100 text-amber-900 dark:border-amber-300 dark:bg-amber-900/30 dark:text-amber-100'
-                  : 'border-surface-300 bg-surface-100 text-surface-900 hover:border-amber-400 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100'
+                  ? "border-amber-400 bg-amber-100 text-amber-900 dark:border-amber-300 dark:bg-amber-900/30 dark:text-amber-100"
+                  : "border-surface-300 bg-surface-100 text-surface-900 hover:border-amber-400 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-100"
               }`}
             >
               {word}
@@ -184,7 +184,7 @@ export default function ConnectionsGame() {
             key={i}
             aria-hidden
             className={`block h-3 w-3 rounded-full ${
-              i < state.mistakes ? 'bg-surface-400 dark:bg-surface-700' : 'bg-rose-500'
+              i < state.mistakes ? "bg-surface-400 dark:bg-surface-700" : "bg-rose-500"
             }`}
           />
         ))}

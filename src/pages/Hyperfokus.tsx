@@ -1,5 +1,5 @@
-import GameLayout from '../components/GameLayout';
-import HyperfokusGame from '../components/HyperfokusGame';
+import GameLayout from "../components/GameLayout";
+import HyperfokusGame from "../components/HyperfokusGame";
 
 export default function Hyperfokus() {
   return (
