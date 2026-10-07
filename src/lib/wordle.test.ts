@@ -70,7 +70,7 @@ describe("wordle scoreGuess", () => {
   });
 
   it("throws when guess and target lengths differ", () => {
-    expect(() => scoreGuess("ABC", "APFEL")).toThrow();
+    expect(() => scoreGuess("ABC", "APFEL")).toThrow("length mismatch");
   });
 });
 

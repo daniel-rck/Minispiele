@@ -288,7 +288,7 @@ function key(r: number, c: number): number {
 }
 
 function parseLayout(layout: string[], rows: number, cols: number): Grid {
-  const cells: Cell[] = new Array(rows * cols);
+  const cells = Array.from<Cell>({ length: rows * cols });
   for (let r = 0; r < rows; r++) {
     const line = layout[r] ?? "";
     for (let c = 0; c < cols; c++) {
@@ -348,7 +348,7 @@ export function buildState(level: Level, levelIdx = 0): GameState {
     level: levelIdx,
     grid,
     blocks,
-    matchArea: { slots: new Array(7).fill(null), capacity: 7 },
+    matchArea: { slots: Array.from({ length: 7 }, () => null), capacity: 7 },
     moves: 0,
     moveLimit: level.moveLimit ?? null,
     powerUps: {
@@ -459,7 +459,7 @@ function pushSlot(area: MatchArea, color: Color | "joker"): MatchArea {
 
 function compactSlots(slots: (MatchSlot | null)[]): (MatchSlot | null)[] {
   const filled = slots.filter((s): s is MatchSlot => s !== null);
-  const out: (MatchSlot | null)[] = new Array(slots.length).fill(null);
+  const out: (MatchSlot | null)[] = Array.from({ length: slots.length }, () => null);
   for (let i = 0; i < filled.length; i++) out[i] = filled[i]!;
   return out;
 }

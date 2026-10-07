@@ -1,8 +1,10 @@
 import type { InputHTMLAttributes } from "react";
 import { forwardRef } from "react";
 
-interface SearchInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "onChange"> {
+interface SearchInputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type" | "onChange"
+> {
   value: string;
   onValueChange: (v: string) => void;
   clearLabel?: string;

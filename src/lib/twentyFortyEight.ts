@@ -71,7 +71,7 @@ function setRow(grid: number[], row: number, values: readonly number[]): void {
 
 function getCol(grid: readonly number[], col: number): number[] {
   return [
-    grid[0 * GRID_SIZE + col] ?? 0,
+    grid[col] ?? 0,
     grid[1 * GRID_SIZE + col] ?? 0,
     grid[2 * GRID_SIZE + col] ?? 0,
     grid[3 * GRID_SIZE + col] ?? 0,

@@ -23,7 +23,7 @@
   <a href="https://vitejs.dev"><img alt="Vite 8" src="https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white&style=flat-square"></a>
   <a href="https://tailwindcss.com"><img alt="Tailwind 4" src="https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white&style=flat-square"></a>
   <img alt="PWA ready" src="https://img.shields.io/badge/PWA-ready-5A0FC8?logo=pwa&logoColor=white&style=flat-square">
-  <a href="https://biomejs.dev"><img alt="Code style: Biome" src="https://img.shields.io/badge/code_style-biome-60A5FA?logo=biome&logoColor=white&style=flat-square"></a>
+  <a href="https://oxc.rs"><img alt="Code style: oxc" src="https://img.shields.io/badge/code_style-oxlint_%2B_oxfmt-32F3E9?style=flat-square"></a>
 </p>
 
 ---
@@ -49,7 +49,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 - **React 19** + **TypeScript 6** + **Vite 8**
 - **React Compiler** aktiv — automatische Memoization, weniger `useMemo`/`useCallback`-Boilerplate
-- **Biome** für Lint + Format (ersetzt ESLint + Prettier, ~30× schneller)
+- **oxlint + oxfmt** (oxc) für Lint + Format — Konfiguration aus [web-base](https://github.com/daniel-rck/web-base)
 - **Tailwind CSS 4** (Styling), **Zod** (Schema-Validierung)
 - **Vitest** + **Testing Library** (Unit), **Playwright** (E2E)
 - **PWA** via `vite-plugin-pwa` + Workbox
@@ -63,8 +63,8 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 | `bun run test`          | Unit-Tests (einmalig)                          |
 | `bun run test:watch`    | Unit-Tests im Watch-Modus                      |
 | `bun run test:e2e`      | Playwright-E2E auf gebauter App                |
-| `bun run lint`          | Biome (Lint + Format-Check)                    |
-| `bun run format`        | Biome (Format, schreibend)                     |
+| `bun run lint`          | oxlint + oxfmt (Lint + Format-Check)           |
+| `bun run format`        | oxfmt (Format, schreibend)                     |
 | `bun run typecheck`     | TypeScript `--noEmit`                          |
 | `bun run build`         | Production-Build nach `dist/`                  |
 | `bun run preview`       | Lokale Vorschau des Builds                     |
@@ -80,7 +80,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 ## CI / Deployment
 
-CI grün = mergebar. Pipeline: `check` (Biome: Lint + Format) → `typecheck` → `test` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
+CI grün = mergebar. Pipeline: `lint` (oxlint + oxfmt) → `typecheck` → `test` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
 
 ## Beitragen
 

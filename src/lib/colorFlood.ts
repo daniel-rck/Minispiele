@@ -22,7 +22,7 @@ function index(row: number, col: number): number {
 }
 
 export function generateGrid(rng: () => number = Math.random): number[] {
-  const grid = new Array<number>(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE);
+  const grid = Array.from<number>({ length: COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE });
   for (let i = 0; i < grid.length; i++) {
     grid[i] = Math.floor(rng() * COLOR_FLOOD_COLORS);
   }

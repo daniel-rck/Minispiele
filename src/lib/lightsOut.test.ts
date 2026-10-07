@@ -19,7 +19,7 @@ function seededRng(values: number[]): () => number {
 
 describe("lightsOut", () => {
   it("toggleCell flips the cell and its orthogonal neighbours", () => {
-    const grid: boolean[] = new Array(LIGHTS_SIZE * LIGHTS_SIZE).fill(false);
+    const grid: boolean[] = Array.from({ length: LIGHTS_SIZE * LIGHTS_SIZE }, () => false);
     const next = toggleCell(grid, 12); // centre of a 5x5 grid
     expect(next[12]).toBe(true);
     expect(next[7]).toBe(true);
@@ -32,7 +32,7 @@ describe("lightsOut", () => {
   });
 
   it("toggleCell on a corner only flips the cell and its two in-bounds neighbours", () => {
-    const grid: boolean[] = new Array(LIGHTS_SIZE * LIGHTS_SIZE).fill(false);
+    const grid: boolean[] = Array.from({ length: LIGHTS_SIZE * LIGHTS_SIZE }, () => false);
     const next = toggleCell(grid, 0);
     expect(next.filter(Boolean).length).toBe(3);
     expect(next[0]).toBe(true);
@@ -41,8 +41,8 @@ describe("lightsOut", () => {
   });
 
   it("isAllOff detects an empty grid", () => {
-    expect(isAllOff(new Array(25).fill(false))).toBe(true);
-    expect(isAllOff(new Array(25).fill(true))).toBe(false);
+    expect(isAllOff(Array.from({ length: 25 }, () => false))).toBe(true);
+    expect(isAllOff(Array.from({ length: 25 }, () => true))).toBe(false);
   });
 
   it("generatePuzzle yields a non-trivial board", () => {

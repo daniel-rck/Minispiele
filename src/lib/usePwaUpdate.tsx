@@ -1,4 +1,3 @@
-import { registerSW } from "virtual:pwa-register";
 import {
   createContext,
   type ReactNode,
@@ -8,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { registerSW } from "virtual:pwa-register";
 
 export interface PwaUpdateContextValue {
   needRefresh: boolean;

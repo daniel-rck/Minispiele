@@ -69,10 +69,8 @@ describe("flow", () => {
     // Non-adjacent move
     const far = a!.cells[0] + 5 * 2; // two rows away
     expect(extendPath(state, a!.color, far)).toBeNull();
-    // Cannot enter another colour's endpoint
-    if (isAdjacent(level.size, a!.cells[0], b!.cells[0])) {
-      expect(extendPath(state, a!.color, b!.cells[0])).toBeNull();
-    }
+    // Cannot enter another colour's endpoint (refused whether or not it is adjacent)
+    expect(extendPath(state, a!.color, b!.cells[0])).toBeNull();
   });
 
   it("cellOwner reports which colour occupies a cell", () => {

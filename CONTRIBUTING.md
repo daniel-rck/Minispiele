@@ -34,8 +34,8 @@ Tests laufen mit `bun run test` (Unit) bzw. `bun run test:e2e` (Playwright).
 
 ## Coding Standards
 
-- **Biome** formatiert als pre-commit-Hook (via `simple-git-hooks` + `lint-staged`) — kein manuelles Formatieren nötig.
-- **Biome** strikt: `bun run lint` muss grün sein. A11y-Lint-Regeln sind aktiv.
+- **oxfmt** formatiert und **oxlint** fixt als pre-commit-Hook (via `simple-git-hooks` + `lint-staged`) — kein manuelles Formatieren nötig.
+- **oxlint** strikt: `bun run lint` muss grün sein (Fehler brechen, Warnungen sind Altbestand). A11y-Lint-Regeln sind aktiv.
 - **TypeScript** strict: `bun run typecheck`. Keine `any`, keine impliziten Typen.
 - **Accessibility:** Touch-Targets ≥ 44 px, semantische `<button>`-Elemente statt `div onClick`, sichtbarer Fokus-Ring, Tastaturbedienung möglich.
 - **Bundle-Budget:** Der main chunk sollte 270 KB nicht überschreiten — bei Überschreitung loggt CI eine Warnung (kein Hard-Fail). Alle Routen laden ohnehin lazy über `lazyPage` in [`src/lib/router.tsx`](./src/lib/router.tsx) — jedes Spiel landet automatisch in einem eigenen Chunk.

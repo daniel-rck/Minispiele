@@ -24,9 +24,9 @@ export interface SokobanState {
 function parseLevel(level: string[]): SokobanState {
   const rows = level.length;
   const cols = Math.max(...level.map((r) => r.length));
-  const walls: boolean[] = new Array(rows * cols).fill(false);
-  const targets: boolean[] = new Array(rows * cols).fill(false);
-  const boxes: boolean[] = new Array(rows * cols).fill(false);
+  const walls: boolean[] = Array.from({ length: rows * cols }, () => false);
+  const targets: boolean[] = Array.from({ length: rows * cols }, () => false);
+  const boxes: boolean[] = Array.from({ length: rows * cols }, () => false);
   let player = 0;
   for (let r = 0; r < rows; r++) {
     const line = level[r]!;

@@ -27,12 +27,10 @@ describe("bingo", () => {
     for (let row = 0; row < BINGO_SIZE; row++) {
       for (let col = 0; col < BINGO_SIZE; col++) {
         const idx = row * BINGO_SIZE + col;
-        if (idx === BINGO_FREE_INDEX) {
-          expect(card.numbers[idx]).toBe(0);
-          continue;
-        }
-        const min = col * BINGO_NUMBERS_PER_COLUMN + 1;
-        const max = min + BINGO_NUMBERS_PER_COLUMN - 1;
+        // The free centre cell holds 0; every other cell stays in its column's range.
+        const isFree = idx === BINGO_FREE_INDEX;
+        const min = isFree ? 0 : col * BINGO_NUMBERS_PER_COLUMN + 1;
+        const max = isFree ? 0 : min + BINGO_NUMBERS_PER_COLUMN - 1;
         expect(card.numbers[idx]).toBeGreaterThanOrEqual(min);
         expect(card.numbers[idx]).toBeLessThanOrEqual(max);
       }
@@ -60,7 +58,10 @@ describe("bingo", () => {
   });
 
   it("cardHasBingo detects full rows, columns and diagonals", () => {
-    const blank = { numbers: new Array(25).fill(0), marked: new Array(25).fill(false) };
+    const blank = {
+      numbers: Array.from({ length: 25 }, () => 0),
+      marked: Array.from({ length: 25 }, () => false),
+    };
     expect(cardHasBingo(blank)).toBe(false);
     const row = { ...blank, marked: blank.marked.slice() };
     for (let c = 0; c < BINGO_SIZE; c++) row.marked[2 * BINGO_SIZE + c] = true;

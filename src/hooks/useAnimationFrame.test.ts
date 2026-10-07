@@ -28,7 +28,7 @@ describe("useAnimationFrame", () => {
   });
 
   it("calls back each frame with delta time", () => {
-    const cb = vi.fn();
+    const cb = vi.fn<(deltaMs: number) => void>();
     renderHook(() => useAnimationFrame(cb, true));
 
     expect(callbacks.size).toBe(1);
@@ -54,7 +54,7 @@ describe("useAnimationFrame", () => {
   });
 
   it("clamps a large delta (e.g. after the tab was hidden) to 100ms", () => {
-    const cb = vi.fn();
+    const cb = vi.fn<(deltaMs: number) => void>();
     renderHook(() => useAnimationFrame(cb, true));
 
     // Simulate the tab being hidden for 30s: requestAnimationFrame would only
@@ -70,14 +70,14 @@ describe("useAnimationFrame", () => {
   });
 
   it("does not schedule when inactive", () => {
-    const cb = vi.fn();
+    const cb = vi.fn<(deltaMs: number) => void>();
     renderHook(() => useAnimationFrame(cb, false));
     expect(callbacks.size).toBe(0);
     expect(cb).not.toHaveBeenCalled();
   });
 
   it("stops scheduling after unmount", () => {
-    const cb = vi.fn();
+    const cb = vi.fn<(deltaMs: number) => void>();
     const { unmount } = renderHook(() => useAnimationFrame(cb, true));
     expect(callbacks.size).toBe(1);
     unmount();

@@ -25,42 +25,42 @@ function fireSwipe(
 
 describe("useSwipeDetection", () => {
   it("detects a right swipe when horizontal delta exceeds threshold", () => {
-    const onSwipe = vi.fn();
+    const onSwipe = vi.fn<(direction: SwipeDirection) => void>();
     const { result } = renderHook(() => useSwipeDetection({ onSwipe }));
     fireSwipe(result.current, [0, 0], [50, 5]);
     expect(onSwipe).toHaveBeenCalledWith<[SwipeDirection]>("right");
   });
 
   it("detects a left swipe", () => {
-    const onSwipe = vi.fn();
+    const onSwipe = vi.fn<(direction: SwipeDirection) => void>();
     const { result } = renderHook(() => useSwipeDetection({ onSwipe }));
     fireSwipe(result.current, [100, 0], [40, 5]);
     expect(onSwipe).toHaveBeenCalledWith("left");
   });
 
   it("detects a down swipe when vertical delta dominates", () => {
-    const onSwipe = vi.fn();
+    const onSwipe = vi.fn<(direction: SwipeDirection) => void>();
     const { result } = renderHook(() => useSwipeDetection({ onSwipe }));
     fireSwipe(result.current, [0, 0], [10, 60]);
     expect(onSwipe).toHaveBeenCalledWith("down");
   });
 
   it("detects an up swipe", () => {
-    const onSwipe = vi.fn();
+    const onSwipe = vi.fn<(direction: SwipeDirection) => void>();
     const { result } = renderHook(() => useSwipeDetection({ onSwipe }));
     fireSwipe(result.current, [0, 100], [5, 30]);
     expect(onSwipe).toHaveBeenCalledWith("up");
   });
 
   it("does not fire when movement is below threshold", () => {
-    const onSwipe = vi.fn();
+    const onSwipe = vi.fn<(direction: SwipeDirection) => void>();
     const { result } = renderHook(() => useSwipeDetection({ onSwipe, threshold: 24 }));
     fireSwipe(result.current, [0, 0], [10, 10]);
     expect(onSwipe).not.toHaveBeenCalled();
   });
 
   it("respects a custom threshold", () => {
-    const onSwipe = vi.fn();
+    const onSwipe = vi.fn<(direction: SwipeDirection) => void>();
     const { result } = renderHook(() => useSwipeDetection({ onSwipe, threshold: 100 }));
     fireSwipe(result.current, [0, 0], [50, 0]);
     expect(onSwipe).not.toHaveBeenCalled();

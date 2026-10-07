@@ -1,6 +1,5 @@
 import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import AnagramGame from "./AnagramGame";
 import AsteroidsGame from "./AsteroidsGame";
 import BinairoGame from "./BinairoGame";

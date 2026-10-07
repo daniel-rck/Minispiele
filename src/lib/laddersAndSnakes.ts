@@ -48,7 +48,7 @@ export interface GameState {
 
 export function createInitialState(): GameState {
   return {
-    positions: new Array(PLAYER_COUNT).fill(0),
+    positions: Array.from({ length: PLAYER_COUNT }, () => 0),
     current: 0,
     lastRoll: 0,
     status: "idle",

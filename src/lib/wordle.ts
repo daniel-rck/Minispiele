@@ -40,7 +40,7 @@ export function scoreGuess(guess: string, target: string): LetterState[] {
   if (g.length !== t.length) {
     throw new Error("scoreGuess: length mismatch");
   }
-  const result: LetterState[] = new Array(g.length).fill("absent");
+  const result: LetterState[] = Array.from({ length: g.length }, () => "absent");
   const remaining: Record<string, number> = {};
 
   for (let i = 0; i < t.length; i++) {

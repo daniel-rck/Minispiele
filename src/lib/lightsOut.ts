@@ -28,7 +28,7 @@ export function isAllOff(grid: boolean[]): boolean {
 }
 
 export function generatePuzzle(steps: number, rng: () => number = Math.random): boolean[] {
-  let grid: boolean[] = new Array(LIGHTS_SIZE * LIGHTS_SIZE).fill(false);
+  let grid: boolean[] = Array.from({ length: LIGHTS_SIZE * LIGHTS_SIZE }, () => false);
   const used = new Set<number>();
   while (used.size < steps) {
     const idx = Math.floor(rng() * grid.length);

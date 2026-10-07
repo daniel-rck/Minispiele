@@ -19,8 +19,8 @@ const ALL_PUZZLES = (["easy", "medium", "hard"] as const).flatMap((d) =>
 
 describe("parsePuzzle", () => {
   it("rejects strings of the wrong length", () => {
-    expect(() => parsePuzzle("A".repeat(35), {})).toThrow();
-    expect(() => parsePuzzle("A".repeat(37), {})).toThrow();
+    expect(() => parsePuzzle("A".repeat(35), {})).toThrow(/must be 36 chars, got 35/);
+    expect(() => parsePuzzle("A".repeat(37), {})).toThrow(/must be 36 chars, got 37/);
   });
 
   it("rejects missing target car", () => {

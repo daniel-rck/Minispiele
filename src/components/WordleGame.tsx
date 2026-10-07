@@ -177,13 +177,13 @@ export default function WordleGame() {
         while (letters.length < WORD_LENGTH) letters.push("");
         return {
           letters,
-          statuses: new Array(WORD_LENGTH).fill(undefined),
+          statuses: Array.from({ length: WORD_LENGTH }, () => undefined),
           isCurrent: true,
         };
       }
       return {
-        letters: new Array(WORD_LENGTH).fill(""),
-        statuses: new Array(WORD_LENGTH).fill(undefined),
+        letters: Array.from({ length: WORD_LENGTH }, () => ""),
+        statuses: Array.from({ length: WORD_LENGTH }, () => undefined),
         isCurrent: false,
       };
     });

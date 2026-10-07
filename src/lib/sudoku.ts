@@ -80,7 +80,7 @@ export function generatePuzzle(
   difficulty: SudokuDifficulty,
   rng: () => number = Math.random,
 ): SudokuPuzzle {
-  const solution: number[] = new Array(TOTAL).fill(0);
+  const solution: number[] = Array.from({ length: TOTAL }, () => 0);
   fillGrid(solution, 0, rng);
   const puzzle = solution.slice();
   const target = CLUE_COUNTS[difficulty];

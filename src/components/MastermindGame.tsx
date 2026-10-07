@@ -114,7 +114,7 @@ export default function MastermindGame() {
       };
     }
     return {
-      pegs: new Array<number | null>(CODE_LENGTH).fill(null),
+      pegs: Array.from({ length: CODE_LENGTH }, (): number | null => null),
       fb: null,
       isCurrent: false,
     };

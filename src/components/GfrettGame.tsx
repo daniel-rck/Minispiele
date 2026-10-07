@@ -541,7 +541,7 @@ function MatchAreaView({
 }) {
   // Show `capacity` boxes; only first `slots.length` are valid.
   const rendered = useMemo(() => {
-    const arr: ({ color: Color | "joker" } | null)[] = new Array(capacity).fill(null);
+    const arr: ({ color: Color | "joker" } | null)[] = Array.from({ length: capacity }, () => null);
     for (let i = 0; i < Math.min(capacity, slots.length); i++) arr[i] = slots[i] ?? null;
     return arr;
   }, [slots, capacity]);

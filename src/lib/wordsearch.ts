@@ -111,7 +111,7 @@ export function generate(
   wordCount: number,
   rng: () => number = Math.random,
 ): WordsearchPuzzle {
-  const grid: string[] = new Array(size * size).fill("");
+  const grid: string[] = Array.from({ length: size * size }, () => "");
   const words: PlacedWord[] = [];
   const pool = WORD_BANK.filter((w) => w.length <= size).slice();
   // shuffle pool

@@ -13,20 +13,32 @@ describe("DifficultySelector", () => {
   };
 
   it("renders the label and current value", () => {
-    render(<DifficultySelector<Difficulty> value="medium" options={options} onChange={vi.fn()} />);
+    render(
+      <DifficultySelector<Difficulty>
+        value="medium"
+        options={options}
+        onChange={vi.fn<(next: Difficulty) => void>()}
+      />,
+    );
     expect(screen.getByText("Schwierigkeit:")).toBeInTheDocument();
     expect(screen.getByRole("combobox")).toHaveValue("medium");
   });
 
   it("renders all options from the options record", () => {
-    render(<DifficultySelector<Difficulty> value="easy" options={options} onChange={vi.fn()} />);
+    render(
+      <DifficultySelector<Difficulty>
+        value="easy"
+        options={options}
+        onChange={vi.fn<(next: Difficulty) => void>()}
+      />,
+    );
     expect(screen.getByRole("option", { name: "Leicht" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Mittel" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Schwer" })).toBeInTheDocument();
   });
 
   it("calls onChange when a new value is selected", async () => {
-    const onChange = vi.fn();
+    const onChange = vi.fn<(next: Difficulty) => void>();
     render(<DifficultySelector<Difficulty> value="easy" options={options} onChange={onChange} />);
     await userEvent.selectOptions(screen.getByRole("combobox"), "hard");
     expect(onChange).toHaveBeenCalledWith("hard");
@@ -37,7 +49,7 @@ describe("DifficultySelector", () => {
       <DifficultySelector<Difficulty>
         value="easy"
         options={options}
-        onChange={vi.fn()}
+        onChange={vi.fn<(next: Difficulty) => void>()}
         label="Niveau:"
       />,
     );
@@ -46,7 +58,12 @@ describe("DifficultySelector", () => {
 
   it("disables the select when disabled is true", () => {
     render(
-      <DifficultySelector<Difficulty> value="easy" options={options} onChange={vi.fn()} disabled />,
+      <DifficultySelector<Difficulty>
+        value="easy"
+        options={options}
+        onChange={vi.fn<(next: Difficulty) => void>()}
+        disabled
+      />,
     );
     expect(screen.getByRole("combobox")).toBeDisabled();
   });

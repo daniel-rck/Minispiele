@@ -4,13 +4,13 @@ Nur die hier gelisteten Änderungen darf der Skill automatisch ins Working-Tree 
 
 ---
 
-## QW-1: Biome-Formatierung
+## QW-1: oxfmt-Formatierung
 
 **Bedingung**: Datei wurde im Audit gelesen oder verändert.
 
-**Aktion**: `bunx biome format --write <files>` als letzter Schritt nach allen anderen Quick-Wins (oder `bunx biome check --write <files>` für Format + safe Lint-Fixes).
+**Aktion**: `bunx oxfmt <files>` als letzter Schritt nach allen anderen Quick-Wins (vorher `bunx oxlint --fix <files>` für safe Lint-Fixes).
 
-**Risiko**: keins — pre-commit-Hook (lint-staged → `biome check --write`) würde das ohnehin tun.
+**Risiko**: keins — pre-commit-Hook (lint-staged → `oxlint --fix` + `oxfmt`) würde das ohnehin tun.
 
 ---
 
@@ -141,7 +141,7 @@ describe('<slug>', () => {
 ## Reihenfolge
 
 1. QW-2 bis QW-7 in beliebiger Reihenfolge anwenden.
-2. **Zum Schluss** QW-1 (Biome-Format) über alle veränderten Dateien.
+2. **Zum Schluss** QW-1 (oxfmt) über alle veränderten Dateien.
 
 ## Was NICHT als Quick-Win
 

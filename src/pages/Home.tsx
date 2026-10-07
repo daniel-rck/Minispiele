@@ -30,7 +30,10 @@ function greeting(now: Date = new Date()): string {
 }
 
 function normalize(input: string): string {
-  return input.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "");
+  return input
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "");
 }
 
 function matchesQuery(game: GameCard, q: string): boolean {

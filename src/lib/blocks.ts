@@ -187,7 +187,7 @@ export interface Piece {
 }
 
 export function emptyBoard(): number[] {
-  return new Array(BLOCKS_COLS * BLOCKS_ROWS).fill(0);
+  return Array.from({ length: BLOCKS_COLS * BLOCKS_ROWS }, () => 0);
 }
 
 export function randomType(rng: () => number = Math.random): number {
@@ -247,7 +247,7 @@ export function clearLines(board: number[]): { board: number[]; cleared: number 
     if (row.every((v) => v !== 0)) cleared++;
     else kept.push(...row);
   }
-  const empties = new Array(cleared * BLOCKS_COLS).fill(0);
+  const empties = Array.from({ length: cleared * BLOCKS_COLS }, () => 0);
   return { board: [...empties, ...kept], cleared };
 }
 

@@ -23,7 +23,7 @@ function seededRng(values: number[]): () => number {
 }
 
 function emptyGrid(): Cell[] {
-  return new Array(BUBBLES_ROWS * BUBBLES_COLS).fill(-1);
+  return Array.from({ length: BUBBLES_ROWS * BUBBLES_COLS }, () => -1);
 }
 
 describe("bubbles", () => {
@@ -60,7 +60,7 @@ describe("bubbles", () => {
   });
 
   it("neighbors of an even and an odd row differ in their diagonal offset", () => {
-    const evenRowCell = 1 * 0 + 3; // row 0, col 3
+    const evenRowCell = 3; // row 0, col 3
     const oddRowCell = BUBBLES_COLS + 3; // row 1, col 3
     expect(neighbors(evenRowCell)).not.toEqual(neighbors(oddRowCell));
   });

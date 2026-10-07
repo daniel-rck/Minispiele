@@ -15,8 +15,8 @@ function setMatchMedia(prefersDark: boolean): void {
     vi.fn((query: string) => ({
       matches: prefersDark && query.includes("dark"),
       media: query,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
+      addEventListener: vi.fn<() => void>(),
+      removeEventListener: vi.fn<() => void>(),
     })),
   );
 }

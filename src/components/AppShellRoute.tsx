@@ -7,9 +7,9 @@ import { useSettings } from "../lib/useSettings";
 import ErrorBoundary from "./ErrorBoundary";
 import OfflineIndicator from "./OfflineIndicator";
 import SettingsSheet from "./SettingsSheet";
-import UpdateBanner from "./UpdateBanner";
 import IconButton from "./ui/IconButton";
 import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from "./ui/icons";
+import UpdateBanner from "./UpdateBanner";
 
 function RouteFallback() {
   return (
