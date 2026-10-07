@@ -37,8 +37,10 @@ bun run test:e2e    # Playwright (Smoke pro Spiel)
 - **Deutsche UI + README, englischer Quellcode** (Bezeichner, Kommentare,
   Commits, Doku).
 - **Design-Tokens statt Roh-Paletten** im Chrome: `bg-surface`, `text-fg-muted`,
-  `border-border` … aus `src/lib/ui/theme.css`. Für Spielfarben gilt das
-  ausdrücklich **nicht** — siehe unten.
+  `border-border`, `text-fg-on-accent` (Text auf Akzent-Flächen, nie
+  `text-white`) … aus `src/lib/ui/tokens.css` (owned) und der Naht
+  `src/lib/ui/theme.css`. Für Spielfarben gilt das ausdrücklich **nicht** —
+  siehe unten.
 - Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`).
 
 ## App-spezifische Leitplanken
@@ -75,20 +77,61 @@ bun run test:e2e    # Playwright (Smoke pro Spiel)
   Der alte `@import url(fonts.googleapis.com/…)` stand außerdem *nach* den
   Regelblöcken und wurde von der CSS-Spec verworfen — die Schrift lud gar nicht.
   Alle `@import`s stehen jetzt am Anfang von `src/index.css`.
-- **Akzent ist `--accent-h: 195`** (Türkis). Der Wert steht jetzt direkt in
-  `theme.css`; das alte Override in `index.css` war ein veraltetes Scaffold.
+- **Akzent ist `--accent-h: 200`** (Türkis, seit web-base 0.6.0; vorher 195)
+  in `src/lib/ui/theme.css`, das nur noch `tokens.css` importiert und den Hue
+  setzt. `theme_color` ist dessen `accent-600`, **`#007a88`** — in
+  `vite.config.ts`, `index.html`, `public/theme-init.js` und `src/lib/brand.ts`
+  (`THEME_COLOR_LIGHT`, von `themeInit.test.ts` gegen `theme-init.js`
+  geprüft). Die app-eigenen Skalen (`primary-*`, `brand-*` als Alias des
+  Akzents, `surface-*`, `cat-*`, `highlight-*`) stehen in `src/index.css`.
+- **Router**: `src/lib/router.tsx` lädt `AppShellRoute` als Root-Layout-Route
+  (lazy) mit `ErrorBoundary: RouteError` und `HydrateFallback: RouteFallback`;
+  die Spiele hängen unter einer pfadlosen Kind-Route mit eigenem `RouteError`
+  (Fehler einer Seite rendern in der Shell), am Ende `{ path: "*", Component:
+  NotFound }`. Neue Spiele **vor** der `*`-Route eintragen. `tryImport` lädt
+  bei einem verschwundenen Chunk nach einem Deploy einmal neu; `RouteError`
+  fängt den Rest.
+- **Service Worker**: `src/sw/index.ts` ruft nur `registerAppShell()` aus dem
+  owned `src/sw/base.ts` (Precache, Offline-Deep-Links, Aktivierung erst auf
+  `SKIP_WAITING`). Die Update-UI ist app-eigen — `UpdateBanner` und „Auf
+  Updates prüfen" im Einstellungs-Sheet über `src/lib/usePwaUpdate.tsx`, das auf
+  web-bases `useAppUpdate()` aufsetzt und zusätzlich bei Fokus und auf Knopfdruck
+  `registration.update()` ruft. Kein zweites `registerSW`/`useRegisterSW`.
+- **Test-Setup**: `src/test/setup.ts` ist owned (fake-indexeddb, jest-dom,
+  Cleanup, `matchMedia`); das app-eigene Canvas-2D-Stub steht in
+  `src/test/canvas.ts`, beide in `setupFiles` von `vitest.config.ts`.
+  `virtual:pwa-register/react` ist dort auf `src/test/pwaRegisterStub.ts`
+  gemappt.
+- **IndexedDB** (`src/lib/db/db.ts`, `createDBOpener`) ist vorbereitet, aber
+  ungenutzt — der State liegt in Zod-validiertem `localStorage`. Name `"app"`,
+  Version 1 bleiben, bis der erste Store kommt.
 - **Bundle-Budget**: die CI warnt ab 270 KB Main-Chunk. Neue Spiele lazy laden.
 
 ## Bewusste Abweichungen
 
 - **Eigene CI statt des reusable `web-app-ci.yml`.** Der Job hier macht
   dieselben vier Gates plus Bundle-Budget und Playwright-E2E; der geteilte
-  Workflow kann das nicht. `web-base-check` läuft daneben.
+  Workflow kann das nicht. `web-base-check` läuft daneben, gepinnt auf
+  `@v0.6.0` (Dependabot hebt den Tag).
 - **Kein `AppShell`/`AppNav`/`PageHeader`.** Die App komponiert ihre Shell in
-  `src/components/AppShellRoute.tsx`; die drei Dateien lagen ungenutzt in
-  `src/lib/ui/` und sind entfernt. Übernommen sind `AppHeader` (mit
-  `maxWidthClass="max-w-7xl"`), `InstallButton` und `primitives`.
-- **Kein `useTheme` aus web-base** — das Theme hängt am Settings-Blob, siehe oben.
+  `src/components/AppShellRoute.tsx` (statt `src/App.tsx`); die drei Dateien
+  lägen ungenutzt in `src/lib/ui/` und sind entfernt. Übernommen sind
+  `AppHeader` (mit `maxWidthClass="max-w-7xl"`; der Titel ist dort ein
+  `<span>`, das `<h1>` trägt jede Seite selbst über `GameLayout` bzw. `Home`),
+  `InstallButton`, `OfflineIndicator` (Badge im Header) und `primitives`.
+- **Kein `useTheme`/`ThemeToggle` aus web-base** — das Theme hängt am
+  Settings-Blob und wird im Einstellungs-Sheet gewählt, siehe oben.
+- **Kein `UpdatePrompt`** — die App hat ihre eigene Update-UI auf
+  `useAppUpdate()`, siehe oben.
+- **Folge: `web-base check --strict` scheitert absichtlich** (layout und pwa
+  sind nur teilweise übernommen: `AppShell`, `AppNav`, `PageHeader`,
+  `ThemeToggle`, `useTheme`, `UpdatePrompt` fehlen). Lokal und in der CI läuft
+  der normale `check`; `update core --apply` legt die fehlenden Dateien wieder
+  an, weil die Blöcke übernommen sind — danach wieder löschen.
+- **Worker-Laufzeit**: `compatibility_date = "2025-10-01"` und
+  `nodejs_compat` bleiben vorerst (der Worker braucht kein Node-Built-in);
+  beides ändert die Workers-Laufzeit und wird einzeln mit Deploy-Check
+  angehoben bzw. entfernt.
 
 ## Offene Punkte
 

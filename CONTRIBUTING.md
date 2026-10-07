@@ -25,7 +25,7 @@ Tests laufen mit `bun run test` (Unit) bzw. `bun run test:e2e` (Playwright).
 
 1. **Komponente anlegen** in `src/pages/<DeinSpiel>.tsx` und in [`<GameLayout>`](./src/components/GameLayout.tsx) wrappen — damit erbt das Spiel Header, Back-Button und a11y-Landmarks automatisch.
 2. **Katalog-Eintrag** in [`src/lib/gamesCatalog.ts`](./src/lib/gamesCatalog.ts) ergänzen (`to`, `title`, `description`, `preview`, `previewAlt`, `category`). Das ist die Single Source of Truth — Home, Suche und Kategorien lesen alles daraus.
-3. **Route registrieren**: Pfad-Konstante in [`src/lib/routes.ts`](./src/lib/routes.ts) ergänzen und die Route in [`src/lib/router.tsx`](./src/lib/router.tsx) unter dem AppShell-Eintrag als `lazy: lazyPage(() => import('../pages/<DeinSpiel>.tsx'))` registrieren — bestehende Einträge zeigen das Muster.
+3. **Route registrieren**: Pfad-Konstante in [`src/lib/routes.ts`](./src/lib/routes.ts) ergänzen und die Route in [`src/lib/router.tsx`](./src/lib/router.tsx) unter den Kindern des Shell-Eintrags (`AppShellRoute`) als `lazy: lazyPage(() => import('../pages/<DeinSpiel>.tsx'))` registrieren, vor der `"*"`-Route (`NotFound`) — bestehende Einträge zeigen das Muster.
 4. **Preview-Asset** unter `public/games/<slug>-preview.svg` ablegen (siehe vorhandene Previews).
 5. **Tests** schreiben:
    - Unit: `src/pages/<DeinSpiel>.test.tsx` mit Vitest + Testing Library.

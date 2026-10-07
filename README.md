@@ -80,7 +80,7 @@ Dann [http://localhost:5173](http://localhost:5173) öffnen.
 
 ## CI / Deployment
 
-CI grün = mergebar. Pipeline: `lint` (oxlint + oxfmt) → `typecheck` → `test` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `ok`.
+CI grün = mergebar. Pipeline: `lint` (oxlint + oxfmt) → `typecheck` → `test` → `build` → Bundle-Budget (≤ 270 KB main chunk, Warnung bei Überschreitung) → Playwright-E2E. Production-Deploys übernimmt **Cloudflare Workers Builds** direkt via GitHub-Integration. Health-Check: `GET /healthz` → `{"ok":true}`.
 
 ## Beitragen
 
