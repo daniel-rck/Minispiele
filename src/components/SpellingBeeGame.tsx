@@ -152,7 +152,7 @@ export default function SpellingBeeGame() {
           autoCapitalize="characters"
           autoCorrect="off"
           spellCheck={false}
-          className="min-h-12 flex-1 rounded-2xl border-2 border-border bg-white px-4 text-center text-lg font-bold uppercase tracking-widest text-slate-900 outline-none focus:border-amber-500 dark:bg-slate-900 dark:text-amber-300"
+          className="min-h-12 flex-1 rounded-2xl border-2 border-border bg-white px-4 text-center text-lg font-bold uppercase tracking-widest text-slate-900 focus:border-amber-500 dark:bg-slate-900 dark:text-amber-300"
         />
         <Button variant="secondary" onClick={backspace} aria-label="Letzten Buchstaben entfernen">
           ⌫

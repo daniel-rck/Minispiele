@@ -8,8 +8,9 @@
 @import "@fontsource/nunito/latin-800.css";
 @import "@fontsource/nunito/latin-900.css";
 
-/* web-base shared design tokens (theme.css imports tailwindcss itself, carries
-   the accent hue and the data-theme `dark:` variant). We extend below:
+/* web-base shared design tokens (theme.css imports web-base's owned tokens.css,
+   which imports tailwindcss and carries the data-theme `dark:` variant; theme.css
+   sets the accent hue). We extend below:
    numbered scales, category families and the warm "highlight" color stay
    app-specific. */
 @import "./lib/ui/theme.css";
@@ -237,15 +238,8 @@ body {
   --color-cat-werkzeuge-soft: oklch(0.24 0.015 220);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-}
+/* The prefers-reduced-motion reset lives in web-base's tokens.css (it spares
+   the spinner). */
 
 button,
 [role="button"],
@@ -286,7 +280,7 @@ input[type="search"]::-webkit-search-decoration {
   z-index: 100;
   padding: 0.75rem 1rem;
   background: var(--color-primary-600);
-  color: white;
+  color: var(--color-fg-on-accent);
   font-weight: 700;
   border-radius: 0 0 var(--radius-md) 0;
 }

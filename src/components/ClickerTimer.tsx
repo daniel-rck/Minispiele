@@ -292,7 +292,7 @@ export default function ClickerTimer() {
               onClick={() => setDisplayMode("flip")}
               className={`min-h-9 rounded-md px-3 py-1 transition ${
                 displayMode === "flip"
-                  ? "bg-brand-600 text-white"
+                  ? "bg-brand-600 text-fg-on-accent"
                   : "text-fg-muted hover:text-brand-600"
               }`}
             >
@@ -305,7 +305,7 @@ export default function ClickerTimer() {
               onClick={() => setDisplayMode("continuous")}
               className={`min-h-9 rounded-md px-3 py-1 transition ${
                 displayMode === "continuous"
-                  ? "bg-brand-600 text-white"
+                  ? "bg-brand-600 text-fg-on-accent"
                   : "text-fg-muted hover:text-brand-600"
               }`}
             >

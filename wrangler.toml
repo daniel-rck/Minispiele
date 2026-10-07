@@ -1,11 +1,19 @@
 name = "minispiele"
 main = "worker/index.ts"
+# Raise deliberately, one deploy-checked PR at a time. Keep it >= 2025-04-01:
+# from that date on, navigations that match no asset get index.html without
+# invoking the Worker.
 compatibility_date = "2025-10-01"
+# Not needed by worker/ (no Node built-ins); kept until it is removed in its own
+# deploy-checked PR — see web-base 08-app-migrations.md, "Worker runtime settings".
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
 directory = "./dist"
 binding = "ASSETS"
+# Navigations without a matching file get index.html with a 200; every other
+# unmatched request (/api/*, /healthz, a stale /assets/*.js) runs the Worker.
+# No run_worker_first (see worker/base.ts).
 not_found_handling = "single-page-application"
 
 [observability]

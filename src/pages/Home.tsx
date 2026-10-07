@@ -54,7 +54,7 @@ function GameTile({ game, isFavorite, onToggleFavorite, todayAt, index = 0 }: Ga
   return (
     <li className="card-pop-in" style={{ animationDelay: `${Math.min(index * 30, 240)}ms` }}>
       <div className="relative">
-        <Link to={game.to} aria-label={game.title} className="block rounded-2xl focus:outline-none">
+        <Link to={game.to} aria-label={game.title} className="block rounded-2xl">
           <Card interactive accent={game.category} className="h-full">
             <div className="relative">
               <img
@@ -96,11 +96,7 @@ function GameTile({ game, isFavorite, onToggleFavorite, todayAt, index = 0 }: Ga
 function RecentTile({ game, at }: { game: GameCard; at: number }) {
   return (
     <li className="snap-start">
-      <Link
-        to={game.to}
-        aria-label={`${game.title} fortsetzen`}
-        className="block focus:outline-none"
-      >
+      <Link to={game.to} aria-label={`${game.title} fortsetzen`} className="block">
         <Card interactive accent={game.category} className="w-44 sm:w-52">
           <img
             src={game.preview}
@@ -260,7 +256,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="mt-3 inline-flex min-h-10 items-center rounded-full bg-primary-500 px-4 text-sm font-bold text-white hover:bg-primary-400"
+              className="mt-3 inline-flex min-h-10 items-center rounded-full bg-primary-600 px-4 text-sm font-bold text-fg-on-accent hover:bg-primary-700"
             >
               Suche zurücksetzen
             </button>

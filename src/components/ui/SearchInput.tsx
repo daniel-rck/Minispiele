@@ -51,7 +51,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function Sear
         value={value}
         onChange={(e) => onValueChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full min-h-12 rounded-2xl border-2 border-border bg-surface pl-11 pr-12 text-sm font-medium text-surface-900 placeholder:text-surface-400 focus:border-primary-400 focus:outline-none dark:border-surface-700 dark:bg-surface-900 dark:text-surface-50 dark:placeholder:text-surface-500"
+        className="w-full min-h-12 rounded-2xl border-2 border-border bg-surface pl-11 pr-12 text-sm font-medium text-surface-900 placeholder:text-surface-400 focus:border-primary-400 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-50 dark:placeholder:text-surface-500"
         {...rest}
       />
       {value ? (

@@ -39,7 +39,7 @@ export default defineConfig({
         name: "Minispiele",
         short_name: "Minispiele",
         description: "Kleine Browser-Minispiele — lokal, ohne Account.",
-        theme_color: "#11b3b3",
+        theme_color: "#007a88",
         background_color: "#ffffff",
         display: "standalone",
         lang: "de",

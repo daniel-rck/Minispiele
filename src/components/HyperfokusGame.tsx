@@ -1027,7 +1027,7 @@ function UpgradeSheet({ open, onClose, save, onBuy, onSwitchTheme }: UpgradeShee
                     aria-pressed={active}
                     className={`min-h-10 rounded-full border px-3 py-1 text-xs font-bold transition disabled:opacity-40 ${
                       active
-                        ? "border-primary-500 bg-primary-500 text-white"
+                        ? "border-primary-600 bg-primary-600 text-fg-on-accent"
                         : "border-surface-300 bg-surface-50 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-200"
                     }`}
                   >

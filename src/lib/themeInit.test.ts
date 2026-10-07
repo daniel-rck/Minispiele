@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // The real shipped file, not a copy: a test against a transcription would keep
 // passing after public/theme-init.js drifted away from it.
 import themeInitSource from "../../public/theme-init.js?raw";
+import { THEME_COLOR_DARK, THEME_COLOR_LIGHT } from "./brand";
 
 const SETTINGS_KEY = "minispiele.settings.v1";
 
@@ -25,7 +26,7 @@ describe("public/theme-init.js", () => {
   beforeEach(() => {
     localStorage.clear();
     document.documentElement.removeAttribute("data-theme");
-    document.head.innerHTML = '<meta name="theme-color" content="#11b3b3" />';
+    document.head.innerHTML = '<meta name="theme-color" content="#007a88" />';
     setMatchMedia(false);
   });
 
@@ -67,6 +68,16 @@ describe("public/theme-init.js", () => {
     expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe(
       "#0a1014",
     );
+  });
+
+  it("paints the light theme-color from brand.ts (the accent-600 of 04-layout-system.md)", () => {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ theme: "light" }));
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#000000");
+    runThemeInit();
+    expect(document.querySelector('meta[name="theme-color"]')?.getAttribute("content")).toBe(
+      THEME_COLOR_LIGHT,
+    );
+    expect(themeInitSource).toContain(THEME_COLOR_DARK);
   });
 
   it("follows the OS for theme-color when the choice is 'system'", () => {
