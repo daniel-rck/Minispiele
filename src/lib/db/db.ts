@@ -1,53 +1,37 @@
-import { type DBSchema, type IDBPDatabase, openDB } from "idb";
+import type { DBSchema } from "idb";
+import { clearStores } from "./mutations.ts";
+import { createDBOpener } from "./open.ts";
 
-// Replace this interface with your app's schema. Each store gets a
-// `key`/`value` shape and (optionally) named indexes.
+// The app's IndexedDB schema. Minispiele keeps its state (settings, scores,
+// favourites, saves) in Zod-validated localStorage and has no stores yet; this
+// is the web-base storage seam, ready for the first one.
 export interface AppSchema extends DBSchema {
-  // Example:
-  // tenants: {
-  //   key: string;
-  //   value: { id: string; name: string; createdAt: number };
-  //   indexes: { byName: string };
-  // };
+  // Delete this index signature once real stores exist: while it is here any
+  // string typechecks as a store name and every value is `unknown`.
   [storeName: string]: { key: IDBValidKey; value: unknown };
 }
 
-const DB_NAME = "app";
-const DB_VERSION = 1;
+export const getDB = createDBOpener<AppSchema>({
+  // Keep the name and version this database already shipped with: a new name
+  // would start every user with an empty database. ("app" predates the per-app
+  // naming rule; nothing opens it yet, so a rename is safe only while that holds.)
+  name: "app",
+  version: 1,
+  upgrade(db, oldVersion) {
+    // The migration ladder. `oldVersion` is 0 on a fresh install, so a new user
+    // runs every step and an existing one only the steps they're missing.
+    // Never edit a step that has shipped: bump `version` and add a new
+    // `if (oldVersion < N)` below the last one.
+    if (oldVersion < 1) {
+      // v1 shipped without stores.
+    }
+    void db;
+  },
+});
 
-let dbPromise: Promise<IDBPDatabase<AppSchema>> | null = null;
-
-export function getDB(): Promise<IDBPDatabase<AppSchema>> {
-  if (!dbPromise) {
-    dbPromise = openDB<AppSchema>(DB_NAME, DB_VERSION, {
-      upgrade(db, _oldVersion, _newVersion, _tx) {
-        // Create stores and indexes here. Example:
-        // if (!db.objectStoreNames.contains("tenants")) {
-        //   const store = db.createObjectStore("tenants", { keyPath: "id" });
-        //   store.createIndex("byName", "name");
-        // }
-        void db;
-      },
-    });
-  }
-  return dbPromise;
-}
-
-/** Test helper: wipe all stores in the current DB. */
+/** Wipe every store (tests' `beforeEach`, a "delete all data" action). */
 export async function clearAll(): Promise<void> {
-  const db = await getDB();
-  const storeNames = Array.from(db.objectStoreNames);
-  if (storeNames.length === 0) return;
-  const tx = db.transaction(storeNames, "readwrite");
-  await Promise.all(storeNames.map((name) => tx.objectStore(name).clear()));
-  await tx.done;
-  notifyMutation("*");
+  await clearStores(await getDB());
 }
 
-/** Notify subscribers of mutations. Channels are per-store. */
-export function notifyMutation(storeName: string): void {
-  if (typeof BroadcastChannel === "undefined") return;
-  const channel = new BroadcastChannel(`db:${storeName}`);
-  channel.postMessage({ type: "mutation", at: Date.now() });
-  channel.close();
-}
+export { notifyMutation } from "./mutations.ts";

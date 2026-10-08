@@ -335,7 +335,6 @@ export default function SudokuGame() {
                 type="button"
                 onClick={() => handleCellPress(idx)}
                 aria-label={`Zeile ${row + 1} Spalte ${col + 1}, ${cell.value === 0 ? "leer" : cell.value}${conflict ? ", Konflikt" : ""}`}
-                aria-invalid={conflict || undefined}
                 className={`relative text-base font-semibold tabular-nums transition-colors duration-150 sm:text-lg ${borderRight} ${borderBottom} ${
                   isSelected
                     ? "bg-brand-200 dark:bg-brand-900/60"

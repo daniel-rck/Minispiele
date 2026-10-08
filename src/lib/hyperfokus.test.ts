@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import {
   ACHIEVEMENTS,
   applyPrestige,
@@ -137,15 +137,13 @@ describe("hyperfokus pure logic", () => {
     it("findCheapestAffordable picks lowest cost when several affordable", () => {
       const save: HyperfokusSave = { ...DEFAULT_SAVE, coins: 100 };
       const picked = findCheapestAffordable(save);
-      expect(picked).not.toBeNull();
-      if (picked) {
-        const lvl = save.upgrades[picked];
-        const cost = upgradeCost(picked, lvl);
-        for (const id of ["tapPower", "autoTapper", "critChance"] as const) {
-          if (id === picked) continue;
-          const cmp = upgradeCost(id, save.upgrades[id]);
-          expect(cost).toBeLessThanOrEqual(cmp);
-        }
+      assert(picked, "expected an affordable upgrade");
+      const cost = upgradeCost(picked, save.upgrades[picked]);
+      const others = (["tapPower", "autoTapper", "critChance"] as const).filter(
+        (id) => id !== picked,
+      );
+      for (const id of others) {
+        expect(cost).toBeLessThanOrEqual(upgradeCost(id, save.upgrades[id]));
       }
     });
   });

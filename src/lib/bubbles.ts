@@ -24,7 +24,7 @@ export function randomColor(rng: () => number = Math.random): number {
 }
 
 export function buildInitial(rng: () => number = Math.random): BubblesState {
-  const grid: Cell[] = new Array(BUBBLES_ROWS * BUBBLES_COLS).fill(-1);
+  const grid: Cell[] = Array.from({ length: BUBBLES_ROWS * BUBBLES_COLS }, () => -1);
   for (let r = 0; r < 4; r++) {
     for (let c = 0; c < BUBBLES_COLS; c++) {
       grid[r * BUBBLES_COLS + c] = randomColor(rng);

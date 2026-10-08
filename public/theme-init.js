@@ -37,7 +37,7 @@
       mode === "dark" ||
       (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", dark ? "#0a1014" : "#11b3b3");
+    if (meta) meta.setAttribute("content", dark ? "#0a1014" : "#007a88");
   } catch {
     /* matchMedia missing — leave the static theme-color from index.html. */
   }

@@ -136,7 +136,6 @@ export default function HyperfokusGame() {
   const themeDef = THEMES[theme];
 
   // Offline income on mount.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: bewusst nur beim Mount — Offline-Einkommen und initiales Event-Scheduling dürfen nicht erneut laufen
   useEffect(() => {
     const now = Date.now();
     const gain = Math.floor(computeOfflineIncome(saveRef.current, now));
@@ -150,6 +149,7 @@ export default function HyperfokusGame() {
     lastSavedAtRef.current = now;
     // Initial event scheduling
     scheduleNextEvent();
+    // oxlint-disable-next-line react/exhaustive-deps -- mount only: offline income and the first event must not run again
   }, []);
 
   // Stamp `lastSavedAt` only on tab hide / page unload. `useLocalStorage` already
@@ -267,7 +267,6 @@ export default function HyperfokusGame() {
   }, [setSave]);
 
   // Event lifecycle (end-check).
-  // biome-ignore lint/correctness/useExhaustiveDependencies: bewusst nur an activeEvent gebunden — scheduleNextEvent als Dep würde das laufende Event-Timeout neu starten
   useEffect(() => {
     if (!activeEvent) return;
     const ms = Math.max(0, activeEvent.endsAt - Date.now());
@@ -276,6 +275,7 @@ export default function HyperfokusGame() {
       scheduleNextEvent();
     }, ms);
     return () => window.clearTimeout(id);
+    // oxlint-disable-next-line react/exhaustive-deps -- bound to activeEvent only: scheduleNextEvent as a dep would restart the running event timeout
   }, [activeEvent]);
 
   // Force-refresh display every 250ms while event is active (timer bar).
@@ -1027,7 +1027,7 @@ function UpgradeSheet({ open, onClose, save, onBuy, onSwitchTheme }: UpgradeShee
                     aria-pressed={active}
                     className={`min-h-10 rounded-full border px-3 py-1 text-xs font-bold transition disabled:opacity-40 ${
                       active
-                        ? "border-primary-500 bg-primary-500 text-white"
+                        ? "border-primary-600 bg-primary-600 text-fg-on-accent"
                         : "border-surface-300 bg-surface-50 text-surface-700 dark:border-surface-700 dark:bg-surface-900 dark:text-surface-200"
                     }`}
                   >

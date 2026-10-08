@@ -251,7 +251,7 @@ Sokoban (Kistenschieber), Sudoku, Mastermind (Codeknacker), Tangram, FreeCell, N
 | Pattern                                                                | Severity | Hinweis             |
 | ---------------------------------------------------------------------- | -------- | ------------------- |
 | Game-Component nicht von `ErrorBoundary` umgeben (Check `App.tsx`)     | 🟡       |                     |
-| `console.log` / `console.warn` im Code (außer mit `// biome-ignore`)   | 🟡       |                     |
+| `console.log` / `console.warn` im Code (außer mit `oxlint-disable`)    | 🟡       |                     |
 | Englisch-Strings in User-facing Texts                                  | 🟡       | Projekt ist Deutsch |
 | Du-Form-Bruch (Sie-Form)                                               | 🔵       |                     |
 | Slug ≠ Dateiname-Kebab-Case                                            | 🟡       | Konsistenz          |

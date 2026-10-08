@@ -23,7 +23,7 @@ export function computeHints(line: number[]): number[] {
 }
 
 export function generate(size: number, rng: () => number = Math.random): Nonogram {
-  const solution = new Array(size * size).fill(0) as number[];
+  const solution = Array.from({ length: size * size }, () => 0) as number[];
   // generate semi-dense pattern (50-60% fill)
   for (let i = 0; i < solution.length; i++) {
     solution[i] = rng() < 0.55 ? 1 : 0;

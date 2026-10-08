@@ -1,21 +1,10 @@
 /// <reference lib="webworker" />
-import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
+import { registerAppShell } from "./base.ts";
 
-declare const self: ServiceWorkerGlobalScope;
+// Precache, offline navigation and prompt-based updates (owned: base.ts). A new
+// version waits until the page posts SKIP_WAITING — UpdateBanner's „Neu laden"
+// or the settings sheet, both through usePwaUpdate.
+registerAppShell();
 
-// Injected at build time by vite-plugin-pwa (injectManifest strategy).
-precacheAndRoute(self.__WB_MANIFEST);
-cleanupOutdatedCaches();
-
-self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
-});
-
-// New SWs enter `waiting` and stay there until the UI prompts the user
-// to reload. The client then posts `SKIP_WAITING` so the new SW activates,
-// and the page reloads via the `controllerchange` event.
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
-});
+// Minispiele has no service-worker handlers of its own (no push, no runtime
+// caching: everything it needs is in the precache).

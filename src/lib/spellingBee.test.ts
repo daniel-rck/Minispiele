@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import {
   findValidWords,
   generatePuzzle,
@@ -77,11 +77,9 @@ describe("spellingBee", () => {
     expect(submitWord("axyz", puzzle, found).kind).toBe("invalid-letters");
     expect(submitWord("cafe", puzzle, found).kind).toBe("unknown");
     const accepted = submitWord("bead", puzzle, found);
-    expect(accepted.kind).toBe("accepted");
-    if (accepted.kind === "accepted") {
-      expect(accepted.word).toBe("BEAD");
-      expect(accepted.points).toBeGreaterThan(0);
-    }
+    assert(accepted.kind === "accepted", `expected "accepted", got "${accepted.kind}"`);
+    expect(accepted.word).toBe("BEAD");
+    expect(accepted.points).toBeGreaterThan(0);
     found.add("BEAD");
     expect(submitWord("bead", puzzle, found).kind).toBe("already-found");
   });

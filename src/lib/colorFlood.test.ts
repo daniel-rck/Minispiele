@@ -33,15 +33,15 @@ describe("colorFlood", () => {
   });
 
   it("isWon recognises a uniformly coloured grid", () => {
-    expect(isWon(new Array(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(2))).toBe(true);
-    const mixed = new Array(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(2);
+    expect(isWon(Array.from({ length: COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE }, () => 2))).toBe(true);
+    const mixed = Array.from({ length: COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE }, () => 2);
     mixed[5] = 1;
     expect(isWon(mixed)).toBe(false);
   });
 
   it("floodedCells counts only the connected blob touching the origin", () => {
     const size = COLOR_FLOOD_SIZE;
-    const grid = new Array<number>(size * size).fill(1);
+    const grid = Array.from({ length: size * size }, (): number => 1);
     grid[0] = 0;
     grid[1] = 0;
     grid[size] = 0;
@@ -51,13 +51,13 @@ describe("colorFlood", () => {
   });
 
   it("floodPercent returns 100 for a uniform grid", () => {
-    const grid = new Array<number>(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(4);
+    const grid = Array.from({ length: COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE }, (): number => 4);
     expect(floodPercent(grid)).toBe(100);
   });
 
   it("applyMove repaints the connected region from (0,0) to the new colour", () => {
     const size = COLOR_FLOOD_SIZE;
-    const grid = new Array<number>(size * size).fill(1);
+    const grid = Array.from({ length: size * size }, (): number => 1);
     grid[0] = 0;
     grid[1] = 0;
     grid[size] = 0;
@@ -79,7 +79,7 @@ describe("colorFlood", () => {
     const size = COLOR_FLOOD_SIZE;
     // Row 0 = colour 0, row 1 acts as a colour-2 wall, the rest stays colour 0.
     // Applying colour 1 only repaints row 0 — the grid stays multicoloured.
-    const grid = new Array<number>(size * size).fill(0);
+    const grid = Array.from({ length: size * size }, (): number => 0);
     for (let c = 0; c < size; c++) grid[size + c] = 2;
     let state = { grid, moves: COLOR_FLOOD_MAX_MOVES - 1, won: false, lost: false };
     state = applyMove(state, 1);
@@ -90,7 +90,7 @@ describe("colorFlood", () => {
 
   it("applyMove is a no-op once the game ended", () => {
     const state = {
-      grid: new Array<number>(COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE).fill(0),
+      grid: Array.from({ length: COLOR_FLOOD_SIZE * COLOR_FLOOD_SIZE }, (): number => 0),
       moves: 1,
       won: true,
       lost: false,

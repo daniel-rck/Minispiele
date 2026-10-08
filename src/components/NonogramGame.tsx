@@ -33,7 +33,7 @@ export default function NonogramGame() {
     {},
   );
   const [puzzle, setPuzzle] = useState<Nonogram>(() => generate(size));
-  const [cells, setCells] = useState<Cell[]>(() => new Array(size * size).fill(0));
+  const [cells, setCells] = useState<Cell[]>(() => Array.from({ length: size * size }, () => 0));
   const [mode, setMode] = useState<"fill" | "mark">("fill");
   const [winOpen, setWinOpen] = useState(false);
   const [scoreIsNew, setScoreIsNew] = useState(false);
@@ -78,7 +78,7 @@ export default function NonogramGame() {
     (nextSize: number = size) => {
       const p = generate(nextSize);
       setPuzzle(p);
-      setCells(new Array(nextSize * nextSize).fill(0));
+      setCells(Array.from({ length: nextSize * nextSize }, () => 0));
       setWinOpen(false);
       setScoreIsNew(false);
       startedRef.current = false;

@@ -1,7 +1,7 @@
 name: 🎮 Neues Spiel vorschlagen
 description: Schlage ein neues Mini-Spiel für die Sammlung vor.
-title: '[Spiel] '
-labels: ['new-game', 'enhancement']
+title: "[Spiel] "
+labels: ["new-game", "enhancement"]
 body:
   - type: markdown
     attributes:

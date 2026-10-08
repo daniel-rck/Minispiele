@@ -29,9 +29,9 @@ Systematische Qualitätsprüfung eines Minispiels (oder aller Spiele) gegen die 
 4. **Statische Analyse** der 15 Kategorien aus `CHECKLIST.md`. Pro Kategorie:
    - grep/Read-Pattern aus Checklist anwenden
    - Befunde mit Severity (🔴/🟡/🔵) und Datei:Zeile sammeln
-5. **Lint-Lauf**: `bunx biome lint <files>` (oder `bun run check <files>` für Lint + Format zusammen). Lint-Fehler in passende Kategorien einsortieren.
+5. **Lint-Lauf**: `bunx oxlint <files>` (Format-Check: `bunx oxfmt --check <files>`). Lint-Fehler in passende Kategorien einsortieren.
 6. **TypeScript-Check**: `bun run typecheck` (am Projekt — TypeScript hat keinen Single-File-Modus). Output nach relevanten Dateien filtern.
-7. **Quick-Wins anwenden** gemäß `QUICK_WINS.md`. Vor jeder Schreib-Aktion einen kleinen Notiz-Eintrag im Report sammeln. Nach allen Quick-Wins einmal `bunx biome format --write <files>` (oder `bunx biome check --write <files>` für Format + safe Lint-Fixes).
+7. **Quick-Wins anwenden** gemäß `QUICK_WINS.md`. Vor jeder Schreib-Aktion einen kleinen Notiz-Eintrag im Report sammeln. Nach allen Quick-Wins einmal `bunx oxlint --fix <files> && bunx oxfmt <files>`.
 8. **Report rendern** gemäß `REPORT_TEMPLATE.md`. Im Chat ausgeben.
 9. **Nicht commiten**. Hinweisen, dass User die Änderungen reviewen + commiten muss.
 
@@ -39,7 +39,7 @@ Systematische Qualitätsprüfung eines Minispiels (oder aller Spiele) gegen die 
 
 1. Spiele-Liste aus `src/lib/gamesCatalog.ts` extrahieren (alle `slug`-Einträge).
 2. **Einmaliger Projekt-Check**:
-   - `bun run check` projektweit (Biome Lint + Format-Check in einem)
+   - `bun run lint` projektweit (oxlint + oxfmt-Check in einem)
    - `bun run typecheck` projektweit
    - Ergebnisse cachen, später je Spiel zuordnen anhand Datei-Pfade.
 3. **Pro Spiel seriell**:
@@ -68,7 +68,7 @@ Systematische Qualitätsprüfung eines Minispiels (oder aller Spiele) gegen die 
 ## Wenn etwas schiefgeht
 
 - `bun`-Binary fehlt → fallback auf `npx`/`bunx` oder Hinweis ausgeben + abbrechen.
-- `bun run check` schlägt syntaktisch fehl (z.B. Biome-Config-Problem) → Audit fortsetzen ohne Lint-Output, Hinweis im Report.
+- `bun run lint` schlägt syntaktisch fehl (z.B. Problem in `.oxlintrc.json`) → Audit fortsetzen ohne Lint-Output, Hinweis im Report.
 - TypeScript-Check timeout (>60s) → mit Timeout abbrechen, Hinweis im Report („typecheck übersprungen — manuell prüfen").
 - Spiel hat keine `src/lib/<slug>.ts` → Kategorie „Architektur" flaggt das als 🟡, ist aber kein Skill-Abbruch.
 

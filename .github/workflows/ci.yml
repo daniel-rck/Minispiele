@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
-      - run: bun run check
+      - run: bun run lint
       - run: bun run typecheck
       - run: bun run test
       - run: bun run build
@@ -47,10 +47,12 @@ jobs:
 
   # Bricht den Build, wenn ein *owned* web-base-Baustein von der Basis
   # abgewichen ist. Scaffold-Nähte (theme.css-Akzent, Routen, Worker) bleiben
-  # unangetastet. Pin auf @main statt auf einen Version-Tag, bis v0.3.0 auf
-  # web-bases main getaggt ist; danach @v0.3.0.
+  # unangetastet. Der Tag wählt nur das Workflow-YAML; die geprüfte CLI-Version
+  # folgt `webBase.version` in package.json. Dependabot hebt den Tag an.
+  # Kein `strict: true`: layout und pwa sind bewusst nur teilweise übernommen
+  # (siehe CLAUDE.md, „Bewusste Abweichungen").
   web-base-check:
-    uses: daniel-rck/web-base/.github/workflows/web-base-check.yml@main
+    uses: daniel-rck/web-base/.github/workflows/web-base-check.yml@v0.6.0
 
   e2e:
     runs-on: ubuntu-latest

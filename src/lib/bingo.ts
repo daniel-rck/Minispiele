@@ -42,8 +42,8 @@ export function generateCard(rng: () => number = Math.random): BingoCard {
     for (let n = min; n < min + BINGO_NUMBERS_PER_COLUMN; n++) range.push(n);
     columnPicks.push(shuffle(range, rng).slice(0, BINGO_SIZE));
   }
-  const numbers: number[] = new Array(BINGO_SIZE * BINGO_SIZE);
-  const marked: boolean[] = new Array(BINGO_SIZE * BINGO_SIZE).fill(false);
+  const numbers = Array.from<number>({ length: BINGO_SIZE * BINGO_SIZE });
+  const marked: boolean[] = Array.from({ length: BINGO_SIZE * BINGO_SIZE }, () => false);
   for (let row = 0; row < BINGO_SIZE; row++) {
     for (let col = 0; col < BINGO_SIZE; col++) {
       const idx = row * BINGO_SIZE + col;

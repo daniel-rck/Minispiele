@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import GameOverSheet from "./GameOverSheet";
 
 describe("GameOverSheet", () => {
-  const noop = vi.fn();
+  const noop = vi.fn<() => void>();
   const noopAction = { label: "Nochmal", onClick: noop };
 
   it("does not render when closed", () => {
@@ -80,7 +80,7 @@ describe("GameOverSheet", () => {
   });
 
   it("calls primaryAction.onClick when primary button is clicked", async () => {
-    const onPrimary = vi.fn();
+    const onPrimary = vi.fn<() => void>();
     render(
       <GameOverSheet
         open
@@ -94,7 +94,7 @@ describe("GameOverSheet", () => {
   });
 
   it("renders and triggers secondaryAction when provided", async () => {
-    const onSecondary = vi.fn();
+    const onSecondary = vi.fn<() => void>();
     render(
       <GameOverSheet
         open

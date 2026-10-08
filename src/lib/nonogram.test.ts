@@ -42,9 +42,8 @@ describe("nonogram", () => {
     // Marks (2) on empty cells are fine, on filled cells they are not.
     const wrong = matching.slice();
     const firstFilled = puzzle.solution.indexOf(1);
-    if (firstFilled >= 0) {
-      wrong[firstFilled] = 2;
-      expect(isSolved(puzzle, wrong)).toBe(false);
-    }
+    expect(firstFilled).toBeGreaterThanOrEqual(0);
+    wrong[firstFilled] = 2;
+    expect(isSolved(puzzle, wrong)).toBe(false);
   });
 });

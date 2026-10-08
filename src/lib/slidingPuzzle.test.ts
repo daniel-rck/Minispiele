@@ -74,14 +74,11 @@ describe("slidingPuzzle.tryMove", () => {
     const s = createInitialState("medium", 1);
     // pick a tile guaranteed not adjacent: opposite corner of empty
     const oppositeCorner = s.size * s.size - 1 - s.emptyIndex;
-    const target = oppositeCorner === s.emptyIndex ? 0 : oppositeCorner;
-    if (target === s.emptyIndex) return; // skip degenerate
-    const next = tryMove(s, target);
-    // Either it was adjacent (e.g. tiny board edge case), in which case moves increments;
-    // otherwise the state is unchanged. We assert the move count semantics.
-    if (next === s) {
-      expect(next.moves).toBe(0);
-    }
+    // On an even-sized board the mirrored cell is never the empty one nor next to it.
+    expect(oppositeCorner).not.toBe(s.emptyIndex);
+    const next = tryMove(s, oppositeCorner);
+    expect(next).toBe(s);
+    expect(next.moves).toBe(0);
   });
 });
 

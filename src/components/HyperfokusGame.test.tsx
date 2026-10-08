@@ -59,11 +59,9 @@ describe("HyperfokusGame", () => {
     // Score should be at least 1 — DEFAULT_SAVE starts at 0
     const stored = window.localStorage.getItem("minispiele.hyperfokus.save.v1");
     expect(stored).toBeTruthy();
-    if (stored) {
-      const parsed = JSON.parse(stored) as { coins: number; totalTaps: number };
-      expect(parsed.totalTaps).toBeGreaterThanOrEqual(1);
-      expect(parsed.coins).toBeGreaterThanOrEqual(1);
-    }
+    const parsed = JSON.parse(stored ?? "{}") as { coins?: number; totalTaps?: number };
+    expect(parsed.totalTaps).toBeGreaterThanOrEqual(1);
+    expect(parsed.coins).toBeGreaterThanOrEqual(1);
   });
 
   it("opens upgrades sheet when button clicked", async () => {

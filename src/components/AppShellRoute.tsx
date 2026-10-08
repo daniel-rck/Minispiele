@@ -2,16 +2,17 @@ import { Suspense, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { BRAND_NAME } from "../lib/brand";
 import { ROUTES } from "../lib/routes.ts";
-import { AppHeader, InstallButton } from "../lib/ui";
+import { AppHeader, InstallButton, OfflineIndicator } from "../lib/ui";
 import { useSettings } from "../lib/useSettings";
 import ErrorBoundary from "./ErrorBoundary";
-import OfflineIndicator from "./OfflineIndicator";
 import SettingsSheet from "./SettingsSheet";
-import UpdateBanner from "./UpdateBanner";
 import IconButton from "./ui/IconButton";
 import { ChevronLeftIcon, SettingsIcon, Volume2Icon, VolumeXIcon } from "./ui/icons";
+import UpdateBanner from "./UpdateBanner";
 
-function RouteFallback() {
+// While a page chunk loads inside the shell (the first load shows the router
+// HydrateFallback, web-base's RouteFallback, instead).
+function PageFallback() {
   return (
     <div className="flex justify-center py-12 text-sm text-surface-500" role="status">
       Lädt …
@@ -51,6 +52,7 @@ export default function AppShellRoute() {
         }
         actions={
           <>
+            <OfflineIndicator />
             <InstallButton />
             <IconButton
               icon={settings.sound ? <Volume2Icon /> : <VolumeXIcon />}
@@ -68,10 +70,9 @@ export default function AppShellRoute() {
           </>
         }
       />
-      <OfflineIndicator />
       <main id="main" className="flex min-h-0 flex-1 flex-col" tabIndex={-1}>
         <ErrorBoundary label="route">
-          <Suspense fallback={<RouteFallback />}>
+          <Suspense fallback={<PageFallback />}>
             <Outlet />
           </Suspense>
         </ErrorBoundary>

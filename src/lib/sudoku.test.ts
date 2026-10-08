@@ -33,11 +33,7 @@ describe("sudoku", () => {
     // Givens must match the solution at their position.
     for (let i = 0; i < puzzle.cells.length; i++) {
       const cell = puzzle.cells[i]!;
-      if (cell.given) {
-        expect(cell.value).toBe(puzzle.solution[i]);
-      } else {
-        expect(cell.value).toBe(0);
-      }
+      expect(cell.value).toBe(cell.given ? puzzle.solution[i] : 0);
     }
   });
 

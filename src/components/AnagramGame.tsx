@@ -14,7 +14,9 @@ type Tile = AnagramTile;
 export default function AnagramGame() {
   const [word, setWord] = useState<string>(() => pickRandomHangmanWord());
   const [tiles, setTiles] = useState<Tile[]>(() => scrambleLetters(word));
-  const [slots, setSlots] = useState<(Tile | null)[]>(() => new Array(word.length).fill(null));
+  const [slots, setSlots] = useState<(Tile | null)[]>(() =>
+    Array.from({ length: word.length }, () => null),
+  );
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useLocalStorage<number>(STORAGE_KEYS.ANAGRAM_BEST, AnagramBestSchema, 0);
   const [feedback, setFeedback] = useState<"none" | "correct" | "wrong">("none");
@@ -31,7 +33,7 @@ export default function AnagramGame() {
     const next = pickRandomHangmanWord();
     setWord(next);
     setTiles(scrambleLetters(next));
-    setSlots(new Array(next.length).fill(null));
+    setSlots(Array.from({ length: next.length }, () => null));
     setFeedback("none");
     submittedRef.current = false;
   }, []);
@@ -68,7 +70,7 @@ export default function AnagramGame() {
 
   const clear = () => {
     setTiles((prev) => prev.map((t) => ({ ...t, placed: false })));
-    setSlots(new Array(word.length).fill(null));
+    setSlots(Array.from({ length: word.length }, () => null));
     setFeedback("none");
   };
 

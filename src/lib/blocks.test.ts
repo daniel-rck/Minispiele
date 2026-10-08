@@ -78,8 +78,8 @@ describe("blocks", () => {
     const piece: Piece = { type: 1, rot: 0, x: 0, y: 0 }; // O piece, color 4
     const board = merge(emptyBoard(), piece);
     // O piece cells at (1,0),(2,0),(1,1),(2,1)
-    expect(board[0 * BLOCKS_COLS + 1]).toBe(4);
-    expect(board[0 * BLOCKS_COLS + 2]).toBe(4);
+    expect(board[1]).toBe(4); // row 0
+    expect(board[2]).toBe(4); // row 0
     expect(board[1 * BLOCKS_COLS + 1]).toBe(4);
     expect(board[1 * BLOCKS_COLS + 2]).toBe(4);
   });

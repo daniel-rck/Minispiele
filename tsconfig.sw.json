@@ -11,7 +11,12 @@
     "noEmit": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
-    "types": ["vite-plugin-pwa/client"]
+    "types": ["vite-plugin-pwa/client"],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "moduleDetection": "force",
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/sw/**/*.ts"]
 }

@@ -1,0 +1,103 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "extends": ["./oxlint.base.json"],
+  "ignorePatterns": ["todo/**", "public/**", "playwright-report/**", "test-results/**"],
+  "rules": {
+    "react/no-array-index-key": "error"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["**/__tests__/**", "**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "typescript/no-non-null-assertion": "off",
+        "vitest/expect-expect": [
+          "error",
+          {
+            "assertFunctionNames": ["expect", "expectNoA11yViolations"]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/components/*Game.tsx",
+        "src/components/DiceRoller.tsx",
+        "src/components/TimerDisplay.tsx",
+        "src/components/SettingsSheet.tsx"
+      ],
+      "rules": {
+        "react/no-array-index-key": "off"
+      }
+    },
+    {
+      "files": [
+        "src/components/AriaLive.tsx",
+        "src/components/AsteroidsGame.tsx",
+        "src/components/BinairoGame.tsx",
+        "src/components/BingoGame.tsx",
+        "src/components/BreakoutGame.tsx",
+        "src/components/BubblesGame.tsx",
+        "src/components/ClickerTimer.tsx",
+        "src/components/ColorFloodGame.tsx",
+        "src/components/ConnectionsGame.tsx",
+        "src/components/ConwayBattleGame.tsx",
+        "src/components/CrosswordGame.tsx",
+        "src/components/DiceRoller.tsx",
+        "src/components/DoodleJumpGame.tsx",
+        "src/components/FlappyBirdGame.tsx",
+        "src/components/FlipDigit.tsx",
+        "src/components/FlowGame.tsx",
+        "src/components/FreecellGame.tsx",
+        "src/components/FroggerGame.tsx",
+        "src/components/FutoshikiGame.tsx",
+        "src/components/GameOfLifeGame.tsx",
+        "src/components/GfrettGame.tsx",
+        "src/components/HanoiGame.tsx",
+        "src/components/HitoriGame.tsx",
+        "src/components/LaddersGame.tsx",
+        "src/components/LightsOutGame.tsx",
+        "src/components/MastermindGame.tsx",
+        "src/components/Match3Game.tsx",
+        "src/components/MemoryGame.tsx",
+        "src/components/MinesweeperGame.tsx",
+        "src/components/NonogramGame.tsx",
+        "src/components/NurikabeGame.tsx",
+        "src/components/PipePuzzleGame.tsx",
+        "src/components/QwirkleGame.tsx",
+        "src/components/SchulteGame.tsx",
+        "src/components/SlidingPuzzleGame.tsx",
+        "src/components/SlitherlinkGame.tsx",
+        "src/components/SnakeGame.tsx",
+        "src/components/SokobanGame.tsx",
+        "src/components/SpellingBeeGame.tsx",
+        "src/components/StroopGame.tsx",
+        "src/components/SudokuGame.tsx",
+        "src/components/TrafficJamGame.tsx",
+        "src/components/TwentyFortyEightGame.tsx",
+        "src/components/TypingTestGame.tsx",
+        "src/components/VierBilderGame.tsx",
+        "src/components/ViergewinntGame.tsx",
+        "src/components/WhackAMoleGame.tsx",
+        "src/components/WordsearchGame.tsx",
+        "src/components/WuerfelpokerGame.tsx",
+        "src/hooks/useAnimationFrame.ts",
+        "src/hooks/useHoldRepeat.ts",
+        "src/hooks/useWakeLock.ts",
+        "src/lib/useGameSfx.ts",
+        "src/lib/useLocalStorage.ts"
+      ],
+      "rules": {
+        "react/set-state-in-effect": "warn",
+        "react/refs": "warn",
+        "react/immutability": "warn",
+        "react/purity": "warn"
+      }
+    }
+  ]
+}

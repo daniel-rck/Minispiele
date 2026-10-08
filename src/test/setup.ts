@@ -1,34 +1,31 @@
+// Shared test setup, loaded through `setupFiles` in vitest.config.ts.
+// BroadcastChannel needs no polyfill: Node's built-in one delivers between
+// instances, so notifyMutation → useLiveQuery works as in the browser.
+// oxlint-disable-next-line import/no-unassigned-import -- installs indexedDB, IDBKeyRange & co. as globals
+import "fake-indexeddb/auto";
+// oxlint-disable-next-line import/no-unassigned-import -- registers the jest-dom matchers (and their types) on vitest's expect
 import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
 
-// jsdom does not implement the canvas 2D API. Several canvas-based games
-// (FlappyBird, Pong, Asteroids, …) call getContext('2d') inside their animation
-// loop; without a stub jsdom throws "Not implemented: HTMLCanvasElement.getContext"
-// on every frame, flooding test output. Provide a no-op 2D context so those
-// components render quietly in tests.
-if (typeof HTMLCanvasElement !== "undefined") {
-  const noop = () => undefined;
-  const make2dContext = (canvas: HTMLCanvasElement): CanvasRenderingContext2D => {
-    const base: Record<string, unknown> = {
-      canvas,
-      measureText: () => ({ width: 0 }),
-      getImageData: () => ({ data: new Uint8ClampedArray(4), width: 1, height: 1 }),
-      createLinearGradient: () => ({ addColorStop: noop }),
-      createRadialGradient: () => ({ addColorStop: noop }),
-      createPattern: () => null,
-    };
-    return new Proxy(base, {
-      // Unknown methods (fillRect, beginPath, arc, fill, drawImage, …) become no-ops.
-      get: (target, prop, receiver) =>
-        prop in target ? Reflect.get(target, prop, receiver) : noop,
-      // Accept property assignments (fillStyle, font, lineWidth, …).
-      set: () => true,
-    }) as unknown as CanvasRenderingContext2D;
-  };
+// Testing Library only unmounts after each test by itself when `afterEach` is
+// a global (vitest's `globals: true`); without this, trees leak between tests.
+afterEach(() => {
+  cleanup();
+});
 
-  HTMLCanvasElement.prototype.getContext = function getContext(
-    this: HTMLCanvasElement,
-    contextId: string,
-  ) {
-    return contextId === "2d" ? make2dContext(this) : null;
-  } as unknown as typeof HTMLCanvasElement.prototype.getContext;
+// jsdom has no matchMedia, which the theme and install-prompt hooks call.
+// Every query reports "no match"; override per test with
+// `vi.spyOn(window, "matchMedia").mockReturnValue(…)`.
+if (typeof window.matchMedia !== "function") {
+  window.matchMedia = (query: string): MediaQueryList => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener() {},
+    removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+    dispatchEvent: () => false,
+  });
 }

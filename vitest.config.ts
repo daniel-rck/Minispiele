@@ -10,7 +10,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "virtual:pwa-register": fileURLToPath(
+      "virtual:pwa-register/react": fileURLToPath(
         new URL("./src/test/pwaRegisterStub.ts", import.meta.url),
       ),
     },
@@ -18,7 +18,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./src/test/setup.ts"],
+    // web-base's owned setup (fake-indexeddb, jest-dom, cleanup, matchMedia),
+    // then the app's own (a no-op canvas 2D context for the canvas games).
+    setupFiles: ["./src/test/setup.ts", "./src/test/canvas.ts"],
     css: false,
     exclude: ["node_modules", "dist", "e2e", "playwright-report", "test-results"],
   },

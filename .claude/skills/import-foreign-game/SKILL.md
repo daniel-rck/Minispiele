@@ -36,7 +36,7 @@ Das Projekt verlangt für **jedes** neue Spiel exakt diese 7 Touchpoints (siehe 
 
 1. `src/components/<Name>Game.tsx` — Spiel-Komponente (Tailwind-Klassen, kein Inline-CSS, kein dunkles Hardcoded-Theme)
 2. `src/pages/<Name>.tsx` — Page-Wrapper mit `<GameLayout title="…" description="…">`
-3. `src/App.tsx` — `lazy()`-Import + `<Route path="<slug>">` innerhalb des AppShell (alphabetisch oder am Ende einfügen — bestehende Reihenfolge beibehalten)
+3. `src/lib/routes.ts` + `src/lib/router.tsx` — Pfad-Konstante und `{ path: rel(ROUTES.<x>), lazy: lazyPage(() => import("../pages/<Name>.tsx")) }` unter den Kindern des Shell-Eintrags (am Ende einfügen, aber **vor** der `"*"`-Route `NotFound`)
 4. `src/lib/gamesCatalog.ts` — neuer Eintrag in `GAME_INPUTS` (`to`, `title`, `description`, `preview`, `previewAlt`, `category`)
 5. `src/lib/constants.ts` — `STORAGE_KEYS`-Eintrag (`<SLUG>_BEST`, `<SLUG>_STATE`, …), falls das Spiel persistiert
 6. `public/games/<slug>-preview.svg` — 640×360 SVG-Vorschau (gleicher Stil wie `public/games/snake-preview.svg`)
